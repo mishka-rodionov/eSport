@@ -11,6 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.navigation
+import androidx.navigation.compose.rememberNavController
+import com.rodionov.data.navigation.Navigation
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
 
 class MainActivity : ComponentActivity() {
@@ -33,6 +37,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     val counter = remember { 12 }
+    NavHost(navController = rememberNavController(), startDestination = "start") {
+        navigation(startDestination = "", route = "") {
+
+        }
+    }
     Text(
         text = "Hello $name!",
         modifier = modifier

@@ -16,3 +16,5 @@ dependencyResolutionManagement {
 rootProject.name = "Sports Enthusiast"
 include(":app")
 include(":domain")
+include(":data")
+include(":feature:profile")
