@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.data"
+    namespace = "com.rodionov.news"
     compileSdk = 35
 
     defaultConfig {
@@ -30,6 +30,12 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
 }
 
 dependencies {
@@ -41,6 +47,15 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
+    implementation(project(":data"))
+    implementation(project(":domain"))
+
     //compose navigation
-    implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation(libs.compose.navigation)
+    //compose
+    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
+    implementation(libs.androidx.ui)
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
 }

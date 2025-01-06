@@ -1,0 +1,44 @@
+[versions]
+
+#Android Settings
+activityCompose = "1.9.3"
+compileSdk = "35"
+composeBomVersion = "2024.12.01"
+coreKtx = "1.15.0"
+espressoCore = "3.6.1"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+lifecycleRuntimeKtx = "2.8.7"
+material = "1.7.6"
+minSdk = "26"
+targetSdk = "34"
+android-koltin = "2.0.0"
+
+#Navigation
+navigation-fragment-ktx = "2.8.5"
+navigation-safe-args-gradle-plugin = "2.7.7"
+navigation-ui-ktx = "2.7.7"
+uiVersion = "1.7.6"
+
+[libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-compose-ui-ui = { module = "androidx.compose.ui:ui" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
+androidx-material3 = { module = "androidx.compose.material3:material3" }
+androidx-ui = { module = "androidx.compose.ui:ui" }
+androidx-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
+compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-fragment-ktx" }
+junit = { module = "junit:junit", version.ref = "junit" }
+ui = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
+
+[plugins]
+android = { id = "org.jetbrains.kotlin.android", version.ref = "android-koltin" }
