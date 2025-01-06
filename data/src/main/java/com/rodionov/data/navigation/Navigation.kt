@@ -4,7 +4,7 @@ sealed interface Navigation {
 
     val screenName: String
 
-    fun createNestedGraph() = run { }
+    fun createNestedGraph(startDestination: String) = run { }
 
     sealed interface MainNavigation: Navigation {
         interface Profile: MainNavigation {
