@@ -1,6 +1,8 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("kotlinx-serialization")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -33,9 +35,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
 }
 
 dependencies {
@@ -50,12 +49,14 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
 
+    implementation(libs.kotlinx.serialization.json)
+
     //compose navigation
-    implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation(libs.compose.navigation)
     //compose
-    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation(platform(libs.compose.bom))
+    implementation(libs.androidx.compose.ui.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
 }

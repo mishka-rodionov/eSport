@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlinx-serialization")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -39,9 +41,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -71,6 +70,9 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":feature:profile"))
     implementation(project(":feature:news"))
+    implementation(project(":feature:center"))
+
+    implementation(libs.kotlinx.serialization.json)
 
     //compose navigation
     implementation(libs.compose.navigation)
