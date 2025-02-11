@@ -17,6 +17,11 @@ android-koltin = "2.1.0"
 kotlinxSerializationJson = "1.8.0"
 kotlinCompilerExtension = "1.5.8"
 
+#Dependency injection
+hilt = "2.55"
+hilt-navigation-compose = "1.2.0"
+hilt-work = "1.2.0"
+
 #Navigation
 navigation-fragment-ktx = "2.8.6"
 navigation-safe-args-gradle-plugin = "2.7.7"
@@ -47,9 +52,15 @@ ui = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
+#Hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-compose" } # Для Jetpack Compose
+hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" } # Для WorkManager
 
 [plugins]
 android = { id = "org.jetbrains.kotlin.android", version.ref = "android-koltin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "android-koltin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "android-koltin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
