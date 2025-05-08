@@ -43,4 +43,10 @@ dependencies {
 
     //compose navigation
     implementation("androidx.navigation:navigation-compose:2.8.5")
+
+    //koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.navigation)
+    implementation(libs.koin.compose)
 }

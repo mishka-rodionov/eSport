@@ -47,6 +47,8 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(project(":data:navigation"))
+
     //compose navigation
     implementation(libs.compose.navigation)
     //compose
@@ -59,4 +61,10 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose) // Если используешь Jetpack Compose
+
+    //koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.navigation)
+    implementation(libs.koin.compose)
 }
