@@ -6,8 +6,10 @@ data class User(
     val id: String,
     val firstName: String,
     val lastName: String,
+    val middleName: String?, // отчество
     val birthDate: Date,
     val gender: Gender,
     val photo: String,
-    val phoneNumber: String,
+    val phoneNumber: String?,
+    val email: String
 )
