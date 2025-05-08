@@ -1,10 +1,8 @@
-package com.rodionov.sportsenthusiast
+package com.rodionov.sportsenthusiast.presentation.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -27,17 +25,23 @@ import com.rodionov.news.navigation.EventsNavigationGraph
 import com.rodionov.news.navigation.eventsGraph
 import com.rodionov.profile.navigation.ProfileNavigationGraph
 import com.rodionov.profile.navigation.profileNavigation
+import com.rodionov.sportsenthusiast.BottomNavItem
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(1))
+//        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(1))
         setContent {
             SportsEnthusiastTheme {
                 // A surface container using the 'background' color from the theme
                 val navController = rememberNavController()
+                viewModel.collectNavigationEffect(navController::navigate)
                 Scaffold(
                     bottomBar = { BottomNavBar(navController = navController) }
                 ) { innerPadding ->

@@ -1,25 +1,13 @@
 package com.rodionov.data.navigation
 
+import kotlinx.coroutines.flow.SharedFlow
+
 sealed interface Navigation {
 
-    val screenName: String
+    val navigationEffect: SharedFlow<BaseNavigation>
 
-    fun createNestedGraph(startDestination: String) = run { }
+    suspend fun collectNavigationEffect(handler: (BaseNavigation) -> Unit)
 
-    sealed interface MainNavigation: Navigation {
-        interface Profile: MainNavigation {
-            override val screenName: String
-                get() = "Profile"
-        }
+    suspend fun navigate(destination: BaseNavigation)
 
-        interface CompetitionConstructor: MainNavigation {
-            override val screenName: String
-                get() = "CompetitionConstructor"
-        }
-
-        interface CompetitionList: MainNavigation {
-            override val screenName: String
-                get() = "CompetitionList"
-        }
-    }
 }

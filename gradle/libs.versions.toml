@@ -42,6 +42,9 @@ materialVersion = "1.12.0"
 #Room
 room = "2.7.1"
 
+#Koin
+koin = "4.0.3"
+
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-ui-ui = { module = "androidx.compose.ui:ui" }
@@ -71,6 +74,12 @@ hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" } # 
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-workmanager = { module = "io.insert-koin:koin-androidx-workmanager", version.ref = "koin" }
+koin-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koin" }
+koin-appstartup = { module = "io.insert-koin:koin-androidx-startup", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 
 [plugins]
 android = { id = "org.jetbrains.kotlin.android", version.ref = "android-koltin" }
