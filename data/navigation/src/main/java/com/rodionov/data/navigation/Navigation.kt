@@ -4,9 +4,11 @@ import kotlinx.coroutines.flow.SharedFlow
 
 sealed interface Navigation {
 
-    val navigationEffect: SharedFlow<BaseNavigation>
+    val centerNavigationEffect: SharedFlow<CenterNavigation>
+    val profileNavigationEffect: SharedFlow<ProfileNavigation>
+    val eventsNavigationEffect: SharedFlow<EventsNavigation>
 
-    suspend fun collectNavigationEffect(handler: (BaseNavigation) -> Unit)
+    suspend fun collectNavigationEffect(handler: (BaseNavigation) -> Unit, destination: BaseNavigation)
 
     suspend fun navigate(destination: BaseNavigation)
 
