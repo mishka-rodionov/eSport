@@ -1,9 +1,15 @@
 package com.rodionov.sportsenthusiast.presentation.main
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.BottomNavigation
@@ -11,19 +17,22 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.rodionov.center.navigation.CenterNavigationGraph
 import com.rodionov.center.navigation.centerGraph
-import com.rodionov.news.navigation.EventsNavigationGraph
+import com.rodionov.data.navigation.BaseNavigation
+import com.rodionov.data.navigation.CenterNavigation
+import com.rodionov.data.navigation.EventsNavigation
+import com.rodionov.data.navigation.ProfileNavigation
 import com.rodionov.news.navigation.eventsGraph
-import com.rodionov.profile.navigation.ProfileNavigationGraph
 import com.rodionov.profile.navigation.profileNavigation
 import com.rodionov.sportsenthusiast.BottomNavItem
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
@@ -40,71 +49,126 @@ class MainActivity : ComponentActivity() {
         setContent {
             SportsEnthusiastTheme {
                 // A surface container using the 'background' color from the theme
-                val navController = rememberNavController()
-                viewModel.collectNavigationEffect(navController::navigate)
-                Scaffold(
-                    bottomBar = { BottomNavBar(navController = navController) }
-                ) { innerPadding ->
-                    NavigationHost(innerPadding, navController)
-                }
-
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    Column(verticalArrangement = Arrangement.Bottom) {
-//                        Text(text = "Test123")
-//                        NavigationHost()
-//                    }
-//                }
+//                val navController = rememberNavController()
+                MainScreen(viewModel)
             }
         }
     }
 }
 
 @Composable
-fun NavigationHost(innerPadding: PaddingValues, navController: NavHostController) {
-    NavHost(
-        navController = navController,
-        startDestination = EventsNavigationGraph.EventsBaseRoute,
-        modifier = Modifier.padding(innerPadding)
-    ) {
-//        ProfileNavigation(navigationProvider = this.provider).createNestedGraph(startDestination = BottomNavItem.Profile.route)
-//        composable(BottomNavItem.Profile.route) { ProfileScreen() }
-        profileNavigation()
-        eventsGraph()
-        centerGraph()
-//        composable(BottomNavItem.CompetitionConstructor.route) { /* Search Screen UI */ }
-//        composable<BottomNavItem.CompetitionList> { NewsScreen() }
+private fun MainScreen(viewModel: MainViewModel) {
+    val navControllers = remember {
+        BottomNavItem.all.associateWith { mutableStateOf<NavHostController?>(null) }
     }
-//    BottomNavBar(navController = navController)
-}
-
-@Composable
-fun BottomNavBar(navController: NavController) {
-    BottomNavigation(
-        modifier = Modifier.wrapContentHeight(),
-
-        ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
-        BottomNavItem::class.sealedSubclasses.mapNotNull { it.objectInstance }.forEach { item ->
-            BottomNavigationItem(
-                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-                onClick = {
-                    navController.navigate(when(item) {
-                        is BottomNavItem.Profile -> ProfileNavigationGraph.ProfileBaseRoute
-                        is BottomNavItem.CompetitionList -> EventsNavigationGraph.EventsBaseRoute
-                        is BottomNavItem.CompetitionConstructor -> CenterNavigationGraph.CenterBaseRoute
-                    }) {
-//                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
+    var selectedTab by rememberSaveable { mutableStateOf<String>(BottomNavItem.CompetitionList.route) }
+//                viewModel.collectNavigationEffect(navController::navigate)
+    Scaffold(
+        bottomBar = {
+//                        BottomNavBar(navController = navController, selectedTab = selectedTab)
+            BottomNavigation {
+                BottomNavItem.all.forEach { tab ->
+                        BottomNavigationItem(
+                            icon = { },
+                            label = { Text(tab.title) },
+                            selected = selectedTab == tab.route,
+                            onClick = { selectedTab = tab.route }
+                        )
                     }
-                },
-                icon = { },
-                label = { Text(text = item.title) })
+            }
+        }
+    ) { innerPadding ->
+//                    NavigationHost(innerPadding, navController)
+//        val currentNavController = navControllers[selectedTab]!!
 
+        Box(Modifier.padding(innerPadding)) {
+            // Все NavHost-ы присутствуют в иерархии, но только текущий видим
+            BottomNavItem.all.forEach { tab ->
+                val navController = hostController(navControllers, tab, viewModel)
+
+
+                val isSelected = tab.route == selectedTab
+                Log.d("LOG_TAG", "MainScreen: count")
+
+                AnimatedVisibility(visible = isSelected, enter = fadeIn(), exit = fadeOut()) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = checkNavigation(tab),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        when (tab) {
+                            BottomNavItem.Profile -> profileNavigation()
+                            BottomNavItem.CompetitionList -> eventsGraph()
+                            BottomNavItem.CompetitionConstructor -> centerGraph()
+                        }
+                    }
+                }
+            }
         }
     }
 }
+
+@Composable
+private fun hostController(
+    navControllers: Map<BottomNavItem, MutableState<NavHostController?>>,
+    tab: BottomNavItem,
+    viewModel: MainViewModel
+): NavHostController {
+    Log.d("LOG_TAG", "hostController: $navControllers, $tab, $viewModel")
+    if (navControllers[tab]?.value == null) {
+        navControllers[tab]?.value = rememberNavController()
+        viewModel.collectNavigationEffect(navControllers[tab]?.value!!::navigate, checkNavigation(tab))
+    }
+    val navController = navControllers[tab]?.value!!
+    return navController
+}
+
+private fun checkNavigation(tab: BottomNavItem): BaseNavigation = when (tab) {
+    BottomNavItem.Profile -> ProfileNavigation.MainProfileRoute
+    BottomNavItem.CompetitionList -> EventsNavigation.EventsRoute
+    BottomNavItem.CompetitionConstructor -> CenterNavigation.CenterRoute
+}
+
+//@Composable
+//fun NavigationHost(innerPadding: PaddingValues, navController: NavHostController) {
+//    NavHost(
+//        navController = navController,
+//        startDestination = EventsNavigationGraph.EventsBaseRoute,
+//        modifier = Modifier.padding(innerPadding)
+//    ) {
+//        profileNavigation()
+//        eventsGraph()
+//        centerGraph()
+//    }
+//}
+
+//@Composable
+//fun BottomNavBar(navController: NavController, selectedTab: BottomNavItem) {
+//    BottomNavigation(
+//        modifier = Modifier.wrapContentHeight(),
+//
+//        ) {
+//        val navBackStackEntry by navController.currentBackStackEntryAsState()
+//        val currentDestination = navBackStackEntry?.destination
+//        BottomNavItem::class.sealedSubclasses.mapNotNull { it.objectInstance }.forEach { item ->
+//            BottomNavigationItem(
+////                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+//                selected = item == selectedTab,
+//                onClick = {
+//                    selectedTab = item
+//                    navController.navigate(when(item) {
+//                        is BottomNavItem.Profile -> ProfileNavigationGraph.ProfileBaseRoute
+//                        is BottomNavItem.CompetitionList -> EventsNavigationGraph.EventsBaseRoute
+//                        is BottomNavItem.CompetitionConstructor -> CenterNavigationGraph.CenterBaseRoute
+//                    }) {
+//                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+//                        launchSingleTop = true
+//                        restoreState = true
+//                    }
+//                },
+//                icon = { },
+//                label = { Text(text = item.title) })
+//
+//        }
+//    }
+//}
