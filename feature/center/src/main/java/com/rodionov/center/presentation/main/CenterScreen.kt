@@ -1,6 +1,7 @@
 package com.rodionov.center.presentation.main
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,12 +12,12 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
     OutlinedButton(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         onClick = {
             viewModel.handleEffects(CenterEffects.OpenKindOfSports)
         },
         content = {
-            Text("Go to kind of sport")
+            Text("Создать новое событие")
         }
     )
 }

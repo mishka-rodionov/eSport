@@ -78,8 +78,6 @@ private fun MainScreen(viewModel: MainViewModel) {
             }
         }
     ) { innerPadding ->
-//                    NavigationHost(innerPadding, navController)
-//        val currentNavController = navControllers[selectedTab]!!
 
         Box(Modifier.padding(innerPadding)) {
             // Все NavHost-ы присутствуют в иерархии, но только текущий видим
@@ -128,47 +126,3 @@ private fun checkNavigation(tab: BottomNavItem): BaseNavigation = when (tab) {
     BottomNavItem.CompetitionList -> EventsNavigation.EventsRoute
     BottomNavItem.CompetitionConstructor -> CenterNavigation.CenterRoute
 }
-
-//@Composable
-//fun NavigationHost(innerPadding: PaddingValues, navController: NavHostController) {
-//    NavHost(
-//        navController = navController,
-//        startDestination = EventsNavigationGraph.EventsBaseRoute,
-//        modifier = Modifier.padding(innerPadding)
-//    ) {
-//        profileNavigation()
-//        eventsGraph()
-//        centerGraph()
-//    }
-//}
-
-//@Composable
-//fun BottomNavBar(navController: NavController, selectedTab: BottomNavItem) {
-//    BottomNavigation(
-//        modifier = Modifier.wrapContentHeight(),
-//
-//        ) {
-//        val navBackStackEntry by navController.currentBackStackEntryAsState()
-//        val currentDestination = navBackStackEntry?.destination
-//        BottomNavItem::class.sealedSubclasses.mapNotNull { it.objectInstance }.forEach { item ->
-//            BottomNavigationItem(
-////                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-//                selected = item == selectedTab,
-//                onClick = {
-//                    selectedTab = item
-//                    navController.navigate(when(item) {
-//                        is BottomNavItem.Profile -> ProfileNavigationGraph.ProfileBaseRoute
-//                        is BottomNavItem.CompetitionList -> EventsNavigationGraph.EventsBaseRoute
-//                        is BottomNavItem.CompetitionConstructor -> CenterNavigationGraph.CenterBaseRoute
-//                    }) {
-//                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-//                        launchSingleTop = true
-//                        restoreState = true
-//                    }
-//                },
-//                icon = { },
-//                label = { Text(text = item.title) })
-//
-//        }
-//    }
-//}

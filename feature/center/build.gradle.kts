@@ -48,6 +48,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(project(":data:navigation"))
+    implementation(project(":domain"))
+    implementation(project(":core:designsystem"))
 
     //compose navigation
     implementation(libs.compose.navigation)
