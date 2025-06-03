@@ -11,5 +11,6 @@ data class User(
     val gender: Gender,
     val photo: String,
     val phoneNumber: String?,
-    val email: String
+    val email: String,
+    val qualification: Qualification
 )
