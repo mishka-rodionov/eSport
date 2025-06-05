@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.designsystem.components.DSTextInput
 
@@ -17,6 +21,10 @@ fun ProfileScreen() {
 
         }) { }
 
-        DSTextInput(modifier = Modifier.fillMaxWidth())
+        var text by remember { mutableStateOf("") }
+
+        DSTextInput(modifier = Modifier.fillMaxWidth(), text = text, onValueChanged = {
+            text = it
+        })
     }
 }

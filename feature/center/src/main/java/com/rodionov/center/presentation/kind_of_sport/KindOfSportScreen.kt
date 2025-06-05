@@ -17,10 +17,13 @@ import androidx.compose.ui.unit.dp
 import com.example.designsystem.R
 import com.example.designsystem.components.clickRipple
 import com.example.designsystem.theme.Dimens
+import com.rodionov.center.data.CenterEffects
+import com.rodionov.center.presentation.main.CenterViewModel
 import com.rodionov.domain.models.KindOfSport
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun KindOfSportScreen() {
+fun KindOfSportScreen(viewModel: CenterViewModel = koinViewModel()) {
 
     val kindOfSport = remember { KindOfSport.all }
     Column {
@@ -28,7 +31,11 @@ fun KindOfSportScreen() {
         LazyColumn(modifier = Modifier.padding(top = Dimens.SIZE_HALF.dp)) {
             items(kindOfSport) { item ->
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.SIZE_BASE.dp).clickRipple(
-                    onClick = {}
+                    onClick = {
+                        if (item is KindOfSport.Orienteering) {
+                            viewModel.handleEffects(CenterEffects.OpenOrienteeringCreator)
+                        }
+                    }
                 )) {
                     Text(modifier = Modifier.padding(vertical = Dimens.SIZE_HALF.dp), text = item.name)
                     Icon(
