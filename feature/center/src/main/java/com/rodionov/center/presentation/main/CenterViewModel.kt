@@ -10,9 +10,15 @@ import kotlinx.coroutines.launch
 class CenterViewModel(val navigation: Navigation): ViewModel() {
 
     fun handleEffects(effect: CenterEffects) {
-        if (effect is CenterEffects.OpenKindOfSports) {
-            viewModelScope.launch {
-                navigation.navigate(CenterNavigation.KindOfSportRoute)
+        when(effect) {
+            is CenterEffects.OpenKindOfSports -> {
+                viewModelScope.launch {
+                    navigation.navigate(CenterNavigation.KindOfSportRoute)
+                }
+            }
+
+            is CenterEffects.OpenOrienteeringCreator -> viewModelScope.launch {
+                navigation.navigate(CenterNavigation.OrienteeringCreator)
             }
         }
     }
