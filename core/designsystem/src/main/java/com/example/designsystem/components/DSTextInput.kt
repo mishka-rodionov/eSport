@@ -6,9 +6,9 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun DSTextInput(
+    modifier: Modifier = Modifier,
     text: String = "",
     onValueChanged: (String) -> Unit = {},
-    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     placeholder: @Composable (() -> Unit)? = null,

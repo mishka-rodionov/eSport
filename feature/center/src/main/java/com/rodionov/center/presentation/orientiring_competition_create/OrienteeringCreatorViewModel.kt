@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class OrienteeringCompetitionCreatorViewModel(val navigation: Navigation): ViewModel() {
+class OrienteeringCreatorViewModel(val navigation: Navigation): ViewModel() {
     val _state = MutableStateFlow(OrienteeringCreatorState())
     val state: StateFlow<OrienteeringCreatorState> = _state.asStateFlow()
 

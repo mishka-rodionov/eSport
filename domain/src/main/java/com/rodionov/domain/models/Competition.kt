@@ -1,11 +1,11 @@
 package com.rodionov.domain.models
 
-import java.util.Date
+import java.time.LocalDate
 
 data class Competition(
     val id: String,
     val title: String,
-    val date: Date,
+    val date: LocalDate,
     val kindOfSport: KindOfSport,
     val description: String,
     val participants: List<Participant>,
