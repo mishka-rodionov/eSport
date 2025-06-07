@@ -2,11 +2,8 @@ package com.rodionov.center.presentation.orientiring_competition_create
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
+import com.example.designsystem.components.TimePickerDialog
 import com.example.designsystem.components.clickRipple
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
@@ -42,15 +40,14 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
                 viewModel.updateState { copy(address = it) }
             })
         Text(text = "Дата")
-        DatePickerSample()
-//        DSTextInput(modifier = Modifier.fillMaxWidth(), text = state.value.date.toString(), onValueChanged = {
-////            viewModel.updateState { copy(date = it.to) }
-//        })
+        DatePicker()
+        Text(text = "Время")
+        TimePicker()
     }
 }
 
 @Composable
-fun DatePickerSample() {
+fun DatePicker() {
     val context = LocalContext.current
     val calendar = remember { Calendar.getInstance() }
     val formatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
@@ -81,4 +78,30 @@ fun DatePickerSample() {
         readOnly = true
     )
 
+}
+
+@Composable
+fun TimePicker() {
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedTime by remember { mutableStateOf("12:00") }
+
+    DSTextInput(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickRipple {
+                showDialog = true
+            }, text = selectedTime,
+        enabled = false,
+        readOnly = true
+    )
+
+    if (showDialog) {
+        TimePickerDialog(
+            onDismissRequest = { showDialog = false },
+            onConfirm = { hour, minute ->
+                selectedTime = "%02d:%02d".format(hour, minute)
+                showDialog = false
+            }
+        )
+    }
 }
