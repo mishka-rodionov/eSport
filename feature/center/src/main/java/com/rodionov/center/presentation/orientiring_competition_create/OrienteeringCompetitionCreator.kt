@@ -1,9 +1,15 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
 import android.app.DatePickerDialog
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -12,7 +18,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.TimePickerDialog
@@ -43,6 +52,7 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
         DatePicker()
         Text(text = "Время")
         TimePicker()
+        Text(text = "Группы")
     }
 }
 
@@ -51,9 +61,9 @@ fun DatePicker() {
     val context = LocalContext.current
     val calendar = remember { Calendar.getInstance() }
     val formatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
-
-
-    var selectedDate by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf(LocalDate.now().format(formatter)) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val focusManager = LocalFocusManager.current
 
     val datePickerDialog = remember {
         DatePickerDialog(
@@ -61,6 +71,7 @@ fun DatePicker() {
             { _, year, month, dayOfMonth ->
                 val date = LocalDate.of(year, month + 1, dayOfMonth)
                 selectedDate = date.format(formatter)
+                focusManager.clearFocus()
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -68,13 +79,19 @@ fun DatePicker() {
         )
     }
 
+    datePickerDialog.setOnDismissListener { focusManager.clearFocus() }
+
     DSTextInput(
         modifier = Modifier
             .fillMaxWidth()
-            .clickRipple {
-                datePickerDialog.show()
-            }, text = selectedDate,
-        enabled = false,
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    datePickerDialog.show()
+                }
+            },
+        text = selectedDate,
+        interactionSource = interactionSource,
+        enabled = true,
         readOnly = true
     )
 
@@ -85,22 +102,27 @@ fun TimePicker() {
     var showDialog by remember { mutableStateOf(false) }
     var selectedTime by remember { mutableStateOf("12:00") }
 
+    val focusManager = LocalFocusManager.current
+
     DSTextInput(
         modifier = Modifier
             .fillMaxWidth()
-            .clickRipple {
-                showDialog = true
-            }, text = selectedTime,
-        enabled = false,
+            .onFocusChanged { focusState ->
+                showDialog = focusState.isFocused
+            },
+        text = selectedTime,
+        enabled = true,
         readOnly = true
     )
 
     if (showDialog) {
         TimePickerDialog(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { showDialog = false
+                focusManager.clearFocus()},
             onConfirm = { hour, minute ->
                 selectedTime = "%02d:%02d".format(hour, minute)
                 showDialog = false
+                focusManager.clearFocus()
             }
         )
     }
