@@ -8,6 +8,6 @@ import androidx.compose.material3.Text
 fun ProfileScreen() {
     Column {
         Text(text = "Profile screen test!")
-        Text(text = "Second row!" )
+        Text(text = "Second row234!" )
     }
 }
