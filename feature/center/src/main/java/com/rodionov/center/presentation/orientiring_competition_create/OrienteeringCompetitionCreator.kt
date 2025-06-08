@@ -37,22 +37,40 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
     val state = viewModel.state.collectAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "Название соревнования")
-        DSTextInput(modifier = Modifier.fillMaxWidth(), text = state.value.title, onValueChanged = {
+        DSTextInput(modifier = Modifier.fillMaxWidth(),
+            text = state.value.title,
+            label = {
+                Text(text = "Название соревнования")
+            },
+            onValueChanged = {
             viewModel.updateState { copy(title = it) }
         })
-        Text(text = "Место проведения")
         DSTextInput(
             modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = "Место проведения")
+            },
             text = state.value.address,
             onValueChanged = {
                 viewModel.updateState { copy(address = it) }
             })
-        Text(text = "Дата")
         DatePicker()
-        Text(text = "Время")
         TimePicker()
         Text(text = "Группы")
+        DSTextInput(
+            modifier = Modifier
+                .fillMaxWidth(),
+            onValueChanged = {
+                viewModel.updateState { copy(description = it) }
+            },
+            text = state.value.description,
+            label = {
+                Text(text = "Описание")
+            },
+            placeholder = {
+                Text(text = "Описание соревнования.")
+            }
+        )
     }
 }
 
@@ -89,6 +107,9 @@ fun DatePicker() {
                     datePickerDialog.show()
                 }
             },
+        label = {
+            Text(text = "Дата")
+        },
         text = selectedDate,
         interactionSource = interactionSource,
         enabled = true,
@@ -110,6 +131,9 @@ fun TimePicker() {
             .onFocusChanged { focusState ->
                 showDialog = focusState.isFocused
             },
+        label = {
+            Text(text = "Время")
+        },
         text = selectedTime,
         enabled = true,
         readOnly = true
