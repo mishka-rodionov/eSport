@@ -1,6 +1,7 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
 import android.app.DatePickerDialog
+import androidx.collection.emptyIntList
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -8,12 +9,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,9 +33,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import com.example.designsystem.components.DSBottomDialog
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.TimePickerDialog
 import com.example.designsystem.components.clickRipple
+import com.example.designsystem.theme.Dimens
+import com.rodionov.center.data.OrienteeringCreatorState
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -56,7 +69,6 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             })
         DatePicker()
         TimePicker()
-        Text(text = "Группы")
         DSTextInput(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -71,7 +83,93 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
                 Text(text = "Описание соревнования.")
             }
         )
+        ParticipantGroup(state)
     }
+}
+
+@Composable
+private fun ParticipantGroup(state: State<OrienteeringCreatorState>) {
+    Text(text = "Группы")
+    var showDialog by remember { mutableStateOf(false) }
+    LazyColumn {
+        items(state.value.participantGroups) {
+
+        }
+        item {
+            OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
+                showDialog = true
+            }) {
+                Text(text = "Добавить группу ")
+            }
+        }
+    }
+    if (showDialog) {
+        ParticipantGroupEditor()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ParticipantGroupEditor() {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var groupTitle by remember { mutableStateOf("") }
+    var distance by remember { mutableDoubleStateOf(0.0) }
+    var countOfControls by remember { mutableIntStateOf(0) }
+    var sequenceOfControl = remember { mutableStateListOf(emptyIntList()) }
+    var maxTime by remember { mutableIntStateOf(0) }
+    DSBottomDialog(
+        sheetState = sheetState,
+        sheetContent = {
+            Column(modifier = Modifier.padding(horizontal = Dimens.SIZE_HALF.dp)) {
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "Название группы")
+                    },
+                    text = groupTitle,
+                    onValueChanged = {
+                        groupTitle = it
+                    })
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "Дистанция")
+                    },
+                    text = distance.toString(),
+                    onValueChanged = {
+                        distance = it.toDouble()
+                    })
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "Кол-во КП")
+                    },
+                    text = countOfControls.toString(),
+                    onValueChanged = {
+                        countOfControls = it.toInt()
+                    })
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "Порядок КП")
+                    },
+                    text = groupTitle,
+                    onValueChanged = {
+                        groupTitle = it
+                    })
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "Контрольное время в мин.")
+                    },
+                    text = maxTime.toString(),
+                    onValueChanged = {
+                        maxTime = it.toInt()
+                    })
+            }
+        },
+        onDismiss = {},
+    )
 }
 
 @Composable
@@ -151,3 +249,5 @@ fun TimePicker() {
         )
     }
 }
+
+
