@@ -2,6 +2,7 @@ package com.rodionov.center.presentation.orientiring_competition_create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rodionov.center.data.OrienteeringCreatorEffects
 import com.rodionov.center.data.OrienteeringCreatorState
 import com.rodionov.data.navigation.Navigation
 import kotlinx.coroutines.Dispatchers
@@ -17,5 +18,13 @@ class OrienteeringCreatorViewModel(val navigation: Navigation): ViewModel() {
 
     fun updateState(info: suspend OrienteeringCreatorState.() -> OrienteeringCreatorState) {
         viewModelScope.launch(Dispatchers.Main.immediate) { _state.update { info.invoke(it) } }
+    }
+
+    fun onUserAction(action: OrienteeringCreatorEffects) {
+        when(action) {
+            is OrienteeringCreatorEffects.CreateParticipantGroup -> {
+                updateState { copy(participantGroups = participantGroups + action.participantGroup) }
+            }
+        }
     }
 }
