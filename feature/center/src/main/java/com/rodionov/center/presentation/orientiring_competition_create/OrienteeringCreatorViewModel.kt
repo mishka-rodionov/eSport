@@ -25,6 +25,17 @@ class OrienteeringCreatorViewModel(val navigation: Navigation): ViewModel() {
             is OrienteeringCreatorEffects.CreateParticipantGroup -> {
                 updateState { copy(participantGroups = participantGroups + action.participantGroup) }
             }
+            OrienteeringCreatorEffects.Apply -> {
+
+            }
+
+            is OrienteeringCreatorEffects.UpdateCompetitionDate -> {
+                updateState { copy(date = action.competitionDate) }
+            }
+
+            is OrienteeringCreatorEffects.UpdateCompetitionTime -> {
+                updateState { copy(time = action.competitionTime) }
+            }
         }
     }
 }

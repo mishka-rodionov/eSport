@@ -5,7 +5,8 @@ import java.time.LocalDate
 
 data class OrienteeringCreatorState(
     val title: String = "",
-    val date: LocalDate = LocalDate.of(1970, 1, 1),
+    val date: LocalDate = LocalDate.now(),
+    val time: String = "12:00",
     val address: String = "",
     val description: String = "",
     val participantGroups: List<ParticipantGroup> = emptyList()

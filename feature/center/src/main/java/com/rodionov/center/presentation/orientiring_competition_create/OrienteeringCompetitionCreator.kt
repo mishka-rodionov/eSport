@@ -44,7 +44,7 @@ import java.util.Calendar
 @Composable
 fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koinViewModel()) {
 
-    val state = viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
 
     Column(modifier = Modifier
@@ -52,7 +52,7 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
         .verticalScroll(scrollState)) {
         DSTextInput(
             modifier = Modifier.fillMaxWidth(),
-            text = state.value.title,
+            text = state.title,
             label = {
                 Text(text = "Название соревнования")
             },
@@ -64,19 +64,19 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             label = {
                 Text(text = "Место проведения")
             },
-            text = state.value.address,
+            text = state.address,
             onValueChanged = {
                 viewModel.updateState { copy(address = it) }
             })
-        DatePicker()
-        TimePicker()
+        DatePicker(state = state, userAction = viewModel::onUserAction)
+        TimePicker(state = state, userAction = viewModel::onUserAction)
         DSTextInput(
             modifier = Modifier
                 .fillMaxWidth(),
             onValueChanged = {
                 viewModel.updateState { copy(description = it) }
             },
-            text = state.value.description,
+            text = state.description,
             label = {
                 Text(text = "Описание")
             },
@@ -85,20 +85,25 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             }
         )
         ParticipantGroupContent(state = state, userAction = viewModel::onUserAction)
+        OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
+            viewModel.onUserAction(OrienteeringCreatorEffects.Apply)
+        }) {
+            Text(text = "Готово")
+        }
     }
 }
 
 @Composable
 private fun ParticipantGroupContent(
-    state: State<OrienteeringCreatorState>,
+    state: OrienteeringCreatorState,
     userAction: (OrienteeringCreatorEffects) -> Unit
 ) {
     Text(text = "Группы")
     var showDialog by remember { mutableStateOf(false) }
     LazyRow {
-        itemsIndexed(state.value.participantGroups) { index, item ->
+        itemsIndexed(state.participantGroups) { index, item ->
             GroupContent(item)
-            if (index != state.value.participantGroups.size - 1) {
+            if (index != state.participantGroups.size - 1) {
                 Spacer(modifier = Modifier.width(8.dp))
             }
         }
@@ -136,11 +141,10 @@ fun GroupContent(participantGroup: ParticipantGroup) {
 }
 
 @Composable
-fun DatePicker() {
+fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorEffects) -> Unit) {
     val context = LocalContext.current
     val calendar = remember { Calendar.getInstance() }
     val formatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
-    var selectedDate by remember { mutableStateOf(LocalDate.now().format(formatter)) }
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
 
@@ -149,7 +153,7 @@ fun DatePicker() {
             context,
             { _, year, month, dayOfMonth ->
                 val date = LocalDate.of(year, month + 1, dayOfMonth)
-                selectedDate = date.format(formatter)
+                userAction.invoke(OrienteeringCreatorEffects.UpdateCompetitionDate(date))
                 focusManager.clearFocus()
             },
             calendar.get(Calendar.YEAR),
@@ -171,7 +175,7 @@ fun DatePicker() {
         label = {
             Text(text = "Дата")
         },
-        text = selectedDate,
+        text = state.date.format(formatter),
         interactionSource = interactionSource,
         enabled = true,
         readOnly = true
@@ -180,9 +184,8 @@ fun DatePicker() {
 }
 
 @Composable
-fun TimePicker() {
+fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorEffects) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
-    var selectedTime by remember { mutableStateOf("12:00") }
 
     val focusManager = LocalFocusManager.current
 
@@ -195,7 +198,7 @@ fun TimePicker() {
         label = {
             Text(text = "Время")
         },
-        text = selectedTime,
+        text = state.time,
         enabled = true,
         readOnly = true
     )
@@ -207,7 +210,7 @@ fun TimePicker() {
                 focusManager.clearFocus()
             },
             onConfirm = { hour, minute ->
-                selectedTime = "%02d:%02d".format(hour, minute)
+                userAction.invoke(OrienteeringCreatorEffects.UpdateCompetitionTime("%02d:%02d".format(hour, minute)))
                 showDialog = false
                 focusManager.clearFocus()
             }
