@@ -24,19 +24,43 @@ class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
     fun onUserAction(action: OrienteeringCreatorEffects) {
         when (action) {
             is OrienteeringCreatorEffects.CreateParticipantGroup -> {
-                updateState { copy(participantGroups = participantGroups + action.participantGroup) }
+                val isGroupTitleError = action.participantGroup.title.isBlank()
+                val isGroupDistanceError = action.participantGroup.distance == 0.0
+                val isCountOfControlsError = action.participantGroup.countOfControls == 0
+                val isMaxTimeError = action.participantGroup.maxTimeInMinute == 0
+                if (isGroupTitleError || isGroupDistanceError || isCountOfControlsError || isMaxTimeError) {
+                    updateState {
+                        copy(
+                            errors = errors.copy(
+                                isGroupTitleError = isGroupTitleError,
+                                isGroupDistanceError = isGroupDistanceError,
+                                isCountOfControlsError = isCountOfControlsError,
+                                isMaxTimeError = isMaxTimeError
+                            )
+                        )
+                    }
+                } else {
+                    updateState {
+                        copy(
+                            participantGroups = participantGroups + action.participantGroup,
+                            isShowGroupCreateDialog = false
+                        )
+                    }
+                }
             }
 
             OrienteeringCreatorEffects.Apply -> {
                 updateState {
                     copy(
                         errors = errors.copy(
-                            emptyAddress = address.isBlank(),
-                            emptyGroup = participantGroups.isEmpty()
+                            isEmptyAddress = address.isBlank(),
+                            isEmptyGroup = participantGroups.isEmpty()
                         ),
-                        title = if (title.isEmpty()) "Старт ${date.format(
-                            DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                        )}" else title
+                        title = if (title.isEmpty()) "Старт ${
+                            date.format(
+                                DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                            )
+                        }" else title
                     )
                 }
             }
@@ -47,6 +71,10 @@ class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
 
             is OrienteeringCreatorEffects.UpdateCompetitionTime -> {
                 updateState { copy(time = action.competitionTime) }
+            }
+
+            OrienteeringCreatorEffects.ShowGroupCreateDialog -> {
+                updateState { copy(isShowGroupCreateDialog = !isShowGroupCreateDialog) }
             }
         }
     }

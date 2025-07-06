@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,14 +17,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -48,9 +44,11 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
 
-    Column(modifier = Modifier
-        .padding(16.dp)
-        .verticalScroll(scrollState)) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(scrollState)
+    ) {
         DSTextInput(
             modifier = Modifier.fillMaxWidth(),
             text = state.title,
@@ -74,9 +72,9 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             label = {
                 Text(text = "Место проведения")
             },
-            isError = state.errors.emptyAddress,
+            isError = state.errors.isEmptyAddress,
             supportingText = {
-                if (state.errors.emptyAddress) {
+                if (state.errors.isEmptyAddress) {
                     Text(text = "Укажите место проведения события")
                 }
             },
@@ -114,11 +112,17 @@ private fun ParticipantGroupContent(
     state: OrienteeringCreatorState,
     userAction: (OrienteeringCreatorEffects) -> Unit
 ) {
-    Text(text = "Группы", color = if (state.errors.emptyGroup) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
-    if (state.errors.emptyGroup) {
-        Text(text = "Добавьте хотя бы одну группу", fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+    Text(
+        text = "Группы",
+        color = if (state.errors.isEmptyGroup) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+    )
+    if (state.errors.isEmptyGroup) {
+        Text(
+            text = "Добавьте хотя бы одну группу",
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.error
+        )
     }
-    var showDialog by remember { mutableStateOf(false) }
     LazyRow {
         itemsIndexed(state.participantGroups) { index, item ->
             GroupContent(item)
@@ -128,14 +132,15 @@ private fun ParticipantGroupContent(
         }
     }
     OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
-        showDialog = true
+        userAction.invoke(OrienteeringCreatorEffects.ShowGroupCreateDialog)
     }) {
         Text(text = "Добавить группу ")
     }
-    if (showDialog) {
-        ParticipantGroupEditor(onExit = {
-            showDialog = false
-        }, userAction = userAction)
+    if (state.isShowGroupCreateDialog) {
+        ParticipantGroupEditor(
+            userAction = userAction,
+            state = state
+        )
     }
 }
 
@@ -229,7 +234,14 @@ fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
                 focusManager.clearFocus()
             },
             onConfirm = { hour, minute ->
-                userAction.invoke(OrienteeringCreatorEffects.UpdateCompetitionTime("%02d:%02d".format(hour, minute)))
+                userAction.invoke(
+                    OrienteeringCreatorEffects.UpdateCompetitionTime(
+                        "%02d:%02d".format(
+                            hour,
+                            minute
+                        )
+                    )
+                )
                 showDialog = false
                 focusManager.clearFocus()
             }

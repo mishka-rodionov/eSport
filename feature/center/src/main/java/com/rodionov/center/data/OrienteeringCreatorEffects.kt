@@ -11,5 +11,6 @@ sealed class OrienteeringCreatorEffects {
     data object Apply: OrienteeringCreatorEffects()
     data class UpdateCompetitionDate(val competitionDate: LocalDate): OrienteeringCreatorEffects()
     data class UpdateCompetitionTime(val competitionTime: String): OrienteeringCreatorEffects()
+    data object ShowGroupCreateDialog: OrienteeringCreatorEffects()
 
 }

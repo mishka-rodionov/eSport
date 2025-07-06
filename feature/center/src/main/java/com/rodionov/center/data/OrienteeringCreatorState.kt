@@ -10,5 +10,6 @@ data class OrienteeringCreatorState(
     val address: String = "",
     val description: String = "",
     val participantGroups: List<ParticipantGroup> = emptyList(),
-    val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors()
+    val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors(),
+    val isShowGroupCreateDialog: Boolean = false
 )

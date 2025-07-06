@@ -1,6 +1,10 @@
 package com.rodionov.center.data
 
 data class OrienteeringCreatorErrors(
-    val emptyAddress: Boolean = false,
-    val emptyGroup: Boolean = false
+    val isEmptyAddress: Boolean = false,
+    val isEmptyGroup: Boolean = false,
+    val isGroupTitleError: Boolean = false,
+    val isGroupDistanceError: Boolean = false,
+    val isCountOfControlsError: Boolean = false,
+    val isMaxTimeError: Boolean = false
 )
