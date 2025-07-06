@@ -29,7 +29,7 @@ import com.rodionov.domain.models.ParticipantGroup
 fun ParticipantGroupEditor(onExit: () -> Unit, userAction: (OrienteeringCreatorEffects) -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var groupTitle by remember { mutableStateOf("") }
-    var distance by remember { mutableDoubleStateOf(0.0) }
+    var distance by remember { mutableStateOf("") }
     var countOfControls by remember { mutableIntStateOf(0) }
 //    var sequenceOfControl by remember { mutableStateOf("") }
     var maxTime by remember { mutableIntStateOf(0) }
@@ -51,10 +51,18 @@ fun ParticipantGroupEditor(onExit: () -> Unit, userAction: (OrienteeringCreatorE
                     label = {
                         Text(text = "Дистанция")
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword ),
-                    text = distance.takeIf { it != 0.0 }?.toString() ?: "",
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal ),
+                    text = distance,
                     onValueChanged = { dist ->
-                        distance = dist.takeIf { it.isNotBlank() }?.trim()?.toDouble() ?: 0.0
+                        // Заменяем точку на запятую (если хочешь поддерживать оба варианта)
+                        val sanitizedInput = dist.replace(',', '.')
+
+                        // Регулярное выражение: цифры, опционально запятая, и до 2 цифр после неё
+                        val decimalRegex = Regex("^\\d{0,7}([.]\\d{0,2})?$")
+
+                        if (sanitizedInput.isEmpty() || sanitizedInput.matches(decimalRegex)) {
+                            distance = sanitizedInput
+                        }
                     })
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
@@ -89,7 +97,7 @@ fun ParticipantGroupEditor(onExit: () -> Unit, userAction: (OrienteeringCreatorE
                     userAction.invoke(OrienteeringCreatorEffects.CreateParticipantGroup(
                         participantGroup = ParticipantGroup(
                             title = groupTitle,
-                            distance = distance,
+                            distance = distance.toDoubleOrNull() ?: return@Button,
                             countOfControls = countOfControls,
 //                            sequenceOfControl = sequenceOfControl.split(",").map { it.toInt() },
                             maxTimeInMinute = maxTime

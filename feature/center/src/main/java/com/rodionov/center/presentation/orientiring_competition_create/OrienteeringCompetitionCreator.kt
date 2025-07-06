@@ -114,7 +114,7 @@ private fun ParticipantGroupContent(
     state: OrienteeringCreatorState,
     userAction: (OrienteeringCreatorEffects) -> Unit
 ) {
-    Text(text = "Группы", color = if (state.errors.emptyGroup) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.background)
+    Text(text = "Группы", color = if (state.errors.emptyGroup) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
     if (state.errors.emptyGroup) {
         Text(text = "Добавьте хотя бы одну группу", fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
     }
