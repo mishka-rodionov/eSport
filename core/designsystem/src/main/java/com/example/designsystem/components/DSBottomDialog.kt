@@ -43,12 +43,10 @@ fun DSBottomDialog(
 
     ModalBottomSheet(
         modifier = modifier,
-        containerColor = LightColors.transparent,
         dragHandle = {
             Box(
                 modifier = Modifier
                     .clip(shape = shapes.large)
-//                    .background(LightColors.greyB8)
                     .size(Dimens.SIZE_TRIPLE.dp, Dimens.SIZE_QUARTER.dp)
             )
         },
@@ -66,9 +64,7 @@ fun DSBottomDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = Dimens.SIZE_HALF.dp)
-                        .shadow(Dimens.SIZE_QUARTER.dp, topCornerShape)
-                        .background(LightColors.black, topCornerShape)
+                        .padding(Dimens.SIZE_HALF.dp)
                         .navigationBarsPadding()
                 ) {
                     sheetContent()

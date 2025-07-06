@@ -31,6 +31,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.TimePickerDialog
 import com.rodionov.center.data.OrienteeringCreatorEffects
@@ -56,6 +57,15 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             label = {
                 Text(text = "Название соревнования")
             },
+            supportingText = {
+                Text(
+                    text = "Введите название соревнования. По умолчанию будет использоваться \"Старт ${
+                        state.date.format(
+                            DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                        )
+                    } \""
+                )
+            },
             onValueChanged = {
                 viewModel.updateState { copy(title = it) }
             })
@@ -63,6 +73,12 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             modifier = Modifier.fillMaxWidth(),
             label = {
                 Text(text = "Место проведения")
+            },
+            isError = state.errors.emptyAddress,
+            supportingText = {
+                if (state.errors.emptyAddress) {
+                    Text(text = "Укажите место проведения события")
+                }
             },
             text = state.address,
             onValueChanged = {
@@ -98,7 +114,10 @@ private fun ParticipantGroupContent(
     state: OrienteeringCreatorState,
     userAction: (OrienteeringCreatorEffects) -> Unit
 ) {
-    Text(text = "Группы")
+    Text(text = "Группы", color = if (state.errors.emptyGroup) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.background)
+    if (state.errors.emptyGroup) {
+        Text(text = "Добавьте хотя бы одну группу", fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+    }
     var showDialog by remember { mutableStateOf(false) }
     LazyRow {
         itemsIndexed(state.participantGroups) { index, item ->
@@ -135,7 +154,7 @@ fun GroupContent(participantGroup: ParticipantGroup) {
         Text(text = "Название группы: ${participantGroup.title}")
         Text(text = "Дистанция: ${participantGroup.distance} км.")
         Text(text = "Кол-во КП: ${participantGroup.countOfControls}")
-        Text(text = "Порядок КП: \n ${participantGroup.sequenceOfControl.joinToString(",")}")
+//        Text(text = "Порядок КП: \n ${participantGroup.sequenceOfControl.joinToString(",")}")
         Text(text = "Контрольное время: ${participantGroup.maxTimeInMinute} мин.")
     }
 }

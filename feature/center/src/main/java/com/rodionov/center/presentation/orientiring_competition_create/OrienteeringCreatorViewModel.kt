@@ -11,8 +11,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
-class OrienteeringCreatorViewModel(val navigation: Navigation): ViewModel() {
+class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
     val _state = MutableStateFlow(OrienteeringCreatorState())
     val state: StateFlow<OrienteeringCreatorState> = _state.asStateFlow()
 
@@ -21,12 +22,23 @@ class OrienteeringCreatorViewModel(val navigation: Navigation): ViewModel() {
     }
 
     fun onUserAction(action: OrienteeringCreatorEffects) {
-        when(action) {
+        when (action) {
             is OrienteeringCreatorEffects.CreateParticipantGroup -> {
                 updateState { copy(participantGroups = participantGroups + action.participantGroup) }
             }
-            OrienteeringCreatorEffects.Apply -> {
 
+            OrienteeringCreatorEffects.Apply -> {
+                updateState {
+                    copy(
+                        errors = errors.copy(
+                            emptyAddress = address.isBlank(),
+                            emptyGroup = participantGroups.isEmpty()
+                        ),
+                        title = if (title.isEmpty()) "Старт ${date.format(
+                            DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                        )}" else title
+                    )
+                }
             }
 
             is OrienteeringCreatorEffects.UpdateCompetitionDate -> {

@@ -31,7 +31,7 @@ fun ParticipantGroupEditor(onExit: () -> Unit, userAction: (OrienteeringCreatorE
     var groupTitle by remember { mutableStateOf("") }
     var distance by remember { mutableDoubleStateOf(0.0) }
     var countOfControls by remember { mutableIntStateOf(0) }
-    var sequenceOfControl by remember { mutableStateOf("") }
+//    var sequenceOfControl by remember { mutableStateOf("") }
     var maxTime by remember { mutableIntStateOf(0) }
     DSBottomDialog(
         sheetState = sheetState,
@@ -66,15 +66,15 @@ fun ParticipantGroupEditor(onExit: () -> Unit, userAction: (OrienteeringCreatorE
                     onValueChanged = { coc ->
                         countOfControls = coc.takeIf { it.isNotBlank() }?.trim()?.toInt() ?: 0
                     })
-                DSTextInput(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(text = "Порядок КП")
-                    },
-                    text = sequenceOfControl,
-                    onValueChanged = { soc ->
-                        sequenceOfControl = soc
-                    })
+//                DSTextInput(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    label = {
+//                        Text(text = "Порядок КП")
+//                    },
+//                    text = sequenceOfControl,
+//                    onValueChanged = { soc ->
+//                        sequenceOfControl = soc
+//                    })
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
                     label = {
@@ -91,7 +91,7 @@ fun ParticipantGroupEditor(onExit: () -> Unit, userAction: (OrienteeringCreatorE
                             title = groupTitle,
                             distance = distance,
                             countOfControls = countOfControls,
-                            sequenceOfControl = sequenceOfControl.split(",").map { it.toInt() },
+//                            sequenceOfControl = sequenceOfControl.split(",").map { it.toInt() },
                             maxTimeInMinute = maxTime
                         )
                     ))

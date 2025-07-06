@@ -9,5 +9,6 @@ data class OrienteeringCreatorState(
     val time: String = "12:00",
     val address: String = "",
     val description: String = "",
-    val participantGroups: List<ParticipantGroup> = emptyList()
+    val participantGroups: List<ParticipantGroup> = emptyList(),
+    val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors()
 )
