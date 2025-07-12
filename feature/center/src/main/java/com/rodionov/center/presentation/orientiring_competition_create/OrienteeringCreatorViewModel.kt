@@ -77,7 +77,18 @@ class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
             }
 
             is OrienteeringCreatorEffects.UpdateCompetitionDate -> {
-                updateState { copy(date = action.competitionDate) }
+                val titleParts = _state.value.title.split(" ")
+                val newDate = action.competitionDate.format(
+                    DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                )
+                val oldDate = _state.value.date.format(
+                    DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                )
+                var newTitle = _state.value.title
+                if (titleParts.size == 2 && titleParts[0] == "Старт" && titleParts[1] == oldDate) {
+                    newTitle = "Старт $newDate"
+                }
+                updateState { copy(title = newTitle, date = action.competitionDate) }
             }
 
             is OrienteeringCreatorEffects.UpdateCompetitionTime -> {
