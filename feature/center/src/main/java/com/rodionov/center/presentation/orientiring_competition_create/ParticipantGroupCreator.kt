@@ -123,7 +123,8 @@ fun ParticipantGroupEditor(
                                 countOfControls = countOfControls,
 //                            sequenceOfControl = sequenceOfControl.split(",").map { it.toInt() },
                                 maxTimeInMinute = maxTime
-                            )
+                            ),
+                            index = state.editGroupIndex
                         )
                     )
                 }) {

@@ -5,7 +5,8 @@ import java.time.LocalDate
 
 sealed class OrienteeringCreatorEffects {
     data class CreateParticipantGroup(
-        val participantGroup: ParticipantGroup
+        val participantGroup: ParticipantGroup,
+        val index: Int
     ): OrienteeringCreatorEffects()
 
     data object Apply: OrienteeringCreatorEffects()

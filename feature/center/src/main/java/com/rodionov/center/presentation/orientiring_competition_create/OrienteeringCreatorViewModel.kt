@@ -40,11 +40,22 @@ class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
                         )
                     }
                 } else {
-                    updateState {
-                        copy(
-                            participantGroups = participantGroups + action.participantGroup,
-                            isShowGroupCreateDialog = false
-                        )
+                    if (action.index == -1) {
+                        updateState {
+                            copy(
+                                participantGroups = participantGroups + action.participantGroup,
+                                isShowGroupCreateDialog = false
+                            )
+                        }
+                    } else {
+                        val groups = _state.value.participantGroups.toMutableList()
+                        groups[action.index] = action.participantGroup
+                        updateState {
+                            copy(
+                                participantGroups = groups,
+                                isShowGroupCreateDialog = false
+                            )
+                        }
                     }
                 }
             }
@@ -79,6 +90,12 @@ class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
 
             is OrienteeringCreatorEffects.EditGroupDialog -> {
                 updateState { copy(isShowGroupCreateDialog = !isShowGroupCreateDialog, editGroupIndex = action.index) }
+            }
+
+            is OrienteeringCreatorEffects.DeleteGroup ->  {
+                val group = _state.value.participantGroups.toMutableList()
+                group.removeAt(action.index)
+                updateState { copy(participantGroups = group.toList()) }
             }
         }
     }

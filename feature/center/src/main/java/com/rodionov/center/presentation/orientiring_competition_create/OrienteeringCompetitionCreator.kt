@@ -198,7 +198,9 @@ fun GroupContent(
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                userAction.invoke(OrienteeringCreatorEffects.DeleteGroup(index = groupIndex))
+            }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "group delete",
