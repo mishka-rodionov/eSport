@@ -32,14 +32,14 @@ import com.rodionov.domain.models.ParticipantGroup
 @Composable
 fun ParticipantGroupEditor(
     userAction: (OrienteeringCreatorEffects) -> Unit,
-    state: OrienteeringCreatorState
+    state: OrienteeringCreatorState,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var groupTitle by remember { mutableStateOf("") }
-    var distance by remember { mutableStateOf("") }
-    var countOfControls by remember { mutableIntStateOf(0) }
+    var groupTitle by remember { mutableStateOf(if (state.editGroupIndex == -1) "" else state.participantGroups[state.editGroupIndex].title) }
+    var distance by remember { mutableStateOf(if (state.editGroupIndex == -1) "" else state.participantGroups[state.editGroupIndex].distance.toString()) }
+    var countOfControls by remember { mutableIntStateOf(if (state.editGroupIndex == -1) 0 else state.participantGroups[state.editGroupIndex].countOfControls) }
 //    var sequenceOfControl by remember { mutableStateOf("") }
-    var maxTime by remember { mutableIntStateOf(0) }
+    var maxTime by remember { mutableIntStateOf(if (state.editGroupIndex == -1) 0 else state.participantGroups[state.editGroupIndex].maxTimeInMinute) }
     DSBottomDialog(
         sheetState = sheetState,
         sheetContent = {
@@ -58,7 +58,7 @@ fun ParticipantGroupEditor(
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
                     label = {
-                        Text(text = "Дистанция")
+                        Text(text = "Дистанция, км")
                     },
                     isError = state.errors.isGroupDistanceError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),

@@ -74,7 +74,11 @@ class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
             }
 
             OrienteeringCreatorEffects.ShowGroupCreateDialog -> {
-                updateState { copy(isShowGroupCreateDialog = !isShowGroupCreateDialog) }
+                updateState { copy(isShowGroupCreateDialog = !isShowGroupCreateDialog, editGroupIndex = -1) }
+            }
+
+            is OrienteeringCreatorEffects.EditGroupDialog -> {
+                updateState { copy(isShowGroupCreateDialog = !isShowGroupCreateDialog, editGroupIndex = action.index) }
             }
         }
     }

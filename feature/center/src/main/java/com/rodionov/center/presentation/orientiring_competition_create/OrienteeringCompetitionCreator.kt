@@ -140,7 +140,7 @@ private fun ParticipantGroupContent(
     }
     LazyRow {
         itemsIndexed(state.participantGroups) { index, item ->
-            GroupContent(item)
+            GroupContent(item, userAction, index)
             if (index != state.participantGroups.size - 1) {
                 Spacer(modifier = Modifier.width(8.dp))
             }
@@ -160,7 +160,11 @@ private fun ParticipantGroupContent(
 }
 
 @Composable
-fun GroupContent(participantGroup: ParticipantGroup) {
+fun GroupContent(
+    participantGroup: ParticipantGroup,
+    userAction: (OrienteeringCreatorEffects) -> Unit,
+    groupIndex: Int
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -185,7 +189,9 @@ fun GroupContent(participantGroup: ParticipantGroup) {
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                userAction.invoke(OrienteeringCreatorEffects.EditGroupDialog(groupIndex))
+            }) {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "group edit",
