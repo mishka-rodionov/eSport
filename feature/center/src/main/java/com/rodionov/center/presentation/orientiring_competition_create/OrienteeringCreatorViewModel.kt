@@ -5,15 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.OrienteeringCreatorEffects
 import com.rodionov.center.data.OrienteeringCreatorState
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.resources.R
+import com.rodionov.resources.ResourceProvider
+import com.rodionov.utils.DateTimeFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
 
-class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
+class OrienteeringCreatorViewModel(
+    val navigation: Navigation,
+    private val resourceProvider: ResourceProvider
+) : ViewModel() {
     val _state = MutableStateFlow(OrienteeringCreatorState())
     val state: StateFlow<OrienteeringCreatorState> = _state.asStateFlow()
 
@@ -61,32 +66,34 @@ class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
             }
 
             OrienteeringCreatorEffects.Apply -> {
+                val newDate = DateTimeFormat.formatDate(_state.value.date)
                 updateState {
                     copy(
                         errors = errors.copy(
                             isEmptyAddress = address.isBlank(),
                             isEmptyGroup = participantGroups.isEmpty()
                         ),
-                        title = if (title.isEmpty()) "Старт ${
+                        title = if (title.isEmpty()) resourceProvider.getString(
+                            R.string.label_competition_start_full,
+                            newDate
+                        )
+                        /*"Старт ${
                             date.format(
                                 DateTimeFormatter.ofPattern("dd.MM.yyyy")
                             )
-                        }" else title
+                        }"*/ else title
                     )
                 }
             }
 
             is OrienteeringCreatorEffects.UpdateCompetitionDate -> {
                 val titleParts = _state.value.title.split(" ")
-                val newDate = action.competitionDate.format(
-                    DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                )
-                val oldDate = _state.value.date.format(
-                    DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                )
+                val newDate = DateTimeFormat.formatDate(action.competitionDate)
+                val oldDate = DateTimeFormat.formatDate(_state.value.date)
                 var newTitle = _state.value.title
-                if (titleParts.size == 2 && titleParts[0] == "Старт" && titleParts[1] == oldDate) {
-                    newTitle = "Старт $newDate"
+                if (titleParts.size == 2 && titleParts[0] == resourceProvider.getString(R.string.label_competition_start) &&
+                    titleParts[1] == oldDate) {
+                    newTitle = resourceProvider.getString(R.string.label_competition_start_full, newDate)
                 }
                 updateState { copy(title = newTitle, date = action.competitionDate) }
             }
@@ -96,14 +103,24 @@ class OrienteeringCreatorViewModel(val navigation: Navigation) : ViewModel() {
             }
 
             OrienteeringCreatorEffects.ShowGroupCreateDialog -> {
-                updateState { copy(isShowGroupCreateDialog = !isShowGroupCreateDialog, editGroupIndex = -1) }
+                updateState {
+                    copy(
+                        isShowGroupCreateDialog = !isShowGroupCreateDialog,
+                        editGroupIndex = -1
+                    )
+                }
             }
 
             is OrienteeringCreatorEffects.EditGroupDialog -> {
-                updateState { copy(isShowGroupCreateDialog = !isShowGroupCreateDialog, editGroupIndex = action.index) }
+                updateState {
+                    copy(
+                        isShowGroupCreateDialog = !isShowGroupCreateDialog,
+                        editGroupIndex = action.index
+                    )
+                }
             }
 
-            is OrienteeringCreatorEffects.DeleteGroup ->  {
+            is OrienteeringCreatorEffects.DeleteGroup -> {
                 val group = _state.value.participantGroups.toMutableList()
                 group.removeAt(action.index)
                 updateState { copy(participantGroups = group.toList()) }

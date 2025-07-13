@@ -73,6 +73,7 @@ dependencies {
     implementation(project(":feature:profile"))
     implementation(project(":feature:news"))
     implementation(project(":feature:center"))
+    implementation(project(":core:resources"))
 
     implementation(libs.kotlinx.serialization.json)
 

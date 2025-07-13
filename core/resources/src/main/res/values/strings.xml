@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label_competition_start">Старт</string>
+    <string name="label_competition_start_full">Старт %s</string>
+    <string name="label_groups">Группы</string>
+    <string name="label_add_at_least_group">Добавьте хотя бы одну группу</string>
+    <string name="label_add_group">Добавить группу </string>
+    <string name="label_group_name">Название группы: %s</string>
+    <string name="label_distance">Дистанция: %s км.</string>
+    <string name="label_count_of_controls">Кол-во КП: %s</string>
+    <string name="label_max_time">Контрольное время: %s мин.</string>
+    <string name="label_date">Дата</string>
+    <string name="label_time">Время</string>
+    <string name="label_competition_name">Название соревнования</string>
+    <string name="label_competition_name_description">Введите название соревнования. По умолчанию будет использоваться \"Старт %s\"</string>
+    <string name="label_competition_place">Место проведения</string>
+    <string name="error_competition_place">Укажите место проведения события</string>
+    <string name="label_competition_description">Описание</string>
+    <string name="hint_competition_description">Описание соревнования.</string>
+    <string name="label_apply">Готово</string>
+
+</resources>

@@ -1,7 +1,6 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
 import android.app.DatePickerDialog
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +26,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,15 +37,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.TimePickerDialog
-import com.example.designsystem.components.clickRipple
-import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.OrienteeringCreatorEffects
 import com.rodionov.center.data.OrienteeringCreatorState
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.resources.R
+import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -68,15 +67,14 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             modifier = Modifier.fillMaxWidth(),
             text = state.title,
             label = {
-                Text(text = "Название соревнования")
+                Text(text = stringResource(R.string.label_competition_name))
             },
             supportingText = {
                 Text(
-                    text = "Введите название соревнования. По умолчанию будет использоваться \"Старт ${
-                        state.date.format(
-                            DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                        )
-                    } \""
+                    text = stringResource(
+                        R.string.label_competition_name_description,
+                        DateTimeFormat.formatDate(state.date)
+                    )
                 )
             },
             onValueChanged = {
@@ -85,12 +83,12 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
         DSTextInput(
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text(text = "Место проведения")
+                Text(text = stringResource(R.string.label_competition_place))
             },
             isError = state.errors.isEmptyAddress,
             supportingText = {
                 if (state.errors.isEmptyAddress) {
-                    Text(text = "Укажите место проведения события")
+                    Text(text = stringResource(R.string.error_competition_place))
                 }
             },
             text = state.address,
@@ -107,17 +105,17 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             },
             text = state.description,
             label = {
-                Text(text = "Описание")
+                Text(text = stringResource(R.string.label_competition_description))
             },
             placeholder = {
-                Text(text = "Описание соревнования.")
+                Text(text = stringResource(R.string.hint_competition_description))
             }
         )
         ParticipantGroupContent(state = state, userAction = viewModel::onUserAction)
         OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
             viewModel.onUserAction(OrienteeringCreatorEffects.Apply)
         }) {
-            Text(text = "Готово")
+            Text(text = stringResource(R.string.label_apply))
         }
     }
 }
@@ -128,12 +126,12 @@ private fun ParticipantGroupContent(
     userAction: (OrienteeringCreatorEffects) -> Unit
 ) {
     Text(
-        text = "Группы",
+        text = stringResource(R.string.label_groups),
         color = if (state.errors.isEmptyGroup) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     )
     if (state.errors.isEmptyGroup) {
         Text(
-            text = "Добавьте хотя бы одну группу",
+            text = stringResource(R.string.label_add_at_least_group),
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.error
         )
@@ -149,7 +147,7 @@ private fun ParticipantGroupContent(
     OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
         userAction.invoke(OrienteeringCreatorEffects.ShowGroupCreateDialog)
     }) {
-        Text(text = "Добавить группу ")
+        Text(text = stringResource(R.string.label_add_group))
     }
     if (state.isShowGroupCreateDialog) {
         ParticipantGroupEditor(
@@ -179,10 +177,15 @@ fun GroupContent(
         Column(
 //            modifier = Modifier.weight(1F)
         ) {
-            Text(text = "Название группы: ${participantGroup.title}")
-            Text(text = "Дистанция: ${participantGroup.distance} км.")
-            Text(text = "Кол-во КП: ${participantGroup.countOfControls}")
-            Text(text = "Контрольное время: ${participantGroup.maxTimeInMinute} мин.")
+            Text(text = stringResource(R.string.label_group_name, participantGroup.title))
+            Text(text = stringResource(R.string.label_distance, participantGroup.distance))
+            Text(
+                text = stringResource(
+                    R.string.label_count_of_controls,
+                    participantGroup.countOfControls
+                )
+            )
+            Text(text = stringResource(R.string.label_max_time, participantGroup.maxTimeInMinute))
         }
         Column(
             modifier = Modifier.fillMaxHeight(),
@@ -215,7 +218,6 @@ fun GroupContent(
 fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorEffects) -> Unit) {
     val context = LocalContext.current
     val calendar = remember { Calendar.getInstance() }
-    val formatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
 
@@ -244,9 +246,9 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
                 }
             },
         label = {
-            Text(text = "Дата")
+            Text(text = stringResource(R.string.label_date))
         },
-        text = state.date.format(formatter),
+        text = DateTimeFormat.formatDate(state.date),
         interactionSource = interactionSource,
         enabled = true,
         readOnly = true
@@ -267,7 +269,7 @@ fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
                 showDialog = focusState.isFocused
             },
         label = {
-            Text(text = "Время")
+            Text(text = stringResource(R.string.label_time))
         },
         text = state.time,
         enabled = true,

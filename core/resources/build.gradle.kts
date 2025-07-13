@@ -1,14 +1,10 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.android)
-    id("kotlinx-serialization")
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.hilt) // Подключаем Hilt плагин
-    kotlin("kapt")
 }
 
 android {
-    namespace = "com.rodionov.center"
+    namespace = "com.rodionov.resources"
     compileSdk = 35
 
     defaultConfig {
@@ -44,27 +40,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    implementation(libs.kotlinx.serialization.json)
-
-    implementation(project(":data:navigation"))
-    implementation(project(":domain"))
-    implementation(project(":core:designsystem"))
-    implementation(project(":core:resources"))
-    implementation(project(":utils"))
-
-    //compose navigation
-    implementation(libs.compose.navigation)
-    //compose
-    implementation(platform(libs.compose.bom))
-    implementation(libs.androidx.compose.ui.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    //hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-    implementation(libs.hilt.navigation.compose) // Если используешь Jetpack Compose
 
     //koin
     implementation(libs.koin.core)
