@@ -8,8 +8,6 @@ data class Competition(
     val date: LocalDate,
     val kindOfSport: KindOfSport,
     val description: String,
-    val participants: List<Participant>,
-    val referees: List<User>,
     val address: String,
     val coordinates: Coordinates,
 )

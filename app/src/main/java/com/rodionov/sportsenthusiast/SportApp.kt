@@ -3,6 +3,7 @@ package com.rodionov.sportsenthusiast
 import android.app.Application
 import com.rodionov.center.di.centerModule
 import com.rodionov.data.navigation.di.navigationModule
+import com.rodionov.local.di.databaseModule
 import com.rodionov.resources.di.resourceModule
 import com.rodionov.sportsenthusiast.di.mainModule
 import org.koin.android.ext.koin.androidContext
@@ -17,6 +18,7 @@ class SportApp: Application() {
             androidContext(this@SportApp)
             modules(
                 listOf(
+                    databaseModule,
                     navigationModule,
                     mainModule,
                     centerModule,

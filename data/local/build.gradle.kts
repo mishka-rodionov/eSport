@@ -40,8 +40,14 @@ dependencies {
     implementation(libs.material)
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
-    implementation(libs.room.compiler)
+    ksp(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    //koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.navigation)
+    implementation(libs.koin.compose)
 }
