@@ -1,4 +1,4 @@
-package com.rodionov.local
+package com.rodionov.local.dao
 
 import androidx.room.Dao
 

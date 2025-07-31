@@ -1,6 +1,6 @@
 package com.rodionov.local.di
 
-import com.rodionov.local.UserDao
+import com.rodionov.local.dao.UserDao
 import com.rodionov.local.database.DatabaseHelper
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
