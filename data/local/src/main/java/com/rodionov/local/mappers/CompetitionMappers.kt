@@ -1,24 +1,33 @@
 package com.rodionov.local.mappers
 
-import com.rodionov.domain.models.Competition
-import com.rodionov.local.entities.CompetitionEntity
+import com.rodionov.domain.models.OrienteeringCompetition
+import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
 
-fun CompetitionEntity.toDomain(): Competition = Competition(
-    id = id,
-    title = title,
-    date = date,
-    kindOfSport = kindOfSport,
-    description = description,
-    address = address,
-    coordinates = coordinates
-)
+fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
+    return OrienteeringCompetitionEntity(
+        id = this.id, // Используем тот же ID
+        competition = this.competition, // Встраиваемый объект копируется напрямую
+        direction = this.direction     // Enum копируется напрямую (Room обработает через TypeConverter)
+    )
+}
 
-fun Competition.toEntity(): CompetitionEntity = CompetitionEntity(
-    id = id,
-    title = title,
-    date = date,
-    kindOfSport = kindOfSport,
-    description = description,
-    address = address,
-    coordinates = coordinates
-)
+// Если вам нужно создавать список сущностей:
+fun List<OrienteeringCompetition>.toEntityList(): List<OrienteeringCompetitionEntity> {
+    return this.map { it.toEntity() }
+}
+
+
+// --- Маппер из сущности Room в доменную модель ---
+
+fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
+    return OrienteeringCompetition(
+        id = this.id, // Используем тот же ID
+        competition = this.competition, // Встраиваемый объект копируется напрямую
+        direction = this.direction     // Enum копируется напрямую
+    )
+}
+
+// Если вам нужно создавать список доменных моделей:
+fun List<OrienteeringCompetitionEntity>.toDomainList(): List<OrienteeringCompetition> {
+    return this.map { it.toDomain() }
+}

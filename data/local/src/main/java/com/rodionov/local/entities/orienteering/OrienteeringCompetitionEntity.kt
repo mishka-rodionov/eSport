@@ -1,17 +1,23 @@
 package com.rodionov.local.entities.orienteering
 
+import androidx.room.Embedded
+import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
+import com.rodionov.domain.models.OrienteeringCompetition
+import com.rodionov.domain.models.OrienteeringDirection
+import com.rodionov.local.converters.CompetitionConverters
 import java.time.LocalDate
 
-//изменить в соответствии с моделью соревнования по ориентирвоанию
+@Entity(tableName = "orienteering_competitions")
+@TypeConverters(CompetitionConverters::class)
 data class OrienteeringCompetitionEntity(
-    @PrimaryKey val id: String,
-    val title: String,
-    val date: LocalDate,
-    val kindOfSport: KindOfSport,
-    val description: String,
-    val address: String,
-    val coordinates: Coordinates
+    @PrimaryKey
+    val id: Long = 0,
+    @Embedded
+    val competition: Competition,
+    val direction: OrienteeringDirection
 )

@@ -5,12 +5,12 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.rodionov.local.converters.CompetitionConverters
 import com.rodionov.local.dao.UserDao
-import com.rodionov.local.entities.CompetitionEntity
+import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
 
 private const val DB_VERSION = 1
 
 @Database(
-    entities = [CompetitionEntity::class],
+    entities = [OrienteeringCompetitionEntity::class],
     version = DB_VERSION,
     exportSchema = true
 )

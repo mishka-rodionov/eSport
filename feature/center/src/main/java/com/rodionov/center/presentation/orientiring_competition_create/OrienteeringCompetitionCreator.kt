@@ -41,9 +41,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.designsystem.components.DSTextInput
+import com.example.designsystem.components.ExposedDropdownMenuOutlined
 import com.example.designsystem.components.TimePickerDialog
 import com.rodionov.center.data.OrienteeringCreatorEffects
 import com.rodionov.center.data.OrienteeringCreatorState
+import com.rodionov.domain.models.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
@@ -97,6 +99,7 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
             })
         DatePicker(state = state, userAction = viewModel::onUserAction)
         TimePicker(state = state, userAction = viewModel::onUserAction)
+        OrienteeringCompetitionDirection(state = state, userAction = viewModel::onUserAction)
         DSTextInput(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -296,6 +299,22 @@ fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
             }
         )
     }
+}
+
+@Composable
+private fun OrienteeringCompetitionDirection(
+    state: OrienteeringCreatorState,
+    userAction: (OrienteeringCreatorEffects) -> Unit
+) {
+    ExposedDropdownMenuOutlined(
+        label = "Направление",
+        items = OrienteeringDirection.entries,
+        selectedItem = state.competitionDirection,
+        onItemSelected = {
+            userAction.invoke(OrienteeringCreatorEffects.UpdateCompetitionDirection(it))
+        },
+        itemToString = { it.name }
+    )
 }
 
 

@@ -125,6 +125,10 @@ class OrienteeringCreatorViewModel(
                 group.removeAt(action.index)
                 updateState { copy(participantGroups = group.toList()) }
             }
+
+            is OrienteeringCreatorEffects.UpdateCompetitionDirection -> {
+                updateState { copy(competitionDirection = action.direction) }
+            }
         }
     }
 }

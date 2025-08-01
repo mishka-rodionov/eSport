@@ -1,5 +1,6 @@
 package com.rodionov.center.data
 
+import com.rodionov.domain.models.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import java.time.LocalDate
 
@@ -12,5 +13,6 @@ data class OrienteeringCreatorState(
     val participantGroups: List<ParticipantGroup> = emptyList(),
     val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors(),
     val isShowGroupCreateDialog: Boolean = false,
-    val editGroupIndex: Int = -1
+    val editGroupIndex: Int = -1,
+    val competitionDirection: OrienteeringDirection? = null
 )
