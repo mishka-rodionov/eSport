@@ -118,7 +118,7 @@ fun ParticipantGroupEditor(
                         OrienteeringCreatorEffects.CreateParticipantGroup(
                             participantGroup = ParticipantGroup(
                                 groupId = -1,
-                                competitionID = -1,
+                                competitionId = -1,
                                 title = groupTitle,
                                 distance = distance.toDoubleOrNull() ?: 0.0,
                                 countOfControls = countOfControls,
