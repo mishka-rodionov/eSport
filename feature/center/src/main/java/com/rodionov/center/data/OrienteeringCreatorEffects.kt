@@ -10,6 +10,9 @@ sealed class OrienteeringCreatorEffects {
         val index: Int
     ): OrienteeringCreatorEffects()
 
+    /**
+     * Сохранение созданного соревнования
+     * */
     data object Apply: OrienteeringCreatorEffects()
     data class UpdateCompetitionDate(val competitionDate: LocalDate): OrienteeringCreatorEffects()
     data class UpdateCompetitionTime(val competitionTime: String): OrienteeringCreatorEffects()

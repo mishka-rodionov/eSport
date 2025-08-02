@@ -77,11 +77,7 @@ class OrienteeringCreatorViewModel(
                             R.string.label_competition_start_full,
                             newDate
                         )
-                        /*"Старт ${
-                            date.format(
-                                DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                            )
-                        }"*/ else title
+                        else title
                     )
                 }
             }
@@ -92,8 +88,10 @@ class OrienteeringCreatorViewModel(
                 val oldDate = DateTimeFormat.formatDate(_state.value.date)
                 var newTitle = _state.value.title
                 if (titleParts.size == 2 && titleParts[0] == resourceProvider.getString(R.string.label_competition_start) &&
-                    titleParts[1] == oldDate) {
-                    newTitle = resourceProvider.getString(R.string.label_competition_start_full, newDate)
+                    titleParts[1] == oldDate
+                ) {
+                    newTitle =
+                        resourceProvider.getString(R.string.label_competition_start_full, newDate)
                 }
                 updateState { copy(title = newTitle, date = action.competitionDate) }
             }
@@ -130,5 +128,9 @@ class OrienteeringCreatorViewModel(
                 updateState { copy(competitionDirection = action.direction) }
             }
         }
+    }
+
+    private fun saveNewCompetition() {
+
     }
 }

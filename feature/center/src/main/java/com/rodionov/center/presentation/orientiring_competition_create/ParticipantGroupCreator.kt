@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -118,10 +117,11 @@ fun ParticipantGroupEditor(
                     userAction.invoke(
                         OrienteeringCreatorEffects.CreateParticipantGroup(
                             participantGroup = ParticipantGroup(
+                                groupId = -1,
+                                competitionID = -1,
                                 title = groupTitle,
                                 distance = distance.toDoubleOrNull() ?: 0.0,
                                 countOfControls = countOfControls,
-//                            sequenceOfControl = sequenceOfControl.split(",").map { it.toInt() },
                                 maxTimeInMinute = maxTime
                             ),
                             index = state.editGroupIndex

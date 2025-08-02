@@ -18,5 +18,9 @@
     <string name="label_competition_description">Описание</string>
     <string name="hint_competition_description">Описание соревнования.</string>
     <string name="label_apply">Готово</string>
+    <string name="label_direction">Направление</string>
+    <string name="label_direction_forward">Заданное</string>
+    <string name="label_direction_by_choice">По выбору</string>
+    <string name="label_direction_marking">Маркировка</string>
 
 </resources>

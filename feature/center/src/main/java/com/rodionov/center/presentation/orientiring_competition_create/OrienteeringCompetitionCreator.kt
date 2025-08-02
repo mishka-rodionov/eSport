@@ -51,7 +51,6 @@ import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 @Composable
@@ -306,14 +305,21 @@ private fun OrienteeringCompetitionDirection(
     state: OrienteeringCreatorState,
     userAction: (OrienteeringCreatorEffects) -> Unit
 ) {
+    val context = LocalContext.current
     ExposedDropdownMenuOutlined(
-        label = "Направление",
+        label = stringResource(R.string.label_direction),
         items = OrienteeringDirection.entries,
         selectedItem = state.competitionDirection,
         onItemSelected = {
             userAction.invoke(OrienteeringCreatorEffects.UpdateCompetitionDirection(it))
         },
-        itemToString = { it.name }
+        itemToString = {
+            when(it) {
+                OrienteeringDirection.FORWARD -> context.getString(R.string.label_direction_forward)
+                OrienteeringDirection.BY_CHOICE -> context.getString(R.string.label_direction_by_choice)
+                OrienteeringDirection.MARKING -> context.getString(R.string.label_direction_marking)
+            }
+        }
     )
 }
 

@@ -1,7 +1,7 @@
 package com.rodionov.domain.models
 
 data class OrienteeringCompetition(
-    val id: Long,
+    val competitionId: Long,
     val competition: Competition,
     val direction: OrienteeringDirection
 )
