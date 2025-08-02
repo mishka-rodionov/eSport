@@ -5,12 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.rodionov.domain.models.Competition
-import com.rodionov.domain.models.Coordinates
-import com.rodionov.domain.models.KindOfSport
-import com.rodionov.domain.models.OrienteeringCompetition
 import com.rodionov.domain.models.OrienteeringDirection
 import com.rodionov.local.converters.CompetitionConverters
-import java.time.LocalDate
 
 @Entity(tableName = "orienteering_competitions")
 @TypeConverters(CompetitionConverters::class)
