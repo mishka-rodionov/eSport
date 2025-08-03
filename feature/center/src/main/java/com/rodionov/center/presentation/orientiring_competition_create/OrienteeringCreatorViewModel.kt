@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.OrienteeringCreatorEffects
 import com.rodionov.center.data.OrienteeringCreatorState
+import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.models.OrienteeringCompetition
 import com.rodionov.domain.repository.OrienteeringCompetitionRemoteRepository
 import com.rodionov.resources.R
 import com.rodionov.resources.ResourceProvider
@@ -19,7 +21,7 @@ import kotlinx.coroutines.launch
 class OrienteeringCreatorViewModel(
     val navigation: Navigation,
     private val resourceProvider: ResourceProvider,
-    private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository
+    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor
 ) : ViewModel() {
     val _state = MutableStateFlow(OrienteeringCreatorState())
     val state: StateFlow<OrienteeringCreatorState> = _state.asStateFlow()
@@ -132,7 +134,9 @@ class OrienteeringCreatorViewModel(
         }
     }
 
-    private fun saveNewCompetition() {
-
+    private fun saveNewCompetition(orienteeringCompetition: OrienteeringCompetition) {
+        viewModelScope.launch(Dispatchers.IO) {
+            orienteeringCompetitionInteractor.saveCompetition(orienteeringCompetition)
+        }
     }
 }
