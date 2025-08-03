@@ -48,6 +48,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(project(":data:navigation"))
+    implementation(project(":data:local"))
+    implementation(project(":data:remote"))
     implementation(project(":domain"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:resources"))

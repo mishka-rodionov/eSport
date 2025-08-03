@@ -21,6 +21,7 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
         competitionId: Long,
         participantGroups: List<ParticipantGroup>
     ): Result<List<ParticipantGroup>> {
-        TODO("Not yet implemented")
+        return orienteeringCompetitionRemoteDataSource.createCompetitionParticipantGroup(
+            participantGroups.map { it.toRequest(competitionId) }).mapCatching { it.result.map { gr -> gr.toDomain() } }
     }
 }

@@ -10,6 +10,10 @@ sealed class KindOfSport(val name: String) {
 
     companion object {
         val all = listOf(Orienteering, CrossCountrySki, TrailRunning)
+
+        fun fromName(name: String): KindOfSport? =
+            all.find { it.name == name }
+
     }
 
 }

@@ -5,10 +5,14 @@ import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.remote.response.competition.CompetitionResponse
 import com.rodionov.remote.response.competition.CoordinatesResponse
+import java.time.Instant
+import java.time.ZoneId
 
 fun CompetitionResponse.toDomain(): Competition {
     return Competition(
-        title, date, kindOfSport, description, address, coordinates.toDomain()
+        title, Instant.ofEpochMilli(date)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate(), KindOfSport.fromName(kindOfSport) ?: KindOfSport.Orienteering, description, address, coordinates.toDomain()
     )
 }
 

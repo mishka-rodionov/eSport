@@ -6,6 +6,7 @@ compileSdk = "35"
 coreKtx = "1.16.0"
 gson = "2.13.1"
 lifecycleRuntimeKtx = "2.9.2"
+loggingInterceptor = "5.1.0"
 material = "1.8.3"
 minSdk = "26"
 navigationCompose = "2.8.6"
@@ -66,7 +67,10 @@ compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeB
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-fragment-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { module = "junit:junit", version.ref = "junit" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "retrofit" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 ui = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }

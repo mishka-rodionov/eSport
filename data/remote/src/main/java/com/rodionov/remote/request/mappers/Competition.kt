@@ -7,7 +7,7 @@ import com.rodionov.remote.request.competition.CoordinatesRequest
 
 fun Competition.toRequest(): CompetitionRequest {
     return CompetitionRequest(
-        title, date, kindOfSport.name, description, address, coordinates.toRequest()
+        title, date.toEpochDay() * 86400, kindOfSport.name, description, address, coordinates.toRequest()
     )
 }
 

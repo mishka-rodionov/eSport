@@ -45,4 +45,11 @@ dependencies {
 
     implementation(libs.gson)
     implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.converter.scalars)
+    implementation(libs.logging.interceptor)
+
+    //koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
 }

@@ -69,6 +69,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(project(":data:navigation"))
     implementation(project(":data:local"))
+    implementation(project(":data:remote"))
 
     implementation(project(":domain"))
     implementation(project(":feature:profile"))

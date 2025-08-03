@@ -2,11 +2,7 @@ package com.rodionov.remote.base
 
 import com.google.gson.annotations.SerializedName
 
-class CommonModel<T>(
+class CommonModel<T> : BaseModel() {
     @SerializedName("result")
-    val result: T,
-    @SerializedName("status")
-    val status: Int,
-    @SerializedName("error")
-    val error: BaseError
-)
+    val result: T? = null
+}
