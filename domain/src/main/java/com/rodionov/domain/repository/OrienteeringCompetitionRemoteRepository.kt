@@ -3,7 +3,7 @@ package com.rodionov.domain.repository
 import com.rodionov.domain.models.  OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 
-interface OrienteeringCompetitionRepository {
+interface OrienteeringCompetitionRemoteRepository {
 
     suspend fun createCompetition(competition: OrienteeringCompetition): Result<OrienteeringCompetition>
 

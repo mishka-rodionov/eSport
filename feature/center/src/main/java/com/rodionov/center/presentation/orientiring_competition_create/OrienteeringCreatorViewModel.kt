@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.OrienteeringCreatorEffects
 import com.rodionov.center.data.OrienteeringCreatorState
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.repository.OrienteeringCompetitionRemoteRepository
 import com.rodionov.resources.R
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.utils.DateTimeFormat
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class OrienteeringCreatorViewModel(
     val navigation: Navigation,
-    private val resourceProvider: ResourceProvider
+    private val resourceProvider: ResourceProvider,
+    private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository
 ) : ViewModel() {
     val _state = MutableStateFlow(OrienteeringCreatorState())
     val state: StateFlow<OrienteeringCreatorState> = _state.asStateFlow()
