@@ -27,7 +27,7 @@ private fun retrofit(gson: Gson): Retrofit {
         .readTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .writeTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .build()
-    val baseUrl = "BASE_URL"
+    val baseUrl = "https://BASE_URL"
     return Retrofit.Builder()
         .baseUrl(baseUrl)
         .addConverterFactory(ScalarsConverterFactory.create())

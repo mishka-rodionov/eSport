@@ -10,10 +10,10 @@ import retrofit2.http.POST
 
 interface OrienteeringCompetitionRemoteDataSource {
 
-    @POST
+    @POST("url")
     suspend fun createOrienteeringCompetition(@Body request: OrienteeringCompetitionRequest): Result<CommonModel<OrienteeringCompetitionResponse>>
 
-    @POST
+    @POST("url")
     suspend fun createCompetitionParticipantGroup(@Body request: List<ParticipantGroupRequest>): Result<CommonModel<List<ParticipantGroupResponse>>>
 
 }
