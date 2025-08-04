@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.ExposedDropdownMenuOutlined
 import com.example.designsystem.components.TimePickerDialog
-import com.rodionov.center.data.OrienteeringCreatorEffects
+import com.rodionov.center.data.OrienteeringCreatorAction
 import com.rodionov.center.data.OrienteeringCreatorState
 import com.rodionov.domain.models.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
@@ -115,7 +115,7 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
         )
         ParticipantGroupContent(state = state, userAction = viewModel::onUserAction)
         OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
-            viewModel.onUserAction(OrienteeringCreatorEffects.Apply)
+            viewModel.onUserAction(OrienteeringCreatorAction.Apply)
         }) {
             Text(text = stringResource(R.string.label_apply))
         }
@@ -125,7 +125,7 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
 @Composable
 private fun ParticipantGroupContent(
     state: OrienteeringCreatorState,
-    userAction: (OrienteeringCreatorEffects) -> Unit
+    userAction: (OrienteeringCreatorAction) -> Unit
 ) {
     Text(
         text = stringResource(R.string.label_groups),
@@ -147,7 +147,7 @@ private fun ParticipantGroupContent(
         }
     }
     OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
-        userAction.invoke(OrienteeringCreatorEffects.ShowGroupCreateDialog)
+        userAction.invoke(OrienteeringCreatorAction.ShowGroupCreateDialog)
     }) {
         Text(text = stringResource(R.string.label_add_group))
     }
@@ -162,7 +162,7 @@ private fun ParticipantGroupContent(
 @Composable
 fun GroupContent(
     participantGroup: ParticipantGroup,
-    userAction: (OrienteeringCreatorEffects) -> Unit,
+    userAction: (OrienteeringCreatorAction) -> Unit,
     groupIndex: Int
 ) {
     Row(
@@ -195,7 +195,7 @@ fun GroupContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             IconButton(onClick = {
-                userAction.invoke(OrienteeringCreatorEffects.EditGroupDialog(groupIndex))
+                userAction.invoke(OrienteeringCreatorAction.EditGroupDialog(groupIndex))
             }) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -204,7 +204,7 @@ fun GroupContent(
                 )
             }
             IconButton(onClick = {
-                userAction.invoke(OrienteeringCreatorEffects.DeleteGroup(index = groupIndex))
+                userAction.invoke(OrienteeringCreatorAction.DeleteGroup(index = groupIndex))
             }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
@@ -217,7 +217,7 @@ fun GroupContent(
 }
 
 @Composable
-fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorEffects) -> Unit) {
+fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -> Unit) {
     val context = LocalContext.current
     val calendar = remember { Calendar.getInstance() }
     val interactionSource = remember { MutableInteractionSource() }
@@ -228,7 +228,7 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
             context,
             { _, year, month, dayOfMonth ->
                 val date = LocalDate.of(year, month + 1, dayOfMonth)
-                userAction.invoke(OrienteeringCreatorEffects.UpdateCompetitionDate(date))
+                userAction.invoke(OrienteeringCreatorAction.UpdateCompetitionDate(date))
                 focusManager.clearFocus()
             },
             calendar.get(Calendar.YEAR),
@@ -259,7 +259,7 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
 }
 
 @Composable
-fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorEffects) -> Unit) {
+fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
@@ -286,7 +286,7 @@ fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
             },
             onConfirm = { hour, minute ->
                 userAction.invoke(
-                    OrienteeringCreatorEffects.UpdateCompetitionTime(
+                    OrienteeringCreatorAction.UpdateCompetitionTime(
                         "%02d:%02d".format(
                             hour,
                             minute
@@ -303,7 +303,7 @@ fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
 @Composable
 private fun OrienteeringCompetitionDirection(
     state: OrienteeringCreatorState,
-    userAction: (OrienteeringCreatorEffects) -> Unit
+    userAction: (OrienteeringCreatorAction) -> Unit
 ) {
     val context = LocalContext.current
     ExposedDropdownMenuOutlined(
@@ -311,7 +311,7 @@ private fun OrienteeringCompetitionDirection(
         items = OrienteeringDirection.entries,
         selectedItem = state.competitionDirection,
         onItemSelected = {
-            userAction.invoke(OrienteeringCreatorEffects.UpdateCompetitionDirection(it))
+            userAction.invoke(OrienteeringCreatorAction.UpdateCompetitionDirection(it))
         },
         itemToString = {
             when(it) {

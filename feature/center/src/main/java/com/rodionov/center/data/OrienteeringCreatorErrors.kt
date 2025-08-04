@@ -7,4 +7,10 @@ data class OrienteeringCreatorErrors(
     val isGroupDistanceError: Boolean = false,
     val isCountOfControlsError: Boolean = false,
     val isMaxTimeError: Boolean = false
-)
+) {
+
+    fun checkErrors() : Boolean {
+        return !isEmptyAddress && !isEmptyGroup && !isGroupTitleError && !isGroupDistanceError && !isCountOfControlsError && !isMaxTimeError
+    }
+
+}

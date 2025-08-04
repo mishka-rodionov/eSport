@@ -2,12 +2,11 @@ package com.rodionov.center.presentation.orientiring_competition_create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rodionov.center.data.OrienteeringCreatorEffects
+import com.rodionov.center.data.OrienteeringCreatorAction
 import com.rodionov.center.data.OrienteeringCreatorState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.OrienteeringCompetition
-import com.rodionov.domain.repository.OrienteeringCompetitionRemoteRepository
 import com.rodionov.resources.R
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.utils.DateTimeFormat
@@ -23,16 +22,16 @@ class OrienteeringCreatorViewModel(
     private val resourceProvider: ResourceProvider,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor
 ) : ViewModel() {
-    val _state = MutableStateFlow(OrienteeringCreatorState())
+    private val _state = MutableStateFlow(OrienteeringCreatorState())
     val state: StateFlow<OrienteeringCreatorState> = _state.asStateFlow()
 
     fun updateState(info: suspend OrienteeringCreatorState.() -> OrienteeringCreatorState) {
         viewModelScope.launch(Dispatchers.Main.immediate) { _state.update { info.invoke(it) } }
     }
 
-    fun onUserAction(action: OrienteeringCreatorEffects) {
+    fun onUserAction(action: OrienteeringCreatorAction) {
         when (action) {
-            is OrienteeringCreatorEffects.CreateParticipantGroup -> {
+            is OrienteeringCreatorAction.CreateParticipantGroup -> {
                 val isGroupTitleError = action.participantGroup.title.isBlank()
                 val isGroupDistanceError = action.participantGroup.distance == 0.0
                 val isCountOfControlsError = action.participantGroup.countOfControls == 0
@@ -69,7 +68,7 @@ class OrienteeringCreatorViewModel(
                 }
             }
 
-            OrienteeringCreatorEffects.Apply -> {
+            OrienteeringCreatorAction.Apply -> {
                 val newDate = DateTimeFormat.formatDate(_state.value.date)
                 updateState {
                     copy(
@@ -84,9 +83,12 @@ class OrienteeringCreatorViewModel(
                         else title
                     )
                 }
+                if (_state.value.errors.checkErrors()) {
+                    saveNewCompetition(_state.value.constructOrienteeringCompetition())
+                }
             }
 
-            is OrienteeringCreatorEffects.UpdateCompetitionDate -> {
+            is OrienteeringCreatorAction.UpdateCompetitionDate -> {
                 val titleParts = _state.value.title.split(" ")
                 val newDate = DateTimeFormat.formatDate(action.competitionDate)
                 val oldDate = DateTimeFormat.formatDate(_state.value.date)
@@ -100,11 +102,11 @@ class OrienteeringCreatorViewModel(
                 updateState { copy(title = newTitle, date = action.competitionDate) }
             }
 
-            is OrienteeringCreatorEffects.UpdateCompetitionTime -> {
+            is OrienteeringCreatorAction.UpdateCompetitionTime -> {
                 updateState { copy(time = action.competitionTime) }
             }
 
-            OrienteeringCreatorEffects.ShowGroupCreateDialog -> {
+            OrienteeringCreatorAction.ShowGroupCreateDialog -> {
                 updateState {
                     copy(
                         isShowGroupCreateDialog = !isShowGroupCreateDialog,
@@ -113,7 +115,7 @@ class OrienteeringCreatorViewModel(
                 }
             }
 
-            is OrienteeringCreatorEffects.EditGroupDialog -> {
+            is OrienteeringCreatorAction.EditGroupDialog -> {
                 updateState {
                     copy(
                         isShowGroupCreateDialog = !isShowGroupCreateDialog,
@@ -122,21 +124,25 @@ class OrienteeringCreatorViewModel(
                 }
             }
 
-            is OrienteeringCreatorEffects.DeleteGroup -> {
+            is OrienteeringCreatorAction.DeleteGroup -> {
                 val group = _state.value.participantGroups.toMutableList()
                 group.removeAt(action.index)
                 updateState { copy(participantGroups = group.toList()) }
             }
 
-            is OrienteeringCreatorEffects.UpdateCompetitionDirection -> {
+            is OrienteeringCreatorAction.UpdateCompetitionDirection -> {
                 updateState { copy(competitionDirection = action.direction) }
             }
+
+            OrienteeringCreatorAction.SuccessfulCompetitionCreate -> {}
+
+            is OrienteeringCreatorAction.FailedCompetitionCreate -> {}
         }
     }
 
     private fun saveNewCompetition(orienteeringCompetition: OrienteeringCompetition) {
         viewModelScope.launch(Dispatchers.IO) {
-            orienteeringCompetitionInteractor.saveCompetition(orienteeringCompetition)
+            onUserAction(orienteeringCompetitionInteractor.saveCompetition(orienteeringCompetition))
         }
     }
 }

@@ -23,14 +23,14 @@ import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSBottomDialog
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.theme.Dimens
-import com.rodionov.center.data.OrienteeringCreatorEffects
+import com.rodionov.center.data.OrienteeringCreatorAction
 import com.rodionov.center.data.OrienteeringCreatorState
 import com.rodionov.domain.models.ParticipantGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantGroupEditor(
-    userAction: (OrienteeringCreatorEffects) -> Unit,
+    userAction: (OrienteeringCreatorAction) -> Unit,
     state: OrienteeringCreatorState,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -115,7 +115,7 @@ fun ParticipantGroupEditor(
                 }
                 Button(modifier = Modifier.fillMaxWidth(), onClick = {
                     userAction.invoke(
-                        OrienteeringCreatorEffects.CreateParticipantGroup(
+                        OrienteeringCreatorAction.CreateParticipantGroup(
                             participantGroup = ParticipantGroup(
                                 groupId = -1,
                                 competitionId = -1,
@@ -133,7 +133,7 @@ fun ParticipantGroupEditor(
             }
         },
         onDismiss = {
-            userAction.invoke(OrienteeringCreatorEffects.ShowGroupCreateDialog)
+            userAction.invoke(OrienteeringCreatorAction.ShowGroupCreateDialog)
         },
     )
 }
