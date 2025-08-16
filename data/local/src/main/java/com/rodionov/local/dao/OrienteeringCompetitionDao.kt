@@ -39,4 +39,21 @@ interface OrienteeringCompetitionDao {
     @Query("SELECT * FROM orienteering_competitions")
     suspend fun getAllCompetitionsWithGroups(): List<OrienteeringCompetitionWithGroups>
 
+
+    // --- транзакция для вставки сразу всего --- шаблон на будущее
+//    @Transaction
+//    suspend fun insertCompetitionWithGroups(
+//        competition: OrienteeringCompetitionEntity,
+//        groups: List<ParticipantGroupEntity>
+//    ) {
+//        // вставляем соревнование и получаем его id
+//        val competitionId = insertCompetition(competition)
+//
+//        // проставляем competitionId во всех группах
+//        val groupsWithId = groups.map { it.copy(competitionId = competitionId) }
+//
+//        // вставляем группы
+//        insertGroups(groupsWithId)
+//    }
+
 }
