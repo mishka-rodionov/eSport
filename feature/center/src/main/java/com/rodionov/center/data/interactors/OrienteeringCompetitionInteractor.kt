@@ -2,6 +2,7 @@ package com.rodionov.center.data.interactors
 
 import com.rodionov.center.data.OrienteeringCreatorAction
 import com.rodionov.domain.models.OrienteeringCompetition
+import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.repository.OrienteeringCompetitionLocalRepository
 import com.rodionov.domain.repository.OrienteeringCompetitionRemoteRepository
 
@@ -10,22 +11,70 @@ class OrienteeringCompetitionInteractor(
     private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository
 ) {
 
-    suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): OrienteeringCreatorAction {
+    suspend fun saveCompetition(
+        orienteeringCompetition: OrienteeringCompetition,
+        participantGroups: List<ParticipantGroup>
+    ): OrienteeringCreatorAction {
+        //сетевой запрос на сохранение соревнования на сервере
         orienteeringCompetitionRemoteRepository.createCompetition(orienteeringCompetition)
             .onSuccess { competition ->
-                orienteeringCompetitionLocalRepository.saveCompetition(competition).onSuccess {
+                //сохранение данных соревнования локально
+                orienteeringCompetitionLocalRepository.saveCompetition(competition).fold({
+                    //сохранения данных по группам участников на сервере
+                    createParticipantsGroupsInfo(
+                        competitionId = competition.competitionId,
+                        participantGroups = participantGroups
+                    )
                     return OrienteeringCreatorAction.SuccessfulCompetitionCreate
-                }.onFailure {
+                }, {
+                    //сохранения данных по группам участников на сервере
+                    createParticipantsGroupsInfo(
+                        competitionId = competition.competitionId,
+                        participantGroups = participantGroups
+                    )
                     return OrienteeringCreatorAction.FailedCompetitionCreate("Сохранено на сервере, ошибка локального сохранения")
                 }
+                )
             }.onFailure {
-                orienteeringCompetitionLocalRepository.saveCompetition(orienteeringCompetition).onSuccess {
-                    return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, сохранено локально")
-                }.onFailure {
-                    return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, ошибка локального созранения")
-                }
+                //локальное сохранение информации о соревновании
+                orienteeringCompetitionLocalRepository.saveCompetition(orienteeringCompetition)
+                    .fold({
+                        //локальное сохранение информации о группах участников
+                        orienteeringCompetitionLocalRepository.saveParticipantsGroups(
+                            participantGroups.map {
+                                it.copy(
+                                    competitionId = orienteeringCompetition.competitionId
+                                )
+                            })
+                        return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, сохранено локально")
+                    }, {
+                        //локальное сохранение информации о группах участников
+                        orienteeringCompetitionLocalRepository.saveParticipantsGroups(
+                            participantGroups.map {
+                                it.copy(
+                                    competitionId = orienteeringCompetition.competitionId
+                                )
+                            })
+                        return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, ошибка локального созранения")
+                    })
+
             }
         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка")
+    }
+
+    private suspend fun createParticipantsGroupsInfo(
+        competitionId: Long,
+        participantGroups: List<ParticipantGroup>
+    ) {
+        orienteeringCompetitionRemoteRepository.createParticipantsGroupsForCompetition(
+            competitionId = competitionId,
+            participantGroups = participantGroups
+        ).onSuccess { participants ->
+            orienteeringCompetitionLocalRepository.saveParticipantsGroups(participants)
+        }.onFailure {
+            orienteeringCompetitionLocalRepository.saveParticipantsGroups(participantGroups)
+        }
+
     }
 
 }

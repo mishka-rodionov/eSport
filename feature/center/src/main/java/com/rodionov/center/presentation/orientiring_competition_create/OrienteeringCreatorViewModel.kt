@@ -7,6 +7,7 @@ import com.rodionov.center.data.OrienteeringCreatorState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.OrienteeringCompetition
+import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.resources.R
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.utils.DateTimeFormat
@@ -76,15 +77,19 @@ class OrienteeringCreatorViewModel(
                             isEmptyAddress = address.isBlank(),
                             isEmptyGroup = participantGroups.isEmpty()
                         ),
-                        title = if (title.isEmpty()) resourceProvider.getString(
-                            R.string.label_competition_start_full,
-                            newDate
-                        )
-                        else title
+                        title = title.ifEmpty {
+                            resourceProvider.getString(
+                                R.string.label_competition_start_full,
+                                newDate
+                            )
+                        }
                     )
                 }
                 if (_state.value.errors.checkErrors()) {
-                    saveNewCompetition(_state.value.constructOrienteeringCompetition())
+                    saveNewCompetition(
+                        orienteeringCompetition = _state.value.constructOrienteeringCompetition(),
+                        participantGroups = _state.value.participantGroups
+                    )
                 }
             }
 
@@ -140,9 +145,12 @@ class OrienteeringCreatorViewModel(
         }
     }
 
-    private fun saveNewCompetition(orienteeringCompetition: OrienteeringCompetition) {
+    private fun saveNewCompetition(
+        orienteeringCompetition: OrienteeringCompetition,
+        participantGroups: List<ParticipantGroup>
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            onUserAction(orienteeringCompetitionInteractor.saveCompetition(orienteeringCompetition))
+            onUserAction(orienteeringCompetitionInteractor.saveCompetition(orienteeringCompetition, participantGroups))
         }
     }
 }
