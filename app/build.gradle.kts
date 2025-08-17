@@ -3,7 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlinx-serialization")
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.hilt) // Подключаем Hilt плагин
     kotlin("kapt")
 }
 
@@ -86,11 +85,6 @@ dependencies {
     implementation(libs.ui)
     implementation(libs.androidx.material)
     implementation(kotlin("reflect"))
-
-    //hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-    implementation(libs.hilt.navigation.compose) // Если используешь Jetpack Compose
 
     //koin
     implementation(libs.koin.core)

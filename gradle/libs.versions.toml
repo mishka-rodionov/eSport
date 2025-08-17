@@ -2,12 +2,12 @@
 
 #Android Settings
 
-compileSdk = "35"
-coreKtx = "1.16.0"
+compileSdk = "36"
+coreKtx = "1.17.0"
 gson = "2.13.1"
 lifecycleRuntimeKtx = "2.9.2"
 loggingInterceptor = "5.1.0"
-material = "1.8.3"
+material = "1.9.0"
 minSdk = "26"
 navigationCompose = "2.8.6"
 retrofit = "3.0.0"
@@ -15,12 +15,12 @@ targetSdk = "34"
 
 #Compose
 activityCompose = "1.10.1"
-composeBomVersion = "2025.07.00"
+composeBomVersion = "2025.08.00"
 material3 = "1.3.2"
 
 #Kotlin
 android-koltin = "2.2.20-Beta2"
-kotlinxSerializationJson = "1.8.0"
+kotlinxSerializationJson = "1.9.0"
 kotlinCompilerExtension = "1.5.8"
 ksp = "2.2.20-Beta2-2.0.2"
 
@@ -29,17 +29,12 @@ espressoCore = "3.7.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 
-#Dependency injection
-hilt = "2.55"
-hilt-navigation-compose = "1.2.0"
-hilt-work = "1.2.0"
-
 #Navigation
 navigation-fragment-ktx = "2.9.3"
 navigation-safe-args-gradle-plugin = "2.7.7"
 navigation-ui-ktx = "2.7.7"
-uiVersion = "1.8.3"
-agp = "8.9.3"
+uiVersion = "1.9.0"
+agp = "8.12.0"
 appcompat = "1.7.1"
 materialVersion = "1.12.0"
 
@@ -47,7 +42,7 @@ materialVersion = "1.12.0"
 room = "2.7.2"
 
 #Koin
-koin = "4.0.3"
+koin = "4.1.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -75,11 +70,6 @@ ui = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
-#Hilt
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
-hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-compose" } # Для Jetpack Compose
-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" } # Для WorkManager
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
@@ -95,5 +85,4 @@ android = { id = "org.jetbrains.kotlin.android", version.ref = "android-koltin" 
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "android-koltin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "android-koltin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
