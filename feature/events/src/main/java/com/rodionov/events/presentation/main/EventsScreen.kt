@@ -1,9 +1,9 @@
-package com.rodionov.news.presentation
+package com.rodionov.events.presentation.main
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun NewsScreen() {
+fun EventsScreen() {
     Text(text = "News Screen test!")
 }

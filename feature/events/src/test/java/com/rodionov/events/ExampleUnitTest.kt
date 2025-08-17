@@ -1,4 +1,4 @@
-package com.rodionov.news
+package com.rodionov.events
 
 import org.junit.Test
 

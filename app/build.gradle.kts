@@ -72,7 +72,7 @@ dependencies {
 
     implementation(project(":domain"))
     implementation(project(":feature:profile"))
-    implementation(project(":feature:news"))
+    implementation(project(":feature:events"))
     implementation(project(":feature:center"))
     implementation(project(":core:resources"))
 

@@ -1,16 +1,14 @@
-package com.rodionov.news.navigation
+package com.rodionov.events.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.rodionov.data.navigation.EventsNavigation
-import com.rodionov.news.presentation.NewsScreen
-import com.rodionov.news.presentation.eventDetails.EventDetailsScreen
-import kotlinx.serialization.Serializable
+import com.rodionov.events.presentation.main.EventsScreen
+import com.rodionov.events.presentation.eventDetails.EventDetailsScreen
 
 fun NavGraphBuilder.eventsGraph() {
 //    navigation<EventsNavigationGraph.EventsBaseRoute>(startDestination = EventsNavigationGraph.EventsRoute) {
-        composable<EventsNavigation.EventsRoute> { NewsScreen() }
+        composable<EventsNavigation.EventsRoute> { EventsScreen() }
         composable<EventsNavigation.EventDetailsRoute> { EventDetailsScreen() }
 //    }
 }

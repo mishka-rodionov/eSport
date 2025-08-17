@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.news"
+    namespace = "com.rodionov.events"
     compileSdk = 35
 
     defaultConfig {

@@ -8,10 +8,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Scaffold
@@ -32,7 +30,7 @@ import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.EventsNavigation
 import com.rodionov.data.navigation.ProfileNavigation
-import com.rodionov.news.navigation.eventsGraph
+import com.rodionov.events.navigation.eventsGraph
 import com.rodionov.profile.navigation.profileNavigation
 import com.rodionov.sportsenthusiast.BottomNavItem
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
