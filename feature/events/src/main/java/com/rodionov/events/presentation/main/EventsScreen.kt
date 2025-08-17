@@ -27,9 +27,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.designsystem.components.clickRipple
 import com.example.designsystem.theme.Dimens
 import com.rodionov.domain.models.Competition
 import com.rodionov.events.R
+import com.rodionov.events.data.main.EventsAction
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -42,7 +44,7 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
 
     LazyColumn {
         items(state.events) {
-            EventItem(it)
+            EventItem(it, userAction = viewModel::onAction)
         }
     }
 //    Text(text = "News Screen test!")
@@ -51,13 +53,16 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
 
 @Composable
 fun EventItem(
-    event: Competition
+    event: Competition,
+    userAction: (EventsAction) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var isOverflowing by remember { mutableStateOf(false) }
 
     Column (
-        modifier = Modifier.padding(Dimens.SIZE_HALF.dp)
+        modifier = Modifier.padding(Dimens.SIZE_HALF.dp).clickRipple{
+            userAction.invoke(EventsAction.EventClick(1L))
+        }
     ){
         Image(
             painter = painterResource(id = R.drawable.map_24dp),

@@ -2,6 +2,8 @@ package com.rodionov.events.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rodionov.data.navigation.EventsNavigation
+import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.repository.events.EventsRepository
@@ -15,16 +17,19 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class EventsViewModel(
+    private val navigation: Navigation,
     private val eventsRepository: EventsRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(EventsState())
     val state: StateFlow<EventsState> = _state.asStateFlow()
 
-    private fun onAction(action: EventsAction) {
+    fun onAction(action: EventsAction) {
         when (action) {
             is EventsAction.EventClick -> {
-
+                viewModelScope.launch {
+                    navigation.navigate(EventsNavigation.EventDetailsRoute)
+                }
             }
         }
     }
