@@ -45,7 +45,7 @@ import com.example.designsystem.components.ExposedDropdownMenuOutlined
 import com.example.designsystem.components.TimePickerDialog
 import com.rodionov.center.data.OrienteeringCreatorAction
 import com.rodionov.center.data.OrienteeringCreatorState
-import com.rodionov.domain.models.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat

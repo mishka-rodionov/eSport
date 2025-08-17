@@ -1,9 +1,9 @@
-package com.rodionov.remote.repository
+package com.rodionov.remote.repository.orienteering
 
-import com.rodionov.domain.models.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
-import com.rodionov.domain.repository.OrienteeringCompetitionRemoteRepository
-import com.rodionov.remote.datasource.OrienteeringCompetitionRemoteDataSource
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
+import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
+import com.rodionov.remote.datasource.orienteering.OrienteeringCompetitionRemoteDataSource
 import com.rodionov.remote.request.mappers.toRequest
 import com.rodionov.remote.response.mappers.toDomain
 

@@ -1,8 +1,8 @@
 package com.rodionov.local.repository
 
-import com.rodionov.domain.models.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
-import com.rodionov.domain.repository.OrienteeringCompetitionLocalRepository
+import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.local.dao.OrienteeringCompetitionDao
 import com.rodionov.local.dao.ParticipantGroupDao
 import com.rodionov.local.mappers.toEntity

@@ -1,4 +1,6 @@
-package com.rodionov.domain.models
+package com.rodionov.domain.models.orienteering
+
+import com.rodionov.domain.models.Competition
 
 data class OrienteeringCompetition(
     val competitionId: Long,

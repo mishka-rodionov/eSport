@@ -1,0 +1,43 @@
+package com.rodionov.events.presentation.main
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rodionov.domain.models.Competition
+import com.rodionov.domain.models.KindOfSport
+import com.rodionov.domain.repository.events.EventsRepository
+import com.rodionov.events.data.main.EventsAction
+import com.rodionov.events.data.main.EventsState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+class EventsViewModel(
+    private val eventsRepository: EventsRepository
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(EventsState())
+    val state: StateFlow<EventsState> = _state.asStateFlow()
+
+    private fun onAction(action: EventsAction) {
+        when (action) {
+            is EventsAction.EventClick -> {
+
+            }
+        }
+    }
+
+    fun getEvents(kindOfSports: List<KindOfSport> = emptyList()) {
+        viewModelScope.launch(Dispatchers.IO) {
+            eventsRepository.getEvents(kindOfSport = kindOfSports).onSuccess { events ->
+                events?.also { list ->
+                    _state.update { it.copy(events = list) }
+                }
+            }.onFailure {
+                _state.update { it.copy(isGlobalError = true) }
+            }
+        }
+    }
+}

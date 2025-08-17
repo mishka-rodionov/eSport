@@ -1,6 +1,6 @@
 package com.rodionov.local.di
 
-import com.rodionov.domain.repository.OrienteeringCompetitionLocalRepository
+import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.local.dao.OrienteeringCompetitionDao
 import com.rodionov.local.dao.ParticipantGroupDao
 import com.rodionov.local.dao.UserDao

@@ -2,7 +2,7 @@ package com.rodionov.local.converters
 
 import androidx.room.TypeConverter
 import com.rodionov.domain.models.KindOfSport
-import com.rodionov.domain.models.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

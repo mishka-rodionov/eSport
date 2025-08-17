@@ -1,6 +1,6 @@
-package com.rodionov.domain.repository
+package com.rodionov.domain.repository.orienteering
 
-import com.rodionov.domain.models.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 
 interface OrienteeringCompetitionLocalRepository {

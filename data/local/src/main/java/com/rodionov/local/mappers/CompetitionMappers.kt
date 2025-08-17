@@ -1,6 +1,6 @@
 package com.rodionov.local.mappers
 
-import com.rodionov.domain.models.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity

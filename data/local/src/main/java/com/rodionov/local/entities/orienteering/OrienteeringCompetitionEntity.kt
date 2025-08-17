@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.rodionov.domain.models.Competition
-import com.rodionov.domain.models.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.local.converters.CompetitionConverters
 
 @Entity(tableName = "orienteering_competitions")

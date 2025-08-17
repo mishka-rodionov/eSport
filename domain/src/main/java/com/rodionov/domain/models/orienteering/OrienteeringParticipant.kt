@@ -1,4 +1,6 @@
-package com.rodionov.domain.models
+package com.rodionov.domain.models.orienteering
+
+import com.rodionov.domain.models.Participant
 
 data class OrienteeringParticipant(
     override val id: String,

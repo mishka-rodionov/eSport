@@ -3,8 +3,8 @@ package com.rodionov.center.data
 import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
-import com.rodionov.domain.models.OrienteeringCompetition
-import com.rodionov.domain.models.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import java.time.LocalDate
 

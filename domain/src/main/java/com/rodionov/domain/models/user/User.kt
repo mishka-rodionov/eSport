@@ -1,5 +1,7 @@
-package com.rodionov.domain.models
+package com.rodionov.domain.models.user
 
+import com.rodionov.domain.models.Gender
+import com.rodionov.domain.models.Qualification
 import java.util.Date
 
 data class User(

@@ -1,4 +1,4 @@
-package com.rodionov.remote.datasource
+package com.rodionov.remote.datasource.orienteering
 
 import com.rodionov.remote.base.CommonModel
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest

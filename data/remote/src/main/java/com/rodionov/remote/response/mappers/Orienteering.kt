@@ -1,7 +1,7 @@
 package com.rodionov.remote.response.mappers
 
-import com.rodionov.domain.models.OrienteeringCompetition
-import com.rodionov.domain.models.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
 import com.rodionov.remote.response.orienteering.ParticipantGroupResponse

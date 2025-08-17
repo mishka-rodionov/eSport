@@ -1,6 +1,6 @@
 package com.rodionov.remote.request.mappers
 
-import com.rodionov.domain.models.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest
 import com.rodionov.remote.request.orienteering.ParticipantGroupRequest

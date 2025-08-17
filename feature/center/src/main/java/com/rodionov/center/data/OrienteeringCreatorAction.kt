@@ -1,6 +1,6 @@
 package com.rodionov.center.data
 
-import com.rodionov.domain.models.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import java.time.LocalDate
 
