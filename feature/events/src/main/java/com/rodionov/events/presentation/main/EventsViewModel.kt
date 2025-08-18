@@ -32,10 +32,7 @@ class EventsViewModel(
                 viewModelScope.launch {
                     navigation.navigate(
                         EventsNavigation.EventDetailsRoute, argument =
-                            BaseArgument("temp" , DetailsInfo(
-                                "titleDetails",
-                                "descriptionDetails"
-                            ))
+                            BaseArgument("temp" , _state.value.events[action.eventId])
                     )
                 }
             }

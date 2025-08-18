@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,8 +44,8 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
     }
 
     LazyColumn {
-        items(state.events) {
-            EventItem(it, userAction = viewModel::onAction)
+        itemsIndexed(state.events) { index, item ->
+            EventItem(item, userAction = viewModel::onAction, index)
         }
     }
 //    Text(text = "News Screen test!")
@@ -54,14 +55,15 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
 @Composable
 fun EventItem(
     event: Competition,
-    userAction: (EventsAction) -> Unit
+    userAction: (EventsAction) -> Unit,
+    index: Int
 ) {
     var expanded by remember { mutableStateOf(false) }
     var isOverflowing by remember { mutableStateOf(false) }
 
     Column (
         modifier = Modifier.padding(Dimens.SIZE_HALF.dp).clickRipple{
-            userAction.invoke(EventsAction.EventClick(1L))
+            userAction.invoke(EventsAction.EventClick(index))
         }
     ){
         Image(
