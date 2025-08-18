@@ -14,6 +14,8 @@ class NavigationImpl: Navigation {
     private val _eventsNavigationEffect = MutableSharedFlow<EventsNavigation>()
     override val eventsNavigationEffect: SharedFlow<EventsNavigation> = _eventsNavigationEffect.asSharedFlow()
 
+    override var baseArgument: BaseArgument<*>? = null
+
     override suspend fun collectNavigationEffect(handler: (BaseNavigation) -> Unit, destination: BaseNavigation) {
         when(destination) {
             is CenterNavigation -> _centerNavigationEffect.collectLatest(handler)
@@ -22,11 +24,23 @@ class NavigationImpl: Navigation {
         }
     }
 
-    override suspend fun navigate(destination: BaseNavigation) {
+    override suspend fun navigate(destination: BaseNavigation, argument: BaseArgument<*>?) {
+        baseArgument = argument
         when(destination) {
             is CenterNavigation -> _centerNavigationEffect.emit(destination)
             is ProfileNavigation -> _profileNavigationEffect.emit(destination)
             is EventsNavigation -> _eventsNavigationEffect.emit(destination)
         }
     }
+}
+
+inline fun <reified T> Navigation.getArguments(name: String): T? {
+    return if (baseArgument?.argName == name) {
+        when {
+            baseArgument?.argument is T -> baseArgument?.argument
+            else -> null
+        }
+    } else {
+        null
+    } as T?
 }

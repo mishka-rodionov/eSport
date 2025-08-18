@@ -1,10 +1,11 @@
 package com.rodionov.events.presentation.main
 
+import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rodionov.data.navigation.BaseArgument
 import com.rodionov.data.navigation.EventsNavigation
 import com.rodionov.data.navigation.Navigation
-import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.repository.events.EventsRepository
 import com.rodionov.events.data.main.EventsAction
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 class EventsViewModel(
     private val navigation: Navigation,
@@ -28,7 +30,13 @@ class EventsViewModel(
         when (action) {
             is EventsAction.EventClick -> {
                 viewModelScope.launch {
-                    navigation.navigate(EventsNavigation.EventDetailsRoute)
+                    navigation.navigate(
+                        EventsNavigation.EventDetailsRoute, argument =
+                            BaseArgument("temp" , DetailsInfo(
+                                "titleDetails",
+                                "descriptionDetails"
+                            ))
+                    )
                 }
             }
         }
@@ -46,3 +54,9 @@ class EventsViewModel(
         }
     }
 }
+
+@Parcelize
+data class DetailsInfo(
+    val title: String,
+    val description: String
+) : Parcelable

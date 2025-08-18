@@ -113,7 +113,8 @@ private fun hostController(
     Log.d("LOG_TAG", "hostController: $navControllers, $tab, $viewModel")
     if (navControllers[tab]?.value == null) {
         navControllers[tab]?.value = rememberNavController()
-        viewModel.collectNavigationEffect(navControllers[tab]?.value!!::navigate, checkNavigation(tab))
+        viewModel.collectNavigationEffect({ route ->
+            navControllers[tab]?.value!!.navigate(route = route) }, checkNavigation(tab))
     }
     val navController = navControllers[tab]?.value!!
     return navController

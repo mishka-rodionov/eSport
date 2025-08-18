@@ -2,9 +2,9 @@ package com.rodionov.sportsenthusiast.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rodionov.data.navigation.BaseArgument
 import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.Navigation
-import com.rodionov.sportsenthusiast.BottomNavItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

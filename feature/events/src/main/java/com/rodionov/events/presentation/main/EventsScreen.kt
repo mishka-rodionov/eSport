@@ -98,7 +98,7 @@ fun EventItem(
                 Text(
                     text = if (expanded) "Свернуть" else "Развернуть",
                     color = Color.Blue, // Цвет кнопки "Развернуть"
-                    modifier = Modifier.padding(top = 4.dp).clickable { expanded = !expanded } // Обработчик клика
+                    modifier = Modifier.padding(top = 4.dp).clickRipple { expanded = !expanded } // Обработчик клика
                 )
             }
         }

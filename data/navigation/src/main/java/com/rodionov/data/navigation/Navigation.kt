@@ -8,8 +8,10 @@ sealed interface Navigation {
     val profileNavigationEffect: SharedFlow<ProfileNavigation>
     val eventsNavigationEffect: SharedFlow<EventsNavigation>
 
+    var baseArgument: BaseArgument<*>?
+
     suspend fun collectNavigationEffect(handler: (BaseNavigation) -> Unit, destination: BaseNavigation)
 
-    suspend fun navigate(destination: BaseNavigation)
+    suspend fun navigate(destination: BaseNavigation, argument: BaseArgument<*>? = null)
 
 }
