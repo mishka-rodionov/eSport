@@ -2,8 +2,8 @@ package com.rodionov.center.presentation.orientiring_competition_create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rodionov.center.data.OrienteeringCreatorAction
-import com.rodionov.center.data.OrienteeringCreatorState
+import com.rodionov.center.data.creator.OrienteeringCreatorAction
+import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition

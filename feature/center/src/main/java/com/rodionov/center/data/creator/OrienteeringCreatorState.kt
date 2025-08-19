@@ -1,4 +1,4 @@
-package com.rodionov.center.data
+package com.rodionov.center.data.creator
 
 import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.Coordinates

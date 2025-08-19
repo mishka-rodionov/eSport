@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSBottomDialog
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.theme.Dimens
-import com.rodionov.center.data.OrienteeringCreatorAction
-import com.rodionov.center.data.OrienteeringCreatorState
+import com.rodionov.center.data.creator.OrienteeringCreatorAction
+import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.domain.models.ParticipantGroup
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,6 +1,6 @@
 package com.rodionov.center.data.interactors
 
-import com.rodionov.center.data.OrienteeringCreatorAction
+import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository

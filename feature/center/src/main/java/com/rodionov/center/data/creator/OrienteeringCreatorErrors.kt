@@ -1,4 +1,4 @@
-package com.rodionov.center.data
+package com.rodionov.center.data.creator
 
 data class OrienteeringCreatorErrors(
     val isEmptyAddress: Boolean = false,

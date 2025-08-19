@@ -43,8 +43,8 @@ import androidx.compose.ui.unit.sp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.ExposedDropdownMenuOutlined
 import com.example.designsystem.components.TimePickerDialog
-import com.rodionov.center.data.OrienteeringCreatorAction
-import com.rodionov.center.data.OrienteeringCreatorState
+import com.rodionov.center.data.creator.OrienteeringCreatorAction
+import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.resources.R
