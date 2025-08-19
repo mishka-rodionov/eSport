@@ -11,15 +11,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.designsystem.components.DSTextInput
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(viewModel: ProfileViewModel = koinViewModel()) {
     Column {
         Text(text = "Profile screen test!")
         Text(text = "Second row234!" )
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
-
-        }) { }
+            viewModel.toAuthorization()
+        }) {
+            Text(text = "Авторизоваться" )
+        }
 
         var text by remember { mutableStateOf("") }
 

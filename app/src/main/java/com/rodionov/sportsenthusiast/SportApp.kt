@@ -5,6 +5,7 @@ import com.rodionov.center.di.centerModule
 import com.rodionov.data.navigation.di.navigationModule
 import com.rodionov.events.di.eventsModule
 import com.rodionov.local.di.databaseModule
+import com.rodionov.profile.di.profileModule
 import com.rodionov.remote.di.eventsDataModule
 import com.rodionov.remote.di.orienteeringModule
 import com.rodionov.remote.di.retrofitModule
@@ -27,7 +28,7 @@ class SportApp : Application() {
             modules(orienteeringModule, eventsDataModule)
 
             //feature modules
-            modules(mainModule, centerModule, eventsModule)
+            modules(mainModule, centerModule, eventsModule, profileModule)
         }
     }
 }

@@ -21,6 +21,7 @@ fun DSTextInput(
     prefix: @Composable (() -> Unit)? = null,
     suffix: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = false,
     isError: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
@@ -38,6 +39,7 @@ fun DSTextInput(
         prefix = prefix,
         suffix = suffix,
         supportingText = supportingText,
+        singleLine = singleLine,
         isError = isError,
         interactionSource = interactionSource,
         keyboardOptions = keyboardOptions
