@@ -14,6 +14,7 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowSizeClass
 import com.rodionov.center.navigation.centerGraph
 import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.CenterNavigation
@@ -45,17 +47,18 @@ class MainActivity : ComponentActivity() {
 
 //        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(1))
         setContent {
+            val widthSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             SportsEnthusiastTheme {
                 // A surface container using the 'background' color from the theme
 //                val navController = rememberNavController()
-                MainScreen(viewModel)
+                MainScreen(viewModel, widthSizeClass)
             }
         }
     }
 }
 
 @Composable
-private fun MainScreen(viewModel: MainViewModel) {
+private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass) {
     val navControllers = remember {
         BottomNavItem.all.associateWith { mutableStateOf<NavHostController?>(null) }
     }
@@ -95,7 +98,7 @@ private fun MainScreen(viewModel: MainViewModel) {
                         when (tab) {
                             BottomNavItem.Profile -> profileNavigation()
                             BottomNavItem.CompetitionList -> eventsGraph()
-                            BottomNavItem.CompetitionConstructor -> centerGraph()
+                            BottomNavItem.CompetitionConstructor -> centerGraph(windowSizeClass)
                         }
                     }
                 }

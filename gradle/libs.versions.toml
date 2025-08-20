@@ -43,6 +43,8 @@ room = "2.7.2"
 
 #Koin
 koin = "4.1.0"
+adaptive = "1.1.0"
+windowCore = "1.4.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -79,6 +81,8 @@ koin-workmanager = { module = "io.insert-koin:koin-androidx-workmanager", versio
 koin-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koin" }
 koin-appstartup = { module = "io.insert-koin:koin-androidx-startup", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+androidx-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive", version.ref = "adaptive" }
+androidx-window-core = { group = "androidx.window", name = "window-core", version.ref = "windowCore" }
 
 [plugins]
 android = { id = "org.jetbrains.kotlin.android", version.ref = "android-koltin" }

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.designsystem.components.clickRipple
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.CenterEffects
 import com.rodionov.center.data.main.CenterState
@@ -47,15 +48,15 @@ fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
                 Text("Создать новое событие")
             }
         )
-        ControlledEvents(state)
+        ControlledEvents(state, viewModel::handleEffects)
     }
 }
 
 @Composable
-fun ControlledEvents(state: CenterState) {
+fun ControlledEvents(state: CenterState, userAction: (CenterEffects) -> Unit) {
     LazyColumn(modifier = Modifier.padding(top = Dimens.SIZE_HALF.dp)) {
         itemsIndexed(state.controlledEvents) { index, item ->
-            EventContent(item)
+            EventContent(item, userAction)
             if(index < state.controlledEvents.size - 1 ) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -64,10 +65,12 @@ fun ControlledEvents(state: CenterState) {
 }
 
 @Composable
-fun EventContent(competition: Competition) {
+fun EventContent(competition: Competition, userAction: (CenterEffects) -> Unit) {
 
     Row(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        modifier = Modifier.fillMaxWidth().wrapContentHeight().clickRipple{
+            userAction.invoke(CenterEffects.OpenOrienteeringEventControl)
+        }
     ) {
         Image(
             painter = painterResource(R.drawable.map_24dp),

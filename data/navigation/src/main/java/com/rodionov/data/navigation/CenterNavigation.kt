@@ -12,6 +12,8 @@ sealed class CenterNavigation: BaseNavigation {
     @Serializable
     data object KindOfSportRoute: CenterNavigation()
     @Serializable
-    data object OrienteeringCreator: CenterNavigation()
+    data object OrienteeringCreatorRoute: CenterNavigation()
+    @Serializable
+    data object OrienteeringEventControlRoute: CenterNavigation()
 
 }

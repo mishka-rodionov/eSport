@@ -26,7 +26,11 @@ class CenterViewModel(val navigation: Navigation): ViewModel() {
             }
 
             is CenterEffects.OpenOrienteeringCreator -> viewModelScope.launch {
-                navigation.navigate(CenterNavigation.OrienteeringCreator)
+                navigation.navigate(CenterNavigation.OrienteeringCreatorRoute)
+            }
+
+            is CenterEffects.OpenOrienteeringEventControl -> viewModelScope.launch {
+                navigation.navigate(CenterNavigation.OrienteeringEventControlRoute)
             }
         }
     }
