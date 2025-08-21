@@ -16,13 +16,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -36,6 +42,7 @@ import com.rodionov.events.navigation.eventsGraph
 import com.rodionov.profile.navigation.profileNavigation
 import com.rodionov.sportsenthusiast.BottomNavItem
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -49,8 +56,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val widthSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             SportsEnthusiastTheme {
-                // A surface container using the 'background' color from the theme
-//                val navController = rememberNavController()
                 MainScreen(viewModel, widthSizeClass)
             }
         }
@@ -59,14 +64,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass) {
-    val navControllers = remember {
-        BottomNavItem.all.associateWith { mutableStateOf<NavHostController?>(null) }
-    }
+    BottomNavItem.all // не удалять, падает при первом tab.route
     var selectedTab by rememberSaveable { mutableStateOf<String>(BottomNavItem.CompetitionList.route) }
-//                viewModel.collectNavigationEffect(navController::navigate)
+    val saveableStateHolder = rememberSaveableStateHolder()
+    val lifecycleOwner = LocalLifecycleOwner.current
     Scaffold(
         bottomBar = {
-//                        BottomNavBar(navController = navController, selectedTab = selectedTab)
             BottomNavigation {
                 BottomNavItem.all.forEach { tab ->
                         BottomNavigationItem(
@@ -83,44 +86,43 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
         Box(Modifier.padding(innerPadding)) {
             // Все NavHost-ы присутствуют в иерархии, но только текущий видим
             BottomNavItem.all.forEach { tab ->
-                val navController = hostController(navControllers, tab, viewModel)
-
-
                 val isSelected = tab.route == selectedTab
                 Log.d("LOG_TAG", "MainScreen: count")
 
                 AnimatedVisibility(visible = isSelected, enter = fadeIn(), exit = fadeOut()) {
-                    NavHost(
-                        navController = navController,
-                        startDestination = checkNavigation(tab),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        when (tab) {
-                            BottomNavItem.Profile -> profileNavigation()
-                            BottomNavItem.CompetitionList -> eventsGraph()
-                            BottomNavItem.CompetitionConstructor -> centerGraph(windowSizeClass)
+                    saveableStateHolder.SaveableStateProvider(tab.route) {
+                        val navController = rememberNavController()
+
+                        // подписка на эффекты только для активного таба
+                        val isSelected = selectedTab == tab.route
+                        LaunchedEffect(navController, isSelected) {
+                            if (isSelected) {
+                                lifecycleOwner.lifecycleScope.launch {
+                                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                                        viewModel.collectNavigationEffect(
+                                            navigationHandler = { route -> navController.navigate(route) },
+                                            destination = checkNavigation(tab)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        NavHost(
+                            navController = navController,
+                            startDestination = checkNavigation(tab),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            when (tab) {
+                                BottomNavItem.Profile -> profileNavigation()
+                                BottomNavItem.CompetitionList -> eventsGraph()
+                                BottomNavItem.CompetitionConstructor -> centerGraph(windowSizeClass)
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun hostController(
-    navControllers: Map<BottomNavItem, MutableState<NavHostController?>>,
-    tab: BottomNavItem,
-    viewModel: MainViewModel
-): NavHostController {
-    Log.d("LOG_TAG", "hostController: $navControllers, $tab, $viewModel")
-    if (navControllers[tab]?.value == null) {
-        navControllers[tab]?.value = rememberNavController()
-        viewModel.collectNavigationEffect({ route ->
-            navControllers[tab]?.value!!.navigate(route = route) }, checkNavigation(tab))
-    }
-    val navController = navControllers[tab]?.value!!
-    return navController
 }
 
 private fun checkNavigation(tab: BottomNavItem): BaseNavigation = when (tab) {

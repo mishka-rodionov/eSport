@@ -12,10 +12,10 @@ class MainViewModel(
     private val navigation: Navigation
 ): ViewModel() {
 
-    fun collectNavigationEffect(navigationHandler: (BaseNavigation) -> Unit, destination: BaseNavigation) {
-        viewModelScope.launch(Dispatchers.Main) {
+    suspend fun collectNavigationEffect(navigationHandler: (BaseNavigation) -> Unit, destination: BaseNavigation) {
+//        viewModelScope.launch(Dispatchers.Main) {
             navigation.collectNavigationEffect(navigationHandler, destination)
-        }
+//        }
     }
 
     fun navigate() {
