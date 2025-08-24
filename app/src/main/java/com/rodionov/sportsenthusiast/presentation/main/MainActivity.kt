@@ -1,5 +1,6 @@
 package com.rodionov.sportsenthusiast.presentation.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -59,6 +60,10 @@ class MainActivity : ComponentActivity() {
                 MainScreen(viewModel, widthSizeClass)
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
     }
 }
 
