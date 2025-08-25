@@ -1,8 +1,11 @@
 package com.rodionov.nfchelper
 
+import android.nfc.NfcAdapter
 import android.nfc.Tag
 
 class SportiduinoHelperImpl: SportiduinoHelper {
+
+    private var nfcAdapter: NfcAdapter? = null
 
     override var nfcMode: SportiduinoNfcMode
         get() = TODO("Not yet implemented")
