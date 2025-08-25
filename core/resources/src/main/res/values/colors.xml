@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#333333</color>
+    <color name="secondary">#980b0b</color>
+    <color name="black">#ff000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="gray">#ff808080</color>
+    <color name="red">#ff0000</color>
+    <color name="green">#008000</color>
+    <color name="yellow">#ffc300</color>
+    <color name="error_text_bg">#fff6c0c0</color>
+    <color name="ok_text_bg">#ffc5E1b0</color>
+    <color name="border_color">@color/gray</color>
+    <color name="github_icon">@color/black</color>
+</resources>

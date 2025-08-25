@@ -8,4 +8,8 @@ interface ResourceProvider {
 
     fun getString(@StringRes id: Int, vararg args: Any): String
 
+    fun coloredHtmlString(s: String?, color: String): String
+
+    fun colorToHexCode(color: Int): String
+
 }

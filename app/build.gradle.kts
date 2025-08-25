@@ -76,6 +76,7 @@ dependencies {
     implementation(project(":feature:events"))
     implementation(project(":feature:center"))
     implementation(project(":core:resources"))
+    implementation(project(":core:nfchelper"))
 
     implementation(libs.kotlinx.serialization.json)
 

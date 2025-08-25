@@ -1,5 +1,6 @@
 package com.rodionov.sportsenthusiast.presentation.main
 
+import android.nfc.Tag
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.BaseArgument
@@ -19,6 +20,10 @@ class MainViewModel(
     }
 
     fun navigate() {
+
+    }
+
+    fun onNewTagDetected(tag: Tag) {
 
     }
 
