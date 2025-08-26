@@ -1,19 +1,21 @@
 package com.rodionov.nfchelper.nfccard
 
 import com.rodionov.nfchelper.Password
-import org.sportiduino.app.App
-import java.util.Arrays
-import kotlin.collections.copyOfRange
+import com.rodionov.nfchelper.R
+import com.rodionov.resources.ResourceProvider
 
-class Config {
+class Config(
+    private val resourceProvider: ResourceProvider
+) {
+
     enum class AntennaGain(val label: String, val value: Int) {
-        ANTENNA_GAIN_UNKNOWN(App.str(R.string.antenna_gain_unknown), 0),
-        ANTENNA_GAIN_18DB("18 " + App.str(R.string.db), 0x02),
-        ANTENNA_GAIN_23DB("23 " + App.str(R.string.db), 0x03),
-        ANTENNA_GAIN_33DB("33 " + App.str(R.string.db), 0x04),
-        ANTENNA_GAIN_38DB("38 " + App.str(R.string.db), 0x05),
-        ANTENNA_GAIN_43DB("43 " + App.str(R.string.db), 0x06),
-        ANTENNA_GAIN_48DB("48 " + App.str(R.string.db), 0x07);
+        ANTENNA_GAIN_UNKNOWN("неизв.", 0),
+        ANTENNA_GAIN_18DB("18 дБ", 0x02),
+        ANTENNA_GAIN_23DB("23 дБ", 0x03),
+        ANTENNA_GAIN_33DB("33 дБ", 0x04),
+        ANTENNA_GAIN_38DB("38 дБ", 0x05),
+        ANTENNA_GAIN_43DB("43 дБ", 0x06),
+        ANTENNA_GAIN_48DB("48 дБ", 0x07);
 
         override fun toString(): String {
             return label
@@ -38,23 +40,23 @@ class Config {
         }
     }
 
-    enum class ActiveModeDuration(private val label: String, private val value: Int) {
-        ACTIVE_MODE_1H("1 " + App.str(R.string.config_hour), 0),
-        ACTIVE_MODE_2H("2 " + App.str(R.string.config_hour), 1),
-        ACTIVE_MODE_4H("4 " + App.str(R.string.config_hour), 2),
-        ACTIVE_MODE_8H("8 " + App.str(R.string.config_hour), 3),
-        ACTIVE_MODE_16H("16 " + App.str(R.string.config_hour), 4),
-        ACTIVE_MODE_32H("32 " + App.str(R.string.config_hour), 5),
-        ACTIVE_MODE_ALWAYS(App.str(R.string.config_always_active), 6),
-        ACTIVE_MODE_NEVER(App.str(R.string.config_never_active), 7);
+    enum class ActiveModeDuration(private val label: String, val value: Int) {
+        ACTIVE_MODE_1H("1 ч", 0),
+        ACTIVE_MODE_2H("2 ч", 1),
+        ACTIVE_MODE_4H("4 ч", 2),
+        ACTIVE_MODE_8H("8 ч", 3),
+        ACTIVE_MODE_16H("16 ч", 4),
+        ACTIVE_MODE_32H("32 ч", 5),
+        ACTIVE_MODE_ALWAYS("всегда", 6),
+        ACTIVE_MODE_NEVER("никогда", 7);
 
         override fun toString(): String {
             return label
         }
 
         companion object {
-            private val BY_VALUE: MutableMap<Int?, ActiveModeDuration?> =
-                HashMap<Int?, ActiveModeDuration?>()
+            private val BY_VALUE: MutableMap<Int, ActiveModeDuration> =
+                HashMap<Int, ActiveModeDuration>()
 
             init {
                 for (e in entries) {
@@ -62,14 +64,14 @@ class Config {
                 }
             }
 
-            fun byValue(value: Int): ActiveModeDuration? {
-                return BY_VALUE.get(value)
+            fun byValue(value: Int): ActiveModeDuration {
+                return BY_VALUE[value] ?: ACTIVE_MODE_2H
             }
         }
     }
 
     var stationCode: Int = 0
-    var activeModeDuration: ActiveModeDuration? = ActiveModeDuration.ACTIVE_MODE_2H
+    var activeModeDuration: ActiveModeDuration = ActiveModeDuration.ACTIVE_MODE_2H
     var startAsCheck: Boolean = false
     var checkCardInitTime: Boolean = false
     var autoSleep: Boolean = false
@@ -83,16 +85,16 @@ class Config {
         var flags = activeModeDuration.value.toByte()
 
         if (startAsCheck) {
-            flags = flags.toInt() or 0x08
+            flags = (flags.toInt() or 0x08).toByte()
         }
         if (checkCardInitTime) {
-            flags = flags.toInt() or 0x10
+            flags = (flags.toInt() or 0x10).toByte()
         }
         if (autoSleep) {
-            flags = flags.toInt() or 0x20
+            flags = (flags.toInt() or 0x20).toByte()
         }
         if (enableFastPunchForCard) {
-            flags = flags.toInt() or 0x80
+            flags = (flags.toInt() or 0x80).toByte()
         }
 
         return arrayOf<ByteArray?>(
@@ -100,36 +102,36 @@ class Config {
                 stationCode.toByte(),
                 flags,
                 antennaGain!!.value.toByte(),
-                password.getValue(2) as Byte
+                password.getValue(2).toByte()
             ),
-            byteArrayOf(password.getValue(1) as Byte, password.getValue(0) as Byte, 0, 0)
+            byteArrayOf(password.getValue(1).toByte(), password.getValue(0).toByte(), 0, 0)
         )
     }
 
     override fun toString(): String {
         var str: String =
-            App.str(R.string.config_station_no) + String.format(" <b>%s</b>", stationCode)
+            resourceProvider.getString(R.string.config_station_no) + String.format(" <b>%s</b>", stationCode)
         when (stationCode) {
-            START_STATION -> str += " " + App.str(R.string.config_start)
-            FINISH_STATION -> str += " " + App.str(R.string.config_finish)
-            CHECK_STATION -> str += " " + App.str(R.string.config_check)
-            CLEAR_STATION -> str += " " + App.str(R.string.config_clear)
+            START_STATION -> str += " " + resourceProvider.getString(R.string.config_start)
+            FINISH_STATION -> str += " " + resourceProvider.getString(R.string.config_finish)
+            CHECK_STATION -> str += " " + resourceProvider.getString(R.string.config_check)
+            CLEAR_STATION -> str += " " + resourceProvider.getString(R.string.config_clear)
         }
-        str += "\n\t" + App.str(R.string.config_active_time) + " " + activeModeDuration.toString()
-        str += "\n\t" + App.str(R.string.config_flags)
+        str += "\n\t" + resourceProvider.getString(R.string.config_active_time) + " " + activeModeDuration.toString()
+        str += "\n\t" + resourceProvider.getString(R.string.config_flags)
         if (startAsCheck) {
-            str += "\n\t\t" + App.str(R.string.config_start_as_check)
+            str += "\n\t\t" + resourceProvider.getString(R.string.config_start_as_check)
         }
         if (checkCardInitTime) {
-            str += "\n\t\t" + App.str(R.string.config_check_init_time)
+            str += "\n\t\t" + resourceProvider.getString(R.string.config_check_init_time)
         }
         if (autoSleep) {
-            str += "\n\t\t" + App.str(R.string.config_auto_sleep_flag)
+            str += "\n\t\t" + resourceProvider.getString(R.string.config_auto_sleep_flag)
         }
         if (enableFastPunchForCard) {
-            str += "\n\t\t" + App.str(R.string.config_fast_punch_flag)
+            str += "\n\t\t" + resourceProvider.getString(R.string.config_fast_punch_flag)
         }
-        str += "\n\t" + App.str(R.string.config_antenna_gain_) + " " + antennaGain!!.label
+        str += "\n\t" + resourceProvider.getString(R.string.config_antenna_gain_) + " " + antennaGain!!.label
         return str
     }
 
@@ -139,8 +141,8 @@ class Config {
         const val CHECK_STATION: Int = 248
         const val CLEAR_STATION: Int = 249
 
-        fun unpack(configData: ByteArray): Config {
-            val config = Config()
+        fun unpack(configData: ByteArray, resourceProvider: ResourceProvider): Config {
+            val config = Config(resourceProvider)
             config.stationCode = configData[0].toInt() and 0xFF
 
             config.activeModeDuration =

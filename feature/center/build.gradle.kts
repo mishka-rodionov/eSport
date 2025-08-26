@@ -53,6 +53,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:resources"))
+    implementation(project(":core:nfchelper"))
     implementation(project(":utils"))
 
     //compose navigation

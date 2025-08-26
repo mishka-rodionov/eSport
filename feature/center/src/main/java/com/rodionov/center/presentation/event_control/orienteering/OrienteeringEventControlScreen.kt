@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
+import com.rodionov.center.data.event_control.OrientEventControlAction
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -31,11 +32,14 @@ fun OrienteeringEventControlScreen(
 ) {
     val isExpanded =
         windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
-    OrienteeringEventControlContent(isExpanded)
+    OrienteeringEventControlContent(isExpanded, viewModel::onAction)
 }
 
 @Composable
-fun OrienteeringEventControlContent(isExpanded: Boolean) {
+fun OrienteeringEventControlContent(
+    isExpanded: Boolean,
+    userAction: (OrientEventControlAction) -> Unit
+) {
     if (isExpanded) {
         Row(
             modifier = Modifier
@@ -47,7 +51,9 @@ fun OrienteeringEventControlContent(isExpanded: Boolean) {
                     .aspectRatio(1f)
                     .padding(4.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color.Blue), onClick = {}) {
+                    .background(Color.Blue), onClick = {
+                    userAction.invoke(OrientEventControlAction.OpenOrientReadCard)
+                }) {
                 Text(text = "Сканировать")
             }
 
@@ -93,7 +99,9 @@ fun OrienteeringEventControlContent(isExpanded: Boolean) {
                         .aspectRatio(1f)
                         .padding(4.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color.Blue), onClick = {}) {
+                        .background(Color.Blue), onClick = {
+                        userAction.invoke(OrientEventControlAction.OpenOrientReadCard)
+                    }) {
                     Text(text = "Сканировать")
                 }
 

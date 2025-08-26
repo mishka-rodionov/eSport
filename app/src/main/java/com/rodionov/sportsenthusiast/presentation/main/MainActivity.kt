@@ -1,5 +1,7 @@
 package com.rodionov.sportsenthusiast.presentation.main
 
+import android.app.Activity
+import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
@@ -21,10 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
@@ -33,7 +33,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass
@@ -48,21 +47,45 @@ import com.rodionov.sportsenthusiast.BottomNavItem
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.Objects
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
 
+    private val nfcPendingIntent: PendingIntent by lazy {
+        PendingIntent.getActivity(
+            this, 0,
+            Intent(
+                this,
+                this.javaClass
+            ).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_MUTABLE
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
 //        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(1))
+        viewModel.setNfcAdapter(NfcAdapter.getDefaultAdapter(this))
         setContent {
             val widthSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             SportsEnthusiastTheme {
                 MainScreen(viewModel, widthSizeClass)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        viewModel.enableForegroundDispatch(this, nfcPendingIntent)
+        viewModel.enableReaderMode(this, viewModel::onNewTagDetected)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.disableForegroundDispatch(this)
     }
 
     override fun onNewIntent(intent: Intent) {

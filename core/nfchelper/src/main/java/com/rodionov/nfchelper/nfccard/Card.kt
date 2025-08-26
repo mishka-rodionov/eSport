@@ -6,6 +6,7 @@ import com.rodionov.nfchelper.nfccard.Constants.CARD_PAGE_INIT
 import com.rodionov.nfchelper.nfccard.Constants.CARD_PAGE_INIT_TIME
 import com.rodionov.nfchelper.nfccard.Constants.FAST_PUNCH_SIGN
 import com.rodionov.nfchelper.nfccard.Constants.MASTER_CARD_SIGN
+import com.rodionov.resources.ResourceProvider
 
 
 abstract class Card(var adapter: CardAdapter) {
@@ -31,12 +32,12 @@ abstract class Card(var adapter: CardAdapter) {
 
     companion object {
         @Throws(ReadWriteCardException::class)
-        fun detectCard(adapter: CardAdapter): Card {
+        fun detectCard(adapter: CardAdapter, resourceProvider: ResourceProvider): Card {
             var data = adapter.readPage(CARD_PAGE_INIT)
 
             if (data[2] == MASTER_CARD_SIGN) {
                 val type = CardType.byValue(Util.byteToUint(data[1]))
-                val masterCard = MasterCard(adapter, type, Password.defaultPassword())
+                val masterCard = MasterCard(adapter, type, Password.defaultPassword(), resourceProvider)
                 masterCard.dataPage4 = data
                 return masterCard
             } else {
@@ -47,7 +48,7 @@ abstract class Card(var adapter: CardAdapter) {
                 val cardInitTimestamp: Long = Util.toUint32(data)
                 data = adapter.readPage(CARD_PAGE_INFO1)
                 val fastPunch = (data[3] == FAST_PUNCH_SIGN)
-                return ParticipantCard(adapter, cardNumber, fastPunch, cardInitTimestamp)
+                return ParticipantCard(adapter, cardNumber, fastPunch, cardInitTimestamp, resourceProvider)
             }
         }
     }

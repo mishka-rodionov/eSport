@@ -137,7 +137,7 @@ class State(data: Array<ByteArray>, private val resourceProvider: ResourceProvid
                 isEmpty = true
             } else {
                 version = Version(data[0][0], data[0][1], data[0][2])
-                config = Config.unpack(data[1])
+                config = Config.unpack(data[1], resourceProvider)
                 battery = Battery(data[2][0].toInt() and 0xFF)
                 mode = Mode.entries[data[2][1].toInt()]
                 timestamp = Util.toUint32(data[3])
