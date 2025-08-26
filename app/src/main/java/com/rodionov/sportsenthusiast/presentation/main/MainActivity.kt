@@ -85,7 +85,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.disableForegroundDispatch(this)
+        viewModel.disableReaderMode(this)
+//        viewModel.disableForegroundDispatch(this)
     }
 
     override fun onNewIntent(intent: Intent) {

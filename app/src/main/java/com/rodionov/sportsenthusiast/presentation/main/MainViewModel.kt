@@ -37,6 +37,8 @@ class MainViewModel(
         sportiduinoHelper.enableReaderMode(activity, handleTag)
     }
 
+    fun disableReaderMode(activity: ComponentActivity) = sportiduinoHelper.disableReaderMode(activity)
+
     fun disableForegroundDispatch(activity: ComponentActivity) = sportiduinoHelper.disableForegroundDispatch(activity)
 
     fun onNewTagDetected(tag: Tag) {

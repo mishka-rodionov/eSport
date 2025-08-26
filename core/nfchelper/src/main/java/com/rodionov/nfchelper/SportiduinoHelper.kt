@@ -15,6 +15,8 @@ interface SportiduinoHelper {
 
     fun enableReaderMode(activity: ComponentActivity, handleTag: (Tag) -> Unit)
 
+    fun disableReaderMode(activity: ComponentActivity)
+
     fun disableForegroundDispatch(activity: ComponentActivity)
 
     suspend fun subscribeToReadCard(handler: (String) -> Unit)

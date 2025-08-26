@@ -50,6 +50,10 @@ class SportiduinoHelperImpl(
             null)
     }
 
+    override fun disableReaderMode(activity: ComponentActivity) {
+        nfcAdapter?.disableReaderMode(activity)
+    }
+
     override fun disableForegroundDispatch(activity: ComponentActivity) {
         nfcAdapter?.disableForegroundDispatch(activity)
     }
