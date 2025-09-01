@@ -1,5 +1,6 @@
 package com.rodionov.profile.presentation.auth
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,8 +71,8 @@ fun EmailInputContent(userAction: (AuthAction) -> Unit) {
             Button(
                 onClick = {
                     // TODO: Обработка введенного email
-                    println("Введенный email: $email")
-                    userAction.invoke(AuthAction.AuthClicked)
+                    Log.d("LOG_TAG", "EmailInputContent: Введенный email: $email")
+                    userAction.invoke(AuthAction.AuthClicked(email))
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

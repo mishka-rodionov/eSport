@@ -28,7 +28,7 @@ private fun retrofit(gson: Gson): Retrofit {
         .writeTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .build()
     val baseUrl = "https://BASE_URL"
-    val localBaseUrl = "https://127.0.0.1:8080/"
+    val localBaseUrl = "http://192.168.1.70:8080/"
     return Retrofit.Builder()
         .baseUrl(localBaseUrl)
 //        .baseUrl(baseUrl)

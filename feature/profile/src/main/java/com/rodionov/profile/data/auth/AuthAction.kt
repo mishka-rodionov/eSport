@@ -2,6 +2,6 @@ package com.rodionov.profile.data.auth
 
 sealed class AuthAction {
 
-    data object AuthClicked: AuthAction()
+    data class AuthClicked(val email: String): AuthAction()
 
 }
