@@ -7,6 +7,7 @@ import com.rodionov.events.di.eventsModule
 import com.rodionov.local.di.databaseModule
 import com.rodionov.nfchelper.di.nfcModule
 import com.rodionov.profile.di.profileModule
+import com.rodionov.remote.di.authModule
 import com.rodionov.remote.di.eventsDataModule
 import com.rodionov.remote.di.orienteeringModule
 import com.rodionov.remote.di.retrofitModule
@@ -26,7 +27,7 @@ class SportApp : Application() {
             modules(retrofitModule, databaseModule, navigationModule, resourceModule, nfcModule)
 
             //data modules
-            modules(orienteeringModule, eventsDataModule)
+            modules(authModule, orienteeringModule, eventsDataModule)
 
             //feature modules
             modules(mainModule, centerModule, eventsModule, profileModule)
