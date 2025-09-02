@@ -1,5 +1,6 @@
 package com.rodionov.profile.presentation.auth_code
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -32,18 +33,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.input.key.key // Используем event.key
 import androidx.compose.ui.input.key.type
+import com.rodionov.profile.data.auth.AuthAction
+import org.koin.compose.viewmodel.koinViewModel
 
 
 const val OTP_LENGTH = 6
 
 @Composable
-fun AuthCodeScreen() {
-    OtpInputContent()
+fun AuthCodeScreen(viewModel: AuthCodeViewModel = koinViewModel()) {
+    OtpInputContent(viewModel::onAction)
 }
 
 @OptIn(ExperimentalComposeUiApi::class) // Нужен для onKeyEvent
 @Composable
-fun OtpInputContent() {
+fun OtpInputContent(userAction: (AuthAction) -> Unit) {
     val otpValues = remember { mutableStateListOf<String>().apply { repeat(OTP_LENGTH) { add("") } } }
     val focusRequesters = remember { List(OTP_LENGTH) { FocusRequester() } }
     val focusManager = LocalFocusManager.current
@@ -60,7 +63,8 @@ fun OtpInputContent() {
 
             if (otpValues.all { it.isNotEmpty() }) {
                 focusManager.clearFocus()
-                println("Введенный OTP: ${getFullOtp()}")
+                Log.d("LOG_TAG", "onOtpValueChanged: Введенный OTP: ${getFullOtp()}")
+                userAction.invoke(AuthAction.AuthCodeEntered(getFullOtp()))
                 // TODO: Здесь можно вызвать функцию для проверки OTP
             }
         } else if (newValue.isEmpty()) { // Обработка случая, когда значение стало пустым (например, из-за Backspace)
@@ -184,7 +188,7 @@ fun OtpCell(
 fun OtpInputScreenPreview() {
     MaterialTheme { // Оберните в MaterialTheme для использования Material компонентов и стилей
         Surface {
-            OtpInputContent()
+            OtpInputContent({})
         }
     }
 }
