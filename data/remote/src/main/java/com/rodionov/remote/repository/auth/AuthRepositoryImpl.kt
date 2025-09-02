@@ -13,9 +13,7 @@ class AuthRepositoryImpl(
 ): AuthRepository {
 
     override suspend fun requestAuthCode(email: String): Result<Any> {
-        return authRemoteDataSource.requestAuthCode(EmailRequest(email)).mapCatching {
-            it.result!!
-        }
+        return authRemoteDataSource.requestAuthCode(EmailRequest(email))
     }
 
     override suspend fun sendAuthCode(email: String, code: String): Result<Token> {
