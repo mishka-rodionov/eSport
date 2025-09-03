@@ -1,5 +1,6 @@
 package com.rodionov.domain.models
 
+
 sealed class KindOfSport(val name: String) {
 
     data object Orienteering: KindOfSport("Orienteering")
@@ -13,6 +14,13 @@ sealed class KindOfSport(val name: String) {
 
         fun fromName(name: String): KindOfSport? =
             all.find { it.name == name }
+
+        fun fromSerializedName(value: String): KindOfSport? = when (value) {
+            "orienteering" -> Orienteering
+            "cross_country_ski" -> CrossCountrySki
+            "trail_running" -> TrailRunning
+            else -> null
+        }
 
     }
 

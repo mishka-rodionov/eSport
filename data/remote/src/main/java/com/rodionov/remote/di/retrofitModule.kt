@@ -1,6 +1,9 @@
 package com.rodionov.remote.di
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.rodionov.domain.models.KindOfSport
+import com.rodionov.remote.network.adapters.KindOfSportAdapter
 import com.rodionov.remote.network.retrofit.ResultCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -14,7 +17,7 @@ import java.util.concurrent.TimeUnit
 private const val TIMEOUT_SECONDS = 60
 
 val retrofitModule = module {
-    singleOf(::Gson)
+    singleOf(::createGson)
     singleOf(::retrofit)
 }
 
@@ -37,4 +40,10 @@ private fun retrofit(gson: Gson): Retrofit {
         .addCallAdapterFactory(ResultCallAdapterFactory())
         .client(okClient)
         .build()
+}
+
+private fun createGson(): Gson {
+    return GsonBuilder()
+        .registerTypeAdapter(KindOfSport::class.java, KindOfSportAdapter())
+        .create()
 }

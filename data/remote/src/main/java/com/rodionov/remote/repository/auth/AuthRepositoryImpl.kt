@@ -1,7 +1,6 @@
 package com.rodionov.remote.repository.auth
 
 import android.util.Log
-import com.rodionov.domain.models.auth.Token
 import com.rodionov.domain.repository.auth.AuthRepository
 import com.rodionov.remote.datasource.auth.AuthRemoteDataSource
 import com.rodionov.remote.request.auth.AuthCodeRequest
@@ -16,7 +15,7 @@ class AuthRepositoryImpl(
         return authRemoteDataSource.requestAuthCode(EmailRequest(email))
     }
 
-    override suspend fun sendAuthCode(email: String, code: String): Result<Token> {
+    override suspend fun sendAuthCode(email: String, code: String): Result<Any> {
         return authRemoteDataSource.sendAuthCode(AuthCodeRequest(email, code)).onSuccess {
             Log.d("LOG_TAG", "sendAuthCode: ${it}")
         }.onFailure {

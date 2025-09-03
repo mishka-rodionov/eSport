@@ -65,7 +65,6 @@ fun OtpInputContent(userAction: (AuthAction) -> Unit) {
                 focusManager.clearFocus()
                 Log.d("LOG_TAG", "onOtpValueChanged: Введенный OTP: ${getFullOtp()}")
                 userAction.invoke(AuthAction.AuthCodeEntered(getFullOtp()))
-                // TODO: Здесь можно вызвать функцию для проверки OTP
             }
         } else if (newValue.isEmpty()) { // Обработка случая, когда значение стало пустым (например, из-за Backspace)
             otpValues[index] = ""

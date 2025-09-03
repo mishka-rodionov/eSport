@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,7 @@ fun AuthScreen(authViewModel: AuthViewModel = koinViewModel()) {
 fun EmailInputContent(userAction: (AuthAction) -> Unit) {
     var email by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
         modifier = Modifier
@@ -72,6 +74,7 @@ fun EmailInputContent(userAction: (AuthAction) -> Unit) {
                 onClick = {
                     // TODO: Обработка введенного email
                     Log.d("LOG_TAG", "EmailInputContent: Введенный email: $email")
+                    keyboardController?.hide()
                     userAction.invoke(AuthAction.AuthClicked(email))
                 },
                 modifier = Modifier.fillMaxWidth()

@@ -1,5 +1,11 @@
 package com.rodionov.domain.models
 
+import com.google.gson.annotations.SerializedName
+
 enum class Gender {
-    MALE, FEMALE
+    @SerializedName("male")
+    MALE,
+
+    @SerializedName("female")
+    FEMALE
 }
