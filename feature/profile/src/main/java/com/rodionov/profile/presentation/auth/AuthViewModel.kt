@@ -7,26 +7,31 @@ import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.ProfileNavigation
 import com.rodionov.domain.repository.auth.AuthRepository
 import com.rodionov.profile.data.auth.AuthAction
+import com.rodionov.utils.constants.ProfileConstants
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val navigation: Navigation,
     private val authRepository: AuthRepository
-): ViewModel() {
+) : ViewModel() {
 
     fun onAction(action: AuthAction) {
 
-        when(action) {
+        when (action) {
             is AuthAction.AuthClicked -> {
                 viewModelScope.launch {
                     authRepository.requestAuthCode(action.email).onSuccess {
                         Log.d("LOG_TAG", "onAction: success authorization")
-                        navigation.navigate(destination = ProfileNavigation.AuthCodeRoute, argument = listOf() )
+                        navigation.navigate(
+                            destination = ProfileNavigation.AuthCodeRoute,
+                            argument = navigation.createArguments(ProfileConstants.AUTH_EMAIL.name to action.email)
+                        )
                     }.onFailure {
 
                     }
                 }
             }
+
             else -> {}
         }
 
