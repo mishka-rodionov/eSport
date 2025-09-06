@@ -10,6 +10,7 @@ import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.repository.events.EventsRepository
 import com.rodionov.events.data.main.EventsAction
 import com.rodionov.events.data.main.EventsState
+import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +33,7 @@ class EventsViewModel(
                 viewModelScope.launch {
                     navigation.navigate(
                         EventsNavigation.EventDetailsRoute, argument =
-                            navigation.createArguments("temp" to _state.value.events[action.eventId])
+                            navigation.createArguments(EventsConstants.EVENT_ID.name to _state.value.events[action.eventId])
                     )
                 }
             }
