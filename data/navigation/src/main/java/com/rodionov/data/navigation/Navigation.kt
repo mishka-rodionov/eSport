@@ -14,4 +14,6 @@ sealed interface Navigation {
 
     suspend fun navigate(destination: BaseNavigation, argument: List<BaseArgument<*>>? = null)
 
+    fun <T> createArguments(vararg pairs: Pair<String, T?>): List<BaseArgument<*>>
+
 }

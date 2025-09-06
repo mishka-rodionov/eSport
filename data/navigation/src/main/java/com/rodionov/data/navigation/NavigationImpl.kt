@@ -38,7 +38,17 @@ class NavigationImpl : Navigation {
             is EventsNavigation -> _eventsNavigationEffect.emit(destination)
         }
     }
+
+    override fun <T> createArguments(vararg pairs: Pair<String, T?>): List<BaseArgument<*>> {
+        val arguments = mutableListOf<BaseArgument<*>>()
+        for ((key, value) in pairs) {
+            arguments.add(BaseArgument(argName = key, argument = value))
+        }
+        return arguments
+    }
 }
+
+
 
 inline fun <reified T> Navigation.getArguments(name: String): T? {
     return when (val argument =

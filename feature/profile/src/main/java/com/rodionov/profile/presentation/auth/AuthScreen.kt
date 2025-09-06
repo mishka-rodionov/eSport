@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.clickRipple
 import com.rodionov.profile.data.auth.AuthAction
@@ -40,6 +41,7 @@ fun AuthScreen(authViewModel: AuthViewModel = koinViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmailInputContent(userAction: (AuthAction) -> Unit) {
+    bundleOf("te,p" to "a")
     var email by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
