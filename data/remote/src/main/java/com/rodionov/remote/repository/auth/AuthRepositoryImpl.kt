@@ -2,13 +2,15 @@ package com.rodionov.remote.repository.auth
 
 import android.util.Log
 import com.rodionov.domain.repository.auth.AuthRepository
+import com.rodionov.domain.repository.auth.TokenRepository
 import com.rodionov.remote.datasource.auth.AuthRemoteDataSource
 import com.rodionov.remote.request.auth.AuthCodeRequest
 import com.rodionov.remote.request.auth.EmailRequest
 import com.rodionov.remote.response.mappers.toDomain
 
 class AuthRepositoryImpl(
-    private val authRemoteDataSource: AuthRemoteDataSource
+    private val authRemoteDataSource: AuthRemoteDataSource,
+    private val tokenRepository: TokenRepository
 ): AuthRepository {
 
     override suspend fun requestAuthCode(email: String): Result<Any> {
@@ -18,6 +20,9 @@ class AuthRepositoryImpl(
     override suspend fun sendAuthCode(email: String, code: String): Result<Any> {
         return authRemoteDataSource.sendAuthCode(AuthCodeRequest(email, code)).onSuccess {
             Log.d("LOG_TAG", "sendAuthCode: ${it}")
+            it.result?.let { authResponse ->
+                tokenRepository.saveTokens(authResponse.token.accessToken, authResponse.token.refreshToken)
+            }
         }.onFailure {
             Log.d("LOG_TAG", "sendAuthCode: $it")
         }.mapCatching { it.result!! }
