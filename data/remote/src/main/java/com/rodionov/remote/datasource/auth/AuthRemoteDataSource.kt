@@ -3,6 +3,7 @@ package com.rodionov.remote.datasource.auth
 import com.rodionov.remote.base.CommonModel
 import com.rodionov.remote.request.auth.AuthCodeRequest
 import com.rodionov.remote.request.auth.EmailRequest
+import com.rodionov.remote.request.auth.RefreshRequest
 import com.rodionov.remote.response.auth.AuthResponse
 import com.rodionov.remote.response.auth.TokenResponse
 import retrofit2.http.Body
@@ -15,5 +16,8 @@ interface AuthRemoteDataSource {
 
     @POST("verify_code")
     suspend fun sendAuthCode(@Body authCodeRequest: AuthCodeRequest): Result<CommonModel<AuthResponse>>
+
+    @POST("refresh_token")
+    suspend fun refreshToken(@Body refreshRequest: RefreshRequest): Result<CommonModel<AuthResponse>>
 
 }
