@@ -20,6 +20,6 @@ class AuthRepositoryImpl(
             Log.d("LOG_TAG", "sendAuthCode: ${it}")
         }.onFailure {
             Log.d("LOG_TAG", "sendAuthCode: $it")
-        }.mapCatching { it.result!!.toDomain() }
+        }.mapCatching { it.result!! }
     }
 }

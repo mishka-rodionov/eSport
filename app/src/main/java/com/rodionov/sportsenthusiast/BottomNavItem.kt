@@ -8,7 +8,7 @@ sealed class BottomNavItem(val route: String, val title: String) {
     data object Profile : BottomNavItem(route = "Profile", title = "Profile")
     @Serializable
     data object CompetitionList :
-        BottomNavItem(route = "CompetitionList", title = "News")
+        BottomNavItem(route = "CompetitionList", title = "Events")
     @Serializable
     data object CompetitionConstructor :
         BottomNavItem(route = "CompetitionConstructor", title = "Center")
