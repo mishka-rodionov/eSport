@@ -3,6 +3,8 @@ package com.rodionov.remote.di
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.rodionov.domain.models.KindOfSport
+import com.rodionov.domain.repository.auth.TokenRepository
+import com.rodionov.remote.datasource.auth.AuthRemoteDataSource
 import com.rodionov.remote.network.adapters.KindOfSportAdapter
 import com.rodionov.remote.network.interceptors.AuthInterceptor
 import com.rodionov.remote.network.retrofit.ResultCallAdapterFactory
@@ -19,21 +21,19 @@ import java.util.concurrent.TimeUnit
 private const val TIMEOUT_SECONDS = 60
 
 val retrofitModule = module {
-    singleOf(::TokenAuthenticator)
     singleOf(::createGson)
     singleOf(::retrofit)
 }
 
-private fun retrofit(
+fun retrofit(
     gson: Gson,
-    tokenAuthenticator: TokenAuthenticator,
-    authInterceptor: AuthInterceptor
+    tokenRepository: TokenRepository,
 ): Retrofit {
     val builder = OkHttpClient.Builder()
     builder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
     val okClient = builder
-        .addInterceptor(authInterceptor)
-        .authenticator(tokenAuthenticator)
+        .addInterceptor(AuthInterceptor(tokenRepository = tokenRepository))
+        .authenticator(TokenAuthenticator(tokenRepository = tokenRepository))
         .retryOnConnectionFailure(true)
         .connectTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .readTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
