@@ -1,5 +1,8 @@
 package com.rodionov.remote.di
 
+import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.rodionov.domain.models.KindOfSport
@@ -28,8 +31,15 @@ val retrofitModule = module {
 fun retrofit(
     gson: Gson,
     tokenRepository: TokenRepository,
+    context: Context
 ): Retrofit {
     val builder = OkHttpClient.Builder()
+    val collector = ChuckerCollector(context, true)
+    val interceptor = ChuckerInterceptor
+        .Builder(context)
+        .collector(collector)
+        .build()
+    builder.addInterceptor(interceptor)
     builder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
     val okClient = builder
         .addInterceptor(AuthInterceptor(tokenRepository = tokenRepository))

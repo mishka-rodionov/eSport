@@ -93,4 +93,6 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.navigation)
     implementation(libs.koin.compose)
+
+    implementation(libs.chucker.library)
 }

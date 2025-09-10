@@ -52,4 +52,6 @@ dependencies {
     //koin
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+
+    implementation(libs.chucker.library)
 }
