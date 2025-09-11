@@ -19,7 +19,7 @@ class RegistrationViewModel(
 
     fun registerUser() {
         viewModelScope.launch {
-            navigation.navigate(ProfileNavigation.AuthRoute)
+            navigation.navigate(ProfileNavigation.AuthCodeRoute)
         }
     }
 

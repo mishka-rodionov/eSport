@@ -25,7 +25,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
 import com.rodionov.profile.data.RegistrationAction
-import com.rodionov.profile.data.auth.AuthAction
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

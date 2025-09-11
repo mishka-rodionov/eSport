@@ -21,6 +21,13 @@ class ProfileViewModel(
     fun onAction(profileAction: ProfileAction) {
         when(profileAction) {
             ProfileAction.ToAuth -> toAuthorization()
+            ProfileAction.ToRegister -> toRegistration()
+        }
+    }
+
+    fun toRegistration() {
+        viewModelScope.launch {
+            navigation.navigate(ProfileNavigation.RegistrationRoute)
         }
     }
 

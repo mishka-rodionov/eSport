@@ -16,4 +16,6 @@ sealed class ProfileNavigation: BaseNavigation {
     data object AuthRoute : ProfileNavigation()
     @Serializable
     data object AuthCodeRoute : ProfileNavigation()
+    @Serializable
+    data object RegistrationRoute : ProfileNavigation()
 }
