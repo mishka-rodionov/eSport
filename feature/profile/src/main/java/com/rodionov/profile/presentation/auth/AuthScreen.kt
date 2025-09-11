@@ -41,7 +41,6 @@ fun AuthScreen(authViewModel: AuthViewModel = koinViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmailInputContent(userAction: (AuthAction) -> Unit) {
-    bundleOf("te,p" to "a")
     var email by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current

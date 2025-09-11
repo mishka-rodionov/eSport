@@ -1,4 +1,4 @@
-package com.rodionov.profile.data.auth
+package com.rodionov.profile.data
 
 import com.rodionov.domain.models.user.User
 

@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.ProfileNavigation
-import com.rodionov.profile.data.auth.ProfileAction
-import com.rodionov.profile.data.auth.ProfileState
+import com.rodionov.profile.data.ProfileAction
+import com.rodionov.profile.data.ProfileState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

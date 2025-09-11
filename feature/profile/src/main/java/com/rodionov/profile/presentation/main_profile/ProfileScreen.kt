@@ -10,17 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Text
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.designsystem.components.DSTextInput
-import com.rodionov.profile.data.auth.ProfileAction
-import com.rodionov.profile.data.auth.ProfileState
+import com.rodionov.profile.data.ProfileAction
+import com.rodionov.profile.data.ProfileState
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -41,7 +36,7 @@ fun UnauthorizedUser(userAction: (ProfileAction) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center) {
 
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
-            userAction.invoke(ProfileAction.ToAuth)
+            userAction.invoke(ProfileAction.ToRegister)
         }) {
             Text(text = "Зарегистрироваться")
         }
