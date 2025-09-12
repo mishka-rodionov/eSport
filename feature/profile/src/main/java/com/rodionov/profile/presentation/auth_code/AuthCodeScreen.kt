@@ -47,7 +47,8 @@ fun AuthCodeScreen(viewModel: AuthCodeViewModel = koinViewModel()) {
 @OptIn(ExperimentalComposeUiApi::class) // Нужен для onKeyEvent
 @Composable
 fun OtpInputContent(userAction: (AuthAction) -> Unit) {
-    val otpValues = remember { mutableStateListOf<String>().apply { repeat(OTP_LENGTH) { add("") } } }
+    val otpValues =
+        remember { mutableStateListOf<String>().apply { repeat(OTP_LENGTH) { add("") } } }
     val focusRequesters = remember { List(OTP_LENGTH) { FocusRequester() } }
     val focusManager = LocalFocusManager.current
 
@@ -77,7 +78,11 @@ fun OtpInputContent(userAction: (AuthAction) -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Введите код из СМС", fontSize = 20.sp, modifier = Modifier.padding(bottom = 24.dp))
+            Text(
+                "Введите код из СМС",
+                fontSize = 20.sp,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
