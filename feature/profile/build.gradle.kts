@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":utils"))
     implementation(project(":core:designsystem"))
+    implementation(project(":core:resources"))
 
     implementation(libs.kotlinx.serialization.json)
 

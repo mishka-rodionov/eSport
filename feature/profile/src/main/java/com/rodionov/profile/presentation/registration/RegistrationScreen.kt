@@ -1,6 +1,8 @@
 package com.rodionov.profile.presentation.registration
 
+import android.app.DatePickerDialog
 import android.util.Log
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,13 +21,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
 import com.rodionov.profile.data.RegistrationAction
+import com.rodionov.resources.R
+import com.rodionov.utils.DateTimeFormat
 import org.koin.compose.viewmodel.koinViewModel
+import java.time.LocalDate
+import java.util.Calendar
 
 @Composable
 fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
@@ -70,14 +80,16 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        DSTextInput(
-            text = bdate,
-            onValueChanged = { bdate = it },
-            label = { Text("Дата рождения") },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+        DatePicker(bdate) { text -> bdate = text }
+
+//        DSTextInput(
+//            text = bdate,
+//            onValueChanged = { bdate = it },
+//            label = { Text("Дата рождения") },
+//            singleLine = true,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -116,4 +128,46 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
+}
+
+@Composable
+fun DatePicker(bdate: String, userAction: (String) -> Unit) {
+    val context = LocalContext.current
+    val calendar = remember { Calendar.getInstance() }
+    val interactionSource = remember { MutableInteractionSource() }
+    val focusManager = LocalFocusManager.current
+
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val date = LocalDate.of(year, month + 1, dayOfMonth)
+                userAction.invoke( DateTimeFormat.formatDate(date))
+                focusManager.clearFocus()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+
+    datePickerDialog.setOnDismissListener { focusManager.clearFocus() }
+
+    DSTextInput(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    datePickerDialog.show()
+                }
+            },
+        label = {
+            Text(text = stringResource(R.string.label_date))
+        },
+        text = bdate,
+        interactionSource = interactionSource,
+        enabled = true,
+        readOnly = true
+    )
+
 }

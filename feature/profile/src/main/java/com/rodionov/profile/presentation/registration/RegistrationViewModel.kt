@@ -8,7 +8,7 @@ import com.rodionov.profile.data.RegistrationAction
 import kotlinx.coroutines.launch
 
 class RegistrationViewModel(
-    private val navigation: Navigation
+    private val navigation: Navigation,
 ): ViewModel() {
 
     fun onAction(action: RegistrationAction) {

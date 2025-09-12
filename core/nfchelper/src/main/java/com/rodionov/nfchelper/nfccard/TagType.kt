@@ -1,11 +1,12 @@
-package com.rodionov.nfchelper.nfccard;
+package com.rodionov.nfchelper.nfccard
 
-public enum TagType {
+enum class TagType {
     UNKNOWN,
     MIFARE_MINI,
     MIFARE_1K,
     MIFARE_4K,
     MIFARE_UL,
+
     //MIFARE_PLUS,
     NTAG213,
     NTAG215,
