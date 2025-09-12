@@ -42,10 +42,10 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
     val userAction = remember { viewModel::onAction }
 
-    var email by remember { mutableStateOf("") }
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var bdate by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("mishka727@yandex.ru") }
+    var firstName by remember { mutableStateOf("Михаил") }
+    var lastName by remember { mutableStateOf("Родионов") }
+    var bdate by remember { mutableStateOf("06.04.1989") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 

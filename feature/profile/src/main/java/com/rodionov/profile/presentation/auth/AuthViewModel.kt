@@ -20,7 +20,7 @@ class AuthViewModel(
         when (action) {
             is AuthAction.AuthClicked -> {
                 viewModelScope.launch {
-                    authRepository.requestAuthCode(action.email).onSuccess {
+                    authRepository.login(action.email).onSuccess {
                         Log.d("LOG_TAG", "onAction: success authorization")
                         navigation.navigate(
                             destination = ProfileNavigation.AuthCodeRoute,

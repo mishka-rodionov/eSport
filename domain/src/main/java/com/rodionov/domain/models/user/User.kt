@@ -9,7 +9,7 @@ data class User(
     val firstName: String,
     val lastName: String,
     val middleName: String?, // отчество
-    val birthDate: Date,
+    val birthDate: String,
     val gender: Gender,
     val photo: String,
     val phoneNumber: String?,
