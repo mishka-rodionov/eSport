@@ -36,9 +36,11 @@ import androidx.compose.ui.input.key.type
 import com.rodionov.profile.data.auth.AuthAction
 import org.koin.compose.viewmodel.koinViewModel
 
-
 const val OTP_LENGTH = 6
 
+/**
+ * Экран ввода кода авторизации
+ * */
 @Composable
 fun AuthCodeScreen(viewModel: AuthCodeViewModel = koinViewModel()) {
     OtpInputContent(viewModel::onAction)

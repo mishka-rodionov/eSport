@@ -37,6 +37,13 @@ import org.koin.compose.viewmodel.koinViewModel
 import java.time.LocalDate
 import java.util.Calendar
 
+/**
+ * Экран ввода регистрационных данных
+ * [email] - адрес электронной почты
+ * [firstName] - имя
+ * [lastName] - фамилия
+ * [bdate] - дата рождения
+ * */
 @Composable
 fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
@@ -81,15 +88,6 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
         Spacer(modifier = Modifier.height(16.dp))
 
         DatePicker(bdate) { text -> bdate = text }
-
-//        DSTextInput(
-//            text = bdate,
-//            onValueChanged = { bdate = it },
-//            label = { Text("Дата рождения") },
-//            singleLine = true,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
