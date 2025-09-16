@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.designsystem.components.DSButton
 import com.example.designsystem.components.DSTextInput
 import com.rodionov.profile.data.RegistrationAction
 import com.rodionov.resources.R
@@ -102,7 +103,8 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
+        DSButton(
+            text = "Отправить",
             onClick = {
                 // TODO: Обработка введенного email
                 Log.d("LOG_TAG", "EmailInputContent: Введенный email: $email")
@@ -117,9 +119,7 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
                 )
             },
             modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Отправить")
-        }
+        )
     }
 
     // Запрос фокуса после того, как компонент будет отрисован
