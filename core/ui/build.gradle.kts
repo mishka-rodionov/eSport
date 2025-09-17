@@ -1,14 +1,14 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.android)
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
     id("kotlinx-serialization")
     alias(libs.plugins.compose.compiler)
     kotlin("kapt")
 }
 
 android {
-    namespace = "com.rodionov.center"
-    compileSdk = 35
+    namespace = "com.rodionov.ui"
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26
@@ -33,6 +33,9 @@ android {
     kotlin {
         jvmToolchain(17)
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
@@ -40,35 +43,17 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.window.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.extensions)
 
-    implementation(project(":data:navigation"))
-    implementation(project(":data:local"))
-    implementation(project(":data:remote"))
-    implementation(project(":domain"))
-    implementation(project(":core:designsystem"))
-    implementation(project(":core:resources"))
-    implementation(project(":core:nfchelper"))
-    implementation(project(":core:ui"))
-    implementation(project(":utils"))
-
-    //compose navigation
-    implementation(libs.compose.navigation)
     //compose
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.compose.ui.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
-    //koin
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
-    implementation(libs.koin.navigation)
-    implementation(libs.koin.compose)
 }

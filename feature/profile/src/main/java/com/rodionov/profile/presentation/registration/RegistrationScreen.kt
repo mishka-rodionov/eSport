@@ -29,9 +29,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.designsystem.components.DSButton
 import com.example.designsystem.components.DSTextInput
-import com.rodionov.profile.data.RegistrationAction
+import com.rodionov.profile.data.registration.RegistrationAction
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
 import org.koin.compose.viewmodel.koinViewModel
@@ -49,11 +50,12 @@ import java.util.Calendar
 fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
     val userAction = remember { viewModel::onAction }
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    var email by remember { mutableStateOf("mishka727@yandex.ru") }
-    var firstName by remember { mutableStateOf("Михаил") }
-    var lastName by remember { mutableStateOf("Родионов") }
-    var bdate by remember { mutableStateOf("06.04.1989") }
+//    var email by remember { mutableStateOf("mishka727@yandex.ru") }
+//    var firstName by remember { mutableStateOf("Михаил") }
+//    var lastName by remember { mutableStateOf("Родионов") }
+//    var bdate by remember { mutableStateOf("06.04.1989") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -62,8 +64,8 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
         verticalArrangement = Arrangement.Center
     ) {
         DSTextInput(
-            text = firstName,
-            onValueChanged = { firstName = it },
+            text = state.firstName,
+            onValueChanged = { userAction.invoke(RegistrationAction.UpdateFirstName(it)) },
             label = { Text("Имя") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -78,8 +80,8 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
         Spacer(modifier = Modifier.height(16.dp)) // Отступ между полем и кнопкой
 
         DSTextInput(
-            text = lastName,
-            onValueChanged = { lastName = it },
+            text = state.lastName,
+            onValueChanged = { userAction.invoke(RegistrationAction.UpdateLastName(it)) },
             label = { Text("Фамилия") },
             singleLine = true,
             modifier = Modifier
@@ -88,13 +90,13 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        DatePicker(bdate) { text -> bdate = text }
+        DatePicker(state.bdate) { text -> userAction.invoke(RegistrationAction.UpdateBdate(text)) }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         DSTextInput(
-            text = email,
-            onValueChanged = { email = it },
+            text = state.email,
+            onValueChanged = { userAction.invoke(RegistrationAction.UpdateEmail(it)) },
             label = { Text("Email") },
             singleLine = true,
             modifier = Modifier
@@ -107,16 +109,9 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
             text = "Отправить",
             onClick = {
                 // TODO: Обработка введенного email
-                Log.d("LOG_TAG", "EmailInputContent: Введенный email: $email")
+                Log.d("LOG_TAG", "EmailInputContent: Введенный email: ${state.email}")
                 keyboardController?.hide()
-                userAction.invoke(
-                    RegistrationAction.RegisterUser(
-                        firstName,
-                        lastName,
-                        bdate,
-                        email
-                    )
-                )
+                userAction.invoke(RegistrationAction.RegisterUser)
             },
             modifier = Modifier.fillMaxWidth()
         )

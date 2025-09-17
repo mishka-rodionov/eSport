@@ -5,8 +5,9 @@
 compileSdk = "36"
 coreKtx = "1.17.0"
 datastorePreferences = "1.1.7"
-gson = "2.13.1"
-lifecycleRuntimeKtx = "2.9.2"
+gson = "2.13.2"
+lifecycle-extensions = "2.2.0"
+lifecycleRuntimeKtx = "2.9.3"
 loggingInterceptor = "5.1.0"
 material = "1.9.0"
 minSdk = "26"
@@ -89,6 +90,10 @@ koin-appstartup = { module = "io.insert-koin:koin-androidx-startup", version.ref
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 androidx-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive", version.ref = "adaptive" }
 androidx-window-core = { group = "androidx.window", name = "window-core", version.ref = "windowCore" }
+
+#Lifecycle
+lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycle-extensions" }
+lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
 
 #Chucker
 chucker-library = { module = "com.github.chuckerteam.chucker:library", version.ref = "chuckerVersion" }

@@ -6,24 +6,31 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.ProfileNavigation
 import com.rodionov.domain.repository.auth.AuthRepository
-import com.rodionov.profile.data.RegistrationAction
+import com.rodionov.profile.data.registration.RegistrationAction
+import com.rodionov.profile.data.registration.RegistrationState
+import com.rodionov.ui.BaseAction
+import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.ProfileConstants
 import kotlinx.coroutines.launch
 
 class RegistrationViewModel(
     private val navigation: Navigation,
     private val authRepository: AuthRepository
-) : ViewModel() {
+) : BaseViewModel<RegistrationState>(RegistrationState()) {
 
-    fun onAction(action: RegistrationAction) {
+    override fun onAction(action: BaseAction) {
         when (action) {
-            is RegistrationAction.RegisterUser -> registerUser(action)
+            RegistrationAction.RegisterUser -> registerUser()
+            is RegistrationAction.UpdateEmail -> updateState { copy(email = action.email) }
+            is RegistrationAction.UpdateFirstName -> updateState { copy(firstName = action.firstName) }
+            is RegistrationAction.UpdateLastName -> updateState { copy(lastName = action.lastName) }
+            is RegistrationAction.UpdateBdate -> updateState { copy(bdate = action.bdate) }
         }
     }
 
-    fun registerUser(action: RegistrationAction.RegisterUser) {
+    fun registerUser() {
         viewModelScope.launch {
-            with(action) {
+            with(state.value) {
                 authRepository.register(
                     firstName = firstName,
                     lastName = lastName,
@@ -32,7 +39,7 @@ class RegistrationViewModel(
                 ).onSuccess {
                     navigation.navigate(
                         destination = ProfileNavigation.AuthCodeRoute,
-                        argument = navigation.createArguments(ProfileConstants.AUTH_EMAIL.name to action.email)
+                        argument = navigation.createArguments(ProfileConstants.AUTH_EMAIL.name to email)
                     )
                 }.onFailure {
                     Log.d("LOG_TAG", "registerUser: fail user register")
