@@ -5,7 +5,7 @@ import com.rodionov.center.di.centerModule
 import com.rodionov.data.navigation.di.navigationModule
 import com.rodionov.events.di.eventsModule
 import com.rodionov.local.di.databaseModule
-import com.rodionov.local.di.tokenModule
+import com.rodionov.local.di.localModule
 import com.rodionov.nfchelper.di.nfcModule
 import com.rodionov.profile.di.profileModule
 import com.rodionov.remote.di.authModule
@@ -27,7 +27,7 @@ class SportApp : Application() {
             //core modules
             modules(
                 retrofitModule, databaseModule, navigationModule, resourceModule, nfcModule,
-                tokenModule
+                localModule
             )
 
             //data modules

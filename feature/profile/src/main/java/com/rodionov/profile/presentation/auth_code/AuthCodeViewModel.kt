@@ -25,7 +25,7 @@ class AuthCodeViewModel(
     fun sendAuthCode(code: String) {
         viewModelScope.launch(Dispatchers.IO) {
             navigation.getArguments<String>(ProfileConstants.AUTH_EMAIL.name)?.let { email ->
-                authRepository.sendAuthCode(email = email, code = code)
+                authRepository.authorize(email = email, code = code)
             }
         }
     }

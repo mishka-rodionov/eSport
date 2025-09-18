@@ -1,6 +1,7 @@
 package com.rodionov.remote.repository.auth
 
 import android.util.Log
+import com.rodionov.domain.models.auth.Token
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.auth.AuthRepository
 import com.rodionov.domain.repository.auth.TokenRepository
@@ -9,7 +10,6 @@ import com.rodionov.remote.request.auth.AuthCodeRequest
 import com.rodionov.remote.request.auth.EmailRequest
 import com.rodionov.remote.request.user.UserRequest
 import com.rodionov.remote.response.mappers.toDomain
-import com.rodionov.remote.response.mappers.toRequest
 
 class AuthRepositoryImpl(
     private val authRemoteDataSource: AuthRemoteDataSource,
@@ -20,8 +20,8 @@ class AuthRepositoryImpl(
         return authRemoteDataSource.login(EmailRequest(email))
     }
 
-    override suspend fun sendAuthCode(email: String, code: String): Result<User> {
-        return authRemoteDataSource.sendAuthCode(AuthCodeRequest(email, code)).onSuccess {
+    override suspend fun authorize(email: String, code: String): Result<Pair<User, Token>> {
+        return authRemoteDataSource.sendAuthCode(AuthCodeRequest(email, code))/*.onSuccess {
             Log.d("LOG_TAG", "sendAuthCode: ${it}")
             it.result?.let { authResponse ->
                 tokenRepository.saveTokens(
@@ -31,7 +31,7 @@ class AuthRepositoryImpl(
             }
         }.onFailure {
             Log.d("LOG_TAG", "sendAuthCode: $it")
-        }.mapCatching { it.result!!.user.toDomain() }
+        }*/.mapCatching { it.result!!.user.toDomain() to it.result.token.toDomain() }
     }
 
     override suspend fun register(
