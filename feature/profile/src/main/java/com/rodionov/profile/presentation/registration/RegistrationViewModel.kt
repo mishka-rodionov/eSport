@@ -1,11 +1,10 @@
 package com.rodionov.profile.presentation.registration
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.ProfileNavigation
-import com.rodionov.domain.repository.auth.AuthRepository
+import com.rodionov.profile.data.interactors.AuthInteractor
 import com.rodionov.profile.data.registration.RegistrationAction
 import com.rodionov.profile.data.registration.RegistrationState
 import com.rodionov.ui.BaseAction
@@ -15,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class RegistrationViewModel(
     private val navigation: Navigation,
-    private val authRepository: AuthRepository
+    private val authInteractor: AuthInteractor
 ) : BaseViewModel<RegistrationState>(RegistrationState()) {
 
     override fun onAction(action: BaseAction) {
@@ -31,7 +30,7 @@ class RegistrationViewModel(
     fun registerUser() {
         viewModelScope.launch {
             with(state.value) {
-                authRepository.register(
+                authInteractor.register(
                     firstName = firstName,
                     lastName = lastName,
                     bdate = bdate,

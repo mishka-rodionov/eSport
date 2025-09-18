@@ -1,6 +1,5 @@
 package com.rodionov.remote.repository.auth
 
-import android.util.Log
 import com.rodionov.domain.models.auth.Token
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.auth.AuthRepository
@@ -39,7 +38,7 @@ class AuthRepositoryImpl(
         lastName: String,
         bdate: String,
         email: String
-    ): Result<Any> {
+    ): Result<Pair<User, Token>> {
         return authRemoteDataSource.register(
             UserRequest(
                 firstName = firstName,
@@ -47,6 +46,6 @@ class AuthRepositoryImpl(
                 birthDate = bdate,
                 email = email
             )
-        )
+        ).mapCatching { it.result!!.user.toDomain() to it.result.token.toDomain() }
     }
 }

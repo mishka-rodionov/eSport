@@ -1,9 +1,11 @@
 package com.rodionov.profile.di
 
+import com.rodionov.profile.data.interactors.AuthInteractor
 import com.rodionov.profile.presentation.auth.AuthViewModel
 import com.rodionov.profile.presentation.auth_code.AuthCodeViewModel
 import com.rodionov.profile.presentation.main_profile.ProfileViewModel
 import com.rodionov.profile.presentation.registration.RegistrationViewModel
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -12,4 +14,5 @@ val profileModule = module {
     viewModelOf(::AuthViewModel)
     viewModelOf(::AuthCodeViewModel)
     viewModelOf(::RegistrationViewModel)
+    factoryOf(::AuthInteractor)
 }

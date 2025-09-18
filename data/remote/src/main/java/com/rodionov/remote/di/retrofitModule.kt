@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.repository.auth.TokenRepository
 import com.rodionov.remote.datasource.auth.AuthRemoteDataSource
+import com.rodionov.remote.interceptors.MockInterceptor
 import com.rodionov.remote.network.adapters.KindOfSportAdapter
 import com.rodionov.remote.network.interceptors.AuthInterceptor
 import com.rodionov.remote.network.retrofit.ResultCallAdapterFactory
@@ -44,6 +45,7 @@ fun retrofit(
     val okClient = builder
         .addInterceptor(AuthInterceptor(tokenRepository = tokenRepository))
         .authenticator(TokenAuthenticator(tokenRepository = tokenRepository))
+        .addInterceptor(MockInterceptor())
         .retryOnConnectionFailure(true)
         .connectTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .readTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)

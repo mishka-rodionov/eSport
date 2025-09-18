@@ -18,4 +18,17 @@ fun User.toEntity(): UserEntity {
     )
 }
 
-fun UserEntity.toDomain(): User
+fun UserEntity.toDomain(): User {
+    return User(
+        id = id,
+        firstName = firstName,
+        lastName = lastName,
+        middleName = middleName,
+        birthDate = birthDate,
+        gender = gender,
+        photo = photo,
+        phoneNumber = phoneNumber,
+        email = email,
+        qualification = qualification
+    )
+}

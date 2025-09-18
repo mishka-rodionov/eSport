@@ -21,6 +21,6 @@ interface AuthRemoteDataSource {
     suspend fun refreshToken(@Body refreshRequest: RefreshRequest): Result<CommonModel<AuthResponse>>
 
     @POST("user/register")
-    suspend fun register(@Body userRequest: UserRequest): Result<CommonModel<Any>>
+    suspend fun register(@Body userRequest: UserRequest): Result<CommonModel<AuthResponse>>
 
 }
