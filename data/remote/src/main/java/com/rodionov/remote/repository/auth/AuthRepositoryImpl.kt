@@ -38,7 +38,7 @@ class AuthRepositoryImpl(
         lastName: String,
         bdate: String,
         email: String
-    ): Result<Pair<User, Token>> {
+    ): Result<Any> {
         return authRemoteDataSource.register(
             UserRequest(
                 firstName = firstName,
@@ -46,6 +46,6 @@ class AuthRepositoryImpl(
                 birthDate = bdate,
                 email = email
             )
-        ).mapCatching { it.result!!.user.toDomain() to it.result.token.toDomain() }
+        )
     }
 }

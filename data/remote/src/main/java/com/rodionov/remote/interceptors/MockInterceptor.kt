@@ -25,12 +25,31 @@ class MockInterceptor : Interceptor {
         // Простая проверка: точное совпадение пути или заканчивается на matchPath
         return when {
             path.contains("user/register") -> registerResponse(request)
+            path.contains("user/verify_code") -> verifyCodeResponse(request)
             else -> chain.proceed(request)
 
         }
     }
 
     fun registerResponse(request: Request): Response {
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val mockJson = """
+            {
+              "status": 1,
+              "result": {}
+            }
+            """.trimIndent().toResponseBody(mediaType)
+        return Response.Builder()
+            .request(request)
+            .protocol(Protocol.HTTP_1_1)
+            .code(200) // HTTP 200 OK — можно заменить на любой код
+            .message("OK (mocked by RegisterInterceptor)")
+            .body(mockJson)
+            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .build()
+    }
+
+    fun verifyCodeResponse(request: Request): Response {
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val mockAuthResponse = AuthResponse(
             user = UserResponse(

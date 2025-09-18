@@ -9,6 +9,6 @@ interface AuthRepository {
 
     suspend fun authorize(email: String, code: String): Result<Pair<User, Token>>
 
-    suspend fun register(firstName: String, lastName: String, bdate: String, email: String): Result<Pair<User, Token>>
+    suspend fun register(firstName: String, lastName: String, bdate: String, email: String): Result<Any>
 
 }

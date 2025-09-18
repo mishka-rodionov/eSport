@@ -12,10 +12,11 @@ class AuthInteractor(
     private val userRepository: UserRepository
 ) {
 
-    suspend fun authorize(email: String, code: String): Boolean {
-        val (user, token) = authRepository.authorize(email, code).getOrNull() ?: return false
-        retrieveTokenAndSaveUser(token, user)
-        return true
+    suspend fun authorize(email: String, code: String): Result<Any> {
+        return authRepository.authorize(email, code).mapCatching {
+            val (user, token) = it
+            retrieveTokenAndSaveUser(token, user)
+        }
     }
 
     private suspend fun retrieveTokenAndSaveUser(
@@ -31,10 +32,7 @@ class AuthInteractor(
     }
 
     suspend fun register(firstName: String, lastName: String, bdate: String, email: String): Result<Any> {
-        return authRepository.register(firstName, lastName, bdate, email).mapCatching {
-            val (user, token) = it
-            retrieveTokenAndSaveUser(token, user)
-        }
+        return authRepository.register(firstName, lastName, bdate, email)
     }
 
 }
