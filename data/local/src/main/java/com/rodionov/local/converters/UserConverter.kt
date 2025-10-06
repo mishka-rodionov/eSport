@@ -25,7 +25,7 @@ class UserConverter {
 
     @TypeConverter
     fun toQualifications(qualifications: String?): List<Qualification>? {
-        return qualifications?.split("_")?.map { it.toQualification() }
+        return if (qualifications?.isNotEmpty() == true) qualifications.split("_").map { it.toQualification() } else emptyList()
     }
 
 }

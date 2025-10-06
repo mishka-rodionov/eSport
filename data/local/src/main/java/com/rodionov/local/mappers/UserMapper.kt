@@ -29,6 +29,6 @@ fun UserEntity.toDomain(): User {
         photo = photo,
         phoneNumber = phoneNumber,
         email = email,
-        qualification = qualification
+        qualification = emptyList()//qualification
     )
 }

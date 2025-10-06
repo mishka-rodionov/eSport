@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,6 +23,10 @@ import org.koin.androidx.compose.koinViewModel
 fun ProfileScreen(viewModel: ProfileViewModel = koinViewModel()) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state) {
+        viewModel.getCurrentUser()
+    }
 
     if (state.user == null) {
         UnauthorizedUser(viewModel::onAction)
@@ -54,9 +59,10 @@ fun UnauthorizedUser(userAction: (ProfileAction) -> Unit) {
 
 @Composable
 fun AuthorizedUser(state: ProfileState) {
+    val user = state.user
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(text = "Имя: ")
-        Text(text = "Фамилия: ")
-        Text(text = "Дата рождения: ")
+        Text(text = "Имя: ${user?.firstName}")
+        Text(text = "Фамилия: ${user?.lastName}")
+        Text(text = "Дата рождения: ${user?.birthDate}")
     }
 }

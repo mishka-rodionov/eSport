@@ -3,6 +3,7 @@ package com.rodionov.local.repository.user
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.local.dao.UserDao
+import com.rodionov.local.mappers.toDomain
 import com.rodionov.local.mappers.toEntity
 
 class UserRepositoryImpl(
@@ -14,6 +15,10 @@ class UserRepositoryImpl(
     }
 
     override suspend fun retrieveUser(): Result<User> {
-        TODO("Not yet implemented")
+        return try {
+            Result.success(userDao.getUser().toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
