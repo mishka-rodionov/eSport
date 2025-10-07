@@ -7,6 +7,7 @@ import java.time.LocalDate
 
 data class CenterState(
 //    val controlledEvents: List<Competition> = emptyList()
+    val isAuthed: Boolean = false,
     val controlledEvents: List<Competition> = mockEvents()
 )
 
@@ -18,6 +19,7 @@ fun mockEvents(): List<Competition> {
             kindOfSport = KindOfSport.Orienteering,
             description = "Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию.",
             address = "Саратов",
+            mainOrganizer = "123",
             coordinates = Coordinates(
                 latitude = 51.3200,
                 longitude = 46.0000
@@ -29,6 +31,7 @@ fun mockEvents(): List<Competition> {
             kindOfSport = KindOfSport.Orienteering,
             description = "Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию.",
             address = "Балашов",
+            mainOrganizer = "123",
             coordinates = Coordinates(
                 latitude = 51.3200,
                 longitude = 46.0000

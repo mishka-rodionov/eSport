@@ -10,12 +10,18 @@ import java.time.ZoneId
 
 fun CompetitionResponse.toDomain(): Competition {
     return Competition(
-        title, Instant.ofEpochMilli(date)
+        title,
+        Instant.ofEpochMilli(date)
             .atZone(ZoneId.systemDefault())
-            .toLocalDate(), KindOfSport.fromName(kindOfSport) ?: KindOfSport.Orienteering, description, address, coordinates.toDomain()
+            .toLocalDate(),
+        KindOfSport.fromName(kindOfSport) ?: KindOfSport.Orienteering,
+        description,
+        address,
+        mainOrganizer,
+        coordinates.toDomain()
     )
 }
 
-fun CoordinatesResponse.toDomain() : Coordinates {
+fun CoordinatesResponse.toDomain(): Coordinates {
     return Coordinates(latitude, longitude)
 }

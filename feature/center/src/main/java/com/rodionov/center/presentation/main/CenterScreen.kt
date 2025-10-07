@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -36,19 +37,27 @@ fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
 
     val state by viewModel.state.collectAsState()
 
+    LaunchedEffect(state) {
+        viewModel.initialize()
+    }
+
     Column {
-        OutlinedButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            onClick = {
-                viewModel.handleEffects(CenterEffects.OpenKindOfSports)
-            },
-            content = {
-                Text("Создать новое событие")
-            }
-        )
-        ControlledEvents(state, viewModel::handleEffects)
+        if (state.isAuthed) {
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                onClick = {
+                    viewModel.handleEffects(CenterEffects.OpenKindOfSports)
+                },
+                content = {
+                    Text("Создать новое событие")
+                }
+            )
+            ControlledEvents(state, viewModel::handleEffects)
+        } else {
+            Text("Чтобы создать новое событие вы должны зарегестрироваться или войти в свой аккаунт.")
+        }
     }
 }
 
@@ -68,9 +77,12 @@ fun ControlledEvents(state: CenterState, userAction: (CenterEffects) -> Unit) {
 fun EventContent(competition: Competition, userAction: (CenterEffects) -> Unit) {
 
     Row(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight().clickRipple{
-            userAction.invoke(CenterEffects.OpenOrienteeringEventControl)
-        }
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .clickRipple {
+                userAction.invoke(CenterEffects.OpenOrienteeringEventControl)
+            }
     ) {
         Image(
             painter = painterResource(R.drawable.map_24dp),
@@ -79,9 +91,13 @@ fun EventContent(competition: Competition, userAction: (CenterEffects) -> Unit) 
                 .size(60.dp),
             contentScale = ContentScale.Crop
         )
-        Column(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()) {
             Text(text = competition.title)
-            Row(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()) {
                 Text(text = "Город: ${competition.address}")
                 Text(text = "Дата: ${DateTimeFormat.formatDate(competition.date)}")
             }

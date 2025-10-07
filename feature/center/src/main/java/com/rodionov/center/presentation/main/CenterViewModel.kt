@@ -6,12 +6,16 @@ import com.rodionov.center.data.CenterEffects
 import com.rodionov.center.data.main.CenterState
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.repository.user.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CenterViewModel(val navigation: Navigation): ViewModel() {
+class CenterViewModel(
+    private val userRepository: UserRepository,
+    private val navigation: Navigation): ViewModel() {
 
     private val _state = MutableStateFlow(CenterState())
     val state: StateFlow<CenterState> = _state.asStateFlow()
@@ -31,6 +35,14 @@ class CenterViewModel(val navigation: Navigation): ViewModel() {
 
             is CenterEffects.OpenOrienteeringEventControl -> viewModelScope.launch {
                 navigation.navigate(CenterNavigation.OrienteeringEventControlRoute)
+            }
+        }
+    }
+
+    fun initialize() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isAuthed = userRepository.isAuthorized())
             }
         }
     }

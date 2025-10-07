@@ -6,6 +6,7 @@ import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import java.time.LocalDate
 
 data class OrienteeringCreatorState(
@@ -17,6 +18,8 @@ data class OrienteeringCreatorState(
     val participantGroups: List<ParticipantGroup> = emptyList(),
     val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors(),
     val isShowGroupCreateDialog: Boolean = false,
+    val mainOrganizer: String = "",
+    val punchingSystem: PunchingSystem = PunchingSystem.SPORTIDUINO,
     val editGroupIndex: Int = -1,
     val competitionDirection: OrienteeringDirection? = null
 ) {
@@ -29,9 +32,11 @@ data class OrienteeringCreatorState(
                 kindOfSport = KindOfSport.Orienteering,
                 description = description,
                 address = address,
+                mainOrganizer = mainOrganizer,
                 coordinates = Coordinates(0.0, 0.0)
             ),
-            direction = competitionDirection ?: OrienteeringDirection.FORWARD
+            direction = competitionDirection ?: OrienteeringDirection.FORWARD,
+            punchingSystem = punchingSystem
         )
     }
 }

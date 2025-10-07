@@ -16,9 +16,16 @@ class UserRepositoryImpl(
 
     override suspend fun retrieveUser(): Result<User> {
         return try {
-            Result.success(userDao.getUser().toDomain())
+            val userEntity = userDao.getUser() ?: throw Exception("User not authorized")
+            Result.success(userEntity.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun isAuthorized(): Boolean {
+        val user = userDao.getUser()
+        return user != null
+
     }
 }

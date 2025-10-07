@@ -8,4 +8,6 @@ interface UserRepository {
 
     suspend fun retrieveUser(): Result<User>
 
+    suspend fun isAuthorized(): Boolean
+
 }

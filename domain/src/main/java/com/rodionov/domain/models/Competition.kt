@@ -9,6 +9,7 @@ data class Competition(
     val kindOfSport: KindOfSport,
     val description: String,
     val address: String,
+    val mainOrganizer: String,
     @Embedded
     val coordinates: Coordinates,
 )

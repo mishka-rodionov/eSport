@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.local.converters.CompetitionConverters
 
 @Entity(tableName = "orienteering_competitions")
@@ -15,5 +16,6 @@ data class OrienteeringCompetitionEntity(
     val id: Long = 0,
     @Embedded
     val competition: Competition,
-    val direction: OrienteeringDirection
+    val direction: OrienteeringDirection,
+    val punchingSystem: PunchingSystem
 )

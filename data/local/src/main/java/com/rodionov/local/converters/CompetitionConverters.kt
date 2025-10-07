@@ -3,6 +3,7 @@ package com.rodionov.local.converters
 import androidx.room.TypeConverter
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -43,5 +44,15 @@ class CompetitionConverters {
         return name?.let { sportName ->
             KindOfSport.all.find { it.name == sportName }
         }
+    }
+
+    @TypeConverter
+    fun fromPunchingSystem(punchingSystem: PunchingSystem?): String? {
+        return punchingSystem?.name
+    }
+
+    @TypeConverter
+    fun toPunchingSystem(value: String?): PunchingSystem? {
+        return value?.let { PunchingSystem.valueOf(it) }
     }
 }

@@ -13,7 +13,7 @@ interface UserDao {
     suspend fun insert(user: UserEntity)
 
     @Query("SELECT * FROM users LIMIT 1")
-    suspend fun getUser(): UserEntity
+    suspend fun getUser(): UserEntity?
 
     @Query("DELETE FROM users")
     suspend fun clearAll()

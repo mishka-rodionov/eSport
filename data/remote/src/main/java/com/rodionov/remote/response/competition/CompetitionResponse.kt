@@ -20,5 +20,8 @@ data class CompetitionResponse(
     val address: String,
 
     @SerializedName("coordinates")
-    val coordinates: CoordinatesResponse
+    val coordinates: CoordinatesResponse,
+
+    @SerializedName("mainOrganizer")
+    val mainOrganizer: String
 )

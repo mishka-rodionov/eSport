@@ -1,6 +1,7 @@
 package com.rodionov.remote.response.orienteering
 
 import com.google.gson.annotations.SerializedName
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.remote.response.competition.CompetitionResponse
 
 data class OrienteeringCompetitionResponse(
@@ -11,5 +12,8 @@ data class OrienteeringCompetitionResponse(
     val competition: CompetitionResponse,
 
     @SerializedName("direction")
-    val direction: String // "FORWARD", "BY_CHOICE", etc.
+    val direction: String, // "FORWARD", "BY_CHOICE", etc.
+
+    @SerializedName("punchingSystem")
+    val punchingSystem: PunchingSystem
 )

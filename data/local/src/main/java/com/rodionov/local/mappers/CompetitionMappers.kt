@@ -9,7 +9,8 @@ fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
     return OrienteeringCompetitionEntity(
         id = this.competitionId, // Используем тот же ID
         competition = this.competition, // Встраиваемый объект копируется напрямую
-        direction = this.direction     // Enum копируется напрямую (Room обработает через TypeConverter)
+        direction = this.direction,     // Enum копируется напрямую (Room обработает через TypeConverter),
+        punchingSystem = punchingSystem
     )
 }
 
@@ -25,7 +26,8 @@ fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
     return OrienteeringCompetition(
         competitionId = this.id, // Используем тот же ID
         competition = this.competition, // Встраиваемый объект копируется напрямую
-        direction = this.direction     // Enum копируется напрямую
+        direction = this.direction,     // Enum копируется напрямую
+        punchingSystem = punchingSystem
     )
 }
 
