@@ -32,6 +32,19 @@ import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Composable-функция, представляющая главный экран раздела "Центр".
+ *
+ * Этот экран отображает различное содержимое в зависимости от статуса аутентификации пользователя.
+ * Если пользователь аутентифицирован (`state.isAuthed` равно true), он показывает кнопку "Создать новое событие"
+ * и список событий, управляемых пользователем (`ControlledEvents`).
+ * Если пользователь не аутентифицирован, отображается сообщение с предложением войти или зарегистрироваться.
+ *
+ * Функция наблюдает за состоянием [CenterState] из [CenterViewModel] для соответствующего обновления UI.
+ * `LaunchedEffect` используется для запуска процесса инициализации в ViewModel при изменении состояния.
+ *
+ * @param viewModel Экземпляр [CenterViewModel], отвечающий за бизнес-логику и управление состоянием этого экрана. Предоставляется через Koin `koinViewModel()`.
+ */
 @Composable
 fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
 

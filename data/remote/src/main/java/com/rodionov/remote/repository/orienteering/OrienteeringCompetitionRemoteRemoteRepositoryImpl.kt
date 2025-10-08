@@ -7,6 +7,11 @@ import com.rodionov.remote.datasource.orienteering.OrienteeringCompetitionRemote
 import com.rodionov.remote.request.mappers.toRequest
 import com.rodionov.remote.response.mappers.toDomain
 
+/**
+ * Реализация удаленного репозитория для соревнований по спортивному ориентированию.
+ *
+ * @param orienteeringCompetitionRemoteDataSource Источник данных для соревнований по спортивному ориентированию.
+ */
 data class OrienteeringCompetitionRemoteRemoteRepositoryImpl(
     private val orienteeringCompetitionRemoteDataSource: OrienteeringCompetitionRemoteDataSource
 ) :
@@ -22,6 +27,39 @@ data class OrienteeringCompetitionRemoteRemoteRepositoryImpl(
         participantGroups: List<ParticipantGroup>
     ): Result<List<ParticipantGroup>> {
         return orienteeringCompetitionRemoteDataSource.createCompetitionParticipantGroup(
-            participantGroups.map { it.toRequest(competitionId) }).mapCatching { it.result!!.map { gr -> gr.toDomain() } }
+            participantGroups.map { it.toRequest(competitionId) })
+            .mapCatching { it.result!!.map { gr -> gr.toDomain() } }
+    }
+
+    override suspend fun getCompetitionById(competitionId: Long): Result<OrienteeringCompetition> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getCompetitionParticipantsGroups(competitionId: Long): Result<List<ParticipantGroup>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateCompetition(competition: OrienteeringCompetition): Result<OrienteeringCompetition> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateCompetitionParticipantsGroups(
+        competitionId: Long,
+        participantGroups: List<ParticipantGroup>
+    ): Result<List<ParticipantGroup>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteCompetition(competitionId: Long): Result<Unit> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteCompetitionParticipantsGroups(competitionId: Long): Result<Unit> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>> {
+        return orienteeringCompetitionRemoteDataSource.getCompetitionsByUserid(userId)
+            .mapCatching { it.result!!.map { comp -> comp.toDomain() } }
     }
 }

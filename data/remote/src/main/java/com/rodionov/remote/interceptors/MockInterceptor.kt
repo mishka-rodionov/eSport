@@ -1,12 +1,20 @@
 package com.rodionov.remote.interceptors
 
 import com.google.gson.Gson
+import com.rodionov.domain.models.Competition
+import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.Gender
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.models.SportsCategory
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.remote.base.CommonModel
 import com.rodionov.remote.response.auth.AuthResponse
 import com.rodionov.remote.response.auth.TokenResponse
+import com.rodionov.remote.response.competition.CompetitionResponse
+import com.rodionov.remote.response.competition.CoordinatesResponse
+import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
 import com.rodionov.remote.response.user.QualificationResponse
 import com.rodionov.remote.response.user.UserResponse
 import okhttp3.Interceptor
@@ -15,6 +23,7 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import java.time.LocalDate
 
 class MockInterceptor : Interceptor {
 
@@ -26,6 +35,7 @@ class MockInterceptor : Interceptor {
         return when {
             path.contains("user/register") -> registerResponse(request)
             path.contains("user/verify_code") -> verifyCodeResponse(request)
+            path.contains("event/orienteering/competitions") -> mockEvents(request)
             else -> chain.proceed(request)
 
         }
@@ -95,6 +105,45 @@ class MockInterceptor : Interceptor {
             .body(mockJson)
             .addHeader("Content-Type", "application/json; charset=utf-8")
             .build()
+    }
+
+    fun mockEvents(): List<OrienteeringCompetitionResponse> {
+        return listOf(
+            OrienteeringCompetitionResponse(
+                competitionId = 1,
+                competition = CompetitionResponse(
+                    title = "Городские соревнования",
+                    date = LocalDate.parse("2025-08-25").toEpochDay(),
+                    kindOfSport = KindOfSport.Orienteering.name,
+                    description = "Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию.",
+                    address = "Саратов",
+                    mainOrganizer = "123",
+                    coordinates = CoordinatesResponse(
+                        latitude = 51.3200,
+                        longitude = 46.0000
+                    )
+                ),
+                direction = OrienteeringDirection.FORWARD.name,
+                punchingSystem = PunchingSystem.SPORTIDUINO
+            ),
+            OrienteeringCompetitionResponse(
+                competitionId = 2,
+                direction = OrienteeringDirection.FORWARD.name,
+                punchingSystem = PunchingSystem.SPORTIDUINO,
+                competition = CompetitionResponse(
+                    title = "Городские соревнования #2",
+                    date = LocalDate.parse("2025-08-27").toEpochDay(),
+                    kindOfSport = KindOfSport.Orienteering.name,
+                    description = "Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию.",
+                    address = "Балашов",
+                    mainOrganizer = "123",
+                    coordinates = CoordinatesResponse(
+                        latitude = 51.3200,
+                        longitude = 46.0000
+                    )
+                )
+            )
+        )
     }
 
 }

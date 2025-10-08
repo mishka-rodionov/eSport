@@ -6,6 +6,7 @@ import com.rodionov.center.data.CenterEffects
 import com.rodionov.center.data.main.CenterState
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import com.rodionov.domain.repository.user.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,14 +16,16 @@ import kotlinx.coroutines.launch
 
 class CenterViewModel(
     private val userRepository: UserRepository,
-    private val navigation: Navigation): ViewModel() {
+    private val navigation: Navigation,
+    private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(CenterState())
     val state: StateFlow<CenterState> = _state.asStateFlow()
 
 
     fun handleEffects(effect: CenterEffects) {
-        when(effect) {
+        when (effect) {
             is CenterEffects.OpenKindOfSports -> {
                 viewModelScope.launch {
                     navigation.navigate(CenterNavigation.KindOfSportRoute)
@@ -41,9 +44,21 @@ class CenterViewModel(
 
     fun initialize() {
         viewModelScope.launch {
+            val isAuthed = userRepository.isAuthorized()
             _state.update {
                 it.copy(isAuthed = userRepository.isAuthorized())
             }
+            if (isAuthed) {
+                userRepository.retrieveUser().onSuccess { user ->
+                    orienteeringCompetitionRemoteRepository.getCompetitionsByUserid(user.id)
+                        .onSuccess { competitions ->
+                            _state.update {
+                                it.copy(controlledEvents = competitions)
+                            }
+                        }
+                }
+            }
+
         }
     }
 
