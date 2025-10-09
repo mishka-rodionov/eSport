@@ -7,6 +7,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.PunchingSystem
+import com.rodionov.ui.BaseState
 import java.time.LocalDate
 
 data class OrienteeringCreatorState(
@@ -22,7 +23,7 @@ data class OrienteeringCreatorState(
     val punchingSystem: PunchingSystem = PunchingSystem.SPORTIDUINO,
     val editGroupIndex: Int = -1,
     val competitionDirection: OrienteeringDirection? = null
-) {
+) : BaseState {
     fun constructOrienteeringCompetition(): OrienteeringCompetition {
         return OrienteeringCompetition(
             competitionId = -1L,

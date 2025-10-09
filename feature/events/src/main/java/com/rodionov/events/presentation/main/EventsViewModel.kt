@@ -1,31 +1,28 @@
 package com.rodionov.events.presentation.main
 
 import android.os.Parcelable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rodionov.data.navigation.BaseArgument
 import com.rodionov.data.navigation.EventsNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.repository.events.EventsRepository
 import com.rodionov.events.data.main.EventsAction
 import com.rodionov.events.data.main.EventsState
+import com.rodionov.ui.BaseAction
+import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 class EventsViewModel(
     private val navigation: Navigation,
     private val eventsRepository: EventsRepository
-) : ViewModel() {
+) : BaseViewModel<EventsState>(EventsState()) {
 
-    private val _state = MutableStateFlow(EventsState())
-    val state: StateFlow<EventsState> = _state.asStateFlow()
+    override fun onAction(action: BaseAction) {
+
+    }
 
     fun onAction(action: EventsAction) {
         when (action) {
@@ -33,7 +30,7 @@ class EventsViewModel(
                 viewModelScope.launch {
                     navigation.navigate(
                         EventsNavigation.EventDetailsRoute, argument =
-                            navigation.createArguments(EventsConstants.EVENT_ID.name to _state.value.events[action.eventId])
+                            navigation.createArguments(EventsConstants.EVENT_ID.name to stateValue.events[action.eventId])
                     )
                 }
             }
@@ -44,10 +41,10 @@ class EventsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             eventsRepository.getEvents(kindOfSport = kindOfSports).onSuccess { events ->
                 events?.also { list ->
-                    _state.update { it.copy(events = list) }
+                    updateState { copy(events = list) }
                 }
             }.onFailure {
-                _state.update { it.copy(isGlobalError = true) }
+                updateState { copy(isGlobalError = true) }
             }
         }
     }

@@ -2,9 +2,10 @@ package com.rodionov.center.data.creator
 
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.ui.BaseAction
 import java.time.LocalDate
 
-sealed class OrienteeringCreatorAction {
+sealed class OrienteeringCreatorAction : BaseAction {
     data class CreateParticipantGroup(
         val participantGroup: ParticipantGroup,
         val index: Int

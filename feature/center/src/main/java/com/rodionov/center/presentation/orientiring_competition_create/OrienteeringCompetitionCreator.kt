@@ -78,9 +78,7 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
                     )
                 )
             },
-            onValueChanged = {
-                viewModel.updateState { copy(title = it) }
-            })
+            onValueChanged = viewModel::updateTitle)
         DSTextInput(
             modifier = Modifier.fillMaxWidth(),
             label = {
@@ -93,18 +91,14 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
                 }
             },
             text = state.address,
-            onValueChanged = {
-                viewModel.updateState { copy(address = it) }
-            })
-        DatePicker(state = state, userAction = viewModel::onUserAction)
-        TimePicker(state = state, userAction = viewModel::onUserAction)
-        OrienteeringCompetitionDirection(state = state, userAction = viewModel::onUserAction)
+            onValueChanged = viewModel::updateAddress)
+        DatePicker(state = state, userAction = viewModel::onAction)
+        TimePicker(state = state, userAction = viewModel::onAction)
+        OrienteeringCompetitionDirection(state = state, userAction = viewModel::onAction)
         DSTextInput(
             modifier = Modifier
                 .fillMaxWidth(),
-            onValueChanged = {
-                viewModel.updateState { copy(description = it) }
-            },
+            onValueChanged = viewModel::updateDescription,
             text = state.description,
             label = {
                 Text(text = stringResource(R.string.label_competition_description))
@@ -113,9 +107,9 @@ fun OrienteeringCompetitionCreator(viewModel: OrienteeringCreatorViewModel = koi
                 Text(text = stringResource(R.string.hint_competition_description))
             }
         )
-        ParticipantGroupContent(state = state, userAction = viewModel::onUserAction)
+        ParticipantGroupContent(state = state, userAction = viewModel::onAction)
         OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
-            viewModel.onUserAction(OrienteeringCreatorAction.Apply)
+            viewModel.onAction(OrienteeringCreatorAction.Apply)
         }) {
             Text(text = stringResource(R.string.label_apply))
         }

@@ -1,6 +1,5 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
@@ -10,27 +9,19 @@ import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.resources.R
 import com.rodionov.resources.ResourceProvider
+import com.rodionov.ui.BaseAction
+import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.DateTimeFormat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class OrienteeringCreatorViewModel(
     val navigation: Navigation,
     private val resourceProvider: ResourceProvider,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor
-) : ViewModel() {
-    private val _state = MutableStateFlow(OrienteeringCreatorState())
-    val state: StateFlow<OrienteeringCreatorState> = _state.asStateFlow()
+) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
-    fun updateState(info: suspend OrienteeringCreatorState.() -> OrienteeringCreatorState) {
-        viewModelScope.launch(Dispatchers.Main.immediate) { _state.update { info.invoke(it) } }
-    }
-
-    fun onUserAction(action: OrienteeringCreatorAction) {
+    override fun onAction(action: BaseAction) {
         when (action) {
             is OrienteeringCreatorAction.CreateParticipantGroup -> {
                 val isGroupTitleError = action.participantGroup.title.isBlank()
@@ -57,7 +48,7 @@ class OrienteeringCreatorViewModel(
                             )
                         }
                     } else {
-                        val groups = _state.value.participantGroups.toMutableList()
+                        val groups = stateValue.participantGroups.toMutableList()
                         groups[action.index] = action.participantGroup
                         updateState {
                             copy(
@@ -70,7 +61,7 @@ class OrienteeringCreatorViewModel(
             }
 
             OrienteeringCreatorAction.Apply -> {
-                val newDate = DateTimeFormat.formatDate(_state.value.date)
+                val newDate = DateTimeFormat.formatDate(stateValue.date)
                 updateState {
                     copy(
                         errors = errors.copy(
@@ -85,19 +76,19 @@ class OrienteeringCreatorViewModel(
                         }
                     )
                 }
-                if (_state.value.errors.checkErrors()) {
+                if (stateValue.errors.checkErrors()) {
                     saveNewCompetition(
-                        orienteeringCompetition = _state.value.constructOrienteeringCompetition(),
-                        participantGroups = _state.value.participantGroups
+                        orienteeringCompetition = stateValue.constructOrienteeringCompetition(),
+                        participantGroups = stateValue.participantGroups
                     )
                 }
             }
 
             is OrienteeringCreatorAction.UpdateCompetitionDate -> {
-                val titleParts = _state.value.title.split(" ")
+                val titleParts = stateValue.title.split(" ")
                 val newDate = DateTimeFormat.formatDate(action.competitionDate)
-                val oldDate = DateTimeFormat.formatDate(_state.value.date)
-                var newTitle = _state.value.title
+                val oldDate = DateTimeFormat.formatDate(stateValue.date)
+                var newTitle = stateValue.title
                 if (titleParts.size == 2 && titleParts[0] == resourceProvider.getString(R.string.label_competition_start) &&
                     titleParts[1] == oldDate
                 ) {
@@ -130,7 +121,7 @@ class OrienteeringCreatorViewModel(
             }
 
             is OrienteeringCreatorAction.DeleteGroup -> {
-                val group = _state.value.participantGroups.toMutableList()
+                val group = stateValue.participantGroups.toMutableList()
                 group.removeAt(action.index)
                 updateState { copy(participantGroups = group.toList()) }
             }
@@ -150,7 +141,18 @@ class OrienteeringCreatorViewModel(
         participantGroups: List<ParticipantGroup>
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            onUserAction(orienteeringCompetitionInteractor.saveCompetition(orienteeringCompetition, participantGroups))
+            onAction(
+                orienteeringCompetitionInteractor.saveCompetition(
+                    orienteeringCompetition,
+                    participantGroups
+                )
+            )
         }
     }
+
+    fun updateTitle(title: String) = updateState { copy(title = title) }
+
+    fun updateAddress(address: String) = updateState { copy(address = address) }
+
+    fun updateDescription(description: String) = updateState { copy(description = description) }
 }

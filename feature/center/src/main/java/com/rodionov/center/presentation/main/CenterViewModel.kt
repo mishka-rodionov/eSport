@@ -1,6 +1,5 @@
 package com.rodionov.center.presentation.main
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.CenterEffects
 import com.rodionov.center.data.main.CenterState
@@ -8,21 +7,19 @@ import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import com.rodionov.domain.repository.user.UserRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.rodionov.ui.BaseAction
+import com.rodionov.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.launch
 
 class CenterViewModel(
     private val userRepository: UserRepository,
     private val navigation: Navigation,
     private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository
-) : ViewModel() {
+) : BaseViewModel<CenterState>(CenterState()) {
 
-    private val _state = MutableStateFlow(CenterState())
-    val state: StateFlow<CenterState> = _state.asStateFlow()
-
+    override fun onAction(action: BaseAction) {
+        
+    }
 
     fun handleEffects(effect: CenterEffects) {
         when (effect) {
@@ -45,15 +42,15 @@ class CenterViewModel(
     fun initialize() {
         viewModelScope.launch {
             val isAuthed = userRepository.isAuthorized()
-            _state.update {
-                it.copy(isAuthed = userRepository.isAuthorized())
+            updateState {
+                copy(isAuthed = userRepository.isAuthorized())
             }
             if (isAuthed) {
                 userRepository.retrieveUser().onSuccess { user ->
                     orienteeringCompetitionRemoteRepository.getCompetitionsByUserid(user.id)
                         .onSuccess { competitions ->
-                            _state.update {
-                                it.copy(controlledEvents = competitions)
+                            updateState {
+                                copy(controlledEvents = competitions)
                             }
                         }
                 }

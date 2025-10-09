@@ -4,18 +4,23 @@ import android.app.PendingIntent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import androidx.activity.ComponentActivity
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.nfchelper.SportiduinoHelper
+import com.rodionov.ui.BaseAction
+import com.rodionov.ui.BaseState
+import com.rodionov.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val navigation: Navigation,
     private val sportiduinoHelper: SportiduinoHelper
-): ViewModel() {
+): BaseViewModel<BaseState>(object : BaseState{}) {
+
+    override fun onAction(action: BaseAction) {
+
+    }
 
     suspend fun collectNavigationEffect(navigationHandler: (BaseNavigation) -> Unit, destination: BaseNavigation) {
 //        viewModelScope.launch(Dispatchers.Main) {
