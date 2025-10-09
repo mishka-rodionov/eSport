@@ -78,7 +78,7 @@ fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
 fun ControlledEvents(state: CenterState, userAction: (CenterEffects) -> Unit) {
     LazyColumn(modifier = Modifier.padding(top = Dimens.SIZE_HALF.dp)) {
         itemsIndexed(state.controlledEvents) { index, item ->
-            EventContent(item, userAction)
+            EventContent(item.competition, userAction)
             if(index < state.controlledEvents.size - 1 ) {
                 Spacer(modifier = Modifier.height(8.dp))
             }

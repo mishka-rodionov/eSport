@@ -107,8 +107,8 @@ class MockInterceptor : Interceptor {
             .build()
     }
 
-    fun mockEvents(): List<OrienteeringCompetitionResponse> {
-        return listOf(
+    fun mockEvents(request: Request): Response {
+        val mockOrienteeringResponse = listOf(
             OrienteeringCompetitionResponse(
                 competitionId = 1,
                 competition = CompetitionResponse(
@@ -144,6 +144,23 @@ class MockInterceptor : Interceptor {
                 )
             )
         )
+
+        val gson = Gson()
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val mockJson = """
+            {
+              "status": 1,
+              "result": ${gson.toJson(mockOrienteeringResponse)}
+            }
+            """.trimIndent().toResponseBody(mediaType)
+        return Response.Builder()
+            .request(request)
+            .protocol(Protocol.HTTP_1_1)
+            .code(200) // HTTP 200 OK — можно заменить на любой код
+            .message("OK (mocked by MockInterceptor)")
+            .body(mockJson)
+            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .build()
     }
 
 }

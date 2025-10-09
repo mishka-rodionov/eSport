@@ -9,7 +9,7 @@ import com.rodionov.domain.models.orienteering.PunchingSystem
 import java.time.LocalDate
 
 data class CenterState(
-    val controlledEvents: List<Competition> = emptyList(),
+    val controlledEvents: List<OrienteeringCompetition> = emptyList(),
     val isAuthed: Boolean = false,
 //    val controlledEvents: List<OrienteeringCompetition> = mockEvents()
 )
