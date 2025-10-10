@@ -7,6 +7,7 @@ import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.resources.R
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.ui.BaseAction
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 class OrienteeringCreatorViewModel(
     val navigation: Navigation,
     private val resourceProvider: ResourceProvider,
-    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor
+    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
+    private val userRepository: UserRepository
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
     override fun onAction(action: BaseAction) {
@@ -60,43 +62,9 @@ class OrienteeringCreatorViewModel(
                 }
             }
 
-            OrienteeringCreatorAction.Apply -> {
-                val newDate = DateTimeFormat.formatDate(stateValue.date)
-                updateState {
-                    copy(
-                        errors = errors.copy(
-                            isEmptyAddress = address.isBlank(),
-                            isEmptyGroup = participantGroups.isEmpty()
-                        ),
-                        title = title.ifEmpty {
-                            resourceProvider.getString(
-                                R.string.label_competition_start_full,
-                                newDate
-                            )
-                        }
-                    )
-                }
-                if (stateValue.errors.checkErrors()) {
-                    saveNewCompetition(
-                        orienteeringCompetition = stateValue.constructOrienteeringCompetition(),
-                        participantGroups = stateValue.participantGroups
-                    )
-                }
-            }
+            OrienteeringCreatorAction.Apply -> handleCompetitionCreate()
 
-            is OrienteeringCreatorAction.UpdateCompetitionDate -> {
-                val titleParts = stateValue.title.split(" ")
-                val newDate = DateTimeFormat.formatDate(action.competitionDate)
-                val oldDate = DateTimeFormat.formatDate(stateValue.date)
-                var newTitle = stateValue.title
-                if (titleParts.size == 2 && titleParts[0] == resourceProvider.getString(R.string.label_competition_start) &&
-                    titleParts[1] == oldDate
-                ) {
-                    newTitle =
-                        resourceProvider.getString(R.string.label_competition_start_full, newDate)
-                }
-                updateState { copy(title = newTitle, date = action.competitionDate) }
-            }
+            is OrienteeringCreatorAction.UpdateCompetitionDate -> handleCompetitionUpdate(action)
 
             is OrienteeringCreatorAction.UpdateCompetitionTime -> {
                 updateState { copy(time = action.competitionTime) }
@@ -136,18 +104,58 @@ class OrienteeringCreatorViewModel(
         }
     }
 
-    private fun saveNewCompetition(
+    private fun handleCompetitionUpdate(action: OrienteeringCreatorAction.UpdateCompetitionDate) {
+        val titleParts = stateValue.title.split(" ")
+        val newDate = DateTimeFormat.formatDate(action.competitionDate)
+        val oldDate = DateTimeFormat.formatDate(stateValue.date)
+        var newTitle = stateValue.title
+        if (titleParts.size == 2 && titleParts[0] == resourceProvider.getString(R.string.label_competition_start) &&
+            titleParts[1] == oldDate
+        ) {
+            newTitle =
+                resourceProvider.getString(R.string.label_competition_start_full, newDate)
+        }
+        updateState { copy(title = newTitle, date = action.competitionDate) }
+    }
+
+    private fun handleCompetitionCreate() {
+        val newDate = DateTimeFormat.formatDate(stateValue.date)
+        updateState {
+            copy(
+                errors = errors.copy(
+                    isEmptyAddress = address.isBlank(),
+                    isEmptyGroup = participantGroups.isEmpty()
+                ),
+                title = title.ifEmpty {
+                    resourceProvider.getString(
+                        R.string.label_competition_start_full,
+                        newDate
+                    )
+                }
+            )
+        }
+        if (stateValue.errors.checkErrors()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                userRepository.retrieveUser().onSuccess {
+                    saveNewCompetition(
+                        orienteeringCompetition = stateValue.constructOrienteeringCompetition(userId = it.id),
+                        participantGroups = stateValue.participantGroups
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun saveNewCompetition(
         orienteeringCompetition: OrienteeringCompetition,
         participantGroups: List<ParticipantGroup>
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            onAction(
-                orienteeringCompetitionInteractor.saveCompetition(
-                    orienteeringCompetition,
-                    participantGroups
-                )
+        onAction(
+            orienteeringCompetitionInteractor.saveCompetition(
+                orienteeringCompetition,
+                participantGroups
             )
-        }
+        )
     }
 
     fun updateTitle(title: String) = updateState { copy(title = title) }

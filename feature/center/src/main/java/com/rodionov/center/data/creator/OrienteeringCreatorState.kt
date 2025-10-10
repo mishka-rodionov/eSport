@@ -19,12 +19,11 @@ data class OrienteeringCreatorState(
     val participantGroups: List<ParticipantGroup> = emptyList(),
     val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors(),
     val isShowGroupCreateDialog: Boolean = false,
-    val mainOrganizer: String = "",
     val punchingSystem: PunchingSystem = PunchingSystem.SPORTIDUINO,
     val editGroupIndex: Int = -1,
     val competitionDirection: OrienteeringDirection? = null
 ) : BaseState {
-    fun constructOrienteeringCompetition(): OrienteeringCompetition {
+    fun constructOrienteeringCompetition(userId: String): OrienteeringCompetition {
         return OrienteeringCompetition(
             competitionId = -1L,
             competition = Competition(
@@ -33,7 +32,7 @@ data class OrienteeringCreatorState(
                 kindOfSport = KindOfSport.Orienteering,
                 description = description,
                 address = address,
-                mainOrganizer = mainOrganizer,
+                mainOrganizer = userId,
                 coordinates = Coordinates(0.0, 0.0)
             ),
             direction = competitionDirection ?: OrienteeringDirection.FORWARD,
