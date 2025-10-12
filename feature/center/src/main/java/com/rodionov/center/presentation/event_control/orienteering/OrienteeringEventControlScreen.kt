@@ -1,8 +1,5 @@
 package com.rodionov.center.presentation.event_control.orienteering
 
-import android.content.res.Configuration
-import android.view.WindowManager
-import android.view.WindowMetrics
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,18 +10,29 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import com.rodionov.center.data.event_control.OrientEventControlAction
 import org.koin.androidx.compose.koinViewModel
 
+private const val WEIGHT_DEFAULT = 1f
+private const val ASPECT_RATIO_DEFAULT = 1f
+private const val PADDING_DEFAULT = 4
+private const val CORNER_SHAPE_DEFAULT = 12
+
+/**
+ * Composable-функция, которая служит главным экраном для управления событием по спортивному ориентированию.
+ * Она адаптирует свой макет в зависимости от доступной ширины экрана, определяемой [windowSizeClass].
+ * Для широких экранов кнопки управления отображаются в один ряд, а для узких — в виде сетки 2x2.
+ * Этот экран обрабатывает взаимодействия с пользователем, делегируя действия предоставленной [viewModel].
+ *
+ * @param viewModel Модель представления [OrienteeringEventControlViewModel], отвечающая за бизнес-логику и состояние экрана. Получается через [koinViewModel] из Koin.
+ * @param windowSizeClass [WindowSizeClass] текущего окна, используется для определения, должен ли макет быть расширенным или компактным.
+ */
 @Composable
 fun OrienteeringEventControlScreen(
     viewModel: OrienteeringEventControlViewModel = koinViewModel(),
@@ -47,10 +55,10 @@ fun OrienteeringEventControlContent(
         ) {
             OutlinedButton(
                 modifier = Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .weight(WEIGHT_DEFAULT)
+                    .aspectRatio(ASPECT_RATIO_DEFAULT)
+                    .padding(PADDING_DEFAULT.dp)
+                    .clip(RoundedCornerShape(CORNER_SHAPE_DEFAULT.dp))
                     .background(Color.Blue), onClick = {
                     userAction.invoke(OrientEventControlAction.OpenOrientReadCard)
                 }) {
@@ -59,30 +67,30 @@ fun OrienteeringEventControlContent(
 
             OutlinedButton(
                 modifier = Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .weight(WEIGHT_DEFAULT)
+                    .aspectRatio(ASPECT_RATIO_DEFAULT)
+                    .padding(PADDING_DEFAULT.dp)
+                    .clip(RoundedCornerShape(CORNER_SHAPE_DEFAULT.dp))
                     .background(Color.Green), onClick = {}) {
                 Text(text = "Очистить")
             }
 
             OutlinedButton(
                 modifier = Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .weight(WEIGHT_DEFAULT)
+                    .aspectRatio(ASPECT_RATIO_DEFAULT)
+                    .padding(PADDING_DEFAULT.dp)
+                    .clip(RoundedCornerShape(CORNER_SHAPE_DEFAULT.dp))
                     .background(Color.Yellow), onClick = {}) {
                 Text(text = "Проверить")
             }
 
             OutlinedButton(
                 modifier = Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .weight(WEIGHT_DEFAULT)
+                    .aspectRatio(ASPECT_RATIO_DEFAULT)
+                    .padding(PADDING_DEFAULT.dp)
+                    .clip(RoundedCornerShape(CORNER_SHAPE_DEFAULT.dp))
                     .background(Color.Red), onClick = {}) {
                 Text(text = "Записать")
             }
@@ -95,10 +103,10 @@ fun OrienteeringEventControlContent(
             ) {
                 OutlinedButton(
                     modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .padding(4.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .weight(WEIGHT_DEFAULT)
+                        .aspectRatio(ASPECT_RATIO_DEFAULT)
+                        .padding(PADDING_DEFAULT.dp)
+                        .clip(RoundedCornerShape(CORNER_SHAPE_DEFAULT.dp))
                         .background(Color.Blue), onClick = {
                         userAction.invoke(OrientEventControlAction.OpenOrientReadCard)
                     }) {
@@ -107,10 +115,10 @@ fun OrienteeringEventControlContent(
 
                 OutlinedButton(
                     modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .padding(4.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .weight(WEIGHT_DEFAULT)
+                        .aspectRatio(ASPECT_RATIO_DEFAULT)
+                        .padding(PADDING_DEFAULT.dp)
+                        .clip(RoundedCornerShape(CORNER_SHAPE_DEFAULT.dp))
                         .background(Color.Green), onClick = {}) {
                     Text(text = "Очистить")
                 }
@@ -122,24 +130,36 @@ fun OrienteeringEventControlContent(
             ) {
                 OutlinedButton(
                     modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .padding(4.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .weight(WEIGHT_DEFAULT)
+                        .aspectRatio(ASPECT_RATIO_DEFAULT)
+                        .padding(PADDING_DEFAULT.dp)
+                        .clip(RoundedCornerShape(CORNER_SHAPE_DEFAULT.dp))
                         .background(Color.Yellow), onClick = {}) {
                     Text(text = "Проверить")
                 }
 
                 OutlinedButton(
                     modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .padding(4.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .weight(WEIGHT_DEFAULT)
+                        .aspectRatio(ASPECT_RATIO_DEFAULT)
+                        .padding(PADDING_DEFAULT.dp)
+                        .clip(RoundedCornerShape(CORNER_SHAPE_DEFAULT.dp))
                         .background(Color.Red), onClick = {}) {
                     Text(text = "Записать")
                 }
             }
         }
     }
+}
+
+@Preview(name = "Compact", showBackground = true)
+@Composable
+fun OrienteeringEventControlScreenPreviewCompact() {
+    OrienteeringEventControlContent(isExpanded = false, userAction = {})
+}
+
+@Preview(name = "Expanded", showBackground = true, widthDp = 840)
+@Composable
+fun OrienteeringEventControlScreenPreviewExpanded() {
+    OrienteeringEventControlContent(isExpanded = true, userAction = {})
 }

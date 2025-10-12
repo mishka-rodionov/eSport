@@ -19,18 +19,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.clickRipple
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.CenterEffects
 import com.rodionov.center.data.main.CenterState
 import com.rodionov.domain.models.Competition
+import com.rodionov.domain.models.Coordinates
+import com.rodionov.domain.models.KindOfSport
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
+import java.time.LocalDate
+import java.util.UUID
 
 /**
  * Composable-функция, представляющая главный экран раздела "Центр".
@@ -49,29 +58,14 @@ import org.koin.androidx.compose.koinViewModel
 fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
 
     val state by viewModel.state.collectAsState()
+    val handleEffects = remember { viewModel::handleEffects }
 
     LaunchedEffect(state) {
         viewModel.initialize()
     }
 
-    Column {
-        if (state.isAuthed) {
-            OutlinedButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                onClick = {
-                    viewModel.handleEffects(CenterEffects.OpenKindOfSports)
-                },
-                content = {
-                    Text("Создать новое событие")
-                }
-            )
-            ControlledEvents(state, viewModel::handleEffects)
-        } else {
-            Text("Чтобы создать новое событие вы должны зарегестрироваться или войти в свой аккаунт.")
-        }
-    }
+    CenterScreenContent(state, handleEffects)
+
 }
 
 @Composable
@@ -79,7 +73,7 @@ fun ControlledEvents(state: CenterState, userAction: (CenterEffects) -> Unit) {
     LazyColumn(modifier = Modifier.padding(top = Dimens.SIZE_HALF.dp)) {
         itemsIndexed(state.controlledEvents) { index, item ->
             EventContent(item.competition, userAction)
-            if(index < state.controlledEvents.size - 1 ) {
+            if (index < state.controlledEvents.size - 1) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -104,17 +98,95 @@ fun EventContent(competition: Competition, userAction: (CenterEffects) -> Unit) 
                 .size(60.dp),
             contentScale = ContentScale.Crop
         )
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()) {
-            Text(text = competition.title)
-            Row(modifier = Modifier
+        Column(
+            modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()) {
+                .wrapContentHeight()
+        ) {
+            Text(text = competition.title)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
                 Text(text = "Город: ${competition.address}")
                 Text(text = "Дата: ${DateTimeFormat.formatDate(competition.date)}")
             }
         }
     }
 
+}
+
+@Preview
+@Composable
+private fun CenterScreenAuthPreview() {
+    CenterScreenContent(
+        state = CenterState(
+            isAuthed = true,
+            controlledEvents = listOf(
+                OrienteeringCompetition(
+                    competitionId = 1L,
+                    competition = Competition(
+                        title = "Чемпионат города по спортивному ориентированию",
+                        date = LocalDate.now(),
+                        address = "Москва",
+                        kindOfSport = KindOfSport.Orienteering,
+                        description = "",
+                        mainOrganizer = "123",
+                        coordinates = Coordinates(latitude = 0.0, longitude = 0.0),
+                    ),
+                    direction = OrienteeringDirection.FORWARD,
+                    punchingSystem = PunchingSystem.PUNCH
+                ),
+
+                OrienteeringCompetition(
+                    competitionId = 1L,
+                    competition = Competition(
+                        title = "Весенний спринт",
+                        date = LocalDate.now().plusDays(10),
+                        address = "Санкт-Петербург",
+                        kindOfSport = KindOfSport.Orienteering,
+                        description = "",
+                        mainOrganizer = "123",
+                        coordinates = Coordinates(latitude = 0.0, longitude = 0.0),
+                    ),
+                    direction = OrienteeringDirection.FORWARD,
+                    punchingSystem = PunchingSystem.PUNCH
+                )
+            )
+        ),
+        handleEffects = {}
+    )
+}
+
+@Preview
+@Composable
+private fun CenterScreenNotAuthPreview() {
+    CenterScreenContent(
+        state = CenterState(isAuthed = false),
+        handleEffects = {}
+    )
+}
+
+@Composable
+private fun CenterScreenContent(state: CenterState, handleEffects: (CenterEffects) -> Unit) {
+    // Replaced the original body of CenterScreen to make it previewable
+    Column {
+        if (state.isAuthed) {
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                onClick = {
+                    handleEffects(CenterEffects.OpenKindOfSports)
+                },
+                content = {
+                    Text("Создать новое событие")
+                }
+            )
+            ControlledEvents(state, handleEffects)
+        } else {
+            Text("Чтобы создать новое событие вы должны зарегестрироваться или войти в свой аккаунт.")
+        }
+    }
 }
