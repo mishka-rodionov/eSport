@@ -2,7 +2,9 @@ package com.rodionov.local.mappers
 
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
+import com.rodionov.local.entities.orienteering.OrienteeringParticipantEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
 
 fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
@@ -55,5 +57,29 @@ fun ParticipantGroupEntity.toModel(): ParticipantGroup {
         distance = this.distance,
         countOfControls = this.countOfControls,
         maxTimeInMinute = this.maxTimeInMinute
+    )
+}
+
+fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
+    return OrienteeringParticipant(
+        id = id,
+        userId = userId,
+        groupId = groupId,
+        commandName = commandName,
+        startNumber = startNumber,
+        chipNumber = chipNumber,
+        comment = comment
+    )
+}
+
+fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
+    return OrienteeringParticipantEntity(
+        id = id,
+        userId = userId,
+        groupId = groupId,
+        commandName = commandName,
+        startNumber = startNumber,
+        chipNumber = chipNumber,
+        comment = comment
     )
 }
