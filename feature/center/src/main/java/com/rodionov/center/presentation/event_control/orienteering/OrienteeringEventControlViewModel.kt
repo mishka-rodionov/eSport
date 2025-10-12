@@ -20,6 +20,7 @@ class OrienteeringEventControlViewModel(
     fun onAction(action: OrientEventControlAction) {
         when(action) {
             OrientEventControlAction.OpenOrientReadCard -> viewModelScope.launch { navigation.navigate(CenterNavigation.OrientReadCardRoute) }
+            OrientEventControlAction.OpenParticipantLists ->  {}
         }
     }
 

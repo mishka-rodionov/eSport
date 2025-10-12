@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -22,7 +23,7 @@ import org.koin.androidx.compose.koinViewModel
 private const val WEIGHT_DEFAULT = 1f
 private const val ASPECT_RATIO_DEFAULT = 1f
 private const val PADDING_DEFAULT = 4
-private const val CORNER_SHAPE_DEFAULT = 12
+private const val CORNER_SHAPE_DEFAULT = 120
 
 /**
  * Composable-функция, которая служит главным экраном для управления событием по спортивному ориентированию.
@@ -150,6 +151,19 @@ fun OrienteeringEventControlContent(
             }
         }
     }
+
+    OutlinedButton(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        onClick = {
+            userAction.invoke(OrientEventControlAction.OpenParticipantLists)
+        },
+        content = {
+            Text("Список участников")
+        }
+    )
+
 }
 
 @Preview(name = "Compact", showBackground = true)

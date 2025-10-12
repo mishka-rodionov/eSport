@@ -4,4 +4,6 @@ sealed class OrientEventControlAction {
 
     data object OpenOrientReadCard: OrientEventControlAction()
 
+    data object OpenParticipantLists: OrientEventControlAction()
+
 }

@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.rodionov.local.dto.orienteering.OrienteeringCompetitionWithGroups
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
+import com.rodionov.local.entities.orienteering.OrienteeringCompetitionWithDetails
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -38,6 +39,14 @@ interface OrienteeringCompetitionDao {
     @Transaction
     @Query("SELECT * FROM orienteering_competitions")
     suspend fun getAllCompetitionsWithGroups(): List<OrienteeringCompetitionWithGroups>
+
+    @Transaction // Обязательно для вложенных связей!
+    @Query("SELECT * FROM orienteering_competitions WHERE id = :competitionId")
+    suspend fun getCompetitionWithDetails(competitionId: Long): OrienteeringCompetitionWithDetails
+
+    @Transaction
+    @Query("SELECT * FROM orienteering_competitions")
+    suspend fun getAllCompetitionsWithDetails(): List<OrienteeringCompetitionWithDetails>
 
 
     // --- транзакция для вставки сразу всего --- шаблон на будущее
