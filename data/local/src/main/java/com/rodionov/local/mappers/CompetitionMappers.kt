@@ -64,6 +64,8 @@ fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
     return OrienteeringParticipant(
         id = id,
         userId = userId,
+        firstName = firstName,
+        lastName = lastName,
         groupId = groupId,
         commandName = commandName,
         startNumber = startNumber,
@@ -76,6 +78,8 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
     return OrienteeringParticipantEntity(
         id = id,
         userId = userId,
+        firstName = firstName,
+        lastName = lastName,
         groupId = groupId,
         commandName = commandName,
         startNumber = startNumber,
