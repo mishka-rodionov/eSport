@@ -19,6 +19,8 @@ data class OrienteeringParticipantEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val userId: String,
+    val firstName: String,
+    val lastName: String,
     val groupId: Long, // Поле для связи с ParticipantGroupEntity
     val commandName: String,
     val startNumber: String,

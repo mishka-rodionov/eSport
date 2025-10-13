@@ -5,6 +5,8 @@ import com.rodionov.domain.models.Participant
 data class OrienteeringParticipant(
     override val id: Long,
     override val userId: String,
+    val firstName: String,
+    val lastName: String,
     val groupId: Long,
     val commandName: String,
     val startNumber: String,
