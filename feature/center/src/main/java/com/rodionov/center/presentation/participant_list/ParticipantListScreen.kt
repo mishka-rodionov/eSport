@@ -25,16 +25,16 @@ import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ParticipantGroupParticipants
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ParticipantListScreen(
-    viewModel: ParticipantListViewModel = viewModel(),
-    competitionId: Long
+    viewModel: ParticipantListViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(key1 = competitionId) {
-        viewModel.getCompetitionDetails(competitionId)
+    LaunchedEffect(viewModel) {
+        viewModel.getCompetitionDetails()
     }
     ParticipantListContent(state = state)
 }

@@ -72,7 +72,7 @@ fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
 fun ControlledEvents(state: CenterState, userAction: (CenterEffects) -> Unit) {
     LazyColumn(modifier = Modifier.padding(top = Dimens.SIZE_HALF.dp)) {
         itemsIndexed(state.controlledEvents) { index, item ->
-            EventContent(item.competition, userAction)
+            EventContent(item.competition, item.competitionId, userAction)
             if (index < state.controlledEvents.size - 1) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -81,14 +81,14 @@ fun ControlledEvents(state: CenterState, userAction: (CenterEffects) -> Unit) {
 }
 
 @Composable
-fun EventContent(competition: Competition, userAction: (CenterEffects) -> Unit) {
+fun EventContent(competition: Competition, eventId: Long,  userAction: (CenterEffects) -> Unit) {
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .clickRipple {
-                userAction.invoke(CenterEffects.OpenOrienteeringEventControl)
+                userAction.invoke(CenterEffects.OpenOrienteeringEventControl(eventId))
             }
     ) {
         Image(

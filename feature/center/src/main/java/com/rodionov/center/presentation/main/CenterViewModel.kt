@@ -9,6 +9,7 @@ import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemote
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
+import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.launch
 
 class CenterViewModel(
@@ -18,7 +19,7 @@ class CenterViewModel(
 ) : BaseViewModel<CenterState>(CenterState()) {
 
     override fun onAction(action: BaseAction) {
-        
+
     }
 
     fun handleEffects(effect: CenterEffects) {
@@ -34,7 +35,12 @@ class CenterViewModel(
             }
 
             is CenterEffects.OpenOrienteeringEventControl -> viewModelScope.launch {
-                navigation.navigate(CenterNavigation.OrienteeringEventControlRoute)
+                navigation.navigate(
+                    CenterNavigation.OrienteeringEventControlRoute,
+                    argument = navigation.createArguments(
+                        EventsConstants.EVENT_ID.name to effect.competitionId
+                    )
+                )
             }
         }
     }

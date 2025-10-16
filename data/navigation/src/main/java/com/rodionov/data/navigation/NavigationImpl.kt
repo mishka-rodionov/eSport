@@ -56,12 +56,4 @@ inline fun <reified T> Navigation.getArguments(name: String): T? {
         is T -> argument
         else -> null
     }
-//    return if (baseArgument?.argName == name) {
-//        when {
-//            baseArgument?.argument is T -> baseArgument?.argument
-//            else -> null
-//        }
-//    } else {
-//        null
-//    } as T?
 }

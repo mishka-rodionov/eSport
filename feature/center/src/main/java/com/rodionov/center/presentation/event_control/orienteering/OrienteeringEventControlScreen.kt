@@ -41,7 +41,21 @@ fun OrienteeringEventControlScreen(
 ) {
     val isExpanded =
         windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
-    OrienteeringEventControlContent(isExpanded, viewModel::onAction)
+    Column {
+        OrienteeringEventControlContent(isExpanded, viewModel::onAction)
+
+        OutlinedButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            onClick = {
+                viewModel.onAction(OrientEventControlAction.OpenParticipantLists)
+            },
+            content = {
+                Text("Список участников")
+            }
+        )
+    }
 }
 
 @Composable
@@ -151,18 +165,6 @@ fun OrienteeringEventControlContent(
             }
         }
     }
-
-    OutlinedButton(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        onClick = {
-            userAction.invoke(OrientEventControlAction.OpenParticipantLists)
-        },
-        content = {
-            Text("Список участников")
-        }
-    )
 
 }
 

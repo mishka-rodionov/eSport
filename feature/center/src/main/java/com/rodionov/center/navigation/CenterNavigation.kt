@@ -7,6 +7,8 @@ import com.rodionov.center.presentation.event_control.orienteering.OrienteeringE
 import com.rodionov.center.presentation.main.CenterScreen
 import com.rodionov.center.presentation.kind_of_sport.KindOfSportScreen
 import com.rodionov.center.presentation.orientiring_competition_create.OrienteeringCompetitionCreator
+import com.rodionov.center.presentation.participant_list.ParticipantList
+import com.rodionov.center.presentation.participant_list.ParticipantListScreen
 import com.rodionov.center.presentation.read_card.OrientReadCardScreen
 import com.rodionov.data.navigation.CenterNavigation
 
@@ -21,5 +23,6 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass) {
         )
     }
     composable<CenterNavigation.OrientReadCardRoute> { OrientReadCardScreen() }
+    composable<CenterNavigation.ParticipantList> { ParticipantListScreen() }
 //    }
 }

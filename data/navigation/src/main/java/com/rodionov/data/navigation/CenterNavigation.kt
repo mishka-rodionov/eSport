@@ -17,5 +17,7 @@ sealed class CenterNavigation: BaseNavigation {
     data object OrienteeringEventControlRoute: CenterNavigation()
     @Serializable
     data object OrientReadCardRoute: CenterNavigation()
+    @Serializable
+    data object ParticipantList: CenterNavigation()
 
 }

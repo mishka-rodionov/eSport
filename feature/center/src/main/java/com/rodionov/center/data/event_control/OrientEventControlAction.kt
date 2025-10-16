@@ -1,6 +1,8 @@
 package com.rodionov.center.data.event_control
 
-sealed class OrientEventControlAction {
+import com.rodionov.ui.BaseAction
+
+sealed class OrientEventControlAction: BaseAction {
 
     data object OpenOrientReadCard: OrientEventControlAction()
 
