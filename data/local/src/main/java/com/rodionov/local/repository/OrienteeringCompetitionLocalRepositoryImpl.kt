@@ -14,9 +14,40 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     private val participantGroupDao: ParticipantGroupDao
 ): OrienteeringCompetitionLocalRepository {
 
-    override suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): Result<Any> {
+    override suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
         return runCatching {
-            orienteeringCompetitionDao.insert(competition = orienteeringCompetition.toEntity())
+
+            // Сохраняем в базу
+            val id = orienteeringCompetitionDao.insert(orienteeringCompetition.toEntity())
+
+            // Извлекаем обратно (то, что реально лежит в БД)
+            val savedEntity = orienteeringCompetitionDao.getById(id)
+                ?: throw IllegalStateException("Failed to fetch saved competition with id = $id")
+
+            // Возвращаем доменную модель
+            savedEntity.toDomain()
+        }
+    }
+
+    override suspend fun saveCompetitions(orienteeringCompetition: List<OrienteeringCompetition>): Result<List<OrienteeringCompetition>> {
+        return runCatching {
+
+            if (orienteeringCompetition.isEmpty()) return@runCatching emptyList()
+
+            // 1. Преобразуем в сущности
+            val entities = orienteeringCompetition.map { it.toEntity() }
+
+            // 2. Сохраняем
+            val ids = orienteeringCompetitionDao.insertAll(entities)
+
+            // 3. Извлекаем обратно по ID
+            val savedEntities = ids.map { id ->
+                orienteeringCompetitionDao.getById(id)
+                    ?: throw IllegalStateException("Failed to fetch saved competition with id = $id")
+            }
+
+            // 4. В domain
+            savedEntities.map { it.toDomain() }
         }
     }
 
@@ -29,6 +60,15 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     override suspend fun getCompetitionWithDetails(competitionId: Long): Result<OrienteeringCompetitionDetails> {
         return runCatching {
             orienteeringCompetitionDao.getCompetitionWithDetails(competitionId).toDomain()
+        }
+    }
+
+    override suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>> {
+        return runCatching {
+
+            orienteeringCompetitionDao
+                .getCompetitionsByUserId(userId)
+                .map { it.toDomain() }
         }
     }
 }

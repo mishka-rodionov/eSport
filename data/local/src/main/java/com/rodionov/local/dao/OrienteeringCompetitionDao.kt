@@ -15,16 +15,19 @@ import kotlinx.coroutines.flow.Flow
 interface OrienteeringCompetitionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(competition: OrienteeringCompetitionEntity)
+    suspend fun insert(competition: OrienteeringCompetitionEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(competitions: List<OrienteeringCompetitionEntity>)
+    suspend fun insertAll(competitions: List<OrienteeringCompetitionEntity>): List<Long>
 
     @Query("SELECT * FROM orienteering_competitions")
     fun getAll(): Flow<List<OrienteeringCompetitionEntity>>
 
     @Query("SELECT * FROM orienteering_competitions WHERE id = :id")
     suspend fun getById(id: Long): OrienteeringCompetitionEntity?
+
+    @Query("SELECT * FROM orienteering_competitions WHERE id IN (:ids)")
+    suspend fun getByIds(ids: List<Long>): List<OrienteeringCompetitionEntity>
 
     @Delete
     suspend fun delete(competition: OrienteeringCompetitionEntity)
@@ -48,21 +51,7 @@ interface OrienteeringCompetitionDao {
     @Query("SELECT * FROM orienteering_competitions")
     suspend fun getAllCompetitionsWithDetails(): List<OrienteeringCompetitionWithDetails>
 
-
-    // --- транзакция для вставки сразу всего --- шаблон на будущее
-//    @Transaction
-//    suspend fun insertCompetitionWithGroups(
-//        competition: OrienteeringCompetitionEntity,
-//        groups: List<ParticipantGroupEntity>
-//    ) {
-//        // вставляем соревнование и получаем его id
-//        val competitionId = insertCompetition(competition)
-//
-//        // проставляем competitionId во всех группах
-//        val groupsWithId = groups.map { it.copy(competitionId = competitionId) }
-//
-//        // вставляем группы
-//        insertGroups(groupsWithId)
-//    }
+    @Query("SELECT * FROM orienteering_competitions WHERE mainOrganizer = :userId")
+    suspend fun getCompetitionsByUserId(userId: String): List<OrienteeringCompetitionEntity>
 
 }

@@ -6,9 +6,11 @@ import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 
 interface OrienteeringCompetitionLocalRepository {
 
-    suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): Result<Any>
+    suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition>
+    suspend fun saveCompetitions(orienteeringCompetition: List<OrienteeringCompetition>): Result<List<OrienteeringCompetition>>
 
     suspend fun saveParticipantsGroups(participantGroups: List<ParticipantGroup>): Result<Any>
     suspend fun getCompetitionWithDetails(competitionId: Long): Result<OrienteeringCompetitionDetails>
+    suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>>
 
 }

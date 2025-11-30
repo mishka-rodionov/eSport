@@ -1,5 +1,6 @@
 package com.rodionov.center.data.interactors
 
+import android.util.Log
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
@@ -61,6 +62,30 @@ class OrienteeringCompetitionInteractor(
             }
         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка")
     }
+
+    suspend fun getCompetitionsByUserId(userId: String): Result<List<OrienteeringCompetition>> {
+        // 1. Сначала пробуем получить из сети
+        val remoteResult = orienteeringCompetitionRemoteRepository.getCompetitionsByUserid(userId)
+
+        remoteResult.onSuccess { competitions ->
+            // 2. Если сеть успешна — обновляем локальное хранилище
+            orienteeringCompetitionLocalRepository.saveCompetitions(competitions)
+            val compet = orienteeringCompetitionLocalRepository.getCompetitionsByUserid(userId).getOrNull()
+            Log.d("LOG_TAG", "getCompetitionsByUserId: size = ${compet?.size}")
+            return Result.success(compet ?: competitions)
+        }
+
+        // 3. Если сеть упала — достаём локальные данные
+        val localResult = orienteeringCompetitionLocalRepository.getCompetitionsByUserid(userId)
+
+        localResult.onSuccess { localCompetitions ->
+            return Result.success(localCompetitions)
+        }
+
+        // 4. Если вообще всё сломалось — возвращаем ошибку сети
+        return Result.failure(remoteResult.exceptionOrNull() ?: Exception("Unknown error"))
+    }
+
 
     private suspend fun createParticipantsGroupsInfo(
         competitionId: Long,

@@ -117,7 +117,7 @@ class MockInterceptor : Interceptor {
                     kindOfSport = KindOfSport.Orienteering.name,
                     description = "Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию.",
                     address = "Саратов",
-                    mainOrganizer = "123",
+                    mainOrganizer = "12345",
                     coordinates = CoordinatesResponse(
                         latitude = 51.3200,
                         longitude = 46.0000
@@ -136,7 +136,7 @@ class MockInterceptor : Interceptor {
                     kindOfSport = KindOfSport.Orienteering.name,
                     description = "Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию. Новые соревнования по ориентированию.",
                     address = "Балашов",
-                    mainOrganizer = "123",
+                    mainOrganizer = "12345",
                     coordinates = CoordinatesResponse(
                         latitude = 51.3200,
                         longitude = 46.0000

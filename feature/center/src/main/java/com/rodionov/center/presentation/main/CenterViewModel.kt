@@ -1,7 +1,9 @@
 package com.rodionov.center.presentation.main
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.CenterEffects
+import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.center.data.main.CenterState
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
@@ -15,7 +17,8 @@ import kotlinx.coroutines.launch
 class CenterViewModel(
     private val userRepository: UserRepository,
     private val navigation: Navigation,
-    private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository
+    private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository,
+    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor
 ) : BaseViewModel<CenterState>(CenterState()) {
 
     override fun onAction(action: BaseAction) {
@@ -53,12 +56,23 @@ class CenterViewModel(
             }
             if (isAuthed) {
                 userRepository.retrieveUser().onSuccess { user ->
-                    orienteeringCompetitionRemoteRepository.getCompetitionsByUserid(user.id)
+                    orienteeringCompetitionInteractor.getCompetitionsByUserId(user.id)
                         .onSuccess { competitions ->
+                            Log.d("LOG_TAG", "initialize: ${competitions.size}")
                             updateState {
                                 copy(controlledEvents = competitions)
                             }
                         }
+                        .onFailure {
+                            Log.d("LOG_TAG", "initialize: $it")
+                        }
+//                    orienteeringCompetitionRemoteRepository.getCompetitionsByUserid(user.id)
+//                        .onSuccess { competitions ->
+//
+//                            updateState {
+//                                copy(controlledEvents = competitions)
+//                            }
+//                        }
                 }
             }
 

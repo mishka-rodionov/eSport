@@ -12,10 +12,9 @@ import com.rodionov.remote.response.mappers.toDomain
  *
  * @param orienteeringCompetitionRemoteDataSource Источник данных для соревнований по спортивному ориентированию.
  */
-data class OrienteeringCompetitionRemoteRemoteRepositoryImpl(
+data class OrienteeringCompetitionRemoteRepositoryImpl(
     private val orienteeringCompetitionRemoteDataSource: OrienteeringCompetitionRemoteDataSource
-) :
-    OrienteeringCompetitionRemoteRepository {
+) : OrienteeringCompetitionRemoteRepository {
 
     override suspend fun createCompetition(competition: OrienteeringCompetition): Result<OrienteeringCompetition> {
         return orienteeringCompetitionRemoteDataSource.createOrienteeringCompetition(competition.toRequest())
