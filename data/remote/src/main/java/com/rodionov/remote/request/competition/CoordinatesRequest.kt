@@ -4,8 +4,8 @@ import com.google.gson.annotations.SerializedName
 
 data class CoordinatesRequest(
     @SerializedName("latitude")
-    private val latitude: Double,
+    val latitude: Double,
 
     @SerializedName("longitude")
-    private val longitude: Double
+    val longitude: Double
 )

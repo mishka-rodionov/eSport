@@ -12,7 +12,7 @@ import retrofit2.http.Query
 
 interface OrienteeringCompetitionRemoteDataSource {
 
-    @POST("url")
+    @POST("event/orienteering/save/competitions")
     suspend fun createOrienteeringCompetition(@Body request: OrienteeringCompetitionRequest): Result<CommonModel<OrienteeringCompetitionResponse>>
 
     @POST("url")
