@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
+import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
@@ -156,6 +157,15 @@ class OrienteeringCreatorViewModel(
                 participantGroups
             )
         )
+        val destination = CenterNavigation.CenterRoute
+        destination.navOptionsBuilder = {
+            popUpTo(0) {
+                inclusive = true
+            }
+            launchSingleTop = true
+            restoreState = false
+        }
+        navigation.navigate(destination = destination)
     }
 
     fun updateTitle(title: String) = updateState { copy(title = title) }

@@ -1,9 +1,17 @@
 package com.rodionov.data.navigation
 
+import androidx.navigation.NavOptionsBuilder
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 sealed class ProfileNavigation: BaseNavigation {
+
+    @Transient
+    @Contextual
+    override var navOptionsBuilder: (NavOptionsBuilder.() -> Unit)? = null
+
     @Serializable
     data object ProfileBaseRoute : ProfileNavigation()
     @Serializable

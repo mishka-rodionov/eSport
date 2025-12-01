@@ -1,3 +1,9 @@
 package com.rodionov.data.navigation
 
-interface BaseNavigation
+import androidx.navigation.NavOptionsBuilder
+
+interface BaseNavigation{
+    var navOptionsBuilder: (NavOptionsBuilder.() -> Unit)?
+}
+
+

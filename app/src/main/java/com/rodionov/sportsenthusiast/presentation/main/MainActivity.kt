@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val tag = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val tag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)
         } else {
             @Suppress("DEPRECATION")
@@ -111,13 +111,13 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
         bottomBar = {
             BottomNavigation {
                 BottomNavItem.all.forEach { tab ->
-                        BottomNavigationItem(
-                            icon = { },
-                            label = { Text(tab.title) },
-                            selected = selectedTab == tab.route,
-                            onClick = { selectedTab = tab.route }
-                        )
-                    }
+                    BottomNavigationItem(
+                        icon = { },
+                        label = { Text(tab.title) },
+                        selected = selectedTab == tab.route,
+                        onClick = { selectedTab = tab.route }
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -139,7 +139,15 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                                 lifecycleOwner.lifecycleScope.launch {
                                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                                         viewModel.collectNavigationEffect(
-                                            navigationHandler = { route -> navController.navigate(route) },
+                                            navigationHandler = { route ->
+                                                val navBuilder = route.navOptionsBuilder
+                                                if (navBuilder != null) {
+                                                    navController.navigate(route, navBuilder)
+                                                } else {
+                                                    navController.navigate(route = route)
+                                                }
+                                                route.navOptionsBuilder = null
+                                            },
                                             destination = checkNavigation(tab)
                                         )
                                     }
