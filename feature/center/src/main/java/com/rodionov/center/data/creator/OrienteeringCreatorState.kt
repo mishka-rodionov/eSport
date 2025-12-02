@@ -25,7 +25,7 @@ data class OrienteeringCreatorState(
 ) : BaseState {
     fun constructOrienteeringCompetition(userId: String): OrienteeringCompetition {
         return OrienteeringCompetition(
-            competitionId = -1L,
+            competitionId = (-9999..-1000).random().toLong(),
             competition = Competition(
                 title = title,
                 date = date,

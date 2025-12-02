@@ -11,11 +11,13 @@ import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.remote.base.CommonModel
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest
+import com.rodionov.remote.request.orienteering.ParticipantGroupRequest
 import com.rodionov.remote.response.auth.AuthResponse
 import com.rodionov.remote.response.auth.TokenResponse
 import com.rodionov.remote.response.competition.CompetitionResponse
 import com.rodionov.remote.response.competition.CoordinatesResponse
 import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
+import com.rodionov.remote.response.orienteering.ParticipantGroupResponse
 import com.rodionov.remote.response.user.QualificationResponse
 import com.rodionov.remote.response.user.UserResponse
 import okhttp3.Interceptor
@@ -24,6 +26,7 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import java.nio.Buffer
 import java.time.LocalDate
 
 class MockInterceptor : Interceptor {
@@ -37,7 +40,14 @@ class MockInterceptor : Interceptor {
             path.contains("user/register") -> registerResponse(request)
             path.contains("user/verify_code") -> verifyCodeResponse(request)
             path.contains("event/orienteering/competitions") -> mockEvents(request)
-            path.contains("event/orienteering/save/competitions") -> getOrienteeringCompetitionsResponse(request)
+            path.contains("event/orienteering/save/competitions") -> getOrienteeringCompetitionsResponse(
+                request
+            )
+
+            path.contains("event/orienteering/save/participantGroup") -> getParticipantGroupResponse(
+                request
+            )
+
             else -> chain.proceed(request)
 
         }
@@ -191,7 +201,8 @@ class MockInterceptor : Interceptor {
             competition = CompetitionResponse(
                 title = competitionRequest?.competition?.title ?: "Mocked Competition",
                 date = competitionRequest?.competition?.date ?: LocalDate.now().toEpochDay(),
-                kindOfSport = competitionRequest?.competition?.kindOfSport ?: KindOfSport.Orienteering.name,
+                kindOfSport = competitionRequest?.competition?.kindOfSport
+                    ?: KindOfSport.Orienteering.name,
                 description = competitionRequest?.competition?.description ?: "Mocked Description",
                 address = competitionRequest?.competition?.address ?: "Mocked Address",
                 mainOrganizer = /*competitionRequest?.competition?.mainOrganizer ?:*/ "12345",
@@ -206,6 +217,52 @@ class MockInterceptor : Interceptor {
         {
           "status": 1,
           "result": ${gson.toJson(responseBody)}
+        }
+    """.trimIndent().toResponseBody(mediaType)
+
+        return Response.Builder()
+            .request(request)
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK (mocked createOrienteeringCompetition)")
+            .body(mockJson)
+            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .build()
+    }
+
+    fun getParticipantGroupResponse(request: Request): Response {
+
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val gson = Gson()
+
+        // Тут можешь сделать парсинг body, если нужен
+        // Достаём тело запроса (competition), чтобы "вернуть его"
+        val bodyString = request.body?.let { body ->
+            val buffer = okio.Buffer()
+            body.writeTo(buffer)
+            buffer.readUtf8()
+        }
+
+        val participantGroups =
+            gson.fromJson(bodyString, Array<ParticipantGroupRequest>::class.java)
+        val mockGroupsResponse = mutableListOf<ParticipantGroupResponse>()
+        participantGroups.forEach {
+            mockGroupsResponse.add(
+                ParticipantGroupResponse(
+                    groupId = (1000..9999).random().toLong(),
+                    competitionId = it.competitionId,
+                    title = it.title,
+                    distance = it.distance,
+                    countOfControls = it.countOfControls,
+                    maxTimeInMinute = it.maxTimeInMinute
+                )
+            )
+        }
+
+        val mockJson = """
+        {
+          "status": 1,
+          "result": ${gson.toJson(mockGroupsResponse)}
         }
     """.trimIndent().toResponseBody(mediaType)
 

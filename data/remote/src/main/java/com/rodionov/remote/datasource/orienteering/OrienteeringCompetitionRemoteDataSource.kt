@@ -15,7 +15,7 @@ interface OrienteeringCompetitionRemoteDataSource {
     @POST("event/orienteering/save/competitions")
     suspend fun createOrienteeringCompetition(@Body request: OrienteeringCompetitionRequest): Result<CommonModel<OrienteeringCompetitionResponse>>
 
-    @POST("url")
+    @POST("event/orienteering/save/participantGroup")
     suspend fun createCompetitionParticipantGroup(@Body request: List<ParticipantGroupRequest>): Result<CommonModel<List<ParticipantGroupResponse>>>
 
     @GET("event/orienteering/competitions")
