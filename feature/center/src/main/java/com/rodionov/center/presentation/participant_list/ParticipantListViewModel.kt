@@ -2,6 +2,7 @@ package com.rodionov.center.presentation.participant_list
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.rodionov.center.data.participant_list.ParticipantListAction
 import com.rodionov.center.data.participant_list.ParticipantListState
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
@@ -19,7 +20,17 @@ class ParticipantListViewModel(
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
 
     override fun onAction(action: BaseAction) {
+        when(action) {
+            is ParticipantListAction.ShowCreateParticipantDialog -> {
+                updateState { copy(group = action.group, isShowParticipantCreateDialog = true) }
+            }
+            is ParticipantListAction.CreateNewParticipant -> {
 
+            }
+            ParticipantListAction.HideCreateParticipantDialog -> {
+                updateState { copy(isShowParticipantCreateDialog = false) }
+            }
+        }
     }
 
     fun getCompetitionDetails() {

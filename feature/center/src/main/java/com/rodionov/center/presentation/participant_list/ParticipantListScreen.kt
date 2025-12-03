@@ -1,29 +1,51 @@
 package com.rodionov.center.presentation.participant_list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.designsystem.components.DSBottomDialog
+import com.example.designsystem.components.DSTextInput
+import com.example.designsystem.theme.Dimens
+import com.rodionov.center.R
+import com.rodionov.center.data.creator.OrienteeringCreatorAction
+import com.rodionov.center.data.participant_list.ParticipantListAction
 import com.rodionov.center.data.participant_list.ParticipantListState
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ParticipantGroupParticipants
+import com.rodionov.ui.BaseAction
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -32,16 +54,21 @@ fun ParticipantListScreen(
     viewModel: ParticipantListViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val userAction = remember { viewModel::onAction }
 
     LaunchedEffect(viewModel) {
         viewModel.getCompetitionDetails()
     }
-    ParticipantListContent(state = state)
+    ParticipantListContent(userAction = userAction, state = state)
+    if (state.isShowParticipantCreateDialog) {
+        CreateParticipantDialog(userAction, state.group)
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ParticipantListContent(
+    userAction: (BaseAction) -> Unit,
     state: ParticipantListState
 ) {
     val pagerState = rememberPagerState() { state.participantGroupWithParticipants.size }
@@ -57,10 +84,79 @@ fun ParticipantListContent(
             }
         }
 
-        HorizontalPager(
-            state = pagerState
-        ) { page ->
-            ParticipantList(participants = state.participantGroupWithParticipants[page].participants)
+        Box(modifier = Modifier.fillMaxSize()) {
+            HorizontalPager(
+                state = pagerState
+            ) { page ->
+                ParticipantList(participants = state.participantGroupWithParticipants[page].participants)
+            }
+
+            FloatingActionButton(
+                onClick = {
+                    userAction.invoke(ParticipantListAction.ShowCreateParticipantDialog(pagerState.currentPage))
+                },
+                modifier = Modifier.align(Alignment.BottomEnd)
+            ) {
+                Icon(
+                    painter = painterResource(com.example.designsystem.R.drawable.ic_add),
+                    contentDescription = null,
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateParticipantDialog(userAction: (BaseAction) -> Unit, group: Int) {
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    DSBottomDialog(
+        sheetState = sheetState,
+        sheetContent = { CreateParticipantDialogContent(userAction, group) },
+        onDismiss = { userAction.invoke(ParticipantListAction.HideCreateParticipantDialog) },
+    )
+
+}
+
+@Composable
+fun CreateParticipantDialogContent(userAction: (BaseAction) -> Unit, group: Int) {
+    var firstName by remember { mutableStateOf("") }
+    var secondName by remember { mutableStateOf("") }
+    Column(modifier = Modifier.padding(horizontal = Dimens.SIZE_HALF.dp)) {
+        DSTextInput(
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = "Фамилия")
+            },
+//            isError = state.errors.isGroupTitleError,
+            text = secondName,
+            onValueChanged = {
+                secondName = it
+            })
+        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+        DSTextInput(
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = "Имя")
+            },
+//            isError = state.errors.isGroupTitleError,
+            text = firstName,
+            onValueChanged = {
+                firstName = it
+            })
+
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+            userAction.invoke(
+                ParticipantListAction.CreateNewParticipant(
+                    group = group,
+                    firstName = firstName,
+                    secondName = secondName
+                )
+            )
+        }) {
+            Text(text = "Сохранить группу")
         }
     }
 }
@@ -83,6 +179,7 @@ fun ParticipantItem(participant: OrienteeringParticipant) {
 @Composable
 fun ParticipantListScreenPreview() {
     ParticipantListContent(
+        userAction = {},
         state = ParticipantListState(
             participantGroupWithParticipants = listOf(
                 ParticipantGroupParticipants(
