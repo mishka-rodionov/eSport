@@ -12,11 +12,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -32,14 +34,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.designsystem.colors.LightColors
 import com.example.designsystem.components.DSBottomDialog
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.theme.Dimens
-import com.rodionov.center.R
-import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.participant_list.ParticipantListAction
 import com.rodionov.center.data.participant_list.ParticipantListState
 import com.rodionov.domain.models.ParticipantGroup
@@ -140,34 +141,45 @@ fun CreateParticipantDialogContent(
         DSTextInput(
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text(text = "Фамилия")
-            },
-//            isError = state.errors.isGroupTitleError,
-            text = secondName,
-            onValueChanged = {
-                secondName = it
-            })
-        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-
-        DSTextInput(
-            modifier = Modifier.fillMaxWidth(),
-            label = {
                 Text(text = "Имя")
             },
 //            isError = state.errors.isGroupTitleError,
             text = firstName,
             onValueChanged = {
                 firstName = it
-            })
+            },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+        )
 
-        Button(modifier = Modifier.fillMaxWidth(), onClick = {
-            userAction.invoke(
-                ParticipantListAction.CreateNewParticipant(
-                    group = group,
-                    firstName = firstName,
-                    secondName = secondName
+        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+        DSTextInput(
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = "Фамилия")
+            },
+//            isError = state.errors.isGroupTitleError,
+            text = secondName,
+            onValueChanged = {
+                secondName = it
+            },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+        )
+
+        Button(modifier = Modifier.fillMaxWidth().padding(top = Dimens.SIZE_BASE.dp), onClick = {
+            if (firstName.isNotEmpty() && secondName.isNotEmpty()) {
+                userAction.invoke(
+                    ParticipantListAction.CreateNewParticipant(
+                        group = group,
+                        firstName = firstName,
+                        secondName = secondName
+                    )
                 )
-            )
+                firstName = ""
+                secondName = ""
+            } else  {
+                //здесь должна быть ошибка об обязательности заполнения полей
+            }
         }) {
             Text(text = "Сохранить участника")
         }
@@ -185,7 +197,14 @@ fun ParticipantList(participants: List<OrienteeringParticipant>) {
 
 @Composable
 fun ParticipantItem(participant: OrienteeringParticipant) {
-    Text(text = "${participant.firstName} ${participant.lastName}")
+    Column {
+        Text(text = "${participant.firstName} ${participant.lastName}")
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            thickness = 1.dp,
+            color = LightColors.greyB8
+        )
+    }
 }
 
 @Preview
@@ -211,6 +230,7 @@ fun ParticipantListScreenPreview() {
                             firstName = "John",
                             lastName = "Doe",
                             groupId = 1,
+                            competitionId = 1,
                             commandName = "Command 1",
                             startNumber = "1",
                             chipNumber = "12345",
@@ -222,6 +242,7 @@ fun ParticipantListScreenPreview() {
                             firstName = "Jane",
                             lastName = "Doe",
                             groupId = 1,
+                            competitionId = 1,
                             commandName = "Command 1",
                             startNumber = "2",
                             chipNumber = "54321",
@@ -245,6 +266,7 @@ fun ParticipantListScreenPreview() {
                             firstName = "Peter",
                             lastName = "Jones",
                             groupId = 2,
+                            competitionId = 1,
                             commandName = "Command 2",
                             startNumber = "3",
                             chipNumber = "67890",

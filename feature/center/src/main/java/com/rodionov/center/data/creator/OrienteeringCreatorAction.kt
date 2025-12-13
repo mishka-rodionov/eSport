@@ -2,6 +2,7 @@ package com.rodionov.center.data.creator
 
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.ui.BaseAction
 import java.time.LocalDate
 
@@ -23,4 +24,7 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data class UpdateCompetitionDirection(val direction: OrienteeringDirection): OrienteeringCreatorAction()
     data object SuccessfulCompetitionCreate: OrienteeringCreatorAction()
     data class FailedCompetitionCreate(val message: String): OrienteeringCreatorAction()
+
+//    data class SavedParticipant(val orienteeringParticipant: OrienteeringParticipant) : OrienteeringCreatorAction()
+//    data object ParticipantNotFound : OrienteeringCreatorAction()
 }

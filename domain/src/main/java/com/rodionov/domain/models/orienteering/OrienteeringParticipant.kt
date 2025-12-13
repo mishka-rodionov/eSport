@@ -8,6 +8,7 @@ data class OrienteeringParticipant(
     val firstName: String,
     val lastName: String,
     val groupId: Long,
+    val competitionId: Long,
     val commandName: String,
     val startNumber: String,
     val chipNumber: String,

@@ -14,7 +14,7 @@ interface OrienteeringParticipantDao {
     suspend fun insertParticipants(participants: List<OrienteeringParticipantEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertParticipant(participant: OrienteeringParticipantEntity)
+    suspend fun insertParticipant(participant: OrienteeringParticipantEntity): Long
 
     @Update
     suspend fun updateParticipant(participant: OrienteeringParticipantEntity)

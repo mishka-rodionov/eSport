@@ -22,6 +22,7 @@ data class OrienteeringParticipantEntity(
     val firstName: String,
     val lastName: String,
     val groupId: Long, // Поле для связи с ParticipantGroupEntity
+    val competitionId: Long,
     val commandName: String,
     val startNumber: String,
     val chipNumber: String,

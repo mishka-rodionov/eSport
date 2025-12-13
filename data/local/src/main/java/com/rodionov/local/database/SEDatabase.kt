@@ -15,7 +15,7 @@ import com.rodionov.local.entities.orienteering.OrienteeringParticipantEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
 import com.rodionov.local.entities.user.UserEntity
 
-private const val DB_VERSION = 3
+private const val DB_VERSION = 4
 
 @Database(
     entities = [

@@ -3,15 +3,18 @@ package com.rodionov.local.repository
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
+import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.local.dao.OrienteeringCompetitionDao
 import com.rodionov.local.dao.ParticipantGroupDao
+import com.rodionov.local.dao.orienteering.OrienteeringParticipantDao
 import com.rodionov.local.mappers.toDomain
 import com.rodionov.local.mappers.toEntity
 
 class OrienteeringCompetitionLocalRepositoryImpl(
     private val orienteeringCompetitionDao: OrienteeringCompetitionDao,
-    private val participantGroupDao: ParticipantGroupDao
+    private val participantGroupDao: ParticipantGroupDao,
+    private val participantDao: OrienteeringParticipantDao
 ): OrienteeringCompetitionLocalRepository {
 
     override suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
@@ -69,6 +72,13 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             orienteeringCompetitionDao
                 .getCompetitionsByUserId(userId)
                 .map { it.toDomain() }
+        }
+    }
+
+    override suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant?> {
+        return runCatching {
+            val participantId = participantDao.insertParticipant(participant.toEntity())
+            participantDao.getParticipantById(participantId)?.toDomain()
         }
     }
 }
