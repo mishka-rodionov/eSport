@@ -61,7 +61,11 @@ fun ParticipantListScreen(
     }
     ParticipantListContent(userAction = userAction, state = state)
     if (state.isShowParticipantCreateDialog) {
-        CreateParticipantDialog(userAction, state.group)
+        CreateParticipantDialog(
+            userAction,
+            state.group,
+            state.participantGroupWithParticipants[state.group].group.title ?: ""
+        )
     }
 }
 
@@ -71,7 +75,7 @@ fun ParticipantListContent(
     userAction: (BaseAction) -> Unit,
     state: ParticipantListState
 ) {
-    val pagerState = rememberPagerState() { state.participantGroupWithParticipants.size }
+    val pagerState = rememberPagerState { state.participantGroupWithParticipants.size }
     val scope = rememberCoroutineScope()
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(selectedTabIndex = pagerState.currentPage) {
@@ -95,7 +99,9 @@ fun ParticipantListContent(
                 onClick = {
                     userAction.invoke(ParticipantListAction.ShowCreateParticipantDialog(pagerState.currentPage))
                 },
-                modifier = Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = Dimens.SIZE_BASE.dp, end = Dimens.SIZE_BASE.dp)
             ) {
                 Icon(
                     painter = painterResource(com.example.designsystem.R.drawable.ic_add),
@@ -108,22 +114,29 @@ fun ParticipantListContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateParticipantDialog(userAction: (BaseAction) -> Unit, group: Int) {
+fun CreateParticipantDialog(userAction: (BaseAction) -> Unit, group: Int, groupName: String) {
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     DSBottomDialog(
         sheetState = sheetState,
-        sheetContent = { CreateParticipantDialogContent(userAction, group) },
+        sheetContent = { CreateParticipantDialogContent(userAction, group, groupName) },
         onDismiss = { userAction.invoke(ParticipantListAction.HideCreateParticipantDialog) },
     )
 
 }
 
 @Composable
-fun CreateParticipantDialogContent(userAction: (BaseAction) -> Unit, group: Int) {
+fun CreateParticipantDialogContent(
+    userAction: (BaseAction) -> Unit,
+    group: Int,
+    groupName: String
+) {
     var firstName by remember { mutableStateOf("") }
     var secondName by remember { mutableStateOf("") }
-    Column(modifier = Modifier.padding(horizontal = Dimens.SIZE_HALF.dp)) {
+    Column(modifier = Modifier.padding(all = Dimens.SIZE_HALF.dp)) {
+
+        Text(text = "Группа $groupName", modifier = Modifier.padding(bottom = Dimens.SIZE_BASE.dp))
+
         DSTextInput(
             modifier = Modifier.fillMaxWidth(),
             label = {
@@ -156,7 +169,7 @@ fun CreateParticipantDialogContent(userAction: (BaseAction) -> Unit, group: Int)
                 )
             )
         }) {
-            Text(text = "Сохранить группу")
+            Text(text = "Сохранить участника")
         }
     }
 }
