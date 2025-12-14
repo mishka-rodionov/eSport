@@ -16,4 +16,7 @@ interface OrienteeringCompetitionLocalRepository {
 
     suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant?>
 
+    suspend fun getParticipants(competitionId: Long): Result<List<OrienteeringParticipant>>
+    suspend fun updateParticipants(participants: List<OrienteeringParticipant>) : Result<Any>
+
 }

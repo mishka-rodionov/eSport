@@ -65,7 +65,7 @@ fun ParticipantListScreen(
         CreateParticipantDialog(
             userAction,
             state.group,
-            state.participantGroupWithParticipants[state.group].group.title ?: ""
+            state.participantGroupWithParticipants[state.group].group.title
         )
     }
 }

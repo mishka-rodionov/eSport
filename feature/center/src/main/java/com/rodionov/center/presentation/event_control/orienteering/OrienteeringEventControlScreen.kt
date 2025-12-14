@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
+import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.event_control.OrientEventControlAction
 import org.koin.androidx.compose.koinViewModel
 
@@ -53,6 +54,19 @@ fun OrienteeringEventControlScreen(
             },
             content = {
                 Text("Список участников")
+            }
+        )
+
+        OutlinedButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = Dimens.SIZE_BASE.dp),
+            onClick = {
+                viewModel.onAction(OrientEventControlAction.OpenDrawParticipants)
+            },
+            content = {
+                Text("Жеребьёвка участников")
             }
         )
     }

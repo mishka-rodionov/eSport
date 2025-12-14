@@ -91,6 +91,10 @@ class OrienteeringCompetitionInteractor(
         return localRepository.saveParticipant(participant).getOrNull()
     }
 
+    suspend fun updateParticipants(participants: List<OrienteeringParticipant>) {
+        localRepository.updateParticipants(participants = participants)
+    }
+
 
     private suspend fun createParticipantsGroupsInfo(
         competitionId: Long,
@@ -105,6 +109,10 @@ class OrienteeringCompetitionInteractor(
             localRepository.saveParticipantsGroups(participantGroups)
         }
 
+    }
+
+    suspend fun getParticipants(competitionId: Long): Result<List<OrienteeringParticipant>> {
+        return localRepository.getParticipants(competitionId = competitionId)
     }
 
 }

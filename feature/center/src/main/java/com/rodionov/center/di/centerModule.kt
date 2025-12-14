@@ -1,6 +1,7 @@
 package com.rodionov.center.di
 
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
+import com.rodionov.center.presentation.draw.DrawViewModel
 import com.rodionov.center.presentation.event_control.orienteering.OrienteeringEventControlViewModel
 import com.rodionov.center.presentation.main.CenterViewModel
 import com.rodionov.center.presentation.orientiring_competition_create.OrienteeringCreatorViewModel
@@ -16,5 +17,6 @@ val centerModule = module {
     viewModelOf(::OrienteeringEventControlViewModel)
     viewModelOf(::OrientReadCardViewModel)
     viewModelOf(::ParticipantListViewModel)
+    viewModelOf(::DrawViewModel)
     factoryOf(::OrienteeringCompetitionInteractor)
 }

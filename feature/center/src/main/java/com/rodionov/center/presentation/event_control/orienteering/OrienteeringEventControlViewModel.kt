@@ -28,6 +28,14 @@ class OrienteeringEventControlViewModel(
                     )
                 }
             }
+            OrientEventControlAction.OpenDrawParticipants ->  {
+                viewModelScope.launch {
+                    navigation.navigate(
+                        destination = CenterNavigation.DrawParticipants,
+                        argument = navigation.createArguments(EventsConstants.EVENT_ID.name to competitionId)
+                    )
+                }
+            }
         }
     }
 

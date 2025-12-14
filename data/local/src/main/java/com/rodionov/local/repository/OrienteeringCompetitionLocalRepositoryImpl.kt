@@ -81,4 +81,14 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             participantDao.getParticipantById(participantId)?.toDomain()
         }
     }
+
+    override suspend fun getParticipants(competitionId: Long): Result<List<OrienteeringParticipant>> {
+        return runCatching {
+            participantDao.getAllParticipants(competitionId).map { it.toDomain() }
+        }
+    }
+
+    override suspend fun updateParticipants(participants: List<OrienteeringParticipant>): Result<Any> {
+        return runCatching { participantDao.updateAll(participants.map { it.toEntity() }) }
+    }
 }

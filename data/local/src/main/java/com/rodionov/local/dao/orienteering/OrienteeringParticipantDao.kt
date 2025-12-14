@@ -19,14 +19,17 @@ interface OrienteeringParticipantDao {
     @Update
     suspend fun updateParticipant(participant: OrienteeringParticipantEntity)
 
+    @Update
+    suspend fun updateAll(participants: List<OrienteeringParticipantEntity>)
+
     @Query("SELECT * FROM orienteering_participants WHERE id = :id")
     suspend fun getParticipantById(id: Long): OrienteeringParticipantEntity?
 
     @Query("SELECT * FROM orienteering_participants WHERE groupId = :groupId")
     suspend fun getParticipantsByGroupId(groupId: Long): List<OrienteeringParticipantEntity>
 
-    @Query("SELECT * FROM orienteering_participants")
-    suspend fun getAllParticipants(): List<OrienteeringParticipantEntity>
+    @Query("SELECT * FROM orienteering_participants WHERE competitionId = :competitionId")
+    suspend fun getAllParticipants(competitionId: Long): List<OrienteeringParticipantEntity>
 
     @Query("DELETE FROM orienteering_participants WHERE id = :id")
     suspend fun deleteParticipantById(id: Long)
