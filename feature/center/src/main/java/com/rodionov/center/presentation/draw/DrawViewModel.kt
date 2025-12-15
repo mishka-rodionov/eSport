@@ -6,7 +6,9 @@ import com.rodionov.center.data.draw.DrawState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
@@ -19,6 +21,15 @@ class DrawViewModel(
 ) : BaseViewModel<DrawState>(DrawState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
+    var competition: OrienteeringCompetition? = null
+
+    init {
+        competitionId?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                competition = interactor.getCompetition(it)
+            }
+        }
+    }
 
     override fun onAction(action: BaseAction) {
         when(action) {
@@ -32,7 +43,8 @@ class DrawViewModel(
                 val participants =
                     interactor.getParticipants(competitionId = competitionId).getOrNull()
                         ?: return@launch
-                val sortedParticipants = drawParticipants(participants = participants)
+                val punchingSystem = competition?.punchingSystem
+                val sortedParticipants = drawParticipants(participants = participants, punchingSystem = punchingSystem)
                 interactor.updateParticipants(sortedParticipants)
                 updateState { copy(participants = sortedParticipants) }
             }
@@ -40,7 +52,8 @@ class DrawViewModel(
     }
 
     fun drawParticipants(
-        participants: List<OrienteeringParticipant>
+        participants: List<OrienteeringParticipant>,
+        punchingSystem: PunchingSystem?
     ): List<OrienteeringParticipant> {
 
         if (participants.isEmpty()) return emptyList()
@@ -82,7 +95,12 @@ class DrawViewModel(
         // присваиваем стартовые номера
         return result
             .mapIndexed { index, participant ->
-                participant.copy(startNumber = (index + 1).toString())
+                val number = (index + 1).toString()
+                participant.copy(startNumber = number)
+                if (punchingSystem == PunchingSystem.SPORTIDUINO) {
+                    participant.copy(chipNumber = number)
+                }
+                participant
             }
             .sortedBy { it.startNumber.toInt() }
     }

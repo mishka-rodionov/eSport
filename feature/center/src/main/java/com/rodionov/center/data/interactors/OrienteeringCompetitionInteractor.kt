@@ -64,6 +64,10 @@ class OrienteeringCompetitionInteractor(
         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка")
     }
 
+    suspend fun getCompetition(competitionId: Long): OrienteeringCompetition? {
+        return localRepository.getCompetition(competitionId).getOrNull()
+    }
+
     suspend fun getCompetitionsByUserId(userId: String): Result<List<OrienteeringCompetition>> {
         // 1. Сначала пробуем получить из сети
         val remoteResult = remoteRepository.getCompetitionsByUserid(userId)

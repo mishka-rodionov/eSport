@@ -24,7 +24,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             val id = orienteeringCompetitionDao.insert(orienteeringCompetition.toEntity())
 
             // Извлекаем обратно (то, что реально лежит в БД)
-            val savedEntity = orienteeringCompetitionDao.getById(id)
+            val savedEntity = orienteeringCompetitionDao.getCompetitionById(id)
                 ?: throw IllegalStateException("Failed to fetch saved competition with id = $id")
 
             // Возвращаем доменную модель
@@ -45,18 +45,12 @@ class OrienteeringCompetitionLocalRepositoryImpl(
 
             // 3. Извлекаем обратно по ID
             val savedEntities = ids.map { id ->
-                orienteeringCompetitionDao.getById(id)
+                orienteeringCompetitionDao.getCompetitionById(id)
                     ?: throw IllegalStateException("Failed to fetch saved competition with id = $id")
             }
 
             // 4. В domain
             savedEntities.map { it.toDomain() }
-        }
-    }
-
-    override suspend fun saveParticipantsGroups(participantGroups: List<ParticipantGroup>): Result<Any> {
-        return runCatching {
-            participantGroupDao.insertAll(participantGroups.map(ParticipantGroup::toEntity))
         }
     }
 
@@ -72,6 +66,18 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             orienteeringCompetitionDao
                 .getCompetitionsByUserId(userId)
                 .map { it.toDomain() }
+        }
+    }
+
+    override suspend fun getCompetition(competitionId: Long): Result<OrienteeringCompetition?> {
+        return runCatching {
+            orienteeringCompetitionDao.getCompetitionById(competitionId)?.toDomain()
+        }
+    }
+
+    override suspend fun saveParticipantsGroups(participantGroups: List<ParticipantGroup>): Result<Any> {
+        return runCatching {
+            participantGroupDao.insertAll(participantGroups.map(ParticipantGroup::toEntity))
         }
     }
 

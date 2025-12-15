@@ -24,7 +24,7 @@ interface OrienteeringCompetitionDao {
     fun getAll(): Flow<List<OrienteeringCompetitionEntity>>
 
     @Query("SELECT * FROM orienteering_competitions WHERE id = :id")
-    suspend fun getById(id: Long): OrienteeringCompetitionEntity?
+    suspend fun getCompetitionById(id: Long): OrienteeringCompetitionEntity?
 
     @Query("SELECT * FROM orienteering_competitions WHERE id IN (:ids)")
     suspend fun getByIds(ids: List<Long>): List<OrienteeringCompetitionEntity>
