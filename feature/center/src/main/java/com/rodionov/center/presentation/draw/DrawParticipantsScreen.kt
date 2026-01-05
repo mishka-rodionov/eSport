@@ -19,6 +19,9 @@ import com.rodionov.center.presentation.participant_list.ParticipantList
 import com.rodionov.resources.R
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Экран для жеребьевки участников соревнования
+ * */
 @Composable
 fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()

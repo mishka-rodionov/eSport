@@ -70,6 +70,7 @@ fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
         competitionId = competitionId,
         commandName = commandName,
         startNumber = startNumber,
+        startTime = startTime,
         chipNumber = chipNumber,
         comment = comment
     )
@@ -85,6 +86,7 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
         competitionId = competitionId,
         commandName = commandName,
         startNumber = startNumber,
+        startTime = startTime,
         chipNumber = chipNumber,
         comment = comment
     )

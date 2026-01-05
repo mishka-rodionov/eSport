@@ -31,7 +31,7 @@ class ParticipantListViewModel(
             is ParticipantListAction.CreateNewParticipant -> {
                 val group = stateValue.participantGroupWithParticipants[action.group].group
                 val participant = OrienteeringParticipant(
-                    id = 0,
+                    id = (0..1000L).random(),
                     userId = "",
                     firstName = action.firstName,
                     lastName = action.secondName,
@@ -39,6 +39,7 @@ class ParticipantListViewModel(
                     competitionId = group.competitionId,
                     commandName = "",
                     startNumber = "",
+                    startTime = "1:00",
                     chipNumber = "",
                     comment = ""
                 )

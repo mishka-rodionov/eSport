@@ -1,9 +1,12 @@
 package com.rodionov.center.presentation.participant_list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -166,21 +169,24 @@ fun CreateParticipantDialogContent(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
         )
 
-        Button(modifier = Modifier.fillMaxWidth().padding(top = Dimens.SIZE_BASE.dp), onClick = {
-            if (firstName.isNotEmpty() && secondName.isNotEmpty()) {
-                userAction.invoke(
-                    ParticipantListAction.CreateNewParticipant(
-                        group = group,
-                        firstName = firstName,
-                        secondName = secondName
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dimens.SIZE_BASE.dp), onClick = {
+                if (firstName.isNotEmpty() && secondName.isNotEmpty()) {
+                    userAction.invoke(
+                        ParticipantListAction.CreateNewParticipant(
+                            group = group,
+                            firstName = firstName,
+                            secondName = secondName
+                        )
                     )
-                )
-                firstName = ""
-                secondName = ""
-            } else  {
-                //здесь должна быть ошибка об обязательности заполнения полей
-            }
-        }) {
+                    firstName = ""
+                    secondName = ""
+                } else {
+                    //здесь должна быть ошибка об обязательности заполнения полей
+                }
+            }) {
             Text(text = "Сохранить участника")
         }
     }
@@ -188,7 +194,7 @@ fun CreateParticipantDialogContent(
 
 @Composable
 fun ParticipantList(participants: List<OrienteeringParticipant>) {
-    LazyColumn(modifier = Modifier.padding(16.dp)) {
+    LazyColumn(modifier = Modifier.fillMaxHeight().padding(16.dp)) {
         items(participants) { participant ->
             ParticipantItem(participant = participant)
         }
@@ -198,10 +204,25 @@ fun ParticipantList(participants: List<OrienteeringParticipant>) {
 @Composable
 fun ParticipantItem(participant: OrienteeringParticipant) {
     Column {
-        Text(text = "${participant.firstName} ${participant.lastName}")
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_TWO.dp)
+        ) {
+            Text(
+                text = participant.startNumber,
+                modifier = Modifier.weight(0.1F)
+            )
+            Text(
+                text = "${participant.firstName} ${participant.lastName}",
+                modifier = Modifier.weight(0.9F)
+            )
+            Text(
+                text = participant.startTime,
+                modifier = Modifier.weight(0.2F)
+            )
+        }
         HorizontalDivider(
-            modifier = Modifier.padding(vertical = 8.dp),
-            thickness = 1.dp,
+            modifier = Modifier.padding(vertical = Dimens.SIZE_HALF.dp),
+            thickness = Dimens.SIZE_SINGLE.dp,
             color = LightColors.greyB8
         )
     }
@@ -233,6 +254,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 1",
                             startNumber = "1",
+                            startTime = "1:00",
                             chipNumber = "12345",
                             comment = "Comment 1"
                         ),
@@ -245,6 +267,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 1",
                             startNumber = "2",
+                            startTime = "2:00",
                             chipNumber = "54321",
                             comment = "Comment 2"
                         )
@@ -269,6 +292,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 2",
                             startNumber = "3",
+                            startTime = "3:00",
                             chipNumber = "67890",
                             comment = "Comment 3"
                         )

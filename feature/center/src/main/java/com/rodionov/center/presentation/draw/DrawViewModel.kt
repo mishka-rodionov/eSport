@@ -15,6 +15,9 @@ import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * Вьюмодель жеребьевки участников соревнований.
+ * */
 class DrawViewModel(
     private val interactor: OrienteeringCompetitionInteractor,
     private val navigation: Navigation
@@ -32,7 +35,7 @@ class DrawViewModel(
     }
 
     override fun onAction(action: BaseAction) {
-        when(action) {
+        when (action) {
             DrawAction.StartDrawOperation -> startDrawOperation()
         }
     }
@@ -44,14 +47,21 @@ class DrawViewModel(
                     interactor.getParticipants(competitionId = competitionId).getOrNull()
                         ?: return@launch
                 val punchingSystem = competition?.punchingSystem
-                val sortedParticipants = drawParticipants(participants = participants, punchingSystem = punchingSystem)
+                val sortedParticipants =
+                    drawParticipants(
+                        participants = participants.shuffled(),
+                        punchingSystem = punchingSystem
+                    )
                 interactor.updateParticipants(sortedParticipants)
                 updateState { copy(participants = sortedParticipants) }
             }
         }
     }
 
-    fun drawParticipants(
+    /**
+     * Функция жеребьевки участников соревнований
+     * */
+    private fun drawParticipants(
         participants: List<OrienteeringParticipant>,
         punchingSystem: PunchingSystem?
     ): List<OrienteeringParticipant> {
@@ -63,9 +73,22 @@ class DrawViewModel(
             .groupBy { it.groupId }
             .toMutableMap()
 
+        var currentStartNumber = 1
+
+        groups.forEach { (groupId, participants) ->
+            var startTime = 1
+            groups[groupId] = participants.mapIndexed { index, participant ->
+                participant.copy(
+                    startNumber = (currentStartNumber + index).toString(),
+                    startTime = "${startTime++}:00"
+                )
+            }
+            currentStartNumber += participants.size
+        }
+
+
         val result = mutableListOf<OrienteeringParticipant>()
         var lastGroupId: Long? = null
-
         while (groups.isNotEmpty()) {
 
             // выбираем группы, отличные от предыдущей
@@ -76,7 +99,15 @@ class DrawViewModel(
             // случайная группа
             val selectedGroupId = availableGroups.keys.random()
             val groupList = groups[selectedGroupId]!!.toMutableList()
-
+//            val groupList = if (tempList.any { it.startNumber.isEmpty() }) {
+//                globalIndex += 1000
+//                tempList.mapIndexed { index, participant ->
+//                    participant.copy(startNumber = (index + globalIndex).toString())
+//                }
+//                    .toMutableList()
+//            } else {
+//                tempList.toMutableList()
+//            }
             // случайный участник из группы
             val participant = groupList.random()
             result.add(participant)
@@ -95,10 +126,10 @@ class DrawViewModel(
         // присваиваем стартовые номера
         return result
             .mapIndexed { index, participant ->
-                val number = (index + 1).toString()
-                participant.copy(startNumber = number)
+//                val number = (index + 1).toString()
+//                participant.copy(startNumber = number)
                 if (punchingSystem == PunchingSystem.SPORTIDUINO) {
-                    participant.copy(chipNumber = number)
+                    participant.copy(chipNumber = participant.startNumber)
                 }
                 participant
             }
