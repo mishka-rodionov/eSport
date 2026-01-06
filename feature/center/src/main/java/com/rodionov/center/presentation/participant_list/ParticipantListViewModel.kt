@@ -22,6 +22,7 @@ class ParticipantListViewModel(
 ): BaseViewModel<ParticipantListState>(ParticipantListState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
+    var startNumber = 1
 
     override fun onAction(action: BaseAction) {
         when(action) {
@@ -38,7 +39,7 @@ class ParticipantListViewModel(
                     groupId = group.groupId,
                     competitionId = group.competitionId,
                     commandName = "",
-                    startNumber = "",
+                    startNumber = startNumber++.toString(),
                     startTime = "1:00",
                     chipNumber = "",
                     comment = ""

@@ -96,7 +96,7 @@ fun ParticipantListContent(
             HorizontalPager(
                 state = pagerState
             ) { page ->
-                ParticipantList(participants = state.participantGroupWithParticipants[page].participants)
+                ParticipantList(participants = state.participantGroupWithParticipants[page].participants.sortedBy { it.startNumber.toIntOrNull() })
             }
 
             FloatingActionButton(
