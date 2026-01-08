@@ -10,8 +10,10 @@ import com.rodionov.local.dao.OrienteeringCompetitionDao
 import com.rodionov.local.dao.ParticipantGroupDao
 import com.rodionov.local.dao.UserDao
 import com.rodionov.local.dao.orienteering.OrienteeringParticipantDao
+import com.rodionov.local.dao.orienteering.OrienteeringResultDao
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
 import com.rodionov.local.entities.orienteering.OrienteeringParticipantEntity
+import com.rodionov.local.entities.orienteering.OrienteeringResultEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
 import com.rodionov.local.entities.user.UserEntity
 
@@ -22,7 +24,8 @@ private const val DB_VERSION = 7
         OrienteeringCompetitionEntity::class,
         ParticipantGroupEntity::class,
         OrienteeringParticipantEntity::class,
-        UserEntity::class
+        UserEntity::class,
+        OrienteeringResultEntity::class
     ],
     version = DB_VERSION,
     exportSchema = false
@@ -34,4 +37,6 @@ abstract class SEDatabase : RoomDatabase() {
     abstract fun participantGroupsDao(): ParticipantGroupDao
 
     abstract fun orienteeringParticipantDao(): OrienteeringParticipantDao
+    abstract fun orienteeringResultDao(): OrienteeringResultDao
+
 }
