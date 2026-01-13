@@ -6,6 +6,7 @@ import android.nfc.Tag
 import android.nfc.tech.MifareClassic
 import android.nfc.tech.MifareUltralight
 import androidx.activity.ComponentActivity
+import com.rodionov.domain.models.orienteering.ReadChipData
 import com.rodionov.nfchelper.nfccard.Card
 import com.rodionov.nfchelper.nfccard.CardAdapter
 import com.rodionov.nfchelper.nfccard.CardMifareClassic
@@ -26,7 +27,7 @@ class SportiduinoHelperImpl(
         )
     }
 
-    private val _readCardFlow = MutableSharedFlow<CharSequence>()
+    private val _readCardFlow = MutableSharedFlow<ReadChipData>()
 
     override var nfcMode: SportiduinoNfcMode = SportiduinoNfcMode.READ_CARD
 
@@ -66,9 +67,9 @@ class SportiduinoHelperImpl(
         }
     }
 
-    override suspend fun subscribeToReadCard(handler: (String) -> Unit) {
+    override suspend fun subscribeToReadCard(handler: (ReadChipData) -> Unit) {
         nfcMode = SportiduinoNfcMode.READ_CARD
-        _readCardFlow.collect { handler.invoke(it.toString()) }
+        _readCardFlow.collect { handler.invoke(it) }
     }
 
     override suspend fun subscribeToWriteCard() {

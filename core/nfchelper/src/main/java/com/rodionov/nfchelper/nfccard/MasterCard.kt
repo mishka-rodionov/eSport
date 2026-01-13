@@ -1,5 +1,7 @@
 package com.rodionov.nfchelper.nfccard
 
+import android.text.Html
+import com.rodionov.domain.models.orienteering.ReadChipData
 import com.rodionov.nfchelper.Password
 import com.rodionov.nfchelper.R
 import com.rodionov.nfchelper.nfccard.Constants.CARD_PAGE_INFO1
@@ -20,7 +22,7 @@ class MasterCard(adapter: CardAdapter, type: CardType, password: Password, priva
     }
 
     @Throws(ReadWriteCardException::class)
-    public override fun read(): Array<ByteArray> {
+    override fun read(): Array<ByteArray> {
         return when (type) {
             CardType.MASTER_GET_STATE -> adapter.readPages(8, 12)
             CardType.MASTER_READ_BACKUP -> adapter.readPages(
@@ -33,26 +35,28 @@ class MasterCard(adapter: CardAdapter, type: CardType, password: Password, priva
         }
     }
 
-    public override fun parseData(data: Array<ByteArray>): CharSequence {
-        when (type) {
-            CardType.MASTER_SET_TIME -> return resourceProvider.getString(R.string.time_master_card)
-            CardType.MASTER_SET_NUMBER -> return resourceProvider.getString(R.string.number_master_card)
-            CardType.MASTER_GET_STATE -> {
-                val state = State(data, resourceProvider)
-                return android.text.Html.fromHtml(
-                    (resourceProvider.getString(R.string.state_master_card) + "\n" + state.toString()).replace(
-                        "\n",
-                        "<br/>"
+    override fun parseData(data: Array<ByteArray>): ReadChipData {
+        return ReadChipData.MasterChipData(
+            when (type) {
+                CardType.MASTER_SET_TIME -> resourceProvider.getString(R.string.time_master_card)
+                CardType.MASTER_SET_NUMBER -> resourceProvider.getString(R.string.number_master_card)
+                CardType.MASTER_GET_STATE -> {
+                    val state = State(data, resourceProvider)
+                    Html.fromHtml(
+                        (resourceProvider.getString(R.string.state_master_card) + "\n" + state.toString()).replace(
+                            "\n",
+                            "<br/>"
+                        )
                     )
-                )
-            }
+                }
 
-            CardType.MASTER_SLEEP -> return resourceProvider.getString(R.string.sleep_master_card)
-            CardType.MASTER_READ_BACKUP -> return parseBackupMaster(data)
-            CardType.MASTER_CONFIG -> return resourceProvider.getString(R.string.config_master_card)
-            CardType.MASTER_PASSWORD -> return resourceProvider.getString(R.string.password_master_card)
-            else -> return resourceProvider.getString(R.string.unknown_card_type)
-        }
+                CardType.MASTER_SLEEP -> resourceProvider.getString(R.string.sleep_master_card)
+                CardType.MASTER_READ_BACKUP -> parseBackupMaster(data)
+                CardType.MASTER_CONFIG -> resourceProvider.getString(R.string.config_master_card)
+                CardType.MASTER_PASSWORD -> resourceProvider.getString(R.string.password_master_card)
+                else -> resourceProvider.getString(R.string.unknown_card_type)
+            } as String
+        )
     }
 
     @Throws(ReadWriteCardException::class)

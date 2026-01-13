@@ -1,5 +1,6 @@
 package com.rodionov.nfchelper.nfccard
 
+import com.rodionov.domain.models.orienteering.ReadChipData
 import com.rodionov.nfchelper.Password
 import com.rodionov.nfchelper.nfccard.Constants.CARD_PAGE_INFO1
 import com.rodionov.nfchelper.nfccard.Constants.CARD_PAGE_INIT
@@ -15,7 +16,7 @@ abstract class Card(var adapter: CardAdapter) {
 
     @Throws(ReadWriteCardException::class)
     abstract fun read(): Array<ByteArray>
-    abstract fun parseData(data: Array<ByteArray>): CharSequence
+    abstract fun parseData(data: Array<ByteArray>): ReadChipData
 
     @Throws(ReadWriteCardException::class)
     protected abstract fun writeImpl()

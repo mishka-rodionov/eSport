@@ -1,5 +1,7 @@
 package com.rodionov.nfchelper.nfccard
 
+import com.rodionov.domain.models.orienteering.ReadChipData
+import com.rodionov.domain.models.orienteering.SplitTime
 import com.rodionov.nfchelper.R
 import com.rodionov.nfchelper.nfccard.Constants.CARD_PAGE_INFO1
 import com.rodionov.nfchelper.nfccard.Constants.CARD_PAGE_INIT
@@ -8,6 +10,7 @@ import com.rodionov.nfchelper.nfccard.Constants.CARD_PAGE_START
 import com.rodionov.nfchelper.nfccard.Constants.FAST_PUNCH_SIGN
 import com.rodionov.nfchelper.nfccard.Constants.FW_PROTO_VERSION
 import com.rodionov.resources.ResourceProvider
+import java.util.Date
 
 class ParticipantCard(
     adapter: CardAdapter,
@@ -36,17 +39,17 @@ class ParticipantCard(
     }
 
     @Throws(ReadWriteCardException::class)
-    public override fun read(): Array<ByteArray> {
+    override fun read(): Array<ByteArray> {
         if (cardNumber == 0) {
             type = CardType.UNKNOWN
-            return Array<ByteArray>(0) { ByteArray(0) }
+            return Array(0) { ByteArray(0) }
         }
         return adapter.readPages(CARD_PAGE_START, adapter.maxPage, true)
     }
 
-    public override fun parseData(data: Array<ByteArray>): CharSequence {
+    override fun parseData(data: Array<ByteArray>): ReadChipData {
         if (type == CardType.UNKNOWN) {
-            return resourceProvider.getString(R.string.unknown_card_type)
+            return ReadChipData.MasterChipData(resourceProvider.getString(R.string.unknown_card_type))
         }
 
         var str: String? = resourceProvider.getString(R.string.participant_card_no_) + cardNumber
@@ -54,11 +57,12 @@ class ParticipantCard(
             str += String.format(" (%s)", resourceProvider.getString(R.string.fast_punch))
         }
         str += "\n" + resourceProvider.getString(R.string.clear_time_) + Util.dformat.format(
-            java.util.Date(cardInitTimestamp * 1000)
+            Date(cardInitTimestamp * 1000)
         )
         str += "\n" + resourceProvider.getString(R.string.record_count) + " %d"
         var recordCount = 0
         val timeHighPart = cardInitTimestamp and 0xFF000000L
+        val splits = mutableListOf<SplitTime>()
         for (datum in data) {
             val cp = datum[0].toInt() and 0xFF
             if (cp == 0) {
@@ -77,13 +81,24 @@ class ParticipantCard(
             }
             str += String.format("%1$6s", cpStr)
             str += " - " + Util.dformat.format(
-                java.util.Date(
+                Date(
                     punchTimestamp * 1000
+                )
+            )
+            splits.add(
+                SplitTime(
+                    controlPoint = cpStr,
+                    timestamp = punchTimestamp * 1000
                 )
             )
             ++recordCount
         }
-        return String.format(str, recordCount)
+        return ReadChipData.RawResult(
+            chipNumber = cardNumber,
+            clearTime = cardInitTimestamp * 1000,
+            splits = splits
+        )
+//        return String.format(str, recordCount)
     }
 
     @Throws(ReadWriteCardException::class)

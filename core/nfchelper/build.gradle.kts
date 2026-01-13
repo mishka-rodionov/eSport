@@ -42,6 +42,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(project(":core:resources"))
+    implementation(project(":domain"))
 
     //koin
     implementation(libs.koin.core)

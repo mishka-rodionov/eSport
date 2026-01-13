@@ -9,5 +9,5 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    Text(text = state.text)
+//    Text(text = state.text)
 }

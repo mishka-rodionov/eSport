@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import androidx.activity.ComponentActivity
+import com.rodionov.domain.models.orienteering.ReadChipData
 
 interface SportiduinoHelper {
 
@@ -19,7 +20,7 @@ interface SportiduinoHelper {
 
     fun disableForegroundDispatch(activity: ComponentActivity)
 
-    suspend fun subscribeToReadCard(handler: (String) -> Unit)
+    suspend fun subscribeToReadCard(handler: (ReadChipData) -> Unit)
 
     suspend fun subscribeToWriteCard()
 

@@ -19,7 +19,7 @@ class OrientReadCardViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             sportiduinoHelper.subscribeToReadCard { text ->
-                updateState { copy(text = text) }
+//                updateState { copy(text = text) }
             }
         }
     }
