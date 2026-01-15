@@ -119,4 +119,14 @@ class OrienteeringCompetitionInteractor(
         return localRepository.getParticipants(competitionId = competitionId)
     }
 
+    suspend fun getParticipantByChipNumber(
+        competitionId: Long,
+        chipNumber: Int
+    ): Result<OrienteeringParticipant> {
+        return localRepository.getParticipantByChipNumber(
+            competitionId = competitionId,
+            chipNumber = chipNumber
+        )
+    }
+
 }

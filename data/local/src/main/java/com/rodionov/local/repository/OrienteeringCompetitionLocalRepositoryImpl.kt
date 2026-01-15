@@ -15,7 +15,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     private val orienteeringCompetitionDao: OrienteeringCompetitionDao,
     private val participantGroupDao: ParticipantGroupDao,
     private val participantDao: OrienteeringParticipantDao
-): OrienteeringCompetitionLocalRepository {
+) : OrienteeringCompetitionLocalRepository {
 
     override suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
         return runCatching {
@@ -96,5 +96,17 @@ class OrienteeringCompetitionLocalRepositoryImpl(
 
     override suspend fun updateParticipants(participants: List<OrienteeringParticipant>): Result<Any> {
         return runCatching { participantDao.updateAll(participants.map { it.toEntity() }) }
+    }
+
+    override suspend fun getParticipantByChipNumber(
+        competitionId: Long,
+        chipNumber: Int
+    ): Result<OrienteeringParticipant> {
+        return runCatching {
+            participantDao.getParticipantByChipNumber(
+                competitionId = competitionId,
+                chipNumber = chipNumber
+            ).toDomain()
+        }
     }
 }

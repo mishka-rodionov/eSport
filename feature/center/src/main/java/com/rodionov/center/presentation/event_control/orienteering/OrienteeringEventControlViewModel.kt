@@ -13,14 +13,20 @@ import kotlinx.coroutines.launch
 
 class OrienteeringEventControlViewModel(
     private val navigation: Navigation
-): BaseViewModel<BaseState>(object : BaseState {}) {
+) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
 
     override fun onAction(action: BaseAction) {
-        when(action) {
-            OrientEventControlAction.OpenOrientReadCard -> viewModelScope.launch { navigation.navigate(CenterNavigation.OrientReadCardRoute) }
-            OrientEventControlAction.OpenParticipantLists ->  {
+        when (action) {
+            OrientEventControlAction.OpenOrientReadCard -> viewModelScope.launch {
+                navigation.navigate(
+                    destination = CenterNavigation.OrientReadCardRoute,
+                    argument = navigation.createArguments(EventsConstants.EVENT_ID.name to competitionId)
+                )
+            }
+
+            OrientEventControlAction.OpenParticipantLists -> {
                 viewModelScope.launch {
                     navigation.navigate(
                         destination = CenterNavigation.ParticipantList,
@@ -28,7 +34,8 @@ class OrienteeringEventControlViewModel(
                     )
                 }
             }
-            OrientEventControlAction.OpenDrawParticipants ->  {
+
+            OrientEventControlAction.OpenDrawParticipants -> {
                 viewModelScope.launch {
                     navigation.navigate(
                         destination = CenterNavigation.DrawParticipants,

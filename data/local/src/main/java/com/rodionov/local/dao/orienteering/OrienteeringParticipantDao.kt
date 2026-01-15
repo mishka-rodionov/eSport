@@ -31,6 +31,9 @@ interface OrienteeringParticipantDao {
     @Query("SELECT * FROM orienteering_participants WHERE competitionId = :competitionId")
     suspend fun getAllParticipants(competitionId: Long): List<OrienteeringParticipantEntity>
 
+    @Query("SELECT * FROM orienteering_participants WHERE competitionId = :competitionId AND chipNumber = :chipNumber")
+    suspend fun getParticipantByChipNumber(competitionId: Long, chipNumber: Int): OrienteeringParticipantEntity
+
     @Query("DELETE FROM orienteering_participants WHERE id = :id")
     suspend fun deleteParticipantById(id: Long)
 }
