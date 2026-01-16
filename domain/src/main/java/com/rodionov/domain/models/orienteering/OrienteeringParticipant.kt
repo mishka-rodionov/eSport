@@ -44,7 +44,7 @@ data class OrienteeringParticipant(
     val competitionId: Long,
     val commandName: String,
     val startNumber: String,
-    val startTime: String,
+    val startTime: Long,
     val chipNumber: String,
     val comment: String
 ): Participant

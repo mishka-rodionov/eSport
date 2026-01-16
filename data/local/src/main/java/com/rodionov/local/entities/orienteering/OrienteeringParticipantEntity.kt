@@ -15,11 +15,6 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE // Участники удаляются при удалении группы
         )
     ],
-//    indices = [
-//        Index(value = ["competitionId", "startNumber"], unique = true),
-//        Index(value = ["chipNumber"], unique = true),
-//        Index(value = ["competitionId", "groupId"])
-//    ]
 )
 data class OrienteeringParticipantEntity(
     @PrimaryKey(autoGenerate = true)
@@ -31,7 +26,7 @@ data class OrienteeringParticipantEntity(
     val competitionId: Long,
     val commandName: String,
     val startNumber: String,
-    val startTime: String,
+    val startTime: Long,
     val chipNumber: String,
     val comment: String
 )

@@ -5,6 +5,7 @@ import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.center.data.read_card.OrientReadCardState
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
+import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ReadChipData
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.ui.BaseAction
@@ -39,16 +40,28 @@ class OrientReadCardViewModel(
             is ReadChipData.RawResult -> {
                 competitionId?.let {
                     viewModelScope.launch(Dispatchers.IO) {
-                        val participant = orienteeringCompetitionInteractor.getParticipantByChipNumber(
+                        orienteeringCompetitionInteractor.getParticipantByChipNumber(
                             competitionId = competitionId,
                             chipNumber = chipData.chipNumber
-                        )
+                        ).onSuccess { participant ->
+                            computeParticipantResult(
+                                participant = participant,
+                                rawResult = chipData
+                            )
+                        }
                     }
                 }
             }
 
             is ReadChipData.MasterChipData -> {}
         }
+    }
+
+    fun computeParticipantResult(participant: OrienteeringParticipant, rawResult: ReadChipData.RawResult) {
+        val splits = rawResult.splits
+        val cpOrder = rawResult.splits.map { it.controlPoint }
+        val lastPunch = splits.lastOrNull() ?: return
+        val totalTime = lastPunch.timestamp - participant.startTime
     }
 
 }
