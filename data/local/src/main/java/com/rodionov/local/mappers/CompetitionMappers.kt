@@ -45,7 +45,8 @@ fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
         title = this.title,
         distance = this.distance,
         countOfControls = this.countOfControls,
-        maxTimeInMinute = this.maxTimeInMinute
+        maxTimeInMinute = this.maxTimeInMinute,
+        controlPoints = this.controlPoints
     )
 }
 
@@ -56,7 +57,9 @@ fun ParticipantGroupEntity.toModel(): ParticipantGroup {
         title = this.title,
         distance = this.distance,
         countOfControls = this.countOfControls,
-        maxTimeInMinute = this.maxTimeInMinute
+        maxTimeInMinute = this.maxTimeInMinute,
+        controlPoints = this.controlPoints
+
     )
 }
 

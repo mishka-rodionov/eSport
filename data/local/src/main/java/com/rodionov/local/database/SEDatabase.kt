@@ -5,6 +5,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.rodionov.domain.models.user.User
 import com.rodionov.local.converters.CompetitionConverters
+import com.rodionov.local.converters.ControlPointConverters
+import com.rodionov.local.converters.ResultConverters
 import com.rodionov.local.converters.UserConverter
 import com.rodionov.local.dao.OrienteeringCompetitionDao
 import com.rodionov.local.dao.ParticipantGroupDao
@@ -30,7 +32,12 @@ private const val DB_VERSION = 7
     version = DB_VERSION,
     exportSchema = false
 )
-@TypeConverters(CompetitionConverters::class, UserConverter::class)
+@TypeConverters(
+    CompetitionConverters::class,
+    UserConverter::class,
+    ControlPointConverters::class,
+    ResultConverters::class
+)
 abstract class SEDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun orienteeringCompetitionDao(): OrienteeringCompetitionDao

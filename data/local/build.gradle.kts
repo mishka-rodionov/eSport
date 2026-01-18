@@ -57,4 +57,5 @@ dependencies {
     implementation(libs.androidx.security.crypto)
 
     implementation(libs.gson)
+    implementation(libs.kotlinx.serialization.json)
 }
