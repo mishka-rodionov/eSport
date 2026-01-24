@@ -216,7 +216,7 @@ fun ParticipantItem(participant: OrienteeringParticipant) {
                 modifier = Modifier.weight(0.9F)
             )
             Text(
-                text = participant.startTime,
+                text = participant.startTime.toString(),
                 modifier = Modifier.weight(0.2F)
             )
         }
@@ -242,7 +242,8 @@ fun ParticipantListScreenPreview() {
                         title = "M21",
                         distance = 10.0,
                         countOfControls = 20,
-                        maxTimeInMinute = 120
+                        maxTimeInMinute = 120,
+                        controlPoints = emptyList()
                     ),
                     participants = listOf(
                         OrienteeringParticipant(
@@ -254,7 +255,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 1",
                             startNumber = "1",
-                            startTime = "1:00",
+                            startTime = 1L,
                             chipNumber = "12345",
                             comment = "Comment 1"
                         ),
@@ -267,7 +268,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 1",
                             startNumber = "2",
-                            startTime = "2:00",
+                            startTime = 2L,
                             chipNumber = "54321",
                             comment = "Comment 2"
                         )
@@ -280,7 +281,8 @@ fun ParticipantListScreenPreview() {
                         title = "W21",
                         distance = 8.0,
                         countOfControls = 15,
-                        maxTimeInMinute = 100
+                        maxTimeInMinute = 100,
+                        controlPoints = emptyList()
                     ),
                     participants = listOf(
                         OrienteeringParticipant(
@@ -292,7 +294,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 2",
                             startNumber = "3",
-                            startTime = "3:00",
+                            startTime = 3L,
                             chipNumber = "67890",
                             comment = "Comment 3"
                         )

@@ -22,7 +22,6 @@ class CompetitionConverters {
         }
     }
 
-    // Если вы решите хранить OrienteeringDirection как String (рекомендуется)
     @TypeConverter
     fun fromOrienteeringDirection(direction: OrienteeringDirection?): String? {
         return direction?.name
@@ -33,7 +32,6 @@ class CompetitionConverters {
         return value?.let { OrienteeringDirection.valueOf(it) }
     }
 
-    // Если вы решите хранить KindOfSport по имени (рекомендуется)
     @TypeConverter
     fun fromKindOfSport(kindOfSport: KindOfSport?): String? {
         return kindOfSport?.name

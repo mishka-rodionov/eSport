@@ -13,5 +13,5 @@ fun OrienteeringCompetitionResponse.toDomain(): OrienteeringCompetition {
 }
 
 fun ParticipantGroupResponse.toDomain() : ParticipantGroup {
-    return ParticipantGroup(groupId, competitionId, title, distance, countOfControls, maxTimeInMinute)
+    return ParticipantGroup(groupId, competitionId, title, distance, countOfControls, maxTimeInMinute, emptyList()) //TODO добавить обработку списка КП
 }

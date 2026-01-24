@@ -80,7 +80,7 @@ class DrawViewModel(
             groups[groupId] = participants.mapIndexed { index, participant ->
                 participant.copy(
                     startNumber = (currentStartNumber + index).toString(),
-                    startTime = "${startTime++}:00"
+                    startTime = startTime++.toLong()
                 )
             }
             currentStartNumber += participants.size

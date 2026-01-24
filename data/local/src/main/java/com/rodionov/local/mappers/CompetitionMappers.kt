@@ -3,9 +3,11 @@ package com.rodionov.local.mappers
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
+import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
 import com.rodionov.local.entities.orienteering.OrienteeringParticipantEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
+import com.rodionov.local.entities.orienteering.OrienteeringResultEntity
 
 fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
     return OrienteeringCompetitionEntity(
@@ -34,7 +36,7 @@ fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
 }
 
 // Если вам нужно создавать список доменных моделей:
-fun List<OrienteeringCompetitionEntity>.toDomainList(): List<OrienteeringCompetition> {
+fun List<OrienteeringCompetitionEntity>.toCompetitionDomainList(): List<OrienteeringCompetition> {
     return this.map { it.toDomain() }
 }
 
@@ -93,4 +95,38 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
         chipNumber = chipNumber,
         comment = comment
     )
+}
+
+fun OrienteeringResult.toEntity(): OrienteeringResultEntity {
+    return OrienteeringResultEntity(
+        id = id,
+        competitionId = competitionId,
+        participantId = participantId,
+        startTime = startTime,
+        finishTime = finishTime,
+        totalTime = totalTime,
+        rank = rank,
+        status = status,
+        penaltyTime = penaltyTime,
+        splits = splits
+    )
+}
+
+fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
+    return OrienteeringResult(
+        id = id,
+        competitionId = competitionId,
+        participantId = participantId,
+        startTime = startTime,
+        finishTime = finishTime,
+        totalTime = totalTime,
+        rank = rank,
+        status = status,
+        penaltyTime = penaltyTime,
+        splits = splits
+    )
+}
+
+fun List<OrienteeringResultEntity>.toDomainList(): List<OrienteeringResult> {
+    return this.map { it.toDomain() }
 }

@@ -2,6 +2,7 @@ package com.rodionov.remote.response.orienteering
 
 import com.google.gson.annotations.SerializedName
 
+// TODO необходимо добавить список КП в ответ сервера
 data class ParticipantGroupResponse(
     @SerializedName("groupId")
     val groupId: Long,
@@ -14,6 +15,6 @@ data class ParticipantGroupResponse(
     @SerializedName("countOfControls")
     val countOfControls: Int,
     @SerializedName("maxTimeInMinute")
-    val maxTimeInMinute: Int
+    val maxTimeInMinute: Int,
 )
 
