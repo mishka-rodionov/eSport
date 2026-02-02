@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +58,18 @@ import com.rodionov.domain.models.orienteering.ControlPoint
 import com.rodionov.resources.R
 import kotlin.math.roundToInt
 
+/**
+ * Редактор группы участников соревнований по ориентированию, представленный в виде модального нижнего окна (bottom sheet).
+ *
+ * Позволяет настраивать основные параметры группы: название, дистанцию и контрольное время.
+ * Реализует интерактивное управление списком контрольных пунктов (КП) с возможностью:
+ * - Добавления новых КП через ввод номера.
+ * - Удаления существующих КП.
+ * - Изменения порядка следования КП с помощью перетаскивания (Drag-and-Drop) по долгому нажатию.
+ *
+ * @param userAction Функция обратного вызова для обработки действий пользователя (сохранение группы, закрытие диалога).
+ * @param state Текущее состояние экрана создания соревнования, содержащее данные о группах, ошибки валидации и индекс редактируемой группы.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantGroupEditor(
@@ -68,7 +81,7 @@ fun ParticipantGroupEditor(
     var distance by remember { mutableStateOf(if (state.editGroupIndex == -1) "" else state.participantGroups[state.editGroupIndex].distance.toString()) }
     var countOfControls by remember { mutableIntStateOf(if (state.editGroupIndex == -1) 0 else state.participantGroups[state.editGroupIndex].countOfControls) }
     var maxTime by remember { mutableIntStateOf(if (state.editGroupIndex == -1) 0 else state.participantGroups[state.editGroupIndex].maxTimeInMinute) }
-    
+
     var controlPoints by remember {
         mutableStateOf(
             if (state.editGroupIndex == -1) emptyList<ControlPoint>()
@@ -86,22 +99,19 @@ fun ParticipantGroupEditor(
         sheetState = sheetState,
         sheetContent = {
             Column(modifier = Modifier.padding(horizontal = Dimens.SIZE_HALF.dp).padding(bottom = Dimens.SIZE_HALF.dp)) {
+                // ... (Блоки ввода Названия и Дистанции остаются без изменений)
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(text = "Название группы")
-                    },
+                    label = { Text(text = "Название группы") },
                     isError = state.errors.isGroupTitleError,
                     text = groupTitle,
-                    onValueChanged = {
-                        groupTitle = it
-                    })
+                    onValueChanged = { groupTitle = it })
+
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(text = "Дистанция, км")
-                    },
+                    label = { Text(text = "Дистанция, км") },
                     isError = state.errors.isGroupDistanceError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     text = distance,
@@ -112,17 +122,16 @@ fun ParticipantGroupEditor(
                             distance = sanitizedInput
                         }
                     })
+
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(text = "Добавить КП (номер)")
-                    },
+                    label = { Text(text = "Добавить КП (номер)") },
                     text = cpInput,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     onValueChanged = { input ->
-                        if (input.endsWith(" ") || input.endsWith(",") || input.endsWith(".")) {
+                        if (input.endsWith(" ") || input.endsWith(",") || input.endsWith(".") || input.endsWith("\n")) {
                             val number = input.dropLast(1).trim().toIntOrNull()
                             if (number != null) {
                                 controlPoints = controlPoints + ControlPoint(number = number)
@@ -144,6 +153,13 @@ fun ParticipantGroupEditor(
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
+
+                    // Константа ширины чипа + отступ (80dp чип + 8dp spacing)
+                    // Используем LocalDensity для перевода dp в пиксели для точности расчетов
+                    val density = androidx.compose.ui.platform.LocalDensity.current
+                    val itemTotalWidthPx = with(density) { (72.dp + 8.dp).toPx() }
+                    val currentItemWidth by rememberUpdatedState(itemTotalWidthPx)
+
                     LazyRow(
                         state = lazyListState,
                         modifier = Modifier
@@ -153,11 +169,13 @@ fun ParticipantGroupEditor(
                         contentPadding = PaddingValues(horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        itemsIndexed(controlPoints) { index, cp ->
+                        // Используем identityHashCode для стабильного ключа, чтобы перетаскивание не прерывалось при смене индекса
+                        itemsIndexed(controlPoints, key = { _, cp -> System.identityHashCode(cp) }) { index, cp ->
+                            val currentIdx by rememberUpdatedState(index)
                             val isDragging = draggingIndex == index
-                            val scale by animateFloatAsState(if (isDragging) 1.1f else 1.0f, label = "scale")
-                            val zIndex = if (isDragging) 1f else 0f
-                            
+                            val scale by animateFloatAsState(if (isDragging) 1.2f else 1.0f, label = "scale")
+                            val zIndex = if (isDragging) 10f else 1f
+
                             Box(
                                 modifier = Modifier
                                     .zIndex(zIndex)
@@ -167,9 +185,12 @@ fun ParticipantGroupEditor(
                                         else IntOffset.Zero
                                     }
                                     .shadow(if (isDragging) 8.dp else 0.dp, RoundedCornerShape(16.dp))
-                                    .pointerInput(Unit) {
+                                    .pointerInput(Unit) { // Unit, чтобы жест не сбрасывался при recomposition
                                         detectDragGesturesAfterLongPress(
-                                            onDragStart = { draggingIndex = index },
+                                            onDragStart = {
+                                                // Важно: запоминаем актуальный индекс на момент начала
+                                                draggingIndex = currentIdx
+                                            },
                                             onDragEnd = {
                                                 draggingIndex = null
                                                 dragOffset = 0f
@@ -181,22 +202,24 @@ fun ParticipantGroupEditor(
                                             onDrag = { change, dragAmount ->
                                                 change.consume()
                                                 dragOffset += dragAmount.x
-                                                
-                                                val threshold = 50f
-                                                if (dragOffset > threshold && index < controlPoints.size - 1) {
+
+                                                val currentIdxForDrag = draggingIndex ?: return@detectDragGesturesAfterLongPress
+
+                                                // Рассчитываем, на сколько позиций переместился палец
+                                                val shift = (dragOffset / currentItemWidth).roundToInt()
+                                                val targetIndex = (currentIdxForDrag + shift).coerceIn(0, controlPoints.size - 1)
+
+                                                if (targetIndex != currentIdxForDrag) {
                                                     val newList = controlPoints.toMutableList()
-                                                    val item = newList.removeAt(index)
-                                                    newList.add(index + 1, item)
+                                                    val item = newList.removeAt(currentIdxForDrag)
+                                                    newList.add(targetIndex, item)
+
+                                                    // Обновляем состояние
                                                     controlPoints = newList
-                                                    draggingIndex = index + 1
-                                                    dragOffset = 0f
-                                                } else if (dragOffset < -threshold && index > 0) {
-                                                    val newList = controlPoints.toMutableList()
-                                                    val item = newList.removeAt(index)
-                                                    newList.add(index - 1, item)
-                                                    controlPoints = newList
-                                                    draggingIndex = index - 1
-                                                    dragOffset = 0f
+
+                                                    // Корректируем оффсет, чтобы элемент визуально оставался под пальцем
+                                                    dragOffset -= (targetIndex - currentIdxForDrag) * currentItemWidth
+                                                    draggingIndex = targetIndex
                                                 }
                                             }
                                         )
@@ -236,24 +259,26 @@ fun ParticipantGroupEditor(
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
+                // ... (Остальная часть формы: Контрольное время и кнопка Сохранить)
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(text = "Контрольное время в мин.")
-                    },
+                    label = { Text(text = "Контрольное время в мин.") },
                     isError = state.errors.isMaxTimeError,
                     text = maxTime.takeIf { it != 0 }?.toString() ?: "",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     onValueChanged = { time ->
                         maxTime = time.takeIf { it.isNotBlank() }?.trim()?.toIntOrNull() ?: 0
                     })
+
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
                 with(state.errors) {
                     if (isGroupTitleError || isGroupDistanceError || isCountOfControlsError || isMaxTimeError){
                         Text(text = "Все поля должны быть корректно заполнены", color = MaterialTheme.colorScheme.error)
                         Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
                     }
                 }
+
                 Button(modifier = Modifier.fillMaxWidth(), onClick = {
                     userAction.invoke(
                         OrienteeringCreatorAction.CreateParticipantGroup(
