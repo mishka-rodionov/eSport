@@ -3,6 +3,8 @@ package com.rodionov.remote.response.mappers
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.ControlPoint
+import com.rodionov.remote.response.orienteering.ControlPointResponse
 import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
 import com.rodionov.remote.response.orienteering.ParticipantGroupResponse
 
@@ -13,5 +15,13 @@ fun OrienteeringCompetitionResponse.toDomain(): OrienteeringCompetition {
 }
 
 fun ParticipantGroupResponse.toDomain() : ParticipantGroup {
-    return ParticipantGroup(groupId, competitionId, title, distance, countOfControls, maxTimeInMinute, emptyList()) //TODO добавить обработку списка КП
+    return ParticipantGroup(groupId, competitionId, title, distance, countOfControls, maxTimeInMinute, controlPoints.map { it.toDomain() })
+}
+
+fun ControlPointResponse.toDomain() : ControlPoint {
+    return ControlPoint(
+        number = number,
+        role = role,
+        score = score
+    )
 }

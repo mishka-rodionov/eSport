@@ -6,6 +6,7 @@ import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.Gender
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.models.SportsCategory
+import com.rodionov.domain.models.orienteering.ControlPointRole
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.orienteering.PunchingSystem
@@ -16,6 +17,7 @@ import com.rodionov.remote.response.auth.AuthResponse
 import com.rodionov.remote.response.auth.TokenResponse
 import com.rodionov.remote.response.competition.CompetitionResponse
 import com.rodionov.remote.response.competition.CoordinatesResponse
+import com.rodionov.remote.response.orienteering.ControlPointResponse
 import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
 import com.rodionov.remote.response.orienteering.ParticipantGroupResponse
 import com.rodionov.remote.response.user.QualificationResponse
@@ -254,7 +256,34 @@ class MockInterceptor : Interceptor {
                     title = it.title,
                     distance = it.distance,
                     countOfControls = it.countOfControls,
-                    maxTimeInMinute = it.maxTimeInMinute
+                    maxTimeInMinute = it.maxTimeInMinute,
+                    controlPoints = listOf(
+                        ControlPointResponse(
+                            number = 31,
+                            role = ControlPointRole.ORDINARY,
+                            score = 0
+                        ),
+                        ControlPointResponse(
+                            number = 32,
+                            role = ControlPointRole.ORDINARY,
+                            score = 0
+                        ),
+                        ControlPointResponse(
+                            number = 33,
+                            role = ControlPointRole.ORDINARY,
+                            score = 0
+                        ),
+                        ControlPointResponse(
+                            number = 30,
+                            role = ControlPointRole.START,
+                            score = 0
+                        ),
+                        ControlPointResponse(
+                            number = 100,
+                            role = ControlPointRole.FINISH,
+                            score = 0
+                        )
+                    )
                 )
             )
         }

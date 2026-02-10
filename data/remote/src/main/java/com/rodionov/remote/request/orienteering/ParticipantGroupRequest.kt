@@ -14,6 +14,8 @@ data class ParticipantGroupRequest(
     @SerializedName("countOfControls")
     val countOfControls: Int,
     @SerializedName("maxTimeInMinute")
-    val maxTimeInMinute: Int
+    val maxTimeInMinute: Int,
+    @SerializedName("controlPoints")
+    val controlPoints: List<ControlPointRequest>
 )
 
