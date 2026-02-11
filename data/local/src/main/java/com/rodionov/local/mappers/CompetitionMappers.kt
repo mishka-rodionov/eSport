@@ -52,7 +52,7 @@ fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
     )
 }
 
-fun ParticipantGroupEntity.toModel(): ParticipantGroup {
+fun ParticipantGroupEntity.toDomain(): ParticipantGroup {
     return ParticipantGroup(
         groupId = this.groupId,
         competitionId = this.competitionId,

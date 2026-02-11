@@ -2,11 +2,15 @@ package com.rodionov.center.presentation.read_card
 
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
+import com.rodionov.center.data.read_card.CheckResult
 import com.rodionov.center.data.read_card.OrientReadCardState
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
+import com.rodionov.domain.models.ResultStatus
+import com.rodionov.domain.models.orienteering.ControlPoint
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ReadChipData
+import com.rodionov.domain.models.orienteering.SplitTime
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
@@ -57,11 +61,68 @@ class OrientReadCardViewModel(
         }
     }
 
-    fun computeParticipantResult(participant: OrienteeringParticipant, rawResult: ReadChipData.RawResult) {
+    suspend fun getExpectedControlPoints(groupId: Long): List<ControlPoint> {
+        val group = orienteeringCompetitionInteractor.getParticipantGroup(groupId).getOrNull()
+        return group?.controlPoints ?: emptyList()
+    }
+
+    suspend fun computeParticipantResult(participant: OrienteeringParticipant, rawResult: ReadChipData.RawResult) {
         val splits = rawResult.splits
         val cpOrder = rawResult.splits.map { it.controlPoint }
         val lastPunch = splits.lastOrNull() ?: return
         val totalTime = lastPunch.timestamp - participant.startTime
+        val expected = getExpectedControlPoints(participant.groupId)
+        val result = checkControlPointOrderPro(
+            expected = expected,
+            actual = splits
+        )
+    }
+
+    fun checkControlPointOrderPro(
+        expected: List<ControlPoint>,
+        actual: List<SplitTime>
+    ): CheckResult {
+
+        if (expected.isEmpty()) {
+            return CheckResult(ResultStatus.DSQ, "Для группы не заданы КП")
+        }
+
+        if (actual.isEmpty()) {
+            return CheckResult(ResultStatus.DSQ, "В чипе нет отметок")
+        }
+
+        val expectedNumbers = expected.map { it.number }
+
+        var searchIndex = 0
+        val validSplits = mutableListOf<SplitTime>()
+
+        for (expectedCp in expectedNumbers) {
+
+            var found = false
+
+            for (i in searchIndex until actual.size) {
+                val punch = actual[i]
+
+                if (punch.controlPoint == expectedCp) {
+                    validSplits.add(punch)
+                    searchIndex = i + 1
+                    found = true
+                    break
+                }
+            }
+
+            if (!found) {
+                return CheckResult(
+                    ResultStatus.DSQ,
+                    "Пропущен КП $expectedCp"
+                )
+            }
+        }
+
+        return CheckResult(
+            status = ResultStatus.FINISHED,
+            validSplits = validSplits
+        )
     }
 
 }

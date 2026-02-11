@@ -7,6 +7,6 @@ package com.rodionov.domain.models.orienteering
  * @property timestamp время отметки в миллисекундах с начала эпохи Unix (UTC).
  */
 data class SplitTime(
-    val controlPoint: String,
+    val controlPoint: Int,
     val timestamp: Long
 )

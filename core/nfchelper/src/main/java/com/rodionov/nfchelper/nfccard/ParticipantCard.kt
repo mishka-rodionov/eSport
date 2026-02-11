@@ -87,7 +87,7 @@ class ParticipantCard(
             )
             splits.add(
                 SplitTime(
-                    controlPoint = cpStr,
+                    controlPoint = cp,
                     timestamp = punchTimestamp * 1000
                 )
             )
@@ -98,7 +98,6 @@ class ParticipantCard(
             clearTime = cardInitTimestamp * 1000,
             splits = splits
         )
-//        return String.format(str, recordCount)
     }
 
     @Throws(ReadWriteCardException::class)

@@ -129,4 +129,8 @@ class OrienteeringCompetitionInteractor(
         )
     }
 
+    suspend fun getParticipantGroup(groupId: Long): Result<ParticipantGroup> {
+        return localRepository.getParticipantGroup(groupId)
+    }
+
 }

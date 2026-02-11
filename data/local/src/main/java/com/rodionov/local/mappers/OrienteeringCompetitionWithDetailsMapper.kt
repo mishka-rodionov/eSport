@@ -14,7 +14,7 @@ fun OrienteeringCompetitionWithDetails.toDomain(): OrienteeringCompetitionDetail
 
 fun ParticipantGroupWithParticipants.toDomain(): ParticipantGroupParticipants {
     return ParticipantGroupParticipants(
-        group = group.toModel(),
+        group = group.toDomain(),
         participants = participants.map { it.toDomain() }
     )
 }

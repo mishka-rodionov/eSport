@@ -109,4 +109,10 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             ).toDomain()
         }
     }
+
+    override suspend fun getParticipantGroup(groupId: Long): Result<ParticipantGroup> {
+        return runCatching {
+            participantGroupDao.getCertainParticipantGroup(groupId).toDomain()
+        }
+    }
 }

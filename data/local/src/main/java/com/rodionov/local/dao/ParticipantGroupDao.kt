@@ -18,6 +18,9 @@ interface ParticipantGroupDao {
     @Query("SELECT * FROM participant_groups")
     suspend fun getAll(): List<ParticipantGroupEntity>
 
+    @Query("SELECT * FROM participant_groups WHERE groupId = :groupId")
+    suspend fun getCertainParticipantGroup(groupId: Long) : ParticipantGroupEntity
+
     @Delete
     suspend fun delete(group: ParticipantGroupEntity)
 
