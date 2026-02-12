@@ -4,6 +4,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
+import com.rodionov.domain.models.orienteering.OrienteeringResult
 
 interface OrienteeringCompetitionLocalRepository {
 
@@ -22,4 +23,7 @@ interface OrienteeringCompetitionLocalRepository {
 
     suspend fun getParticipantByChipNumber(competitionId: Long, chipNumber: Int) : Result<OrienteeringParticipant>
     suspend fun getParticipantGroup(groupId: Long) : Result<ParticipantGroup>
+    suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult): Result<Any>
+    suspend fun getResultForGroup(competitionId: Long, groupId: Long): Result<List<OrienteeringResult>>
+    suspend fun updateResults(orienteeringResult: List<OrienteeringResult>): Result<Any>
 }

@@ -101,6 +101,7 @@ fun OrienteeringResult.toEntity(): OrienteeringResultEntity {
     return OrienteeringResultEntity(
         id = id,
         competitionId = competitionId,
+        groupId = groupId,
         participantId = participantId,
         startTime = startTime,
         finishTime = finishTime,
@@ -116,6 +117,7 @@ fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
     return OrienteeringResult(
         id = id,
         competitionId = competitionId,
+        groupId = groupId,
         participantId = participantId,
         startTime = startTime,
         finishTime = finishTime,

@@ -4,17 +4,20 @@ import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
+import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.local.dao.OrienteeringCompetitionDao
 import com.rodionov.local.dao.ParticipantGroupDao
 import com.rodionov.local.dao.orienteering.OrienteeringParticipantDao
+import com.rodionov.local.dao.orienteering.OrienteeringResultDao
 import com.rodionov.local.mappers.toDomain
 import com.rodionov.local.mappers.toEntity
 
 class OrienteeringCompetitionLocalRepositoryImpl(
     private val orienteeringCompetitionDao: OrienteeringCompetitionDao,
     private val participantGroupDao: ParticipantGroupDao,
-    private val participantDao: OrienteeringParticipantDao
+    private val participantDao: OrienteeringParticipantDao,
+    private val orienteeringResultDao: OrienteeringResultDao
 ) : OrienteeringCompetitionLocalRepository {
 
     override suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
@@ -113,6 +116,27 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     override suspend fun getParticipantGroup(groupId: Long): Result<ParticipantGroup> {
         return runCatching {
             participantGroupDao.getCertainParticipantGroup(groupId).toDomain()
+        }
+    }
+
+    override suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult): Result<Any> {
+        return runCatching {
+            orienteeringResultDao.insertResult(orienteeringResult.toEntity())
+        }
+    }
+
+    override suspend fun getResultForGroup(
+        competitionId: Long,
+        groupId: Long
+    ): Result<List<OrienteeringResult>> {
+        return runCatching {
+            orienteeringResultDao.getResultsForCompetitionGroupDirect(competitionId = competitionId, groupId = groupId).map { it.toDomain() }
+        }
+    }
+
+    override suspend fun updateResults(orienteeringResult: List<OrienteeringResult>): Result<Any> {
+        return runCatching {
+            orienteeringResultDao.updateResults(orienteeringResult.map { it.toEntity() })
         }
     }
 }

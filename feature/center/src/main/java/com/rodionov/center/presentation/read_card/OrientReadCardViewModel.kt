@@ -9,6 +9,7 @@ import com.rodionov.data.navigation.getArguments
 import com.rodionov.domain.models.ResultStatus
 import com.rodionov.domain.models.orienteering.ControlPoint
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
+import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ReadChipData
 import com.rodionov.domain.models.orienteering.SplitTime
 import com.rodionov.nfchelper.SportiduinoHelper
@@ -66,7 +67,10 @@ class OrientReadCardViewModel(
         return group?.controlPoints ?: emptyList()
     }
 
-    suspend fun computeParticipantResult(participant: OrienteeringParticipant, rawResult: ReadChipData.RawResult) {
+    suspend fun computeParticipantResult(
+        participant: OrienteeringParticipant,
+        rawResult: ReadChipData.RawResult
+    ) {
         val splits = rawResult.splits
         val cpOrder = rawResult.splits.map { it.controlPoint }
         val lastPunch = splits.lastOrNull() ?: return
@@ -76,6 +80,33 @@ class OrientReadCardViewModel(
             expected = expected,
             actual = splits
         )
+        createParticipantResult(
+            participant = participant,
+            finishTime = lastPunch.timestamp,
+            totalTime = totalTime,
+            result = result,
+        )
+    }
+
+    private suspend fun createParticipantResult(
+        participant: OrienteeringParticipant,
+        finishTime: Long,
+        totalTime: Long,
+        result: CheckResult
+    ) {
+        val newResult = OrienteeringResult(
+            competitionId = participant.competitionId,
+            participantId = participant.id,
+            groupId = participant.groupId,
+            startTime = participant.startTime,
+            finishTime = finishTime,
+            totalTime = totalTime,
+            rank = -1,
+            status = result.status,
+            penaltyTime = 0,
+            splits = result.validSplits
+        )
+        orienteeringCompetitionInteractor.saveParticipantResult(newResult)
     }
 
     fun checkControlPointOrderPro(

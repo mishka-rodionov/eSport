@@ -5,6 +5,7 @@ import com.rodionov.domain.models.ResultStatus
 data class OrienteeringResult(
     val id: Long = 0,
     val competitionId: Long,
+    val groupId: Long,
     val participantId: Long,
     val startTime: Long? = null,
     val finishTime: Long? = null,
