@@ -76,7 +76,7 @@ class DrawViewModel(
         var currentStartNumber = 1
 
         groups.forEach { (groupId, participants) ->
-            var startTime = 1
+            var startTime = 10
             groups[groupId] = participants.mapIndexed { index, participant ->
                 participant.copy(
                     startNumber = (currentStartNumber + index).toString(),
@@ -128,10 +128,12 @@ class DrawViewModel(
             .mapIndexed { index, participant ->
 //                val number = (index + 1).toString()
 //                participant.copy(startNumber = number)
-                if (punchingSystem == PunchingSystem.SPORTIDUINO) {
+                val freshParticipant = if (punchingSystem == PunchingSystem.SPORTIDUINO) {
                     participant.copy(chipNumber = participant.startNumber)
+                } else {
+                    participant
                 }
-                participant
+                freshParticipant
             }
             .sortedBy { it.startNumber.toInt() }
     }

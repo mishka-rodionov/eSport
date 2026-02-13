@@ -40,7 +40,7 @@ class ParticipantListViewModel(
                     competitionId = group.competitionId,
                     commandName = "",
                     startNumber = startNumber++.toString(),
-                    startTime = 1L,
+                    startTime = 10L,
                     chipNumber = "",
                     comment = ""
                 )

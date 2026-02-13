@@ -273,16 +273,16 @@ class MockInterceptor : Interceptor {
                             role = ControlPointRole.ORDINARY,
                             score = 0
                         ),
-                        ControlPointResponse(
-                            number = 30,
-                            role = ControlPointRole.START,
-                            score = 0
-                        ),
-                        ControlPointResponse(
-                            number = 100,
-                            role = ControlPointRole.FINISH,
-                            score = 0
-                        )
+//                        ControlPointResponse(
+//                            number = 30,
+//                            role = ControlPointRole.START,
+//                            score = 0
+//                        ),
+//                        ControlPointResponse(
+//                            number = 100,
+//                            role = ControlPointRole.FINISH,
+//                            score = 0
+//                        )
                     )
                 )
             )

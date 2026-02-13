@@ -255,7 +255,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 1",
                             startNumber = "1",
-                            startTime = 1L,
+                            startTime = 10L,
                             chipNumber = "12345",
                             comment = "Comment 1"
                         ),
@@ -268,7 +268,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 1",
                             startNumber = "2",
-                            startTime = 2L,
+                            startTime = 20L,
                             chipNumber = "54321",
                             comment = "Comment 2"
                         )
@@ -294,7 +294,7 @@ fun ParticipantListScreenPreview() {
                             competitionId = 1,
                             commandName = "Command 2",
                             startNumber = "3",
-                            startTime = 3L,
+                            startTime = 30L,
                             chipNumber = "67890",
                             comment = "Comment 3"
                         )

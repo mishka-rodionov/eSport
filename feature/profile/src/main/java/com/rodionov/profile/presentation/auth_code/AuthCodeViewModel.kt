@@ -1,5 +1,6 @@
 package com.rodionov.profile.presentation.auth_code
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.ProfileNavigation
@@ -31,7 +32,7 @@ class AuthCodeViewModel(
                 authInteractor.authorize(email = email, code = code).onSuccess {
                     navigation.navigate(ProfileNavigation.MainProfileRoute)
                 }.onFailure {
-
+                    Log.d("LOG_TAG", "sendAuthCode: $it")
                 }
             }
         }
