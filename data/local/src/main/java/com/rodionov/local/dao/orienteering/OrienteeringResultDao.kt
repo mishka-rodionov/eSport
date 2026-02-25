@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import com.rodionov.local.entities.orienteering.GroupWithParticipantsAndResultsEntity
 import com.rodionov.local.entities.orienteering.OrienteeringResultEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -50,7 +51,10 @@ interface OrienteeringResultDao {
 
 
     @Query("SELECT * FROM orienteering_results WHERE competitionId = :competitionId AND groupId = :groupId")
-    suspend fun getResultsForCompetitionGroupDirect(competitionId: Long, groupId: Long): List<OrienteeringResultEntity>
+    suspend fun getResultsForCompetitionGroupDirect(
+        competitionId: Long,
+        groupId: Long
+    ): List<OrienteeringResultEntity>
 
     @Update
     suspend fun updateResults(results: List<OrienteeringResultEntity>)
@@ -121,4 +125,17 @@ interface OrienteeringResultDao {
      */
     @Query("DELETE FROM orienteering_results WHERE competitionId = :competitionId")
     suspend fun deleteResultsByCompetitionId(competitionId: Long)
+
+    @Transaction
+    @Query("SELECT * FROM participant_groups")
+    suspend fun getFullProtocol(): List<GroupWithParticipantsAndResultsEntity>
+
+    @Transaction
+    @Query(
+        "SELECT * FROM participant_groups WHERE competitionId = :competitionId"
+    )
+    suspend fun getProtocolByCompetition(
+        competitionId: Long
+    ): List<GroupWithParticipantsAndResultsEntity>
+
 }
