@@ -10,6 +10,7 @@ import com.rodionov.center.presentation.kind_of_sport.KindOfSportScreen
 import com.rodionov.center.presentation.orientiring_competition_create.OrienteeringCompetitionCreator
 import com.rodionov.center.presentation.participant_list.ParticipantListScreen
 import com.rodionov.center.presentation.read_card.OrientReadCardScreen
+import com.rodionov.center.presentation.results.OrienteeringCompetitionResultsScreen
 import com.rodionov.data.navigation.CenterNavigation
 
 fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass) {
@@ -25,5 +26,6 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass) {
     composable<CenterNavigation.OrientReadCardRoute> { OrientReadCardScreen() }
     composable<CenterNavigation.ParticipantList> { ParticipantListScreen() }
     composable<CenterNavigation.DrawParticipants> { DrawParticipantsScreen() }
+    composable<CenterNavigation.ParticipantResults> { OrienteeringCompetitionResultsScreen() }
 //    }
 }

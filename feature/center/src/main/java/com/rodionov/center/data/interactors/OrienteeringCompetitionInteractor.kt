@@ -5,6 +5,7 @@ import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.ResultStatus
+import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
@@ -324,4 +325,9 @@ class OrienteeringCompetitionInteractor(
 
         return updatedResults
     }
+
+    suspend fun getResultsByGroups(competitionId: Long): Result<List<GroupWithParticipantsAndResults>> {
+        return localRepository.getResultByGroups(competitionId)
+    }
+
 }

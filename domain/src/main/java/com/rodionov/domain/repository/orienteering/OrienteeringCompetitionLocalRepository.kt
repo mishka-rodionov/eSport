@@ -2,6 +2,7 @@ package com.rodionov.domain.repository.orienteering
 
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
@@ -26,4 +27,6 @@ interface OrienteeringCompetitionLocalRepository {
     suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult): Result<Any>
     suspend fun getResultForGroup(competitionId: Long, groupId: Long): Result<List<OrienteeringResult>>
     suspend fun updateResults(orienteeringResult: List<OrienteeringResult>): Result<Any>
+
+    suspend fun getResultByGroups(competitionId: Long): Result<List<GroupWithParticipantsAndResults>>
 }

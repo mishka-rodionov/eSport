@@ -2,6 +2,7 @@ package com.rodionov.local.repository
 
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
@@ -251,6 +252,12 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     override suspend fun updateResults(orienteeringResult: List<OrienteeringResult>): Result<Any> {
         return runCatching {
             orienteeringResultDao.updateResults(orienteeringResult.map { it.toEntity() })
+        }
+    }
+
+    override suspend fun getResultByGroups(competitionId: Long): Result<List<GroupWithParticipantsAndResults>> {
+        return runCatching {
+            orienteeringResultDao.getProtocolByCompetition(competitionId).map { it.toDomain() }
         }
     }
 }

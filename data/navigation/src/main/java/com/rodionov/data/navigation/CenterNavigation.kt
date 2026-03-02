@@ -28,5 +28,8 @@ sealed class CenterNavigation: BaseNavigation {
     data object ParticipantList: CenterNavigation()
     @Serializable
     data object DrawParticipants: CenterNavigation()
+    @Serializable
+    data object ParticipantResults: CenterNavigation()
+
 
 }
