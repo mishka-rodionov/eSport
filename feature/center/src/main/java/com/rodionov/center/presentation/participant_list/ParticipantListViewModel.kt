@@ -37,6 +37,7 @@ class ParticipantListViewModel(
                     firstName = action.firstName,
                     lastName = action.secondName,
                     groupId = group.groupId,
+                    groupName = group.title,
                     competitionId = group.competitionId,
                     commandName = "",
                     startNumber = startNumber++.toString(),

@@ -5,8 +5,8 @@ import com.rodionov.ui.BaseAction
 sealed class OrientEventControlAction: BaseAction {
 
     data object OpenOrientReadCard: OrientEventControlAction()
-
     data object OpenParticipantLists: OrientEventControlAction()
     data object OpenDrawParticipants: OrientEventControlAction()
+    data object OpenResults: OrientEventControlAction()
 
 }

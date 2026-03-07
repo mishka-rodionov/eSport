@@ -14,6 +14,7 @@ import com.rodionov.domain.models.Participant
  * @property lastName фамилия участника
  * @property groupId идентификатор возрастной/спортивной группы
  *     Определяет категорию участника (например, "М18", "Ж21")
+ * @property groupName азвание группы участников
  * @property competitionId идентификатор соревнования
  *     Связывает участника с конкретными соревнованиями
  * @property commandName название команды/клуба
@@ -41,6 +42,7 @@ data class OrienteeringParticipant(
     val firstName: String,
     val lastName: String,
     val groupId: Long,
+    val groupName: String,
     val competitionId: Long,
     val commandName: String,
     val startNumber: String,

@@ -69,6 +69,19 @@ fun OrienteeringEventControlScreen(
                 Text("Жеребьёвка участников")
             }
         )
+
+        OutlinedButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = Dimens.SIZE_BASE.dp),
+            onClick = {
+                viewModel.onAction(OrientEventControlAction.OpenResults)
+            },
+            content = {
+                Text("Результаты соревнований")
+            }
+        )
     }
 }
 

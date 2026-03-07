@@ -29,8 +29,10 @@ fun OrienteeringCompetitionResultsScreen(
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        items(state.groupsWithParticipantsAndResults[0].participants) { result ->
-            ParticipantItem(result)
+        state.groupsWithParticipantsAndResults.firstOrNull()?.participants?.let{
+            items(it) { result ->
+                ParticipantItem(result)
+            }
         }
     }
 

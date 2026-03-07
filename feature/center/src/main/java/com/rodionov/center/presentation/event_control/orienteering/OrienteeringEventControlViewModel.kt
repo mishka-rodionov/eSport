@@ -43,6 +43,15 @@ class OrienteeringEventControlViewModel(
                     )
                 }
             }
+
+            OrientEventControlAction.OpenResults -> {
+                viewModelScope.launch {
+                    navigation.navigate(
+                        destination = CenterNavigation.ParticipantResults,
+                        argument = navigation.createArguments(EventsConstants.EVENT_ID.name to competitionId)
+                    )
+                }
+            }
         }
     }
 
