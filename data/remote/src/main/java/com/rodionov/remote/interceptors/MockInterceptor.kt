@@ -259,25 +259,25 @@ class MockInterceptor : Interceptor {
                     maxTimeInMinute = it.maxTimeInMinute,
                     controlPoints = listOf(
                         ControlPointResponse(
-                            number = 31,
+                            number = 49,
                             role = ControlPointRole.ORDINARY,
                             score = 0
                         ),
                         ControlPointResponse(
-                            number = 32,
+                            number = 52,
                             role = ControlPointRole.ORDINARY,
                             score = 0
                         ),
                         ControlPointResponse(
-                            number = 33,
+                            number = 53,
                             role = ControlPointRole.ORDINARY,
                             score = 0
                         ),
-//                        ControlPointResponse(
-//                            number = 30,
-//                            role = ControlPointRole.START,
-//                            score = 0
-//                        ),
+                        ControlPointResponse(
+                            number = 54,
+                            role = ControlPointRole.ORDINARY,
+                            score = 0
+                        ),
 //                        ControlPointResponse(
 //                            number = 100,
 //                            role = ControlPointRole.FINISH,

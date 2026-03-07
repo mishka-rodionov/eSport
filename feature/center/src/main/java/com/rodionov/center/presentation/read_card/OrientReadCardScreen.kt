@@ -1,13 +1,16 @@
 package com.rodionov.center.presentation.read_card
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,10 +22,10 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsState()
     state.participant?.let { participant ->
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxSize()
         ) {
             ReadScreenItem("Группа: ${participant.groupName}")
             ReadScreenItem("Фамилия: ${participant.lastName}")
@@ -38,8 +41,9 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
                         itemsIndexed(splitTimes) { index, item ->
                             if (index == 0) {
                                 ReadScreenItem("КП №${item.controlPoint}: ${(item.timestamp - participant.startTime).toSplitTime()}")
+                            } else {
+                                ReadScreenItem("КП №${item.controlPoint}: ${(item.timestamp - splitTimes[index - 1].timestamp).toSplitTime()}")
                             }
-                            ReadScreenItem("КП №${item.controlPoint}: ${(item.timestamp - splitTimes[index - 1].timestamp).toSplitTime()}")
                         }
                     }
                 }

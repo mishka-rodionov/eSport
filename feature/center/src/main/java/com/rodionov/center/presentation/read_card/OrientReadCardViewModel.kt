@@ -106,6 +106,12 @@ class OrientReadCardViewModel(
             penaltyTime = 0,
             splits = result.validSplits
         )
+        updateState {
+            copy(
+                participant = participant,
+                participantResult = newResult
+            )
+        }
         orienteeringCompetitionInteractor.saveParticipantResult(newResult)
     }
 
