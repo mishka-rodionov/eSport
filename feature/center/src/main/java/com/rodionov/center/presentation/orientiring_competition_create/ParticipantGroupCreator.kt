@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -99,10 +100,9 @@ fun ParticipantGroupEditor(
         sheetState = sheetState,
         sheetContent = {
             Column(modifier = Modifier.padding(horizontal = Dimens.SIZE_HALF.dp).padding(bottom = Dimens.SIZE_HALF.dp)) {
-                // ... (Блоки ввода Названия и Дистанции остаются без изменений)
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "Название группы") },
+                    label = { Text(text = stringResource(R.string.label_participant_group_title)) },
                     isError = state.errors.isGroupTitleError,
                     text = groupTitle,
                     onValueChanged = { groupTitle = it })
@@ -111,7 +111,7 @@ fun ParticipantGroupEditor(
 
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "Дистанция, км") },
+                    label = { Text(text = stringResource(R.string.label_participant_group_distance_input)) },
                     isError = state.errors.isGroupDistanceError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     text = distance,
@@ -127,7 +127,7 @@ fun ParticipantGroupEditor(
 
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "Добавить КП (номер)") },
+                    label = { Text(text = stringResource(R.string.label_add_control_point)) },
                     text = cpInput,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     onValueChanged = { input ->
@@ -149,13 +149,11 @@ fun ParticipantGroupEditor(
 
                 if (controlPoints.isNotEmpty()) {
                     Text(
-                        text = "Дистанция (зажмите для перемещения):",
+                        text = stringResource(R.string.label_distance_reorder_hint),
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
 
-                    // Константа ширины чипа + отступ (80dp чип + 8dp spacing)
-                    // Используем LocalDensity для перевода dp в пиксели для точности расчетов
                     val density = androidx.compose.ui.platform.LocalDensity.current
                     val itemTotalWidthPx = with(density) { (72.dp + 8.dp).toPx() }
                     val currentItemWidth by rememberUpdatedState(itemTotalWidthPx)
@@ -169,7 +167,6 @@ fun ParticipantGroupEditor(
                         contentPadding = PaddingValues(horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Используем identityHashCode для стабильного ключа, чтобы перетаскивание не прерывалось при смене индекса
                         itemsIndexed(controlPoints, key = { _, cp -> System.identityHashCode(cp) }) { index, cp ->
                             val currentIdx by rememberUpdatedState(index)
                             val isDragging = draggingIndex == index
@@ -185,10 +182,9 @@ fun ParticipantGroupEditor(
                                         else IntOffset.Zero
                                     }
                                     .shadow(if (isDragging) 8.dp else 0.dp, RoundedCornerShape(16.dp))
-                                    .pointerInput(Unit) { // Unit, чтобы жест не сбрасывался при recomposition
+                                    .pointerInput(Unit) {
                                         detectDragGesturesAfterLongPress(
                                             onDragStart = {
-                                                // Важно: запоминаем актуальный индекс на момент начала
                                                 draggingIndex = currentIdx
                                             },
                                             onDragEnd = {
@@ -205,7 +201,6 @@ fun ParticipantGroupEditor(
 
                                                 val currentIdxForDrag = draggingIndex ?: return@detectDragGesturesAfterLongPress
 
-                                                // Рассчитываем, на сколько позиций переместился палец
                                                 val shift = (dragOffset / currentItemWidth).roundToInt()
                                                 val targetIndex = (currentIdxForDrag + shift).coerceIn(0, controlPoints.size - 1)
 
@@ -214,10 +209,8 @@ fun ParticipantGroupEditor(
                                                     val item = newList.removeAt(currentIdxForDrag)
                                                     newList.add(targetIndex, item)
 
-                                                    // Обновляем состояние
                                                     controlPoints = newList
 
-                                                    // Корректируем оффсет, чтобы элемент визуально оставался под пальцем
                                                     dragOffset -= (targetIndex - currentIdxForDrag) * currentItemWidth
                                                     draggingIndex = targetIndex
                                                 }
@@ -259,10 +252,9 @@ fun ParticipantGroupEditor(
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
-                // ... (Остальная часть формы: Контрольное время и кнопка Сохранить)
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "Контрольное время в мин.") },
+                    label = { Text(text = stringResource(R.string.label_max_time_input)) },
                     isError = state.errors.isMaxTimeError,
                     text = maxTime.takeIf { it != 0 }?.toString() ?: "",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -274,7 +266,7 @@ fun ParticipantGroupEditor(
 
                 with(state.errors) {
                     if (isGroupTitleError || isGroupDistanceError || isCountOfControlsError || isMaxTimeError){
-                        Text(text = "Все поля должны быть корректно заполнены", color = MaterialTheme.colorScheme.error)
+                        Text(text = stringResource(R.string.error_all_fields_required), color = MaterialTheme.colorScheme.error)
                         Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
                     }
                 }
@@ -295,7 +287,7 @@ fun ParticipantGroupEditor(
                         )
                     )
                 }) {
-                    Text(text = "Сохранить группу")
+                    Text(text = stringResource(R.string.label_save_group))
                 }
             }
         },

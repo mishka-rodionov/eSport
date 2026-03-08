@@ -23,4 +23,31 @@
     <string name="label_direction_by_choice">По выбору</string>
     <string name="label_direction_marking">Маркировка</string>
 
+    <!-- Participant Details -->
+    <string name="label_participant_group">Группа: %s</string>
+    <string name="label_participant_last_name">Фамилия: %s</string>
+    <string name="label_participant_first_name">Имя: %s</string>
+    <string name="label_participant_start">Старт: %s</string>
+    <string name="label_participant_finish">Финиш: %s</string>
+    <string name="label_participant_result">Результат: %s</string>
+    <string name="label_participant_split">КП №%1$d: %2$s</string>
+
+    <!-- Group Editor -->
+    <string name="label_participant_group_title">Название группы</string>
+    <string name="label_participant_group_distance_input">Дистанция, км</string>
+    <string name="label_add_control_point">Добавить КП (номер)</string>
+    <string name="label_distance_reorder_hint">Дистанция (зажмите для перемещения):</string>
+    <string name="label_max_time_input">Контрольное время в мин.</string>
+    <string name="error_all_fields_required">Все поля должны быть корректно заполнены</string>
+    <string name="label_save_group">Сохранить группу</string>
+
+    <!-- Registration & Profile -->
+    <string name="label_first_name">Имя</string>
+    <string name="label_last_name">Фамилия</string>
+    <string name="label_email">Email</string>
+    <string name="label_send">Отправить</string>
+
+    <!-- Content Descriptions -->
+    <string name="content_description_edit_group">Редактировать группу</string>
+    <string name="content_description_delete_group">Удалить группу</string>
 </resources>

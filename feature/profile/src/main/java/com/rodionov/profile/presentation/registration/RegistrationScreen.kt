@@ -52,10 +52,6 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
     val userAction = remember { viewModel::onAction }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-//    var email by remember { mutableStateOf("mishka727@yandex.ru") }
-//    var firstName by remember { mutableStateOf("Михаил") }
-//    var lastName by remember { mutableStateOf("Родионов") }
-//    var bdate by remember { mutableStateOf("06.04.1989") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -66,7 +62,7 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
         DSTextInput(
             text = state.firstName,
             onValueChanged = { userAction.invoke(RegistrationAction.UpdateFirstName(it)) },
-            label = { Text("Имя") },
+            label = { Text(stringResource(R.string.label_first_name)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email, // Устанавливаем тип клавиатуры для email
@@ -82,7 +78,7 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
         DSTextInput(
             text = state.lastName,
             onValueChanged = { userAction.invoke(RegistrationAction.UpdateLastName(it)) },
-            label = { Text("Фамилия") },
+            label = { Text(stringResource(R.string.label_last_name)) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,7 +93,7 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
         DSTextInput(
             text = state.email,
             onValueChanged = { userAction.invoke(RegistrationAction.UpdateEmail(it)) },
-            label = { Text("Email") },
+            label = { Text(stringResource(R.string.label_email)) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -106,7 +102,7 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
         Spacer(modifier = Modifier.height(16.dp))
 
         DSButton(
-            text = "Отправить",
+            text = stringResource(R.string.label_send),
             onClick = {
                 // TODO: Обработка введенного email
                 Log.d("LOG_TAG", "EmailInputContent: Введенный email: ${state.email}")

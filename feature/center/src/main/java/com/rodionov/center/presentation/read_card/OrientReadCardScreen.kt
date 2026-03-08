@@ -13,9 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.designsystem.theme.Dimens
+import com.rodionov.resources.R
 import com.rodionov.utils.orienteering.toRaceTime
 import com.rodionov.utils.orienteering.toSplitTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -36,14 +38,14 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            item { ReadScreenItem("Группа: ${participant.groupName}") }
-            item { ReadScreenItem("Фамилия: ${participant.lastName}") }
-            item { ReadScreenItem("Имя: ${participant.firstName}") }
-            item { ReadScreenItem("Старт: ${participant.startTime}") }
+            item { ReadScreenItem(stringResource(R.string.label_participant_group, participant.groupName)) }
+            item { ReadScreenItem(stringResource(R.string.label_participant_last_name, participant.lastName)) }
+            item { ReadScreenItem(stringResource(R.string.label_participant_first_name, participant.firstName)) }
+            item { ReadScreenItem(stringResource(R.string.label_participant_start, participant.startTime)) }
 
             state.participantResult?.let { result ->
-                item { ReadScreenItem("Финиш: ${result.finishTime}") }
-                item { ReadScreenItem("Результат: ${result.totalTime?.toRaceTime()}") }
+                item { ReadScreenItem(stringResource(R.string.label_participant_finish, result.finishTime ?: "")) }
+                item { ReadScreenItem(stringResource(R.string.label_participant_result, result.totalTime?.toRaceTime() ?: "")) }
 
                 result.splits?.let { splitTimes ->
                     itemsIndexed(splitTimes) { index, item ->
@@ -52,7 +54,7 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
                         } else {
                             (item.timestamp - splitTimes[index - 1].timestamp).toSplitTime()
                         }
-                        ReadScreenItem("КП №${item.controlPoint}: $time")
+                        ReadScreenItem(stringResource(R.string.label_participant_split, item.controlPoint, time))
                     }
                 }
             }
