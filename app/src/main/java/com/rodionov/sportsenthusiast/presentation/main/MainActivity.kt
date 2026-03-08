@@ -1,6 +1,5 @@
 package com.rodionov.sportsenthusiast.presentation.main
 
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.NfcAdapter
@@ -10,12 +9,16 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Scaffold
@@ -47,7 +50,6 @@ import com.rodionov.sportsenthusiast.BottomNavItem
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.util.Objects
 
 class MainActivity : ComponentActivity() {
 
@@ -66,8 +68,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(1))
+        enableEdgeToEdge()
         viewModel.setNfcAdapter(NfcAdapter.getDefaultAdapter(this))
         setContent {
             val widthSizeClass = currentWindowAdaptiveInfo().windowSizeClass
@@ -79,14 +80,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-//        viewModel.enableForegroundDispatch(this, nfcPendingIntent)
         viewModel.enableReaderMode(this, viewModel::onNewTagDetected)
     }
 
     override fun onPause() {
         super.onPause()
         viewModel.disableReaderMode(this)
-//        viewModel.disableForegroundDispatch(this)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -108,8 +107,11 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     val saveableStateHolder = rememberSaveableStateHolder()
     val lifecycleOwner = LocalLifecycleOwner.current
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            BottomNavigation {
+            BottomNavigation(
+                windowInsets = WindowInsets.navigationBars
+            ) {
                 BottomNavItem.all.forEach { tab ->
                     BottomNavigationItem(
                         icon = { },
@@ -122,7 +124,11 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
         }
     ) { innerPadding ->
 
-        Box(Modifier.padding(innerPadding)) {
+        Box(
+            Modifier
+                .padding(innerPadding)
+                .statusBarsPadding()
+        ) {
             // Все NavHost-ы присутствуют в иерархии, но только текущий видим
             BottomNavItem.all.forEach { tab ->
                 val isSelected = tab.route == selectedTab
@@ -133,9 +139,9 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                         val navController = rememberNavController()
 
                         // подписка на эффекты только для активного таба
-                        val isSelected = selectedTab == tab.route
-                        LaunchedEffect(navController, isSelected) {
-                            if (isSelected) {
+                        val isSelectedTab = selectedTab == tab.route
+                        LaunchedEffect(navController, isSelectedTab) {
+                            if (isSelectedTab) {
                                 lifecycleOwner.lifecycleScope.launch {
                                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                                         viewModel.collectNavigationEffect(
