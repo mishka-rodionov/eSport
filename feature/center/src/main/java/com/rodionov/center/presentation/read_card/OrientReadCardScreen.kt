@@ -20,39 +20,51 @@ import com.rodionov.utils.orienteering.toRaceTime
 import com.rodionov.utils.orienteering.toSplitTime
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Экран для отображения данных, считанных с чипа участника соревнований по ориентированию.
+ *
+ * Отображает информацию об участнике (группа, фамилия, имя, время старта) и его результаты
+ * (время финиша, общее время и сплиты по контрольным пунктам).
+ *
+ * @param viewModel ViewModel для управления состоянием экрана.
+ */
 @Composable
 fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
+
     state.participant?.let { participant ->
-        Column(
+        LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            ReadScreenItem("Группа: ${participant.groupName}")
-            ReadScreenItem("Фамилия: ${participant.lastName}")
-            ReadScreenItem("Имя: ${participant.firstName}")
-            ReadScreenItem("Старт: ${participant.startTime}")
+            item { ReadScreenItem("Группа: ${participant.groupName}") }
+            item { ReadScreenItem("Фамилия: ${participant.lastName}") }
+            item { ReadScreenItem("Имя: ${participant.firstName}") }
+            item { ReadScreenItem("Старт: ${participant.startTime}") }
+
             state.participantResult?.let { result ->
-                ReadScreenItem("Финиш: ${result.finishTime}")
-                ReadScreenItem("Результат: ${result.totalTime?.toRaceTime()}")
+                item { ReadScreenItem("Финиш: ${result.finishTime}") }
+                item { ReadScreenItem("Результат: ${result.totalTime?.toRaceTime()}") }
+
                 result.splits?.let { splitTimes ->
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        itemsIndexed(splitTimes) { index, item ->
-                            if (index == 0) {
-                                ReadScreenItem("КП №${item.controlPoint}: ${(item.timestamp - participant.startTime).toSplitTime()}")
-                            } else {
-                                ReadScreenItem("КП №${item.controlPoint}: ${(item.timestamp - splitTimes[index - 1].timestamp).toSplitTime()}")
-                            }
+                    itemsIndexed(splitTimes) { index, item ->
+                        val time = if (index == 0) {
+                            (item.timestamp - participant.startTime).toSplitTime()
+                        } else {
+                            (item.timestamp - splitTimes[index - 1].timestamp).toSplitTime()
                         }
+                        ReadScreenItem("КП №${item.controlPoint}: $time")
                     }
                 }
             }
-
         }
     }
 }
 
+/**
+ * Элемент списка для отображения текстовой информации на экране чтения карты.
+ *
+ * @param text Текст для отображения.
+ */
 @Composable
 fun ReadScreenItem(text: String) {
     Text(
