@@ -105,6 +105,41 @@ class OrienteeringCreatorViewModel(
         }
     }
 
+    fun initialize(competitionId: Long?) {
+        if (competitionId != null) {
+            viewModelScope.launch {
+                orienteeringCompetitionInteractor.getCompetitionWithDetails(competitionId).onSuccess { details ->
+                    updateState {
+                        copy(
+                            competitionId = competitionId,
+                            title = details.competition.competition.title,
+                            date = details.competition.competition.date,
+                            address = details.competition.competition.address,
+                            description = details.competition.competition.description,
+                            competitionDirection = details.competition.direction,
+                            punchingSystem = details.competition.punchingSystem,
+                            participantGroups = details.groupsWithParticipants.map { it.group }
+                        )
+                    }
+                }.onFailure {
+                    orienteeringCompetitionInteractor.getCompetition(competitionId)?.let { competition ->
+                        updateState {
+                            copy(
+                                competitionId = competitionId,
+                                title = competition.competition.title,
+                                date = competition.competition.date,
+                                address = competition.competition.address,
+                                description = competition.competition.description,
+                                competitionDirection = competition.direction,
+                                punchingSystem = competition.punchingSystem
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun handleCompetitionUpdate(action: OrienteeringCreatorAction.UpdateCompetitionDate) {
         val titleParts = stateValue.title.split(" ")
         val newDate = DateTimeFormat.formatDate(action.competitionDate)
@@ -138,10 +173,18 @@ class OrienteeringCreatorViewModel(
         if (stateValue.errors.checkErrors()) {
             viewModelScope.launch(Dispatchers.IO) {
                 userRepository.retrieveUser().onSuccess {
-                    saveNewCompetition(
-                        orienteeringCompetition = stateValue.constructOrienteeringCompetition(userId = it.id),
-                        participantGroups = stateValue.participantGroups
-                    )
+                    val competition = stateValue.constructOrienteeringCompetition(userId = it.id)
+                    if (stateValue.competitionId == null) {
+                        saveNewCompetition(
+                            orienteeringCompetition = competition,
+                            participantGroups = stateValue.participantGroups
+                        )
+                    } else {
+                        updateExistingCompetition(
+                            orienteeringCompetition = competition,
+                            participantGroups = stateValue.participantGroups
+                        )
+                    }
                 }
             }
         }
@@ -157,15 +200,34 @@ class OrienteeringCreatorViewModel(
                 participantGroups
             )
         )
-        val destination = CenterNavigation.CenterRoute
-        destination.navOptionsBuilder = {
-            popUpTo(0) {
-                inclusive = true
+        navigateToMain()
+    }
+
+    private suspend fun updateExistingCompetition(
+        orienteeringCompetition: OrienteeringCompetition,
+        participantGroups: List<ParticipantGroup>
+    ) {
+        onAction(
+            orienteeringCompetitionInteractor.updateCompetition(
+                orienteeringCompetition,
+                participantGroups
+            )
+        )
+        navigateToMain()
+    }
+
+    private fun navigateToMain() {
+        viewModelScope.launch {
+            val destination = CenterNavigation.CenterRoute
+            destination.navOptionsBuilder = {
+                popUpTo(0) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+                restoreState = false
             }
-            launchSingleTop = true
-            restoreState = false
+            navigation.navigate(destination = destination)
         }
-        navigation.navigate(destination = destination)
     }
 
     fun updateTitle(title: String) = updateState { copy(title = title) }

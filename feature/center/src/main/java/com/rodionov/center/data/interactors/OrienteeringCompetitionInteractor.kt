@@ -6,6 +6,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.ResultStatus
 import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
+import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
@@ -87,6 +88,24 @@ class OrienteeringCompetitionInteractor(
         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка")
     }
 
+    suspend fun updateCompetition(
+        orienteeringCompetition: OrienteeringCompetition,
+        participantGroups: List<ParticipantGroup>
+    ): OrienteeringCreatorAction {
+        // Здесь можно добавить логику обновления на сервере, если API поддерживает PATCH/PUT
+        // Пока обновляем локально и пытаемся отправить на сервер как "создание" (если сервер умеет делать апдейт через POST)
+        // или просто игнорируем ошибку сервера и сохраняем локально.
+        
+        localRepository.saveCompetition(orienteeringCompetition)
+        localRepository.saveParticipantsGroups(participantGroups.map { it.copy(competitionId = orienteeringCompetition.competitionId) })
+        
+        // Попытка синхронизации с сервером
+        remoteRepository.createCompetition(orienteeringCompetition)
+        createParticipantsGroupsInfo(orienteeringCompetition.competitionId, participantGroups)
+        
+        return OrienteeringCreatorAction.SuccessfulCompetitionCreate
+    }
+
     /**
      * Получает соревнование по его идентификатору из локального хранилища.
      *
@@ -95,6 +114,10 @@ class OrienteeringCompetitionInteractor(
      */
     suspend fun getCompetition(competitionId: Long): OrienteeringCompetition? {
         return localRepository.getCompetition(competitionId).getOrNull()
+    }
+
+    suspend fun getCompetitionWithDetails(competitionId: Long): Result<OrienteeringCompetitionDetails> {
+        return localRepository.getCompetitionWithDetails(competitionId)
     }
 
     /**

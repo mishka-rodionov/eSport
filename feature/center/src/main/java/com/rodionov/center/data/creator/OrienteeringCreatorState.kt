@@ -11,6 +11,7 @@ import com.rodionov.ui.BaseState
 import java.time.LocalDate
 
 data class OrienteeringCreatorState(
+    val competitionId: Long? = null,
     val title: String = "",
     val date: LocalDate = LocalDate.now(),
     val time: String = "12:00",
@@ -25,7 +26,7 @@ data class OrienteeringCreatorState(
 ) : BaseState {
     fun constructOrienteeringCompetition(userId: String): OrienteeringCompetition {
         return OrienteeringCompetition(
-            competitionId = (-9999..-1000).random().toLong(),
+            competitionId = competitionId ?: (-9999..-1000).random().toLong(),
             competition = Competition(
                 title = title,
                 date = date,

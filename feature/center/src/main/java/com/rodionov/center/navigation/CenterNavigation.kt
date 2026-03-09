@@ -2,6 +2,7 @@ package com.rodionov.center.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowSizeClass
 import com.rodionov.center.presentation.draw.DrawParticipantsScreen
 import com.rodionov.center.presentation.event_control.orienteering.OrienteeringEventControlScreen
@@ -17,7 +18,10 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass) {
 //    navigation<CenterNavigationGraph.CenterBaseRoute>(startDestination = CenterNavigationGraph.CenterRoute) {
     composable<CenterNavigation.CenterRoute> { CenterScreen() }
     composable<CenterNavigation.KindOfSportRoute> { KindOfSportScreen() }
-    composable<CenterNavigation.OrienteeringCreatorRoute> { OrienteeringCompetitionCreator() }
+    composable<CenterNavigation.OrienteeringCreatorRoute> { backStackEntry ->
+        val route: CenterNavigation.OrienteeringCreatorRoute = backStackEntry.toRoute()
+        OrienteeringCompetitionCreator(competitionId = route.competitionId)
+    }
     composable<CenterNavigation.OrienteeringEventControlRoute> {
         OrienteeringEventControlScreen(
             windowSizeClass = windowSizeClass
