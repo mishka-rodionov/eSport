@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.rodionov.events.R
 import com.rodionov.events.data.details.EventDetailsState
 import com.rodionov.events.presentation.main.DetailsInfo
+import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -75,7 +76,7 @@ fun ScrollableColumnScreenWithImageAnimation(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = state.competition?.address ?: "", modifier = Modifier.weight(1f))
-            Text(text = state.competition?.date?.month?.name ?: "", modifier = Modifier.weight(1f))
+            Text(text = DateTimeFormat.transformLongToDisplayDate(state.competition?.date), modifier = Modifier.weight(1f))
             Text(text = state.competition?.coordinates?.latitude?.toString() ?: "", modifier = Modifier.weight(1f))
         }
 

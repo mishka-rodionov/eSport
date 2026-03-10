@@ -51,8 +51,12 @@ import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Calendar
 
+/**
+ * Экран создания соревнования по ориентированию.
+ */
 @Composable
 fun OrienteeringCompetitionCreator(
     competitionId: Long? = null,
@@ -81,7 +85,7 @@ fun OrienteeringCompetitionCreator(
                 Text(
                     text = stringResource(
                         R.string.label_competition_name_description,
-                        DateTimeFormat.formatDate(state.date)
+                        DateTimeFormat.transformLongToDisplayDate(state.date)
                     )
                 )
             },
@@ -217,6 +221,9 @@ fun GroupContent(
     }
 }
 
+/**
+ * Компонент выбора даты.
+ */
 @Composable
 fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -> Unit) {
     val context = LocalContext.current
@@ -228,8 +235,12 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
         DatePickerDialog(
             context,
             { _, year, month, dayOfMonth ->
-                val date = LocalDate.of(year, month + 1, dayOfMonth)
-                userAction.invoke(OrienteeringCreatorAction.UpdateCompetitionDate(date))
+                // Конвертируем выбранную дату в миллисекунды (Long)
+                val dateMillis = LocalDate.of(year, month + 1, dayOfMonth)
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+                userAction.invoke(OrienteeringCreatorAction.UpdateCompetitionDate(dateMillis))
                 focusManager.clearFocus()
             },
             calendar.get(Calendar.YEAR),
@@ -251,7 +262,8 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
         label = {
             Text(text = stringResource(R.string.label_date))
         },
-        text = DateTimeFormat.formatDate(state.date),
+        // Используем новую функцию трансформации для отображения даты
+        text = DateTimeFormat.transformLongToDisplayDate(state.date),
         interactionSource = interactionSource,
         enabled = true,
         readOnly = true
@@ -259,6 +271,9 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
 
 }
 
+/**
+ * Компонент выбора времени.
+ */
 @Composable
 fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }

@@ -4,23 +4,13 @@ import androidx.room.TypeConverter
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.orienteering.PunchingSystem
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
+/**
+ * Конвертеры типов для хранения объектов соревнований в Room.
+ * 
+ * Примечание: Конвертеры для LocalDate удалены, так как дата теперь хранится как Long.
+ */
 class CompetitionConverters {
-    private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-
-    @TypeConverter
-    fun fromLocalDate(date: LocalDate?): String? {
-        return date?.format(dateFormatter)
-    }
-
-    @TypeConverter
-    fun toLocalDate(value: String?): LocalDate? {
-        return value?.let {
-            LocalDate.parse(it, dateFormatter)
-        }
-    }
 
     @TypeConverter
     fun fromOrienteeringDirection(direction: OrienteeringDirection?): String? {

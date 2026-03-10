@@ -116,7 +116,7 @@ fun EventContent(competition: Competition, eventId: Long,  userAction: (CenterEf
             ) {
                 Text(text = "Город: ${competition.address}")
                 Spacer(modifier = Modifier.size(8.dp))
-                Text(text = "Дата: ${DateTimeFormat.formatDate(competition.date)}")
+                Text(text = "Дата: ${DateTimeFormat.transformLongToDisplayDate(competition.date)}")
             }
         }
         IconButton(onClick = {
@@ -143,7 +143,7 @@ private fun CenterScreenAuthPreview() {
                     competitionId = 1L,
                     competition = Competition(
                         title = "Чемпионат города по спортивному ориентированию",
-                        date = LocalDate.now(),
+                        date = System.currentTimeMillis(),
                         address = "Москва",
                         kindOfSport = KindOfSport.Orienteering,
                         description = "",
@@ -158,7 +158,7 @@ private fun CenterScreenAuthPreview() {
                     competitionId = 1L,
                     competition = Competition(
                         title = "Весенний спринт",
-                        date = LocalDate.now().plusDays(10),
+                        date = System.currentTimeMillis(),
                         address = "Санкт-Петербург",
                         kindOfSport = KindOfSport.Orienteering,
                         description = "",

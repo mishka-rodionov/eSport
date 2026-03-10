@@ -17,6 +17,9 @@ import com.rodionov.utils.DateTimeFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel для экрана создания/редактирования соревнования по ориентированию.
+ */
 class OrienteeringCreatorViewModel(
     val navigation: Navigation,
     private val resourceProvider: ResourceProvider,
@@ -142,8 +145,8 @@ class OrienteeringCreatorViewModel(
 
     private fun handleCompetitionUpdate(action: OrienteeringCreatorAction.UpdateCompetitionDate) {
         val titleParts = stateValue.title.split(" ")
-        val newDate = DateTimeFormat.formatDate(action.competitionDate)
-        val oldDate = DateTimeFormat.formatDate(stateValue.date)
+        val newDate = DateTimeFormat.transformLongToDisplayDate(action.competitionDate)
+        val oldDate = DateTimeFormat.transformLongToDisplayDate(stateValue.date)
         var newTitle = stateValue.title
         if (titleParts.size == 2 && titleParts[0] == resourceProvider.getString(R.string.label_competition_start) &&
             titleParts[1] == oldDate
@@ -155,7 +158,7 @@ class OrienteeringCreatorViewModel(
     }
 
     private fun handleCompetitionCreate() {
-        val newDate = DateTimeFormat.formatDate(stateValue.date)
+        val newDate = DateTimeFormat.transformLongToDisplayDate(stateValue.date)
         updateState {
             copy(
                 errors = errors.copy(

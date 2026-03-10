@@ -8,12 +8,18 @@ import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.ui.BaseState
-import java.time.LocalDate
+import java.time.Instant
+import java.time.ZoneId
 
+/**
+ * Состояние экрана создания соревнования по ориентированию.
+ * 
+ * @property date Дата в миллисекундах.
+ */
 data class OrienteeringCreatorState(
     val competitionId: Long? = null,
     val title: String = "",
-    val date: LocalDate = LocalDate.now(),
+    val date: Long = System.currentTimeMillis(),
     val time: String = "12:00",
     val address: String = "",
     val description: String = "",

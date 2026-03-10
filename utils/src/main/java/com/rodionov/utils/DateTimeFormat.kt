@@ -12,6 +12,7 @@ object DateTimeFormat {
 
     private val defaultFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     private val apiFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
     /**
      * Форматирует LocalDate в строку dd.MM.yyyy.
@@ -39,7 +40,9 @@ object DateTimeFormat {
     fun transformLongToApiDate(date: Long?): String {
         if (date == null || date == 0L) return ""
         return try {
-            LocalDate.ofEpochDay(date / (24 * 60 * 60 * 1000))
+            java.time.Instant.ofEpochMilli(date)
+                .atZone(ZoneOffset.UTC)
+                .toLocalDate()
                 .format(apiFormatter)
         } catch (e: Exception) {
             ""
@@ -56,6 +59,21 @@ object DateTimeFormat {
                 .atZone(java.time.ZoneId.systemDefault())
                 .toLocalDate()
                 .format(defaultFormatter)
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
+    /**
+     * Преобразует Long (timestamp) в строку времени (HH:mm).
+     */
+    fun transformLongToTime(date: Long?): String {
+        if (date == null || date == 0L) return ""
+        return try {
+            java.time.Instant.ofEpochMilli(date)
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalTime()
+                .format(timeFormatter)
         } catch (e: Exception) {
             ""
         }

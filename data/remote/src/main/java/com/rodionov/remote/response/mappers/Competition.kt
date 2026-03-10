@@ -5,23 +5,25 @@ import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.remote.response.competition.CompetitionResponse
 import com.rodionov.remote.response.competition.CoordinatesResponse
-import java.time.Instant
-import java.time.ZoneId
 
+/**
+ * Маппер для преобразования ответа сервера в доменную модель соревнования.
+ */
 fun CompetitionResponse.toDomain(): Competition {
     return Competition(
-        title,
-        Instant.ofEpochMilli(date)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate(),
-        KindOfSport.fromName(kindOfSport) ?: KindOfSport.Orienteering,
-        description,
-        address,
-        mainOrganizer,
-        coordinates.toDomain()
+        title = title,
+        date = date, // Теперь оба поля имеют тип Long
+        kindOfSport = KindOfSport.fromName(kindOfSport) ?: KindOfSport.Orienteering,
+        description = description,
+        address = address,
+        mainOrganizer = mainOrganizer,
+        coordinates = coordinates.toDomain()
     )
 }
 
+/**
+ * Маппер для преобразования координат из ответа сервера в доменную модель.
+ */
 fun CoordinatesResponse.toDomain(): Coordinates {
     return Coordinates(latitude, longitude)
 }

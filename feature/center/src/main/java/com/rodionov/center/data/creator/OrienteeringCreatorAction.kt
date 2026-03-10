@@ -2,10 +2,11 @@ package com.rodionov.center.data.creator
 
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
-import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.ui.BaseAction
-import java.time.LocalDate
 
+/**
+ * Действия пользователя при создании соревнования по ориентированию.
+ */
 sealed class OrienteeringCreatorAction : BaseAction {
     data class CreateParticipantGroup(
         val participantGroup: ParticipantGroup,
@@ -13,10 +14,16 @@ sealed class OrienteeringCreatorAction : BaseAction {
     ): OrienteeringCreatorAction()
 
     /**
-     * Сохранение созданного соревнования
-     * */
+     * Сохранение созданного соревнования.
+     */
     data object Apply: OrienteeringCreatorAction()
-    data class UpdateCompetitionDate(val competitionDate: LocalDate): OrienteeringCreatorAction()
+    
+    /**
+     * Обновление даты соревнования.
+     * @param competitionDate Дата в миллисекундах.
+     */
+    data class UpdateCompetitionDate(val competitionDate: Long): OrienteeringCreatorAction()
+    
     data class UpdateCompetitionTime(val competitionTime: String): OrienteeringCreatorAction()
     data object ShowGroupCreateDialog: OrienteeringCreatorAction()
     data class EditGroupDialog(val index: Int): OrienteeringCreatorAction()
@@ -24,7 +31,4 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data class UpdateCompetitionDirection(val direction: OrienteeringDirection): OrienteeringCreatorAction()
     data object SuccessfulCompetitionCreate: OrienteeringCreatorAction()
     data class FailedCompetitionCreate(val message: String): OrienteeringCreatorAction()
-
-//    data class SavedParticipant(val orienteeringParticipant: OrienteeringParticipant) : OrienteeringCreatorAction()
-//    data object ParticipantNotFound : OrienteeringCreatorAction()
 }
