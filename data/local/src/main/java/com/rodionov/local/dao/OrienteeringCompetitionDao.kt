@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.rodionov.local.dto.orienteering.OrienteeringCompetitionWithGroups
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionWithDetails
@@ -19,6 +20,9 @@ interface OrienteeringCompetitionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(competitions: List<OrienteeringCompetitionEntity>): List<Long>
+
+    @Update
+    suspend fun update(competition: OrienteeringCompetitionEntity)
 
     @Query("SELECT * FROM orienteering_competitions")
     fun getAll(): Flow<List<OrienteeringCompetitionEntity>>

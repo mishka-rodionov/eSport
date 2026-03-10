@@ -92,18 +92,22 @@ class OrienteeringCompetitionInteractor(
         orienteeringCompetition: OrienteeringCompetition,
         participantGroups: List<ParticipantGroup>
     ): OrienteeringCreatorAction {
-        // Здесь можно добавить логику обновления на сервере, если API поддерживает PATCH/PUT
-        // Пока обновляем локально и пытаемся отправить на сервер как "создание" (если сервер умеет делать апдейт через POST)
-        // или просто игнорируем ошибку сервера и сохраняем локально.
-        
-        localRepository.saveCompetition(orienteeringCompetition)
-        localRepository.saveParticipantsGroups(participantGroups.map { it.copy(competitionId = orienteeringCompetition.competitionId) })
-        
-        // Попытка синхронизации с сервером
-        remoteRepository.createCompetition(orienteeringCompetition)
-        createParticipantsGroupsInfo(orienteeringCompetition.competitionId, participantGroups)
-        
-        return OrienteeringCreatorAction.SuccessfulCompetitionCreate
+        val competitionId = orienteeringCompetition.competitionId
+
+        // 1. Пытаемся обновить на сервере
+//        remoteRepository.updateCompetition(orienteeringCompetition).onSuccess {
+//            remoteRepository.updateCompetitionParticipantsGroups(competitionId, participantGroups)
+//        }
+
+        // 2. Всегда обновляем локально
+        localRepository.updateCompetition(orienteeringCompetition).onSuccess {
+            localRepository.updateParticipantsGroups(competitionId, participantGroups)
+            return OrienteeringCreatorAction.SuccessfulCompetitionCreate
+        }.onFailure {
+            return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка локального обновления")
+        }
+
+        return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка")
     }
 
     /**

@@ -92,6 +92,12 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
+    override suspend fun updateCompetition(orienteeringCompetition: OrienteeringCompetition): Result<Any> {
+        return runCatching {
+            orienteeringCompetitionDao.update(orienteeringCompetition.toEntity())
+        }
+    }
+
     /**
      * Получает соревнование с полной детализацией (включая группы и участников).
      *
@@ -140,6 +146,16 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     override suspend fun saveParticipantsGroups(participantGroups: List<ParticipantGroup>): Result<Any> {
         return runCatching {
             participantGroupDao.insertAll(participantGroups.map(ParticipantGroup::toEntity))
+        }
+    }
+
+    override suspend fun updateParticipantsGroups(
+        competitionId: Long,
+        participantGroups: List<ParticipantGroup>
+    ): Result<Any> {
+        return runCatching {
+            participantGroupDao.deleteGroupsForCompetition(competitionId)
+            participantGroupDao.insertAll(participantGroups.map { it.toEntity().copy(competitionId = competitionId) })
         }
     }
 
