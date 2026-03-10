@@ -31,7 +31,7 @@ class AuthInteractor(
         userRepository.saveUser(user)
     }
 
-    suspend fun register(firstName: String, lastName: String, bdate: String, email: String): Result<Any> {
+    suspend fun register(firstName: String, lastName: String, bdate: Long, email: String): Result<Any> {
         return authRepository.register(firstName, lastName, bdate, email)
     }
 

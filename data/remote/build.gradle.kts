@@ -42,6 +42,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(project(":domain"))
+    implementation(project(":utils"))
 
     implementation(libs.gson)
     implementation(libs.retrofit)

@@ -86,7 +86,7 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        DatePicker(state.bdate) { text -> userAction.invoke(RegistrationAction.UpdateBdate(text)) }
+        DatePicker(DateTimeFormat.transformLongToDisplayDate(state.bdate)) { text -> userAction.invoke(RegistrationAction.UpdateBdate(text)) }
 
         Spacer(modifier = Modifier.height(16.dp))
 

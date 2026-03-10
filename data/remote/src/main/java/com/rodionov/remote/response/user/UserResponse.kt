@@ -6,15 +6,11 @@ import com.rodionov.domain.models.Gender
 /**
  * Ответ сервера с информацией о пользователе системы.
  *
- * Используется при авторизации, получении профиля и других операциях,
- * связанных с персональными данными пользователя.
- *
  * @property id уникальный идентификатор пользователя.
  * @property firstName имя.
  * @property lastName фамилия.
  * @property middleName отчество. Может отсутствовать.
- * @property birthDate дата рождения в строковом формате,
- * определённом контрактом API.
+ * @property birthDate дата рождения в формате Long (миллисекунды).
  * @property gender пол пользователя.
  * @property photo ссылка на фотографию профиля.
  * @property phoneNumber номер телефона. Может отсутствовать.
@@ -29,9 +25,9 @@ data class UserResponse(
     @SerializedName("last_name")
     val lastName: String,
     @SerializedName("middle_name")
-    val middleName: String?, // отчество
+    val middleName: String?,
     @SerializedName("birth_date")
-    val birthDate: String,
+    val birthDate: Long,
     @SerializedName("gender")
     val gender: Gender,
     @SerializedName("photo")

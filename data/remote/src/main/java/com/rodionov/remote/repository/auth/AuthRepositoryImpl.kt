@@ -36,7 +36,7 @@ class AuthRepositoryImpl(
     override suspend fun register(
         firstName: String,
         lastName: String,
-        bdate: String,
+        bdate: Long,
         email: String
     ): Result<Any> {
         return authRemoteDataSource.register(

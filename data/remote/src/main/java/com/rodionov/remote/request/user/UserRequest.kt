@@ -1,21 +1,22 @@
 package com.rodionov.remote.request.user
 
 import com.google.gson.annotations.SerializedName
-import java.util.Date
 
+/**
+ * Модель запроса для создания или обновления пользователя.
+ *
+ * @property firstName Имя пользователя.
+ * @property lastName Фамилия пользователя.
+ * @property birthDate Дата рождения пользователя (в миллисекундах).
+ * @property email Электронная почта пользователя.
+ */
 data class UserRequest(
-//    val id: String,
     @SerializedName("first_name")
     val firstName: String,
     @SerializedName("last_name")
     val lastName: String,
-//    val middleName: String?, // отчество
     @SerializedName("birth_date")
-    val birthDate: String,
-//    val gender: Gender,
-//    val photo: String,
-//    val phoneNumber: String?,
+    val birthDate: Long,
     @SerializedName("email")
-    val email: String,
-//    val qualification: List<Qualification>
+    val email: String
 )

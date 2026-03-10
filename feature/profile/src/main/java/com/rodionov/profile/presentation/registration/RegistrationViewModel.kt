@@ -9,6 +9,7 @@ import com.rodionov.profile.data.registration.RegistrationAction
 import com.rodionov.profile.data.registration.RegistrationState
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
+import com.rodionov.utils.DateTimeFormat
 import com.rodionov.utils.constants.ProfileConstants
 import kotlinx.coroutines.launch
 
@@ -23,7 +24,7 @@ class RegistrationViewModel(
             is RegistrationAction.UpdateEmail -> updateState { copy(email = action.email) }
             is RegistrationAction.UpdateFirstName -> updateState { copy(firstName = action.firstName) }
             is RegistrationAction.UpdateLastName -> updateState { copy(lastName = action.lastName) }
-            is RegistrationAction.UpdateBdate -> updateState { copy(bdate = action.bdate) }
+            is RegistrationAction.UpdateBdate -> updateState { copy(bdate = DateTimeFormat.transformApiDateToLong(action.bdate)) }
         }
     }
 

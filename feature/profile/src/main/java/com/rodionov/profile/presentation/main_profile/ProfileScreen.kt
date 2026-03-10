@@ -17,8 +17,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodionov.profile.data.ProfileAction
 import com.rodionov.profile.data.ProfileState
+import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Экран профиля пользователя.
+ */
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel = koinViewModel()) {
 
@@ -36,6 +40,9 @@ fun ProfileScreen(viewModel: ProfileViewModel = koinViewModel()) {
 
 }
 
+/**
+ * Отображение для неавторизованного пользователя.
+ */
 @Composable
 fun UnauthorizedUser(userAction: (ProfileAction) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center) {
@@ -57,12 +64,16 @@ fun UnauthorizedUser(userAction: (ProfileAction) -> Unit) {
     }
 }
 
+/**
+ * Отображение данных авторизованного пользователя.
+ */
 @Composable
 fun AuthorizedUser(state: ProfileState) {
     val user = state.user
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(text = "Имя: ${user?.firstName}")
         Text(text = "Фамилия: ${user?.lastName}")
-        Text(text = "Дата рождения: ${user?.birthDate}")
+        // Используем DateTimeFormat для отображения даты рождения из Long
+        Text(text = "Дата рождения: ${DateTimeFormat.transformLongToDisplayDate(user?.birthDate)}")
     }
 }

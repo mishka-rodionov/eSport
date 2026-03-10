@@ -3,6 +3,9 @@ package com.rodionov.local.mappers
 import com.rodionov.domain.models.user.User
 import com.rodionov.local.entities.user.UserEntity
 
+/**
+ * Маппер для преобразования доменной модели пользователя в сущность базы данных.
+ */
 fun User.toEntity(): UserEntity {
     return UserEntity(
         id = id,
@@ -18,6 +21,9 @@ fun User.toEntity(): UserEntity {
     )
 }
 
+/**
+ * Маппер для преобразования сущности базы данных в доменную модель пользователя.
+ */
 fun UserEntity.toDomain(): User {
     return User(
         id = id,
@@ -29,6 +35,6 @@ fun UserEntity.toDomain(): User {
         photo = photo,
         phoneNumber = phoneNumber,
         email = email,
-        qualification = emptyList()//qualification
+        qualification = qualification
     )
 }
