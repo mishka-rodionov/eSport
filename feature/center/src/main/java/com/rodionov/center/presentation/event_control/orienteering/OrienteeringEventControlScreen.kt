@@ -3,14 +3,21 @@ package com.rodionov.center.presentation.event_control.orienteering
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -40,15 +47,43 @@ fun OrienteeringEventControlScreen(
     viewModel: OrienteeringEventControlViewModel = koinViewModel(),
     windowSizeClass: WindowSizeClass
 ) {
+    val state by viewModel.state.collectAsState()
     val isExpanded =
         windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
-    Column {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(scrollState)
+    ) {
+        Text(
+            text = state.competitionTitle,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
         OrienteeringEventControlContent(isExpanded, viewModel::onAction)
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
+            onClick = {
+                viewModel.onAction(OrientEventControlAction.OpenGetOrienteeringChip)
+            },
+            content = {
+                Text("Выдать чипы")
+            }
+        )
+
+        OutlinedButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = Dimens.SIZE_BASE.dp),
             onClick = {
                 viewModel.onAction(OrientEventControlAction.OpenParticipantLists)
             },

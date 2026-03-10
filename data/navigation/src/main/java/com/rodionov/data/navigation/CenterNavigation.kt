@@ -30,6 +30,8 @@ sealed class CenterNavigation: BaseNavigation {
     data object DrawParticipants: CenterNavigation()
     @Serializable
     data object ParticipantResults: CenterNavigation()
+    @Serializable
+    data class GetOrienteeringChipRoute(val competitionId: Long): CenterNavigation()
 
 
 }

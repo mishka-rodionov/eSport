@@ -6,6 +6,7 @@ import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowSizeClass
 import com.rodionov.center.presentation.draw.DrawParticipantsScreen
 import com.rodionov.center.presentation.event_control.orienteering.OrienteeringEventControlScreen
+import com.rodionov.center.presentation.get_chip.GetOrienteeringChipScreen
 import com.rodionov.center.presentation.main.CenterScreen
 import com.rodionov.center.presentation.kind_of_sport.KindOfSportScreen
 import com.rodionov.center.presentation.orientiring_competition_create.OrienteeringCompetitionCreator
@@ -31,5 +32,9 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass) {
     composable<CenterNavigation.ParticipantList> { ParticipantListScreen() }
     composable<CenterNavigation.DrawParticipants> { DrawParticipantsScreen() }
     composable<CenterNavigation.ParticipantResults> { OrienteeringCompetitionResultsScreen() }
+    composable<CenterNavigation.GetOrienteeringChipRoute> { backStackEntry ->
+        val route: CenterNavigation.GetOrienteeringChipRoute = backStackEntry.toRoute()
+        GetOrienteeringChipScreen(competitionId = route.competitionId)
+    }
 //    }
 }
