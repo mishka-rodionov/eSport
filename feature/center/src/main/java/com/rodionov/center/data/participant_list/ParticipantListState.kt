@@ -1,11 +1,20 @@
 package com.rodionov.center.data.participant_list
 
+import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ParticipantGroupParticipants
-import com.rodionov.local.entities.orienteering.ParticipantGroupWithParticipants
 import com.rodionov.ui.BaseState
 
+/**
+ * Состояние экрана списка участников.
+ *
+ * @property participantGroupWithParticipants Список групп с участниками.
+ * @property isShowParticipantCreateDialog Флаг отображения диалога создания/редактирования.
+ * @property group Индекс текущей выбранной группы.
+ * @property editingParticipant Участник, который редактируется в данный момент (null для создания).
+ */
 data class ParticipantListState(
     val participantGroupWithParticipants: List<ParticipantGroupParticipants> = emptyList(),
     val isShowParticipantCreateDialog: Boolean = false,
-    val group: Int = 0
+    val group: Int = 0,
+    val editingParticipant: OrienteeringParticipant? = null
 ): BaseState

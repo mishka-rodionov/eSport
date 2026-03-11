@@ -15,6 +15,9 @@ import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel для экрана списка участников.
+ */
 class ParticipantListViewModel(
     private val repository: OrienteeringCompetitionLocalRepository,
     private val competitionInteractor: OrienteeringCompetitionInteractor,
@@ -27,10 +30,13 @@ class ParticipantListViewModel(
     override fun onAction(action: BaseAction) {
         when(action) {
             is ParticipantListAction.ShowCreateParticipantDialog -> {
-                updateState { copy(group = action.group, isShowParticipantCreateDialog = true) }
+                updateState { copy(group = action.group, editingParticipant = null, isShowParticipantCreateDialog = true) }
+            }
+            is ParticipantListAction.ShowEditParticipantDialog -> {
+                updateState { copy(group = action.group, editingParticipant = action.participant, isShowParticipantCreateDialog = true) }
             }
             is ParticipantListAction.CreateNewParticipant -> {
-                val group = stateValue.participantGroupWithParticipants[action.group].group
+                val group = stateValue.participantGroupWithParticipants.getOrNull(action.group)?.group ?: return
                 val participant = OrienteeringParticipant(
                     id = (0..1000L).random(),
                     userId = "",
@@ -40,25 +46,36 @@ class ParticipantListViewModel(
                     groupName = group.title,
                     competitionId = group.competitionId,
                     commandName = "",
-                    startNumber = "",
-                    startTime = 0L,
+                    startNumber = startNumber++.toString(),
+                    startTime = 10L,
                     chipNumber = "",
                     comment = "",
                     isChipGiven = false
                 )
                 viewModelScope.launch(Dispatchers.IO) {
-                    val participant = competitionInteractor.saveParticipant(participant)
-                    if (participant != null) {
+                    val savedParticipant = competitionInteractor.saveParticipant(participant)
+                    if (savedParticipant != null) {
                         getCompetitionDetails()
                     }
                 }
+                onAction(ParticipantListAction.HideCreateParticipantDialog)
+            }
+            is ParticipantListAction.UpdateParticipant -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    competitionInteractor.updateParticipants(listOf(action.participant))
+                    getCompetitionDetails()
+                }
+                onAction(ParticipantListAction.HideCreateParticipantDialog)
             }
             ParticipantListAction.HideCreateParticipantDialog -> {
-                updateState { copy(isShowParticipantCreateDialog = false) }
+                updateState { copy(isShowParticipantCreateDialog = false, editingParticipant = null) }
             }
         }
     }
 
+    /**
+     * Загружает данные соревнования и участников.
+     */
     fun getCompetitionDetails() {
         Log.d("LOG_TAG", "getCompetitionDetails: competitionId = $competitionId")
         viewModelScope.launch {

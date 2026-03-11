@@ -27,7 +27,7 @@ fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
     val userAction = remember { viewModel::onAction }
     Box(modifier = Modifier.fillMaxSize()) {
-        ParticipantList(state.participants)
+        ParticipantList(state.participants) {}
         FloatingActionButton(
             onClick = {
                 userAction.invoke(DrawAction.StartDrawOperation)

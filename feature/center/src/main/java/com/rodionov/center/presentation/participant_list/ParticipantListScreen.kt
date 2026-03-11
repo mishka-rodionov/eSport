@@ -12,17 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -37,7 +36,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,6 +52,7 @@ import com.rodionov.center.data.participant_list.ParticipantListState
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ParticipantGroupParticipants
+import com.rodionov.resources.R
 import com.rodionov.ui.BaseAction
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -67,9 +70,10 @@ fun ParticipantListScreen(
     ParticipantListContent(userAction = userAction, state = state)
     if (state.isShowParticipantCreateDialog) {
         CreateParticipantDialog(
-            userAction,
-            state.group,
-            state.participantGroupWithParticipants[state.group].group.title
+            userAction = userAction,
+            group = state.group,
+            groupName = state.participantGroupWithParticipants[state.group].group.title,
+            editingParticipant = state.editingParticipant
         )
     }
 }
@@ -97,7 +101,12 @@ fun ParticipantListContent(
             HorizontalPager(
                 state = pagerState
             ) { page ->
-                ParticipantList(participants = state.participantGroupWithParticipants[page].participants.sortedBy { it.startNumber.toIntOrNull() })
+                ParticipantList(
+                    participants = state.participantGroupWithParticipants[page].participants.sortedBy { it.startNumber.toIntOrNull() },
+                    onEditClick = { participant ->
+                        userAction.invoke(ParticipantListAction.ShowEditParticipantDialog(page, participant))
+                    }
+                )
             }
 
             FloatingActionButton(
@@ -119,12 +128,24 @@ fun ParticipantListContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateParticipantDialog(userAction: (BaseAction) -> Unit, group: Int, groupName: String) {
+fun CreateParticipantDialog(
+    userAction: (BaseAction) -> Unit,
+    group: Int,
+    groupName: String,
+    editingParticipant: OrienteeringParticipant?
+) {
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     DSBottomDialog(
         sheetState = sheetState,
-        sheetContent = { CreateParticipantDialogContent(userAction, group, groupName) },
+        sheetContent = {
+            CreateParticipantDialogContent(
+                userAction = userAction,
+                group = group,
+                groupName = groupName,
+                editingParticipant = editingParticipant
+            )
+        },
         onDismiss = { userAction.invoke(ParticipantListAction.HideCreateParticipantDialog) },
     )
 
@@ -134,10 +155,11 @@ fun CreateParticipantDialog(userAction: (BaseAction) -> Unit, group: Int, groupN
 fun CreateParticipantDialogContent(
     userAction: (BaseAction) -> Unit,
     group: Int,
-    groupName: String
+    groupName: String,
+    editingParticipant: OrienteeringParticipant?
 ) {
-    var firstName by remember { mutableStateOf("") }
-    var secondName by remember { mutableStateOf("") }
+    var firstName by remember(editingParticipant) { mutableStateOf(editingParticipant?.firstName ?: "") }
+    var secondName by remember(editingParticipant) { mutableStateOf(editingParticipant?.lastName ?: "") }
     Column(modifier = Modifier.padding(all = Dimens.SIZE_HALF.dp)) {
 
         Text(text = "Группа $groupName", modifier = Modifier.padding(bottom = Dimens.SIZE_BASE.dp))
@@ -173,40 +195,60 @@ fun CreateParticipantDialogContent(
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = Dimens.SIZE_BASE.dp), onClick = {
+                .padding(top = Dimens.SIZE_BASE.dp),
+            onClick = {
                 if (firstName.isNotEmpty() && secondName.isNotEmpty()) {
-                    userAction.invoke(
-                        ParticipantListAction.CreateNewParticipant(
-                            group = group,
-                            firstName = firstName,
-                            secondName = secondName
+                    if (editingParticipant == null) {
+                        userAction.invoke(
+                            ParticipantListAction.CreateNewParticipant(
+                                group = group,
+                                firstName = firstName,
+                                secondName = secondName
+                            )
                         )
-                    )
+                    } else {
+                        userAction.invoke(
+                            ParticipantListAction.UpdateParticipant(
+                                participant = editingParticipant.copy(
+                                    firstName = firstName,
+                                    lastName = secondName
+                                )
+                            )
+                        )
+                    }
                     firstName = ""
                     secondName = ""
                 } else {
                     //здесь должна быть ошибка об обязательности заполнения полей
                 }
             }) {
-            Text(text = "Сохранить участника")
+            Text(text = if (editingParticipant == null) "Сохранить участника" else "Изменить")
         }
     }
 }
 
 @Composable
-fun ParticipantList(participants: List<OrienteeringParticipant>) {
+fun ParticipantList(
+    participants: List<OrienteeringParticipant>,
+    onEditClick: (OrienteeringParticipant) -> Unit
+) {
     LazyColumn(modifier = Modifier.fillMaxHeight().padding(16.dp)) {
         itemsIndexed(participants) { index, participant ->
-            ParticipantItem(participant = participant, index = index + 1)
+            ParticipantItem(
+                participant = participant,
+                index = index + 1,
+                onEditClick = { onEditClick(participant) }
+            )
         }
     }
 }
 
 @Composable
-fun ParticipantItem(participant: OrienteeringParticipant, index: Int) {
+fun ParticipantItem(participant: OrienteeringParticipant, index: Int, onEditClick: () -> Unit) {
     Column {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_TWO.dp)
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_TWO.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = index.toString(),
@@ -214,8 +256,15 @@ fun ParticipantItem(participant: OrienteeringParticipant, index: Int) {
             )
             Text(
                 text = "${participant.firstName} ${participant.lastName}",
-                modifier = Modifier.weight(0.9F)
+                modifier = Modifier.weight(0.8F)
             )
+            IconButton(onClick = onEditClick) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.edit),
+                    contentDescription = "edit participant",
+                    tint = LightColors.greyB8
+                )
+            }
 //            Text(
 //                text = participant.startTime.toString(),
 //                modifier = Modifier.weight(0.2F)
