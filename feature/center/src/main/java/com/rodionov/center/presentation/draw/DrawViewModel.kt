@@ -68,37 +68,27 @@ class DrawViewModel(
 
         if (participants.isEmpty()) return emptyList()
 
-        // Группируем по groupId
+        // Группируем по groupId для последующего чередования
         val groups = participants
             .groupBy { it.groupId }
+            .mapValues { it.value.toMutableList() }
             .toMutableMap()
 
-        var currentStartNumber = 1
-
-        groups.forEach { (groupId, participants) ->
-            var startTime = 10
-            groups[groupId] = participants.mapIndexed { index, participant ->
-                participant.copy(
-                    startNumber = (currentStartNumber + index).toString(),
-                    startTime = startTime++.toLong()
-                )
-            }
-            currentStartNumber += participants.size
-        }
-
-
-        val result = mutableListOf<OrienteeringParticipant>()
+        val mixedResult = mutableListOf<OrienteeringParticipant>()
         var lastGroupId: Long? = null
+
+        // Жеребьевка: перемешиваем участников из разных групп для исключения старта подряд участников одной группы
         while (groups.isNotEmpty()) {
 
-            // выбираем группы, отличные от предыдущей
+            // выбираем группы, отличные от предыдущей (если возможно)
             val availableGroups = groups
                 .filterKeys { it != lastGroupId }
-                .ifEmpty { groups } // если выбора нет — берем любую
+                .ifEmpty { groups } // если выбора нет — берем любую оставшуюся
 
             // случайная группа
             val selectedGroupId = availableGroups.keys.random()
-            val groupList = groups[selectedGroupId]!!.toMutableList()
+            val groupList = groups[selectedGroupId]!!
+
 //            val groupList = if (tempList.any { it.startNumber.isEmpty() }) {
 //                globalIndex += 1000
 //                tempList.mapIndexed { index, participant ->
@@ -110,32 +100,29 @@ class DrawViewModel(
 //            }
             // случайный участник из группы
             val participant = groupList.random()
-            result.add(participant)
+            mixedResult.add(participant)
 
             // обновляем группу
             groupList.remove(participant)
             if (groupList.isEmpty()) {
                 groups.remove(selectedGroupId)
-            } else {
-                groups[selectedGroupId] = groupList
             }
 
             lastGroupId = selectedGroupId
         }
 
-        // присваиваем стартовые номера
-        return result
-            .mapIndexed { index, participant ->
-//                val number = (index + 1).toString()
-//                participant.copy(startNumber = number)
-                val freshParticipant = if (punchingSystem == PunchingSystem.SPORTIDUINO) {
-                    participant.copy(chipNumber = participant.startNumber)
-                } else {
-                    participant
-                }
-                freshParticipant
-            }
-            .sortedBy { it.startNumber.toInt() }
+        // Присваиваем стартовые номера и адекватное время старта (с 1-й минуты)
+        return mixedResult.mapIndexed { index, participant ->
+            val number = (index + 1).toString()
+            val time = (index + 1).toLong() // Время в минутах: 1, 2, 3...
+
+            val freshParticipant = participant.copy(
+                startNumber = number,
+                startTime = time,
+                chipNumber = if (punchingSystem == PunchingSystem.SPORTIDUINO) number else participant.chipNumber
+            )
+            freshParticipant
+        }
     }
 
 }

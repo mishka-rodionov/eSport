@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -195,30 +196,30 @@ fun CreateParticipantDialogContent(
 @Composable
 fun ParticipantList(participants: List<OrienteeringParticipant>) {
     LazyColumn(modifier = Modifier.fillMaxHeight().padding(16.dp)) {
-        items(participants) { participant ->
-            ParticipantItem(participant = participant)
+        itemsIndexed(participants) { index, participant ->
+            ParticipantItem(participant = participant, index = index + 1)
         }
     }
 }
 
 @Composable
-fun ParticipantItem(participant: OrienteeringParticipant) {
+fun ParticipantItem(participant: OrienteeringParticipant, index: Int) {
     Column {
         Row(
             horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_TWO.dp)
         ) {
             Text(
-                text = participant.startNumber,
+                text = index.toString(),
                 modifier = Modifier.weight(0.1F)
             )
             Text(
                 text = "${participant.firstName} ${participant.lastName}",
                 modifier = Modifier.weight(0.9F)
             )
-            Text(
-                text = participant.startTime.toString(),
-                modifier = Modifier.weight(0.2F)
-            )
+//            Text(
+//                text = participant.startTime.toString(),
+//                modifier = Modifier.weight(0.2F)
+//            )
         }
         HorizontalDivider(
             modifier = Modifier.padding(vertical = Dimens.SIZE_HALF.dp),
