@@ -47,7 +47,10 @@ class GetOrienteeringChipViewModel(
             }
 
             is GetOrienteeringChipAction.ToggleChipGiven -> {
-                // В данной реализации чекбокс может использоваться как визуальный индикатор выдачи.
+                // Реализация переключения состояния чекбокса в стейте
+                updateParticipantInState(action.participantId) {
+                    it.copy(isChipGiven = action.isGiven)
+                }
             }
 
             GetOrienteeringChipAction.SaveChanges -> {
@@ -57,13 +60,13 @@ class GetOrienteeringChipViewModel(
     }
 
     private fun updateParticipantInState(
-        participantId: String,
+        participantId: Long,
         update: (OrienteeringParticipant) -> OrienteeringParticipant
     ) {
         val updatedGroups = stateValue.groupsWithParticipants.map { group ->
             group.copy(
                 participants = group.participants.map { participant ->
-                    if (participant.userId == participantId) update(participant) else participant
+                    if (participant.id == participantId) update(participant) else participant
                 }
             )
         }

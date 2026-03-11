@@ -25,6 +25,7 @@ import com.rodionov.domain.models.Participant
  *     Используется для электронной отметки на контрольных пунктах
  * @property comment дополнительный комментарий
  *     Может содержать информацию о разряде, статусе или особые отметки
+ * @property isChipGiven Флаг, указывающий, выдан ли чип участнику.
  *
  * @constructor Создает участника соревнований по спортивному ориентированию.
  *
@@ -48,5 +49,6 @@ data class OrienteeringParticipant(
     val startNumber: String,
     val startTime: Long,
     val chipNumber: String,
-    val comment: String
+    val comment: String,
+    val isChipGiven: Boolean
 ): Participant

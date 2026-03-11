@@ -78,7 +78,8 @@ fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
         startNumber = startNumber,
         startTime = startTime,
         chipNumber = chipNumber,
-        comment = comment
+        comment = comment,
+        isChipGiven = isChipGiven
     )
 }
 
@@ -95,7 +96,8 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
         startNumber = startNumber,
         startTime = startTime,
         chipNumber = chipNumber,
-        comment = comment
+        comment = comment,
+        isChipGiven = isChipGiven
     )
 }
 

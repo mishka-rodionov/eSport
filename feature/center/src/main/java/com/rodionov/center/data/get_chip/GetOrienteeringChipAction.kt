@@ -11,14 +11,14 @@ sealed class GetOrienteeringChipAction : BaseAction {
      * @param participantId ID участника.
      * @param chipNumber Новый номер чипа.
      */
-    data class UpdateChipNumber(val participantId: String, val chipNumber: String) : GetOrienteeringChipAction()
+    data class UpdateChipNumber(val participantId: Long, val chipNumber: String) : GetOrienteeringChipAction()
 
     /**
      * Изменение состояния выдачи чипа (чекбокс).
      * @param participantId ID участника.
      * @param isGiven Флаг - выдан чип или нет.
      */
-    data class ToggleChipGiven(val participantId: String, val isGiven: Boolean) : GetOrienteeringChipAction()
+    data class ToggleChipGiven(val participantId: Long, val isGiven: Boolean) : GetOrienteeringChipAction()
 
     /**
      * Сохранение измененных данных в локальную БД.

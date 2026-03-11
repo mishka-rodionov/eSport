@@ -70,18 +70,6 @@ fun OrienteeringEventControlScreen(
         OutlinedButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight(),
-            onClick = {
-                viewModel.onAction(OrientEventControlAction.OpenGetOrienteeringChip)
-            },
-            content = {
-                Text("Выдать чипы")
-            }
-        )
-
-        OutlinedButton(
-            modifier = Modifier
-                .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(top = Dimens.SIZE_BASE.dp),
             onClick = {
@@ -102,6 +90,19 @@ fun OrienteeringEventControlScreen(
             },
             content = {
                 Text("Жеребьёвка участников")
+            }
+        )
+
+        OutlinedButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = Dimens.SIZE_BASE.dp),
+            onClick = {
+                viewModel.onAction(OrientEventControlAction.OpenGetOrienteeringChip)
+            },
+            content = {
+                Text("Выдать чипы")
             }
         )
 

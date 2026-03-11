@@ -43,7 +43,8 @@ class ParticipantListViewModel(
                     startNumber = startNumber++.toString(),
                     startTime = 10L,
                     chipNumber = "",
-                    comment = ""
+                    comment = "",
+                    isChipGiven = false
                 )
                 viewModelScope.launch(Dispatchers.IO) {
                     val participant = competitionInteractor.saveParticipant(participant)
