@@ -102,6 +102,10 @@ class OrienteeringCreatorViewModel(
                 updateState { copy(competitionDirection = action.direction) }
             }
 
+            is OrienteeringCreatorAction.UpdateStartTimeMode -> {
+                updateState { copy(startTimeMode = action.startTimeMode) }
+            }
+
             OrienteeringCreatorAction.SuccessfulCompetitionCreate -> {}
 
             is OrienteeringCreatorAction.FailedCompetitionCreate -> {}
@@ -121,7 +125,8 @@ class OrienteeringCreatorViewModel(
                             description = details.competition.competition.description,
                             competitionDirection = details.competition.direction,
                             punchingSystem = details.competition.punchingSystem,
-                            participantGroups = details.groupsWithParticipants.map { it.group }
+                            participantGroups = details.groupsWithParticipants.map { it.group },
+                            startTimeMode = details.competition.startTimeMode
                         )
                     }
                 }.onFailure {
@@ -134,7 +139,8 @@ class OrienteeringCreatorViewModel(
                                 address = competition.competition.address,
                                 description = competition.competition.description,
                                 competitionDirection = competition.direction,
-                                punchingSystem = competition.punchingSystem
+                                punchingSystem = competition.punchingSystem,
+                                startTimeMode = competition.startTimeMode
                             )
                         }
                     }

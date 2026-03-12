@@ -22,6 +22,10 @@
     <string name="label_direction_forward">Заданное</string>
     <string name="label_direction_by_choice">По выбору</string>
     <string name="label_direction_marking">Маркировка</string>
+    <string name="label_start_time_mode">Тип времени старта</string>
+    <string name="label_start_time_mode_strict">Строгое</string>
+    <string name="label_start_time_mode_user_set">Задается вручную</string>
+    <string name="label_start_time_mode_by_start_station">По стартовой станции</string>
 
     <!-- Participant Details -->
     <string name="label_participant_group">Группа: %s</string>
