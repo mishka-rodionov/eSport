@@ -183,7 +183,7 @@ class MockInterceptor : Interceptor {
             competitionId = (1000..9999).random().toLong(),
             direction = competitionRequest?.direction ?: OrienteeringDirection.FORWARD.name,
             punchingSystem = PunchingSystem.SPORTIDUINO,
-            startTimeMode = StartTimeMode.STRICT,
+            startTimeMode = StartTimeMode.valueOf(competitionRequest?.startTimeMode ?: StartTimeMode.STRICT.name),
             competition = CompetitionResponse(
                 title = competitionRequest?.competition?.title ?: "Mocked Competition",
                 date = competitionRequest?.competition?.date ?: LocalDate.now().toEpochDay(),
