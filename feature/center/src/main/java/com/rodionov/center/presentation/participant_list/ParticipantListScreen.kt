@@ -57,6 +57,20 @@ import com.rodionov.ui.BaseAction
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Экран отображения и управления списком участников соревнований,
+ * разделенный на вкладки по группам участников.
+ *
+ * Основные возможности:
+ * - Отображение вкладок для каждой [ParticipantGroup] с помощью [TabRow] и [HorizontalPager].
+ * - Просмотр списка участников внутри выбранной группы, отсортированных по стартовому номеру.
+ * - Создание новых участников через плавающую кнопку действия (FAB).
+ * - Редактирование данных существующих участников через модальное диалоговое окно.
+ * - Автоматическая загрузка данных о соревновании при запуске экрана.
+ *
+ * @param viewModel ViewModel для управления состоянием и бизнес-логикой экрана.
+ * По умолчанию используется [ParticipantListViewModel], внедряемая через Koin.
+ */
 @Composable
 fun ParticipantListScreen(
     viewModel: ParticipantListViewModel = koinViewModel(),
