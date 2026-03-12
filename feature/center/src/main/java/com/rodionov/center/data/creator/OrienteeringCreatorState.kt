@@ -7,6 +7,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.PunchingSystem
+import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.ui.BaseState
 import java.time.Instant
 import java.time.ZoneId
@@ -28,7 +29,8 @@ data class OrienteeringCreatorState(
     val isShowGroupCreateDialog: Boolean = false,
     val punchingSystem: PunchingSystem = PunchingSystem.SPORTIDUINO,
     val editGroupIndex: Int = -1,
-    val competitionDirection: OrienteeringDirection? = null
+    val competitionDirection: OrienteeringDirection? = null,
+    val startTimeMode: StartTimeMode = StartTimeMode.STRICT
 ) : BaseState {
     fun constructOrienteeringCompetition(userId: String): OrienteeringCompetition {
         return OrienteeringCompetition(
@@ -43,7 +45,8 @@ data class OrienteeringCreatorState(
                 coordinates = Coordinates(0.0, 0.0)
             ),
             direction = competitionDirection ?: OrienteeringDirection.FORWARD,
-            punchingSystem = punchingSystem
+            punchingSystem = punchingSystem,
+            startTimeMode = startTimeMode
         )
     }
 }

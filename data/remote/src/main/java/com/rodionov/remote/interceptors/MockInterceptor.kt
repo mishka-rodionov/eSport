@@ -6,6 +6,7 @@ import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.models.orienteering.ControlPointRole
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.orienteering.PunchingSystem
+import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest
 import com.rodionov.remote.request.orienteering.ParticipantGroupRequest
 import com.rodionov.remote.response.auth.AuthResponse
@@ -122,12 +123,14 @@ class MockInterceptor : Interceptor {
                     )
                 ),
                 direction = OrienteeringDirection.FORWARD.name,
-                punchingSystem = PunchingSystem.SPORTIDUINO
+                punchingSystem = PunchingSystem.SPORTIDUINO,
+                startTimeMode = StartTimeMode.STRICT
             ),
             OrienteeringCompetitionResponse(
                 competitionId = 2,
                 direction = OrienteeringDirection.FORWARD.name,
                 punchingSystem = PunchingSystem.SPORTIDUINO,
+                startTimeMode = StartTimeMode.STRICT,
                 competition = CompetitionResponse(
                     title = "Городские соревнования #2",
                     date = LocalDate.parse("2025-08-27").toEpochDay(),
@@ -180,6 +183,7 @@ class MockInterceptor : Interceptor {
             competitionId = (1000..9999).random().toLong(),
             direction = competitionRequest?.direction ?: OrienteeringDirection.FORWARD.name,
             punchingSystem = PunchingSystem.SPORTIDUINO,
+            startTimeMode = StartTimeMode.STRICT,
             competition = CompetitionResponse(
                 title = competitionRequest?.competition?.title ?: "Mocked Competition",
                 date = competitionRequest?.competition?.date ?: LocalDate.now().toEpochDay(),

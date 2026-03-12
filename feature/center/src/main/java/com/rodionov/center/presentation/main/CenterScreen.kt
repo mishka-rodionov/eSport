@@ -39,6 +39,7 @@ import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.orienteering.PunchingSystem
+import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
@@ -151,7 +152,8 @@ private fun CenterScreenAuthPreview() {
                         coordinates = Coordinates(latitude = 0.0, longitude = 0.0),
                     ),
                     direction = OrienteeringDirection.FORWARD,
-                    punchingSystem = PunchingSystem.PUNCH
+                    punchingSystem = PunchingSystem.PUNCH,
+                    startTimeMode = StartTimeMode.STRICT
                 ),
 
                 OrienteeringCompetition(
@@ -166,7 +168,8 @@ private fun CenterScreenAuthPreview() {
                         coordinates = Coordinates(latitude = 0.0, longitude = 0.0),
                     ),
                     direction = OrienteeringDirection.FORWARD,
-                    punchingSystem = PunchingSystem.PUNCH
+                    punchingSystem = PunchingSystem.PUNCH,
+                    startTimeMode = StartTimeMode.STRICT
                 )
             )
         ),

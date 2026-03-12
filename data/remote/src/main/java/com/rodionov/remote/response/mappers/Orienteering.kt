@@ -10,7 +10,7 @@ import com.rodionov.remote.response.orienteering.ParticipantGroupResponse
 
 fun OrienteeringCompetitionResponse.toDomain(): OrienteeringCompetition {
     return OrienteeringCompetition(
-        competitionId, competition.toDomain(), OrienteeringDirection.valueOf(direction), punchingSystem
+        competitionId, competition.toDomain(), OrienteeringDirection.valueOf(direction), punchingSystem, startTimeMode
     )
 }
 
