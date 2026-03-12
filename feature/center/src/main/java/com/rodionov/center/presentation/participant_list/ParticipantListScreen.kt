@@ -36,6 +36,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -165,6 +167,11 @@ fun CreateParticipantDialog(
 
 }
 
+/**
+ * Контент диалога создания/редактирования участника.
+ * При создании нового участника диалог остается открытым для ввода следующего,
+ * переводя фокус на поле имени.
+ */
 @Composable
 fun CreateParticipantDialogContent(
     userAction: (BaseAction) -> Unit,
@@ -174,12 +181,22 @@ fun CreateParticipantDialogContent(
 ) {
     var firstName by remember(editingParticipant) { mutableStateOf(editingParticipant?.firstName ?: "") }
     var secondName by remember(editingParticipant) { mutableStateOf(editingParticipant?.lastName ?: "") }
+    
+    val focusRequester = remember { FocusRequester() }
+
+    // Запрашиваем фокус при открытии диалога
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     Column(modifier = Modifier.padding(all = Dimens.SIZE_HALF.dp)) {
 
         Text(text = "Группа $groupName", modifier = Modifier.padding(bottom = Dimens.SIZE_BASE.dp))
 
         DSTextInput(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             label = {
                 Text(text = "Имя")
             },
@@ -220,6 +237,10 @@ fun CreateParticipantDialogContent(
                                 secondName = secondName
                             )
                         )
+                        // Очищаем поля и возвращаем фокус для ввода следующего участника
+                        firstName = ""
+                        secondName = ""
+                        focusRequester.requestFocus()
                     } else {
                         userAction.invoke(
                             ParticipantListAction.UpdateParticipant(
@@ -229,9 +250,8 @@ fun CreateParticipantDialogContent(
                                 )
                             )
                         )
+                        // При редактировании диалог закроется через ViewModel (Action.HideCreateParticipantDialog)
                     }
-                    firstName = ""
-                    secondName = ""
                 } else {
                     //здесь должна быть ошибка об обязательности заполнения полей
                 }

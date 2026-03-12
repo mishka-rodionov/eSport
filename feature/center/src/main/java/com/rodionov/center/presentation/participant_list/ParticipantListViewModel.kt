@@ -58,7 +58,6 @@ class ParticipantListViewModel(
                         getCompetitionDetails()
                     }
                 }
-                onAction(ParticipantListAction.HideCreateParticipantDialog)
             }
             is ParticipantListAction.UpdateParticipant -> {
                 viewModelScope.launch(Dispatchers.IO) {
