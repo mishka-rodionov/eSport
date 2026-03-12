@@ -15,6 +15,17 @@ import com.rodionov.nfchelper.nfccard.ReadWriteCardException
 import com.rodionov.resources.ResourceProvider
 import kotlinx.coroutines.flow.MutableSharedFlow
 
+/**
+ * Реализация интерфейса [SportiduinoHelper], обеспечивающая взаимодействие с NFC-метками в системе Sportiduino.
+ *
+ * Данный класс отвечает за:
+ * - Управление жизненным циклом NFC-адаптера (активация и деактивация режимов Reader Mode и Foreground Dispatch).
+ * - Обработку обнаруженных тегов различных типов (Mifare Classic и Mifare Ultralight).
+ * - Переключение между режимами работы: чтение карты, запись карты или настройка станции.
+ * - Считывание данных с чипов и передачу результатов через поток данных.
+ *
+ * @property resourceProvider Поставщик строковых ресурсов для формирования сообщений или обработки данных.
+ */
 class SportiduinoHelperImpl(
     private val resourceProvider: ResourceProvider
 ) : SportiduinoHelper {
