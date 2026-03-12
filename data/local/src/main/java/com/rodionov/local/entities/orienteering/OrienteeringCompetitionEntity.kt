@@ -18,6 +18,8 @@ import com.rodionov.local.converters.CompetitionConverters
  * @property direction Направление
  * @property punchingSystem Система отметки
  * @property startTimeMode Режим начала соревнования
+ * @property countdownTimer Время отсчета перед стартом (в минутах)
+ * @property startTime Фактическое время начала соревнования (timestamp)
  */
 @Entity(tableName = "orienteering_competitions")
 @TypeConverters(CompetitionConverters::class)
@@ -28,5 +30,7 @@ data class OrienteeringCompetitionEntity(
     val competition: Competition,
     val direction: OrienteeringDirection,
     val punchingSystem: PunchingSystem,
-    val startTimeMode: StartTimeMode
+    val startTimeMode: StartTimeMode,
+    val countdownTimer: Int? = null,
+    val startTime: Long? = null
 )

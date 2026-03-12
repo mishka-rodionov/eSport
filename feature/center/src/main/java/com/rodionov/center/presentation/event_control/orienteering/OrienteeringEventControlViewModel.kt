@@ -7,9 +7,12 @@ import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
+import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -24,6 +27,7 @@ class OrienteeringEventControlViewModel(
 ) : BaseViewModel<OrienteeringEventControlState>(OrienteeringEventControlState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
+    private var timerJob: Job? = null
 
     init {
         loadCompetitionData()
@@ -36,14 +40,16 @@ class OrienteeringEventControlViewModel(
                 updateState {
                     copy(
                         competitionTitle = details.competition.competition.title,
-                        participantGroups = details.groupsWithParticipants.map { it.group }
+                        participantGroups = details.groupsWithParticipants.map { it.group },
+                        competition = details.competition
                     )
                 }
             }.onFailure {
                 orienteeringCompetitionInteractor.getCompetition(id)?.let { competition ->
                     updateState {
                         copy(
-                            competitionTitle = competition.competition.title
+                            competitionTitle = competition.competition.title,
+                            competition = competition
                         )
                     }
                 }
@@ -94,7 +100,45 @@ class OrienteeringEventControlViewModel(
                     }
                 }
             }
+
+            OrientEventControlAction.StartCompetition -> handleStartCompetition()
         }
     }
 
+    /**
+     * Обрабатывает нажатие на кнопку "Старт".
+     * Записывает время старта и запускает таймер отсчета.
+     */
+    private fun handleStartCompetition() {
+        val competition = stateValue.competition ?: return
+        val countdownMinutes = competition.countdownTimer ?: 0
+        val startTime = System.currentTimeMillis() + (countdownMinutes * 60 * 1000L)
+        
+        viewModelScope.launch {
+            val updatedCompetition = competition.copy(startTime = startTime)
+            orienteeringCompetitionInteractor.updateCompetition(updatedCompetition, emptyList())
+            updateState { 
+                copy(
+                    competition = updatedCompetition,
+                    countdownMillis = countdownMinutes * 60 * 1000L,
+                    isTimerRunning = true
+                )
+            }
+            startTimer()
+        }
+    }
+
+    /**
+     * Запускает таймер обратного отсчета.
+     */
+    private fun startTimer() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (stateValue.countdownMillis > 0) {
+                delay(1000)
+                updateState { copy(countdownMillis = countdownMillis - 1000) }
+            }
+            updateState { copy(isTimerRunning = false) }
+        }
+    }
 }

@@ -10,11 +10,15 @@ import com.rodionov.domain.models.Competition
  * @property direction Направление (заданный порядок, по выбору и т.д.)
  * @property punchingSystem Система отметки
  * @property startTimeMode Режим определения времени старта
+ * @property countdownTimer Время отсчета перед стартом (в минутах), если [startTimeMode] равен [StartTimeMode.USER_SET]
+ * @property startTime Фактическое время старта соревнования (timestamp)
  */
 data class OrienteeringCompetition(
     val competitionId: Long,
     val competition: Competition,
     val direction: OrienteeringDirection,
     val punchingSystem: PunchingSystem,
-    val startTimeMode: StartTimeMode
+    val startTimeMode: StartTimeMode,
+    val countdownTimer: Int? = null,
+    val startTime: Long? = null
 )

@@ -13,6 +13,8 @@ import com.rodionov.remote.response.competition.CompetitionResponse
  * @property direction Направление
  * @property punchingSystem Система отметки
  * @property startTimeMode Режим начала соревнования
+ * @property countdownTimer Время отсчета перед стартом (в минутах)
+ * @property startTime Фактическое время начала соревнования (timestamp)
  */
 data class OrienteeringCompetitionResponse(
     @SerializedName("competitionId")
@@ -22,11 +24,17 @@ data class OrienteeringCompetitionResponse(
     val competition: CompetitionResponse,
 
     @SerializedName("direction")
-    val direction: String, // "FORWARD", "BY_CHOICE", etc.
+    val direction: String,
 
     @SerializedName("punchingSystem")
     val punchingSystem: PunchingSystem,
 
     @SerializedName("startTimeMode")
-    val startTimeMode: StartTimeMode
+    val startTimeMode: StartTimeMode,
+
+    @SerializedName("countdownTimer")
+    val countdownTimer: Int? = null,
+
+    @SerializedName("startTime")
+    val startTime: Long? = null
 )

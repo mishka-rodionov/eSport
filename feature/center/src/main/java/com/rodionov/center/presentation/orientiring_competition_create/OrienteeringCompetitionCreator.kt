@@ -107,7 +107,7 @@ fun OrienteeringCompetitionCreator(
         DatePicker(state = state, userAction = viewModel::onAction)
         TimePicker(state = state, userAction = viewModel::onAction)
         OrienteeringCompetitionDirection(state = state, userAction = viewModel::onAction)
-        StartTimeModeSelector(state = state, userAction = viewModel::onAction)
+        StartTimeModeSelector(state = state, viewModel = viewModel, userAction = viewModel::onAction)
         DSTextInput(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -347,22 +347,33 @@ private fun OrienteeringCompetitionDirection(
 @Composable
 private fun StartTimeModeSelector(
     state: OrienteeringCreatorState,
+    viewModel: OrienteeringCreatorViewModel,
     userAction: (OrienteeringCreatorAction) -> Unit
 ) {
     val context = LocalContext.current
-    ExposedDropdownMenuOutlined(
-        label = stringResource(R.string.label_start_time_mode),
-        items = StartTimeMode.entries,
-        selectedItem = state.startTimeMode,
-        onItemSelected = {
-            userAction.invoke(OrienteeringCreatorAction.UpdateStartTimeMode(it))
-        },
-        itemToString = {
-            when (it) {
-                StartTimeMode.STRICT -> context.getString(R.string.label_start_time_mode_strict)
-                StartTimeMode.USER_SET -> context.getString(R.string.label_start_time_mode_user_set)
-                StartTimeMode.BY_START_STATION -> context.getString(R.string.label_start_time_mode_by_start_station)
+    Column {
+        ExposedDropdownMenuOutlined(
+            label = stringResource(R.string.label_start_time_mode),
+            items = StartTimeMode.entries,
+            selectedItem = state.startTimeMode,
+            onItemSelected = {
+                userAction.invoke(OrienteeringCreatorAction.UpdateStartTimeMode(it))
+            },
+            itemToString = {
+                when (it) {
+                    StartTimeMode.STRICT -> context.getString(R.string.label_start_time_mode_strict)
+                    StartTimeMode.USER_SET -> context.getString(R.string.label_start_time_mode_user_set)
+                    StartTimeMode.BY_START_STATION -> context.getString(R.string.label_start_time_mode_by_start_station)
+                }
             }
+        )
+        if (state.startTimeMode == StartTimeMode.USER_SET) {
+            DSTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                text = state.countdownTimer?.toString() ?: "",
+                onValueChanged = viewModel::updateCountdownTimer,
+                label = { Text(text = "Таймер отсчета (мин)") }
+            )
         }
-    )
+    }
 }

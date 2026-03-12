@@ -50,7 +50,13 @@ class OrienteeringCreatorViewModel(
                         updateState {
                             copy(
                                 participantGroups = participantGroups + action.participantGroup,
-                                isShowGroupCreateDialog = false
+                                isShowGroupCreateDialog = false,
+                                errors = errors.copy(
+                                    isGroupTitleError = false,
+                                    isGroupDistanceError = false,
+                                    isCountOfControlsError = false,
+                                    isMaxTimeError = false
+                                )
                             )
                         }
                     } else {
@@ -59,7 +65,13 @@ class OrienteeringCreatorViewModel(
                         updateState {
                             copy(
                                 participantGroups = groups,
-                                isShowGroupCreateDialog = false
+                                isShowGroupCreateDialog = false,
+                                errors = errors.copy(
+                                    isGroupTitleError = false,
+                                    isGroupDistanceError = false,
+                                    isCountOfControlsError = false,
+                                    isMaxTimeError = false
+                                )
                             )
                         }
                     }
@@ -126,7 +138,8 @@ class OrienteeringCreatorViewModel(
                             competitionDirection = details.competition.direction,
                             punchingSystem = details.competition.punchingSystem,
                             participantGroups = details.groupsWithParticipants.map { it.group },
-                            startTimeMode = details.competition.startTimeMode
+                            startTimeMode = details.competition.startTimeMode,
+                            countdownTimer = details.competition.countdownTimer
                         )
                     }
                 }.onFailure {
@@ -140,7 +153,8 @@ class OrienteeringCreatorViewModel(
                                 description = competition.competition.description,
                                 competitionDirection = competition.direction,
                                 punchingSystem = competition.punchingSystem,
-                                startTimeMode = competition.startTimeMode
+                                startTimeMode = competition.startTimeMode,
+                                countdownTimer = competition.countdownTimer
                             )
                         }
                     }
@@ -164,25 +178,38 @@ class OrienteeringCreatorViewModel(
     }
 
     private fun handleCompetitionCreate() {
-        val newDate = DateTimeFormat.transformLongToDisplayDate(stateValue.date)
+        val currentState = stateValue
+        val isEmptyAddress = currentState.address.isBlank()
+        val isEmptyGroup = currentState.participantGroups.isEmpty()
+        
+        val newDate = DateTimeFormat.transformLongToDisplayDate(currentState.date)
+        val newTitle = currentState.title.ifEmpty {
+            resourceProvider.getString(
+                R.string.label_competition_start_full,
+                newDate
+            )
+        }
+
         updateState {
             copy(
                 errors = errors.copy(
-                    isEmptyAddress = address.isBlank(),
-                    isEmptyGroup = participantGroups.isEmpty()
+                    isEmptyAddress = isEmptyAddress,
+                    isEmptyGroup = isEmptyGroup
                 ),
-                title = title.ifEmpty {
-                    resourceProvider.getString(
-                        R.string.label_competition_start_full,
-                        newDate
-                    )
-                }
+                title = newTitle
             )
         }
-        if (stateValue.errors.checkErrors()) {
+
+        val hasErrors = isEmptyAddress || isEmptyGroup || 
+                currentState.errors.isGroupTitleError || 
+                currentState.errors.isGroupDistanceError || 
+                currentState.errors.isCountOfControlsError || 
+                currentState.errors.isMaxTimeError
+
+        if (!hasErrors) {
             viewModelScope.launch(Dispatchers.IO) {
                 userRepository.retrieveUser().onSuccess {
-                    val competition = stateValue.constructOrienteeringCompetition(userId = it.id)
+                    val competition = stateValue.copy(title = newTitle).constructOrienteeringCompetition(userId = it.id)
                     if (stateValue.competitionId == null) {
                         saveNewCompetition(
                             orienteeringCompetition = competition,
@@ -244,4 +271,6 @@ class OrienteeringCreatorViewModel(
     fun updateAddress(address: String) = updateState { copy(address = address) }
 
     fun updateDescription(description: String) = updateState { copy(description = description) }
+
+    fun updateCountdownTimer(timer: String) = updateState { copy(countdownTimer = timer.toIntOrNull()) }
 }

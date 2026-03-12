@@ -9,13 +9,25 @@ import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.ui.BaseState
-import java.time.Instant
-import java.time.ZoneId
+import java.time.LocalDate
 
 /**
- * Состояние экрана создания соревнования по ориентированию.
+ * Состояние экрана создания соревнования.
  * 
- * @property date Дата в миллисекундах.
+ * @property competitionId ID соревнования (null если создание)
+ * @property title Заголовок
+ * @property date Дата (millis)
+ * @property time Время (строка)
+ * @property address Адрес
+ * @property description Описание
+ * @property participantGroups Список групп
+ * @property errors Ошибки валидации
+ * @property isShowGroupCreateDialog Показ диалога создания группы
+ * @property punchingSystem Система отметки
+ * @property editGroupIndex Индекс редактируемой группы
+ * @property competitionDirection Направление
+ * @property startTimeMode Режим старта
+ * @property countdownTimer Таймер отсчета (мин)
  */
 data class OrienteeringCreatorState(
     val competitionId: Long? = null,
@@ -30,7 +42,8 @@ data class OrienteeringCreatorState(
     val punchingSystem: PunchingSystem = PunchingSystem.SPORTIDUINO,
     val editGroupIndex: Int = -1,
     val competitionDirection: OrienteeringDirection? = null,
-    val startTimeMode: StartTimeMode = StartTimeMode.STRICT
+    val startTimeMode: StartTimeMode = StartTimeMode.STRICT,
+    val countdownTimer: Int? = null
 ) : BaseState {
     fun constructOrienteeringCompetition(userId: String): OrienteeringCompetition {
         return OrienteeringCompetition(
@@ -46,7 +59,8 @@ data class OrienteeringCreatorState(
             ),
             direction = competitionDirection ?: OrienteeringDirection.FORWARD,
             punchingSystem = punchingSystem,
-            startTimeMode = startTimeMode
+            startTimeMode = startTimeMode,
+            countdownTimer = countdownTimer
         )
     }
 }

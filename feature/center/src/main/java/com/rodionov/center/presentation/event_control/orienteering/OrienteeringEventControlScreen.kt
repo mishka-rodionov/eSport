@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.event_control.OrientEventControlAction
+import com.rodionov.domain.models.orienteering.StartTimeMode
 import org.koin.androidx.compose.koinViewModel
 
 private const val WEIGHT_DEFAULT = 1f
@@ -36,11 +37,6 @@ private const val CORNER_SHAPE_DEFAULT = 120
 /**
  * Composable-функция, которая служит главным экраном для управления событием по спортивному ориентированию.
  * Она адаптирует свой макет в зависимости от доступной ширины экрана, определяемой [windowSizeClass].
- * Для широких экранов кнопки управления отображаются в один ряд, а для узких — в виде сетки 2x2.
- * Этот экран обрабатывает взаимодействия с пользователем, делегируя действия предоставленной [viewModel].
- *
- * @param viewModel Модель представления [OrienteeringEventControlViewModel], отвечающая за бизнес-логику и состояние экрана. Получается через [koinViewModel] из Koin.
- * @param windowSizeClass [WindowSizeClass] текущего окна, используется для определения, должен ли макет быть расширенным или компактным.
  */
 @Composable
 fun OrienteeringEventControlScreen(
@@ -67,6 +63,44 @@ fun OrienteeringEventControlScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        if (state.isTimerRunning) {
+            val minutes = (state.countdownMillis / 1000) / 60
+            val seconds = (state.countdownMillis / 1000) % 60
+            Text(
+                text = "До старта: %02d:%02d".format(minutes, seconds),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+
+        OutlinedButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            onClick = {
+                viewModel.onAction(OrientEventControlAction.OpenGetOrienteeringChip)
+            },
+            content = {
+                Text("Выдать чипы")
+            }
+        )
+
+        if (state.competition?.startTimeMode == StartTimeMode.USER_SET && !state.isTimerRunning && state.competition?.startTime == null) {
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = Dimens.SIZE_BASE.dp),
+                onClick = {
+                    viewModel.onAction(OrientEventControlAction.StartCompetition)
+                },
+                content = {
+                    Text("Старт")
+                }
+            )
+        }
+
         OutlinedButton(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,19 +124,6 @@ fun OrienteeringEventControlScreen(
             },
             content = {
                 Text("Жеребьёвка участников")
-            }
-        )
-
-        OutlinedButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(top = Dimens.SIZE_BASE.dp),
-            onClick = {
-                viewModel.onAction(OrientEventControlAction.OpenGetOrienteeringChip)
-            },
-            content = {
-                Text("Выдать чипы")
             }
         )
 

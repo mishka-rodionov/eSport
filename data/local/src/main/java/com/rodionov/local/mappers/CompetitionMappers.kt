@@ -9,49 +9,43 @@ import com.rodionov.local.entities.orienteering.OrienteeringParticipantEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
 import com.rodionov.local.entities.orienteering.OrienteeringResultEntity
 
-/**
- * Маппер для преобразования доменной модели соревнования в сущность базы данных.
- */
 fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
     return OrienteeringCompetitionEntity(
-        id = this.competitionId,
-        competition = this.competition,
-        direction = this.direction,
+        id = this.competitionId, // Используем тот же ID
+        competition = this.competition, // Встраиваемый объект копируется напрямую
+        direction = this.direction,     // Enum копируется напрямую (Room обработает через TypeConverter)
         punchingSystem = this.punchingSystem,
-        startTimeMode = this.startTimeMode
+        startTimeMode = this.startTimeMode,
+        countdownTimer = this.countdownTimer,
+        startTime = this.startTime
     )
 }
 
-/**
- * Преобразование списка доменных моделей в список сущностей.
- */
+// Если вам нужно создавать список сущностей:
 fun List<OrienteeringCompetition>.toEntityList(): List<OrienteeringCompetitionEntity> {
     return this.map { it.toEntity() }
 }
 
-/**
- * Маппер для преобразования сущности базы данных в доменную модель соревнования.
- */
+
+// --- Маппер из сущности Room в доменную модель ---
+
 fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
     return OrienteeringCompetition(
-        competitionId = this.id,
-        competition = this.competition,
-        direction = this.direction,
+        competitionId = this.id, // Используем тот же ID
+        competition = this.competition, // Встраиваемый объект копируется напрямую
+        direction = this.direction,     // Enum копируется напрямую
         punchingSystem = this.punchingSystem,
-        startTimeMode = this.startTimeMode
+        startTimeMode = this.startTimeMode,
+        countdownTimer = this.countdownTimer,
+        startTime = this.startTime
     )
 }
 
-/**
- * Преобразование списка сущностей в список доменных моделей.
- */
+// Если вам нужно создавать список доменных моделей:
 fun List<OrienteeringCompetitionEntity>.toCompetitionDomainList(): List<OrienteeringCompetition> {
     return this.map { it.toDomain() }
 }
 
-/**
- * Маппер для группы участников.
- */
 fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
     return ParticipantGroupEntity(
         groupId = this.groupId,
@@ -64,9 +58,6 @@ fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
     )
 }
 
-/**
- * Маппер для сущности группы в доменную модель.
- */
 fun ParticipantGroupEntity.toDomain(): ParticipantGroup {
     return ParticipantGroup(
         groupId = this.groupId,
@@ -76,12 +67,10 @@ fun ParticipantGroupEntity.toDomain(): ParticipantGroup {
         countOfControls = this.countOfControls,
         maxTimeInMinute = this.maxTimeInMinute,
         controlPoints = this.controlPoints
+
     )
 }
 
-/**
- * Маппер для сущности участника в доменную модель.
- */
 fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
     return OrienteeringParticipant(
         id = id,
@@ -100,9 +89,6 @@ fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
     )
 }
 
-/**
- * Маппер для доменной модели участника в сущность базы данных.
- */
 fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
     return OrienteeringParticipantEntity(
         id = id,
@@ -121,9 +107,6 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
     )
 }
 
-/**
- * Маппер для результата в сущность базы данных.
- */
 fun OrienteeringResult.toEntity(): OrienteeringResultEntity {
     return OrienteeringResultEntity(
         id = id,
@@ -140,9 +123,6 @@ fun OrienteeringResult.toEntity(): OrienteeringResultEntity {
     )
 }
 
-/**
- * Маппер для сущности результата в доменную модель.
- */
 fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
     return OrienteeringResult(
         id = id,
@@ -159,9 +139,6 @@ fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
     )
 }
 
-/**
- * Преобразование списка сущностей результатов в доменные модели.
- */
 fun List<OrienteeringResultEntity>.toDomainList(): List<OrienteeringResult> {
     return this.map { it.toDomain() }
 }

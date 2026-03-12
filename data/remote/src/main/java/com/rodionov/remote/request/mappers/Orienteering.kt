@@ -11,7 +11,10 @@ fun OrienteeringCompetition.toRequest(): OrienteeringCompetitionRequest {
     return OrienteeringCompetitionRequest(
         competitionId,
         competition.toRequest(),
-        direction.name
+        direction.name,
+        punchingSystem.name,
+        startTimeMode.name,
+        countdownTimer
     )
 }
 
