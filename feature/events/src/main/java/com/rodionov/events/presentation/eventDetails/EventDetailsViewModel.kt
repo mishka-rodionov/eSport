@@ -10,7 +10,6 @@ import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
 
 class EventDetailsViewModel(
-    val savedStateHandle: SavedStateHandle,
     private val navigation: Navigation
 ) : BaseViewModel<EventDetailsState>(
     EventDetailsState(
