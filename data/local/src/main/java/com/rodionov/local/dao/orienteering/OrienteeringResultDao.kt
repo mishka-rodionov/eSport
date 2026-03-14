@@ -138,4 +138,13 @@ interface OrienteeringResultDao {
         competitionId: Long
     ): List<GroupWithParticipantsAndResultsEntity>
 
+    /**
+     * Обновляет флаг возможности редактирования для всех результатов соревнования.
+     *
+     * @param competitionId Идентификатор соревнования
+     * @param isEditable Новое значение флага
+     */
+    @Query("UPDATE orienteering_results SET isEditable = :isEditable WHERE competitionId = :competitionId")
+    suspend fun updateIsEditableForCompetition(competitionId: Long, isEditable: Boolean)
+
 }

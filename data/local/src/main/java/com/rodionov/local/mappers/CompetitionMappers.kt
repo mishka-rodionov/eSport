@@ -9,6 +9,9 @@ import com.rodionov.local.entities.orienteering.OrienteeringParticipantEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
 import com.rodionov.local.entities.orienteering.OrienteeringResultEntity
 
+/**
+ * Преобразование доменной модели соревнования в сущность базы данных.
+ */
 fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
     return OrienteeringCompetitionEntity(
         id = this.competitionId, // Используем тот же ID
@@ -21,7 +24,9 @@ fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
     )
 }
 
-// Если вам нужно создавать список сущностей:
+/**
+ * Преобразование списка доменных моделей соревнований в список сущностей базы данных.
+ */
 fun List<OrienteeringCompetition>.toEntityList(): List<OrienteeringCompetitionEntity> {
     return this.map { it.toEntity() }
 }
@@ -29,6 +34,9 @@ fun List<OrienteeringCompetition>.toEntityList(): List<OrienteeringCompetitionEn
 
 // --- Маппер из сущности Room в доменную модель ---
 
+/**
+ * Преобразование сущности соревнования из базы данных в доменную модель.
+ */
 fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
     return OrienteeringCompetition(
         competitionId = this.id, // Используем тот же ID
@@ -41,11 +49,16 @@ fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
     )
 }
 
-// Если вам нужно создавать список доменных моделей:
+/**
+ * Преобразование списка сущностей соревнований в список доменных моделей.
+ */
 fun List<OrienteeringCompetitionEntity>.toCompetitionDomainList(): List<OrienteeringCompetition> {
     return this.map { it.toDomain() }
 }
 
+/**
+ * Преобразование доменной модели группы участников в сущность базы данных.
+ */
 fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
     return ParticipantGroupEntity(
         groupId = this.groupId,
@@ -58,6 +71,9 @@ fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
     )
 }
 
+/**
+ * Преобразование сущности группы участников из базы данных в доменную модель.
+ */
 fun ParticipantGroupEntity.toDomain(): ParticipantGroup {
     return ParticipantGroup(
         groupId = this.groupId,
@@ -71,6 +87,9 @@ fun ParticipantGroupEntity.toDomain(): ParticipantGroup {
     )
 }
 
+/**
+ * Преобразование сущности участника из базы данных в доменную модель.
+ */
 fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
     return OrienteeringParticipant(
         id = id,
@@ -89,6 +108,9 @@ fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
     )
 }
 
+/**
+ * Преобразование доменной модели участника в сущность базы данных.
+ */
 fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
     return OrienteeringParticipantEntity(
         id = id,
@@ -107,6 +129,9 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
     )
 }
 
+/**
+ * Преобразование доменной модели результата в сущность базы данных.
+ */
 fun OrienteeringResult.toEntity(): OrienteeringResultEntity {
     return OrienteeringResultEntity(
         id = id,
@@ -119,10 +144,15 @@ fun OrienteeringResult.toEntity(): OrienteeringResultEntity {
         rank = rank,
         status = status,
         penaltyTime = penaltyTime,
-        splits = splits
+        splits = splits,
+        isEditable = isEditable,
+        isEdited = isEdited
     )
 }
 
+/**
+ * Преобразование сущности результата из базы данных в доменную модель.
+ */
 fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
     return OrienteeringResult(
         id = id,
@@ -135,10 +165,15 @@ fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
         rank = rank,
         status = status,
         penaltyTime = penaltyTime,
-        splits = splits
+        splits = splits,
+        isEditable = isEditable,
+        isEdited = isEdited
     )
 }
 
+/**
+ * Преобразование списка сущностей результатов в список доменных моделей.
+ */
 fun List<OrienteeringResultEntity>.toDomainList(): List<OrienteeringResult> {
     return this.map { it.toDomain() }
 }

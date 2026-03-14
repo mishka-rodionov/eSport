@@ -357,4 +357,25 @@ class OrienteeringCompetitionInteractor(
         return localRepository.getResultByGroups(competitionId)
     }
 
+    /**
+     * Утверждает результаты соревнования, делая их недоступными для редактирования.
+     *
+     * @param competitionId Идентификатор соревнования.
+     * @return Результат операции.
+     */
+    suspend fun approveResults(competitionId: Long): Result<Any> {
+        return localRepository.updateIsEditableForCompetition(competitionId, false)
+    }
+
+    /**
+     * Обновляет результат участника и пересчитывает ранги в группе.
+     *
+     * @param orienteeringResult Результат для обновления.
+     */
+    suspend fun updateParticipantResult(orienteeringResult: OrienteeringResult) {
+        localRepository.updateResults(listOf(orienteeringResult)).onSuccess {
+            updateResultsAndRanks(orienteeringResult)
+        }
+    }
+
 }

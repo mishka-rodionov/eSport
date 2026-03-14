@@ -1,6 +1,8 @@
 package com.rodionov.utils
 
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -76,6 +78,28 @@ object DateTimeFormat {
                 .format(timeFormatter)
         } catch (e: Exception) {
             ""
+        }
+    }
+
+    /**
+     * Обновляет время в существующем timestamp или создает новый с текущей датой.
+     *
+     * @param timestamp Исходный timestamp.
+     * @param timeString Строка времени в формате HH:mm.
+     * @return Обновленный timestamp в миллисекундах.
+     */
+    fun updateTimeInTimestamp(timestamp: Long?, timeString: String): Long? {
+        if (timeString.isBlank()) return null
+        return try {
+            val localTime = LocalTime.parse(timeString, timeFormatter)
+            val baseDate = if (timestamp != null && timestamp != 0L) {
+                java.time.Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
+            } else {
+                LocalDate.now()
+            }
+            baseDate.atTime(localTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        } catch (e: Exception) {
+            timestamp
         }
     }
 

@@ -50,6 +50,9 @@ object Dimens {
     /**4*/
     const val SIZE_QUARTER = 4
 
+    /**3*/
+    const val SIZE_THREE = 3
+
     /**2*/
     const val SIZE_TWO = 2
 

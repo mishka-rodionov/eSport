@@ -16,6 +16,7 @@ import com.rodionov.local.converters.ResultConverters
  *
  * @param id Уникальный идентификатор результата (автогенерируемый)
  * @param competitionId Идентификатор соревнования (внешний ключ)
+ * @param groupId Идентификатор группы (внешний ключ)
  * @param participantId Идентификатор участника (внешний ключ)
  * @param startTime Время старта в миллисекундах (Unix timestamp)
  * @param finishTime Время финиша в миллисекундах (Unix timestamp)
@@ -24,6 +25,8 @@ import com.rodionov.local.converters.ResultConverters
  * @param status Статус результата (например, финишировал, сошёл, не стартовал)
  * @param penaltyTime Штрафное время в миллисекундах
  * @param splits Список отметок на контрольных пунктах (сплитов)
+ * @param isEditable Флаг возможности редактирования результата
+ * @param isEdited Флаг того, что результат был изменен вручную
  */
 @Entity(
     tableName = "orienteering_results",
@@ -56,8 +59,11 @@ data class OrienteeringResultEntity(
     val startTime: Long? = null,
     val finishTime: Long? = null,
     val totalTime: Long? = null,
+    @Deprecated("Использовать rank")
     val rank: Int? = null,
     val status: ResultStatus,
     val penaltyTime: Long = 0,
-    val splits: List<SplitTime>? = null
+    val splits: List<SplitTime>? = null,
+    val isEditable: Boolean = true,
+    val isEdited: Boolean = false
 )

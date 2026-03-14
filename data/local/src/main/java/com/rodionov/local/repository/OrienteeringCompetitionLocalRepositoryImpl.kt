@@ -276,4 +276,13 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             orienteeringResultDao.getProtocolByCompetition(competitionId).map { it.toDomain() }
         }
     }
+
+    override suspend fun updateIsEditableForCompetition(
+        competitionId: Long,
+        isEditable: Boolean
+    ): Result<Any> {
+        return runCatching {
+            orienteeringResultDao.updateIsEditableForCompetition(competitionId, isEditable)
+        }
+    }
 }
