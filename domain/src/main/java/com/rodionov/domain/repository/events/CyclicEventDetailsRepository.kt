@@ -6,5 +6,4 @@ interface CyclicEventDetailsRepository {
 
     suspend fun getEventDetails(eventId: String): Result<CyclicEventDetails?>
 
-
 }

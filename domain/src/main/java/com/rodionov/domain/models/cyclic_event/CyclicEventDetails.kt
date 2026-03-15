@@ -5,8 +5,10 @@ data class CyclicEventDetails(
     val organizationId: String,
     val title: String,
     val description: String,
-    val startDate: String,
-    val endDate: String,
+    val startDate: Long,
+    val endDate: Long,
+    val endRegistrationDate: Long,
+    val maxParticipants: Int,
     val city: String,
     val participantGroups: List<EventParticipantGroup>
 )

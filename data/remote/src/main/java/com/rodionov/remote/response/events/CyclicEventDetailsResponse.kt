@@ -12,9 +12,13 @@ data class CyclicEventDetailsResponse(
     @SerializedName("description")
     val description: String,
     @SerializedName("startDate")
-    val startDate: String,
+    val startDate: Long,
     @SerializedName("endDate")
-    val endDate: String,
+    val endDate: Long,
+    @SerializedName("endRegistrationDate")
+    val endRegistrationDate: Long,
+    @SerializedName("maxParticipants")
+    val maxParticipants: Int,
     @SerializedName("city")
     val city: String,
     @SerializedName("participantGroups")

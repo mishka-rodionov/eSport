@@ -4,6 +4,12 @@
 **Gemini (Android Studio AI)**
 
 ---
+## General
+
+- Write all your answers in Russian
+- Do not delete commented lines
+- Stick to the existing project architecture
+
 
 ## Purpose
 
