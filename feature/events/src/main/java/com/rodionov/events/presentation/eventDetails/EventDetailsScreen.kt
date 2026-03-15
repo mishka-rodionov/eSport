@@ -2,6 +2,8 @@ package com.rodionov.events.presentation.eventDetails
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,14 +12,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -27,31 +32,48 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rodionov.domain.models.cyclic_event.CyclicEventDetails
+import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.events.R
 import com.rodionov.events.data.details.EventDetailsState
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Экран деталей события.
+ * @param idEvent Идентификатор события.
+ * @param viewModel Вьюмодель экрана.
+ */
 @Composable
-fun EventDetailsScreen(viewModel: EventDetailsViewModel = koinViewModel()) {
+fun EventDetailsScreen(
+    idEvent: Long,
+    viewModel: EventDetailsViewModel = koinViewModel()
+) {
     val state by viewModel.state.collectAsState()
-    ScrollableColumnScreenWithImageAnimation(state)
+
+    LaunchedEffect(idEvent) {
+        viewModel.initialize(idEvent)
+    }
+
+    ScrollableColumnScreenWithImageAnimation(
+        state = state,
+        onAction = viewModel::onAction
+    )
 }
 
 /**
  * Основной контент экрана деталей события с анимацией изображения при прокрутке.
  * @param state Состояние экрана.
+ * @param onAction Обработчик действий.
  */
 @Composable
 fun ScrollableColumnScreenWithImageAnimation(
-    state: EventDetailsState
+    state: EventDetailsState,
+    onAction: (EventDetailsAction) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val imageHeightPx = with(LocalDensity.current) { 250.dp.toPx() }
 
     // Анимация прозрачности изображения
-    // Изображение полностью видимо, когда прокрутка в самом верху (scrollState.value == 0)
-    // И полностью невидимо, когда прокрутка достигает высоты изображения
     val imageAlpha by animateFloatAsState(
         targetValue = (1f - (scrollState.value / imageHeightPx)).coerceIn(0f, 1f),
         label = "Image Alpha Animation"
@@ -68,12 +90,12 @@ fun ScrollableColumnScreenWithImageAnimation(
             modifier = Modifier.padding(16.dp)
         )
         Image(
-            painter = painterResource(id = R.drawable.map_24dp),
+            painter = painterResource(id = R.drawable.forest),
             contentDescription = "Header Image",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(250.dp)
-                .graphicsLayer { // Используем graphicsLayer для применения alpha
+                .graphicsLayer {
                     alpha = imageAlpha
                 },
             contentScale = ContentScale.Crop
@@ -86,8 +108,10 @@ fun ScrollableColumnScreenWithImageAnimation(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = state.eventDetails?.city ?: "", modifier = Modifier.weight(1f))
-            Text(text = DateTimeFormat.transformLongToDisplayDate(state.eventDetails?.startDate), modifier = Modifier.weight(1f))
-//            Text(text = state.eventDetails?.coordinates?.latitude?.toString() ?: "", modifier = Modifier.weight(1f))
+            Text(
+                text = DateTimeFormat.transformLongToDisplayDate(state.eventDetails?.startDate),
+                modifier = Modifier.weight(1f)
+            )
         }
 
         Button(
@@ -106,7 +130,80 @@ fun ScrollableColumnScreenWithImageAnimation(
                 .fillMaxWidth()
                 .padding(16.dp)
         )
+
+        state.eventDetails?.participantGroups?.let { groups ->
+            ParticipantGroupsList(groups = groups, onGroupClick = { group ->
+                onAction(EventDetailsAction.OnGroupClick(group))
+            })
+        }
     }
+}
+
+/**
+ * Блок с отображением списка групп участников.
+ * @param groups Список групп.
+ * @param onGroupClick Обработчик клика на группу.
+ */
+@Composable
+private fun ParticipantGroupsList(
+    groups: List<EventParticipantGroup>,
+    onGroupClick: (EventParticipantGroup) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Группы участников",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        groups.forEach { group ->
+            ParticipantGroupItem(group = group, onClick = { onGroupClick(group) })
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+/**
+ * Айтем группы участников.
+ * @param group Данные группы.
+ * @param onClick Обработчик клика.
+ */
+@Composable
+private fun ParticipantGroupItem(
+    group: EventParticipantGroup,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .clickable { onClick() }
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = group.title,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = "Участников: ${group.registeredParticipant}/${group.maxParticipant}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun Spacer(modifier: Modifier) {
+    androidx.compose.foundation.layout.Spacer(modifier = modifier)
 }
 
 @Preview(showBackground = true, name = "Заполненное состояние")
@@ -126,9 +223,14 @@ private fun EventDetailsScreenPreview() {
                         endRegistrationDate = System.currentTimeMillis() - 3600000L,
                         maxParticipants = 500,
                         city = "Москва",
-                        participantGroups = emptyList()
+                        participantGroups = listOf(
+                            EventParticipantGroup(1, "М21", "Профессионалы", 100, 45),
+                            EventParticipantGroup(2, "Ж21", "Профессионалы", 100, 30),
+                            EventParticipantGroup(3, "Open", "Любители", 300, 150)
+                        )
                     )
-                )
+                ),
+                onAction = {}
             )
         }
     }
@@ -140,7 +242,8 @@ private fun EventDetailsScreenEmptyPreview() {
     MaterialTheme {
         Surface {
             ScrollableColumnScreenWithImageAnimation(
-                state = EventDetailsState(eventDetails = null)
+                state = EventDetailsState(eventDetails = null),
+                onAction = {}
             )
         }
     }

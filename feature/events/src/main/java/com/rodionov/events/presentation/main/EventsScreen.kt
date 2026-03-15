@@ -68,7 +68,7 @@ fun EventItem(
         }
     ){
         Image(
-            painter = painterResource(id = R.drawable.map_24dp),
+            painter = painterResource(id = R.drawable.forest),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxWidth()

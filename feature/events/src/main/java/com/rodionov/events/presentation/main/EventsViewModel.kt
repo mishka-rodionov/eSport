@@ -29,8 +29,9 @@ class EventsViewModel(
             is EventsAction.EventClick -> {
                 viewModelScope.launch {
                     navigation.navigate(
-                        EventsNavigation.EventDetailsRoute, argument =
-                            navigation.createArguments(EventsConstants.EVENT_ID.name to stateValue.events[action.eventId])
+                        EventsNavigation.EventDetailsRoute(
+                            eventId = action.eventId.toLong()
+                        )
                     )
                 }
             }
