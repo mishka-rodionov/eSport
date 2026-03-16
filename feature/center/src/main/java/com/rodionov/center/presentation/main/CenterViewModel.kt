@@ -56,7 +56,7 @@ class CenterViewModel(
         viewModelScope.launch {
             val isAuthed = userRepository.isAuthorized()
             updateState {
-                copy(isAuthed = userRepository.isAuthorized())
+                copy(isAuthed = isAuthed)
             }
             if (isAuthed) {
                 userRepository.retrieveUser().onSuccess { user ->
