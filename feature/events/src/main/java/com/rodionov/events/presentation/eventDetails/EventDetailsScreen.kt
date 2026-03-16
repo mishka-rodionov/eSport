@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rodionov.domain.models.cyclic_event.CyclicEventDetails
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
+import com.rodionov.domain.models.events.EventStatus
+import com.rodionov.domain.models.events.EventType
 import com.rodionov.events.R
 import com.rodionov.events.data.details.EventDetailsState
 import com.rodionov.utils.DateTimeFormat
@@ -114,14 +117,11 @@ fun ScrollableColumnScreenWithImageAnimation(
             )
         }
 
-        Button(
-            onClick = { /* TODO: Регистрация */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Text("Зарегистрироваться")
-        }
+        // Логика отображения кнопок в зависимости от статуса события
+        EventActionButtons(
+            status = state.eventDetails?.status,
+            onAction = onAction
+        )
 
         Text(
             text = state.eventDetails?.description ?: "",
@@ -135,6 +135,45 @@ fun ScrollableColumnScreenWithImageAnimation(
             ParticipantGroupsList(groups = groups, onGroupClick = { group ->
                 onAction(EventDetailsAction.OnGroupClick(group))
             })
+        }
+    }
+}
+
+/**
+ * Отображает кнопки действия в зависимости от статуса события.
+ * @param status Статус события.
+ * @param onAction Обработчик действий.
+ */
+@Composable
+private fun EventActionButtons(
+    status: EventStatus?,
+    onAction: (EventDetailsAction) -> Unit
+) {
+    when (status) {
+        EventStatus.CREATED, EventStatus.REGISTRATION -> {
+            Button(
+                onClick = { /* TODO: Регистрация */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text("Зарегистрироваться")
+            }
+        }
+
+        EventStatus.FINISHED -> {
+            Button(
+                onClick = { onAction(EventDetailsAction.ToResults) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text("Результаты")
+            }
+        }
+
+        else -> {
+            // Для других статусов кнопки не отображаем или добавляем иную логику
         }
     }
 }
@@ -203,32 +242,17 @@ private fun ParticipantGroupItem(
 
 @Composable
 private fun Spacer(modifier: Modifier) {
-    androidx.compose.foundation.layout.Spacer(modifier = modifier)
+    Spacer(modifier = modifier)
 }
 
-@Preview(showBackground = true, name = "Заполненное состояние")
+@Preview(showBackground = true, name = "Регистрация")
 @Composable
-private fun EventDetailsScreenPreview() {
+private fun EventDetailsRegistrationPreview() {
     MaterialTheme {
         Surface {
             ScrollableColumnScreenWithImageAnimation(
                 state = EventDetailsState(
-                    eventDetails = CyclicEventDetails(
-                        eventId = 1L,
-                        organizationId = "org_1",
-                        title = "Марафон \"Путь к успеху\"",
-                        description = "Большой забег через весь город. Приглашаем всех желающих испытать свои силы и насладиться видами нашего прекрасного города.",
-                        startDate = System.currentTimeMillis(),
-                        endDate = System.currentTimeMillis() + 86400000L,
-                        endRegistrationDate = System.currentTimeMillis() - 3600000L,
-                        maxParticipants = 500,
-                        city = "Москва",
-                        participantGroups = listOf(
-                            EventParticipantGroup(1, "М21", "Профессионалы", 100, 45),
-                            EventParticipantGroup(2, "Ж21", "Профессионалы", 100, 30),
-                            EventParticipantGroup(3, "Open", "Любители", 300, 150)
-                        )
-                    )
+                    eventDetails = mockEvent(EventStatus.REGISTRATION)
                 ),
                 onAction = {}
             )
@@ -236,15 +260,37 @@ private fun EventDetailsScreenPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Пустое состояние")
+@Preview(showBackground = true, name = "Результаты")
 @Composable
-private fun EventDetailsScreenEmptyPreview() {
+private fun EventDetailsResultsPreview() {
     MaterialTheme {
         Surface {
             ScrollableColumnScreenWithImageAnimation(
-                state = EventDetailsState(eventDetails = null),
+                state = EventDetailsState(
+                    eventDetails = mockEvent(EventStatus.FINISHED)
+                ),
                 onAction = {}
             )
         }
     }
 }
+
+/**
+ * Вспомогательная функция для создания мока события.
+ */
+private fun mockEvent(status: EventStatus) = CyclicEventDetails(
+    eventId = 1L,
+    organizationId = "org_1",
+    title = "Марафон \"Путь к успеху\"",
+    description = "Большой забег через весь город.",
+    startDate = System.currentTimeMillis(),
+    endDate = System.currentTimeMillis() + 86400000L,
+    endRegistrationDate = System.currentTimeMillis() - 3600000L,
+    maxParticipants = 500,
+    city = "Москва",
+    status = status,
+    participantGroups = listOf(
+        EventParticipantGroup(1, "М21", "Профессионалы", 100, 45)
+    ),
+    eventType = EventType.CyclicEvent.Orienteering
+)

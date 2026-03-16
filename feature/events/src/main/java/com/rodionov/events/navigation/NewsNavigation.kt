@@ -6,6 +6,7 @@ import androidx.navigation.toRoute
 import com.rodionov.data.navigation.EventParticipantGroupNavType
 import com.rodionov.data.navigation.EventsNavigation
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
+import com.rodionov.events.event_results.EventResultsScreen
 import com.rodionov.events.presentation.main.EventsScreen
 import com.rodionov.events.presentation.eventDetails.EventDetailsScreen
 import com.rodionov.events.presentation.event_participant_group.EventParticipantGroupScreen
@@ -29,6 +30,10 @@ fun NavGraphBuilder.eventsGraph() {
                 eventId = route.eventId,
                 participantGroup = route.participantGroup
             )
+        }
+        composable<EventsNavigation.EventResultsRoute> {
+            val route = it.toRoute<EventsNavigation.EventResultsRoute>()
+            EventResultsScreen(eventId = route.eventId)
         }
 //    }
 }

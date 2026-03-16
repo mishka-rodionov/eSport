@@ -1,5 +1,6 @@
 package com.rodionov.events.di
 
+import com.rodionov.events.event_results.EventResultsViewModel
 import com.rodionov.events.presentation.eventDetails.EventDetailsViewModel
 import com.rodionov.events.presentation.event_participant_group.EventParticipantGroupViewModel
 import com.rodionov.events.presentation.main.EventsViewModel
@@ -10,4 +11,5 @@ val eventsModule = module {
     viewModelOf(::EventsViewModel)
     viewModelOf(::EventDetailsViewModel)
     viewModelOf(::EventParticipantGroupViewModel)
+    viewModelOf(::EventResultsViewModel)
 }

@@ -1,5 +1,8 @@
 package com.rodionov.domain.models.cyclic_event
 
+import com.rodionov.domain.models.events.EventStatus
+import com.rodionov.domain.models.events.EventType
+
 data class CyclicEventDetails(
     val eventId: Long,
     val organizationId: String,
@@ -10,5 +13,7 @@ data class CyclicEventDetails(
     val endRegistrationDate: Long,
     val maxParticipants: Int,
     val city: String,
-    val participantGroups: List<EventParticipantGroup>
+    val participantGroups: List<EventParticipantGroup>,
+    val status: EventStatus,
+    val eventType: EventType
 )

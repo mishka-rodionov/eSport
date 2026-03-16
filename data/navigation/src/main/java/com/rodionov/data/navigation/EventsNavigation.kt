@@ -45,4 +45,11 @@ sealed class EventsNavigation: BaseNavigation {
         val eventId: Long,
         val participantGroup: EventParticipantGroup
     ) : EventsNavigation()
+
+    /**
+     * Роут результатов события.
+     * @param eventId Идентификатор события.
+     */
+    @Serializable
+    data class EventResultsRoute(val eventId: Long) : EventsNavigation()
 }

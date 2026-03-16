@@ -2,6 +2,8 @@ package com.rodionov.remote.repository.events
 
 import com.rodionov.domain.models.cyclic_event.CyclicEventDetails
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
+import com.rodionov.domain.models.events.EventStatus
+import com.rodionov.domain.models.events.EventType
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 
@@ -27,7 +29,9 @@ class CyclicEventDetailsRepositoryImpl : CyclicEventDetailsRepository {
                     EventParticipantGroup(1, "М21", "Профессионалы", 100, 45),
                     EventParticipantGroup(2, "Ж21", "Профессионалы", 100, 30),
                     EventParticipantGroup(3, "Open", "Любители", 300, 150)
-                )
+                ),
+                status = EventStatus.FINISHED,
+                eventType = EventType.CyclicEvent.Orienteering
             )
         )
     }

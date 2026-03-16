@@ -10,6 +10,13 @@ import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel для экрана деталей события.
+ * Управляет загрузкой данных события и навигацией к группам участников и результатам.
+ *
+ * @param cyclicEventDetailsRepository Репозиторий для получения деталей события.
+ * @param navigation Сервис навигации.
+ */
 class EventDetailsViewModel(
     private val cyclicEventDetailsRepository: CyclicEventDetailsRepository,
     private val navigation: Navigation
@@ -20,6 +27,7 @@ class EventDetailsViewModel(
     override fun onAction(action: BaseAction) {
         when (action) {
             is EventDetailsAction.OnGroupClick -> navigateToGroup(action.group)
+            is EventDetailsAction.ToResults -> navigateToResults()
         }
     }
 
@@ -39,6 +47,10 @@ class EventDetailsViewModel(
         }
     }
 
+    /**
+     * Переход к деталям группы участников.
+     * @param group Модель группы.
+     */
     private fun navigateToGroup(group: EventParticipantGroup) {
         val eventId = stateValue.eventDetails?.eventId ?: return
         viewModelScope.launch {
@@ -50,8 +62,24 @@ class EventDetailsViewModel(
             )
         }
     }
+
+    /**
+     * Переход на экран результатов события.
+     */
+    private fun navigateToResults() {
+        val eventId = stateValue.eventDetails?.eventId ?: return
+        viewModelScope.launch {
+            navigation.navigate(EventsNavigation.EventResultsRoute(eventId = eventId))
+        }
+    }
 }
 
+/**
+ * Действия на экране деталей события.
+ */
 sealed interface EventDetailsAction : BaseAction {
+    /** Клик по группе участников. */
     data class OnGroupClick(val group: EventParticipantGroup) : EventDetailsAction
+    /** Переход к результатам события. */
+    data object ToResults : EventDetailsAction
 }
