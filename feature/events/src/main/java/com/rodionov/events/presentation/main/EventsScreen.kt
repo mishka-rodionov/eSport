@@ -47,7 +47,7 @@ import com.example.designsystem.theme.Dimens
 import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
-import com.rodionov.events.R
+import com.rodionov.resources.R
 import com.rodionov.events.data.main.EventsAction
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel

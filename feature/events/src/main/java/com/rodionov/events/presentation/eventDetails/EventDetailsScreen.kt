@@ -36,7 +36,7 @@ import com.rodionov.domain.models.cyclic_event.CyclicEventDetails
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.events.EventStatus
 import com.rodionov.domain.models.events.EventType
-import com.rodionov.events.R
+import com.rodionov.resources.R
 import com.rodionov.events.data.details.EventDetailsState
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel

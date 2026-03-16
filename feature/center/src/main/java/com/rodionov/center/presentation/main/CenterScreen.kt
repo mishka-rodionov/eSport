@@ -97,7 +97,7 @@ fun EventContent(competition: Competition, eventId: Long,  userAction: (CenterEf
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(R.drawable.map_24dp),
+            painter = painterResource(R.drawable.forest),
             contentDescription = null,
             modifier = Modifier
                 .size(60.dp),
