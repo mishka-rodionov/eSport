@@ -116,7 +116,7 @@ fun EventItem(
                 Box(
                     modifier = Modifier
                         .padding(Dimens.SIZE_TWO.dp)
-                        .clip(RoundedCornerShape(Dimens.SIZE_SINGLE.dp))
+                        .clip(RoundedCornerShape(Dimens.SIZE_BASE.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                         .align(Alignment.TopStart)
