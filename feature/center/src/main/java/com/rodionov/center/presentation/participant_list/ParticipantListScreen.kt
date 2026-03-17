@@ -1,51 +1,29 @@
 package com.rodionov.center.presentation.participant_list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.designsystem.colors.LightColors
+import androidx.compose.ui.unit.sp
 import com.example.designsystem.components.DSBottomDialog
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.theme.Dimens
@@ -62,16 +40,6 @@ import org.koin.androidx.compose.koinViewModel
 /**
  * Экран отображения и управления списком участников соревнований,
  * разделенный на вкладки по группам участников.
- *
- * Основные возможности:
- * - Отображение вкладок для каждой [ParticipantGroup] с помощью [TabRow] и [HorizontalPager].
- * - Просмотр списка участников внутри выбранной группы, отсортированных по стартовому номеру.
- * - Создание новых участников через плавающую кнопку действия (FAB).
- * - Редактирование данных существующих участников через модальное диалоговое окно.
- * - Автоматическая загрузка данных о соревновании при запуске экрана.
- *
- * @param viewModel ViewModel для управления состоянием и бизнес-логикой экрана.
- * По умолчанию используется [ParticipantListViewModel], внедряемая через Koin.
  */
 @Composable
 fun ParticipantListScreen(
@@ -83,18 +51,25 @@ fun ParticipantListScreen(
     LaunchedEffect(viewModel) {
         viewModel.getCompetitionDetails()
     }
-    ParticipantListContent(userAction = userAction, state = state)
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        ParticipantListContent(userAction = userAction, state = state)
+    }
+
     if (state.isShowParticipantCreateDialog) {
         CreateParticipantDialog(
             userAction = userAction,
             group = state.group,
-            groupName = state.participantGroupWithParticipants[state.group].group.title,
+            groupName = state.participantGroupWithParticipants.getOrNull(state.group)?.group?.title ?: "",
             editingParticipant = state.editingParticipant
         )
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantListContent(
     userAction: (BaseAction) -> Unit,
@@ -102,43 +77,108 @@ fun ParticipantListContent(
 ) {
     val pagerState = rememberPagerState { state.participantGroupWithParticipants.size }
     val scope = rememberCoroutineScope()
+    
     Column(modifier = Modifier.fillMaxSize()) {
-        TabRow(selectedTabIndex = pagerState.currentPage) {
-            state.participantGroupWithParticipants.forEachIndexed { index, group ->
-                Tab(
-                    text = { Text(text = group.group.title) },
-                    selected = pagerState.currentPage == index,
-                    onClick = { scope.launch { pagerState.animateScrollToPage(index) } }
-                )
+        if (state.participantGroupWithParticipants.isNotEmpty()) {
+            SecondaryScrollableTabRow(
+                selectedTabIndex = pagerState.currentPage,
+                edgePadding = 16.dp,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary,
+                divider = {},
+                indicator = { 
+//                    if (pagerState.currentPage < tabPositions.size) {
+//                        TabRowDefaults.SecondaryIndicator(
+//                            Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+//                            color = MaterialTheme.colorScheme.primary
+//                        )
+//                    }
+                }
+            ) {
+                state.participantGroupWithParticipants.forEachIndexed { index, group ->
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                        text = {
+                            Text(
+                                text = group.group.title,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    )
+                }
             }
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            HorizontalPager(
-                state = pagerState
-            ) { page ->
-                ParticipantList(
-                    participants = state.participantGroupWithParticipants[page].participants.sortedBy { it.startNumber.toIntOrNull() },
-                    onEditClick = { participant ->
-                        userAction.invoke(ParticipantListAction.ShowEditParticipantDialog(page, participant))
+            if (state.participantGroupWithParticipants.isEmpty()) {
+                EmptyParticipantsView(message = "Группы участников не найдены")
+            } else {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    val participants = state.participantGroupWithParticipants[page].participants
+                        .sortedBy { it.startNumber.toIntOrNull() ?: Int.MAX_VALUE }
+
+                    if (participants.isEmpty()) {
+                        EmptyParticipantsView(message = "В этой группе пока нет участников")
+                    } else {
+                        ParticipantList(
+                            participants = participants,
+                            onEditClick = { participant ->
+                                userAction.invoke(ParticipantListAction.ShowEditParticipantDialog(page, participant))
+                            }
+                        )
                     }
-                )
+                }
             }
 
             FloatingActionButton(
                 onClick = {
-                    userAction.invoke(ParticipantListAction.ShowCreateParticipantDialog(pagerState.currentPage))
+                    if (state.participantGroupWithParticipants.isNotEmpty()) {
+                        userAction.invoke(ParticipantListAction.ShowCreateParticipantDialog(pagerState.currentPage))
+                    }
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottom = Dimens.SIZE_BASE.dp, end = Dimens.SIZE_BASE.dp)
+                    .padding(Dimens.SIZE_BASE.dp),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
             ) {
                 Icon(
-                    painter = painterResource(com.example.designsystem.R.drawable.ic_add),
-                    contentDescription = null,
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
+                    contentDescription = "Add participant"
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun EmptyParticipantsView(message: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(Dimens.SIZE_DOUBLE.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_location_on_24px),
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -150,7 +190,6 @@ fun CreateParticipantDialog(
     groupName: String,
     editingParticipant: OrienteeringParticipant?
 ) {
-
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     DSBottomDialog(
         sheetState = sheetState,
@@ -164,14 +203,8 @@ fun CreateParticipantDialog(
         },
         onDismiss = { userAction.invoke(ParticipantListAction.HideCreateParticipantDialog) },
     )
-
 }
 
-/**
- * Контент диалога создания/редактирования участника.
- * При создании нового участника диалог остается открытым для ввода следующего,
- * переводя фокус на поле имени.
- */
 @Composable
 fun CreateParticipantDialogContent(
     userAction: (BaseAction) -> Unit,
@@ -181,30 +214,40 @@ fun CreateParticipantDialogContent(
 ) {
     var firstName by remember(editingParticipant) { mutableStateOf(editingParticipant?.firstName ?: "") }
     var secondName by remember(editingParticipant) { mutableStateOf(editingParticipant?.lastName ?: "") }
-    
+
     val focusRequester = remember { FocusRequester() }
 
-    // Запрашиваем фокус при открытии диалога
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
 
-    Column(modifier = Modifier.padding(all = Dimens.SIZE_HALF.dp)) {
+    Column(
+        modifier = Modifier
+            .padding(Dimens.SIZE_BASE.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = if (editingParticipant == null) "Новый участник" else "Редактирование",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
 
-        Text(text = "Группа $groupName", modifier = Modifier.padding(bottom = Dimens.SIZE_BASE.dp))
+        Text(
+            text = "Группа: $groupName",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(vertical = Dimens.SIZE_HALF.dp)
+        )
+
+        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
         DSTextInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
-            label = {
-                Text(text = "Имя")
-            },
-//            isError = state.errors.isGroupTitleError,
+            label = { Text(text = "Имя") },
             text = firstName,
-            onValueChanged = {
-                firstName = it
-            },
+            onValueChanged = { firstName = it },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
         )
 
@@ -212,21 +255,19 @@ fun CreateParticipantDialogContent(
 
         DSTextInput(
             modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text(text = "Фамилия")
-            },
-//            isError = state.errors.isGroupTitleError,
+            label = { Text(text = "Фамилия") },
             text = secondName,
-            onValueChanged = {
-                secondName = it
-            },
+            onValueChanged = { secondName = it },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
         )
+
+        Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
 
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = Dimens.SIZE_BASE.dp),
+                .height(56.dp),
+            shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
             onClick = {
                 if (firstName.isNotEmpty() && secondName.isNotEmpty()) {
                     if (editingParticipant == null) {
@@ -237,7 +278,6 @@ fun CreateParticipantDialogContent(
                                 secondName = secondName
                             )
                         )
-                        // Очищаем поля и возвращаем фокус для ввода следующего участника
                         firstName = ""
                         secondName = ""
                         focusRequester.requestFocus()
@@ -250,14 +290,17 @@ fun CreateParticipantDialogContent(
                                 )
                             )
                         )
-                        // При редактировании диалог закроется через ViewModel (Action.HideCreateParticipantDialog)
                     }
-                } else {
-                    //здесь должна быть ошибка об обязательности заполнения полей
                 }
-            }) {
-            Text(text = if (editingParticipant == null) "Сохранить участника" else "Изменить")
+            }
+        ) {
+            Text(
+                text = if (editingParticipant == null) "Добавить участника" else "Сохранить изменения",
+                fontWeight = FontWeight.Bold
+            )
         }
+
+        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
     }
 }
 
@@ -266,11 +309,15 @@ fun ParticipantList(
     participants: List<OrienteeringParticipant>,
     onEditClick: (OrienteeringParticipant) -> Unit
 ) {
-    LazyColumn(modifier = Modifier.fillMaxHeight().padding(16.dp)) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(Dimens.SIZE_BASE.dp),
+        verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
+    ) {
         itemsIndexed(participants) { index, participant ->
-            ParticipantItem(
+            ParticipantCard(
                 participant = participant,
-                index = index + 1,
+                displayIndex = index + 1,
                 onEditClick = { onEditClick(participant) }
             )
         }
@@ -278,119 +325,110 @@ fun ParticipantList(
 }
 
 @Composable
-fun ParticipantItem(participant: OrienteeringParticipant, index: Int, onEditClick: () -> Unit) {
-    Column {
+fun ParticipantCard(
+    participant: OrienteeringParticipant,
+    displayIndex: Int,
+    onEditClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_TWO.dp),
+            modifier = Modifier
+                .padding(Dimens.SIZE_BASE.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = index.toString(),
-                modifier = Modifier.weight(0.1F)
-            )
-            Text(
-                text = "${participant.firstName} ${participant.lastName}",
-                modifier = Modifier.weight(0.8F)
-            )
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.edit),
-                    contentDescription = "edit participant",
-                    tint = LightColors.greyB8
+            // Индекс или номер участника
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = participant.startNumber.ifEmpty { displayIndex.toString() },
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
-//            Text(
-//                text = participant.startTime.toString(),
-//                modifier = Modifier.weight(0.2F)
-//            )
+
+            Spacer(modifier = Modifier.width(Dimens.SIZE_BASE.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${participant.firstName} ${participant.lastName}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                if (participant.commandName.isNotEmpty()) {
+                    Text(
+                        text = participant.commandName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            IconButton(
+                onClick = onEditClick,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
+                    .size(32.dp)
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.edit),
+                    contentDescription = "Edit participant",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = Dimens.SIZE_HALF.dp),
-            thickness = Dimens.SIZE_SINGLE.dp,
-            color = LightColors.greyB8
-        )
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun ParticipantListScreenPreview() {
-    ParticipantListContent(
-        userAction = {},
-        state = ParticipantListState(
-            participantGroupWithParticipants = listOf(
-                ParticipantGroupParticipants(
-                    group = ParticipantGroup(
-                        groupId = 1L,
-                        competitionId = 1L,
-                        title = "M21",
-                        distance = 10.0,
-                        countOfControls = 20,
-                        maxTimeInMinute = 120,
-                        controlPoints = emptyList()
-                    ),
-                    participants = listOf(
-                        OrienteeringParticipant(
-                            id = 1,
-                            userId = "1",
-                            firstName = "John",
-                            lastName = "Doe",
-                            groupId = 1,
-                            groupName = "M21",
-                            competitionId = 1,
-                            commandName = "Command 1",
-                            startNumber = "1",
-                            startTime = 10L,
-                            chipNumber = "12345",
-                            comment = "Comment 1",
-                            isChipGiven = false
+    MaterialTheme {
+        ParticipantListContent(
+            userAction = {},
+            state = ParticipantListState(
+                participantGroupWithParticipants = listOf(
+                    ParticipantGroupParticipants(
+                        group = ParticipantGroup(
+                            groupId = 1L,
+                            competitionId = 1L,
+                            title = "M21",
+                            distance = 10.0,
+                            countOfControls = 20,
+                            maxTimeInMinute = 120,
+                            controlPoints = emptyList()
                         ),
-                        OrienteeringParticipant(
-                            id = 2,
-                            userId = "2",
-                            firstName = "Jane",
-                            lastName = "Doe",
-                            groupId = 1,
-                            groupName = "M21",
-                            competitionId = 1,
-                            commandName = "Command 1",
-                            startNumber = "2",
-                            startTime = 20L,
-                            chipNumber = "54321",
-                            comment = "Comment 2",
-                            isChipGiven = false
-                        )
-                    )
-                ),
-                ParticipantGroupParticipants(
-                    group = ParticipantGroup(
-                        groupId = 2L,
-                        competitionId = 1L,
-                        title = "W21",
-                        distance = 8.0,
-                        countOfControls = 15,
-                        maxTimeInMinute = 100,
-                        controlPoints = emptyList()
-                    ),
-                    participants = listOf(
-                        OrienteeringParticipant(
-                            id = 3,
-                            userId = "3",
-                            firstName = "Peter",
-                            lastName = "Jones",
-                            groupId = 2,
-                            groupName = "W21",
-                            competitionId = 1,
-                            commandName = "Command 2",
-                            startNumber = "3",
-                            startTime = 30L,
-                            chipNumber = "67890",
-                            comment = "Comment 3",
-                            isChipGiven = false
+                        participants = listOf(
+                            OrienteeringParticipant(
+                                id = 1,
+                                userId = "1",
+                                firstName = "Иван",
+                                lastName = "Иванов",
+                                groupId = 1,
+                                groupName = "M21",
+                                competitionId = 1,
+                                commandName = "Зенит",
+                                startNumber = "1",
+                                startTime = 10L,
+                                chipNumber = "12345",
+                                comment = "",
+                                isChipGiven = false
+                            )
                         )
                     )
                 )
             )
         )
-    )
+    }
 }
