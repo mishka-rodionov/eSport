@@ -1,48 +1,36 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
 import android.app.DatePickerDialog
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.ExposedDropdownMenuOutlined
 import com.example.designsystem.components.TimePickerDialog
+import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
@@ -63,7 +51,6 @@ fun OrienteeringCompetitionCreator(
     competitionId: Long? = null,
     viewModel: OrienteeringCreatorViewModel = koinViewModel()
 ) {
-
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
 
@@ -71,62 +58,116 @@ fun OrienteeringCompetitionCreator(
         viewModel.initialize(competitionId)
     }
 
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(scrollState)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        DSTextInput(
-            modifier = Modifier.fillMaxWidth(),
-            text = state.title,
-            label = {
-                Text(text = stringResource(R.string.label_competition_name))
-            },
-            supportingText = {
-                Text(
-                    text = stringResource(
-                        R.string.label_competition_name_description,
-                        DateTimeFormat.transformLongToDisplayDate(state.date)
-                    )
-                )
-            },
-            onValueChanged = viewModel::updateTitle)
-        DSTextInput(
-            modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text(text = stringResource(R.string.label_competition_place))
-            },
-            isError = state.errors.isEmptyAddress,
-            supportingText = {
-                if (state.errors.isEmptyAddress) {
-                    Text(text = stringResource(R.string.error_competition_place))
-                }
-            },
-            text = state.address,
-            onValueChanged = viewModel::updateAddress)
-        DatePicker(state = state, userAction = viewModel::onAction)
-        TimePicker(state = state, userAction = viewModel::onAction)
-        OrienteeringCompetitionDirection(state = state, userAction = viewModel::onAction)
-        StartTimeModeSelector(state = state, viewModel = viewModel, userAction = viewModel::onAction)
-        DSTextInput(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            onValueChanged = viewModel::updateDescription,
-            text = state.description,
-            label = {
-                Text(text = stringResource(R.string.label_competition_description))
-            },
-            placeholder = {
-                Text(text = stringResource(R.string.hint_competition_description))
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(Dimens.SIZE_BASE.dp)
+        ) {
+            Text(
+                text = if (competitionId == null) "Новое соревнование" else "Редактирование",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            // Основная информация
+            SectionHeader(title = "Основная информация")
+            
+            DSTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                text = state.title,
+                label = { Text(text = stringResource(R.string.label_competition_name)) },
+                onValueChanged = viewModel::updateTitle
+            )
+            
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+            DSTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = stringResource(R.string.label_competition_place)) },
+                isError = state.errors.isEmptyAddress,
+                supportingText = {
+                    if (state.errors.isEmptyAddress) {
+                        Text(text = stringResource(R.string.error_competition_place))
+                    }
+                },
+                text = state.address,
+                onValueChanged = viewModel::updateAddress
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier.weight(1f)) {
+                    DatePicker(state = state, userAction = viewModel::onAction)
+                }
+                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                Box(modifier = Modifier.weight(1f)) {
+                    TimePicker(state = state, userAction = viewModel::onAction)
+                }
             }
-        )
-        ParticipantGroupContent(state = state, userAction = viewModel::onAction)
-        OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
-            viewModel.onAction(OrienteeringCreatorAction.Apply)
-        }) {
-            Text(text = stringResource(R.string.label_apply))
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            // Настройки дисциплины
+            SectionHeader(title = "Настройки дисциплины")
+            
+            OrienteeringCompetitionDirection(state = state, userAction = viewModel::onAction)
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            StartTimeModeSelector(state = state, viewModel = viewModel, userAction = viewModel::onAction)
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            // Описание
+            SectionHeader(title = "Дополнительно")
+            DSTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                onValueChanged = viewModel::updateDescription,
+                text = state.description,
+                label = { Text(text = stringResource(R.string.label_competition_description)) },
+                placeholder = { Text(text = stringResource(R.string.hint_competition_description)) }
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            // Группы участников
+            ParticipantGroupContent(state = state, userAction = viewModel::onAction)
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                onClick = { viewModel.onAction(OrienteeringCreatorAction.Apply) },
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.label_apply),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
         }
     }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(bottom = Dimens.SIZE_HALF.dp)
+    )
 }
 
 @Composable
@@ -134,30 +175,63 @@ private fun ParticipantGroupContent(
     state: OrienteeringCreatorState,
     userAction: (OrienteeringCreatorAction) -> Unit
 ) {
-    Text(
-        text = stringResource(R.string.label_groups),
-        color = if (state.errors.isEmptyGroup) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-    )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SectionHeader(title = stringResource(R.string.label_groups))
+        
+        TextButton(onClick = { userAction.invoke(OrienteeringCreatorAction.ShowGroupCreateDialog) }) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = "Добавить")
+        }
+    }
+
     if (state.errors.isEmptyGroup) {
         Text(
             text = stringResource(R.string.label_add_at_least_group),
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.error
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(bottom = Dimens.SIZE_HALF.dp)
         )
     }
-    LazyRow {
-        itemsIndexed(state.participantGroups) { index, item ->
-            GroupContent(item, userAction, index)
-            if (index != state.participantGroups.size - 1) {
-                Spacer(modifier = Modifier.width(8.dp))
+
+    if (state.participantGroups.isEmpty()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Dimens.SIZE_BASE.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Список групп пуст",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    } else {
+        LazyRow(
+            contentPadding = PaddingValues(vertical = Dimens.SIZE_HALF.dp),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_BASE.dp)
+        ) {
+            itemsIndexed(state.participantGroups) { index, item ->
+                GroupCard(item, userAction, index)
             }
         }
     }
-    OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
-        userAction.invoke(OrienteeringCreatorAction.ShowGroupCreateDialog)
-    }) {
-        Text(text = stringResource(R.string.label_add_group))
-    }
+
     if (state.isShowGroupCreateDialog) {
         ParticipantGroupEditor(
             userAction = userAction,
@@ -167,59 +241,77 @@ private fun ParticipantGroupContent(
 }
 
 @Composable
-fun GroupContent(
+fun GroupCard(
     participantGroup: ParticipantGroup,
     userAction: (OrienteeringCreatorAction) -> Unit,
     groupIndex: Int
 ) {
-    Row(
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .padding(8.dp)
+            .width(200.dp),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-//            modifier = Modifier.weight(1F)
+            modifier = Modifier.padding(Dimens.SIZE_BASE.dp)
         ) {
-            Text(text = stringResource(R.string.label_group_name, participantGroup.title))
-            Text(text = stringResource(R.string.label_distance, participantGroup.distance))
-            Text(
-                text = stringResource(
-                    R.string.label_count_of_controls,
-                    participantGroup.countOfControls
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = participantGroup.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
-            )
-            Text(text = stringResource(R.string.label_max_time, participantGroup.maxTimeInMinute))
-        }
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            IconButton(onClick = {
-                userAction.invoke(OrienteeringCreatorAction.EditGroupDialog(groupIndex))
-            }) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.edit),
-                    contentDescription = "group edit",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                
+                Row {
+                    IconButton(
+                        onClick = { userAction.invoke(OrienteeringCreatorAction.EditGroupDialog(groupIndex)) },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.edit),
+                            contentDescription = "edit",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(
+                        onClick = { userAction.invoke(OrienteeringCreatorAction.DeleteGroup(index = groupIndex)) },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.delete),
+                            contentDescription = "delete",
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
             }
-            IconButton(onClick = {
-                userAction.invoke(OrienteeringCreatorAction.DeleteGroup(index = groupIndex))
-            }) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.delete),
-                    contentDescription = "group delete",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
+            
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            
+            GroupInfoRow(label = "Дистанция", value = "${participantGroup.distance} м")
+            GroupInfoRow(label = "КП", value = "${participantGroup.countOfControls}")
+            GroupInfoRow(label = "Лимит", value = "${participantGroup.maxTimeInMinute} мин")
         }
+    }
+}
+
+@Composable
+private fun GroupInfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -230,14 +322,12 @@ fun GroupContent(
 fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -> Unit) {
     val context = LocalContext.current
     val calendar = remember { Calendar.getInstance() }
-    val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
 
     val datePickerDialog = remember {
         DatePickerDialog(
             context,
             { _, year, month, dayOfMonth ->
-                // Конвертируем выбранную дату в миллисекунды (Long)
                 val dateMillis = LocalDate.of(year, month + 1, dayOfMonth)
                     .atStartOfDay(ZoneId.systemDefault())
                     .toInstant()
@@ -256,21 +346,19 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
     DSTextInput(
         modifier = Modifier
             .fillMaxWidth()
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    datePickerDialog.show()
-                }
-            },
-        label = {
-            Text(text = stringResource(R.string.label_date))
-        },
-        // Используем новую функцию трансформации для отображения даты
+            .onFocusChanged { if (it.isFocused) datePickerDialog.show() },
+        label = { Text(text = stringResource(R.string.label_date)) },
         text = DateTimeFormat.transformLongToDisplayDate(state.date),
-        interactionSource = interactionSource,
-        enabled = true,
-        readOnly = true
+        readOnly = true,
+        trailingIcon = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_date_range_24px),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     )
-
 }
 
 /**
@@ -279,21 +367,23 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
 @Composable
 fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
-
     val focusManager = LocalFocusManager.current
 
     DSTextInput(
         modifier = Modifier
             .fillMaxWidth()
-            .onFocusChanged { focusState ->
-                showDialog = focusState.isFocused
-            },
-        label = {
-            Text(text = stringResource(R.string.label_time))
-        },
+            .onFocusChanged { showDialog = it.isFocused },
+        label = { Text(text = stringResource(R.string.label_time)) },
         text = state.time,
-        enabled = true,
-        readOnly = true
+        readOnly = true,
+        trailingIcon = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_build_24px), // Используем как заглушку для времени
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     )
 
     if (showDialog) {
@@ -304,12 +394,7 @@ fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
             },
             onConfirm = { hour, minute ->
                 userAction.invoke(
-                    OrienteeringCreatorAction.UpdateCompetitionTime(
-                        "%02d:%02d".format(
-                            hour,
-                            minute
-                        )
-                    )
+                    OrienteeringCreatorAction.UpdateCompetitionTime("%02d:%02d".format(hour, minute))
                 )
                 showDialog = false
                 focusManager.clearFocus()
@@ -368,6 +453,7 @@ private fun StartTimeModeSelector(
             }
         )
         if (state.startTimeMode == StartTimeMode.USER_SET) {
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             DSTextInput(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.countdownTimer?.toString() ?: "",
