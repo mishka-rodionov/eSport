@@ -52,7 +52,7 @@ fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
     val handleEffects = remember { viewModel::handleEffects }
 
-    LaunchedEffect(state.isAuthed) {
+    LaunchedEffect(null) {
         viewModel.initialize()
     }
 
