@@ -18,9 +18,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -28,10 +32,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -100,24 +108,51 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Основной экран приложения с нижней навигацией.
+ * 
+ * Использует Material 3 NavigationBar для современного внешнего вида.
+ */
 @Composable
 private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass) {
     BottomNavItem.all // не удалять, падает при первом tab.route
     var selectedTab by rememberSaveable { mutableStateOf<String>(BottomNavItem.CompetitionList.route) }
     val saveableStateHolder = rememberSaveableStateHolder()
     val lifecycleOwner = LocalLifecycleOwner.current
+    
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            BottomNavigation(
-                windowInsets = WindowInsets.navigationBars
+            NavigationBar(
+                windowInsets = WindowInsets.navigationBars,
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp
             ) {
                 BottomNavItem.all.forEach { tab ->
-                    BottomNavigationItem(
-                        icon = { },
-                        label = { Text(tab.title) },
-                        selected = selectedTab == tab.route,
-                        onClick = { selectedTab = tab.route }
+                    val isSelected = selectedTab == tab.route
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(tab.iconRes),
+                                contentDescription = tab.title,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        label = { 
+                            Text(
+                                text = tab.title,
+                                style = MaterialTheme.typography.labelMedium
+                            ) 
+                        },
+                        selected = isSelected,
+                        onClick = { selectedTab = tab.route },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
                 }
             }
