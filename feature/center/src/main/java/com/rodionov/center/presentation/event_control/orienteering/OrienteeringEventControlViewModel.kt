@@ -116,7 +116,10 @@ class OrienteeringEventControlViewModel(
         
         viewModelScope.launch {
             val updatedCompetition = competition.copy(startTime = startTime)
-            orienteeringCompetitionInteractor.updateCompetition(updatedCompetition, emptyList())
+            orienteeringCompetitionInteractor.updateCompetition(
+                orienteeringCompetition = updatedCompetition,
+                participantGroups = null
+            )
             updateState { 
                 copy(
                     competition = updatedCompetition,

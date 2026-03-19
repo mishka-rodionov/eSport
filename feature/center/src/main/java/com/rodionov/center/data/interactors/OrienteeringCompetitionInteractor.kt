@@ -90,7 +90,7 @@ class OrienteeringCompetitionInteractor(
 
     suspend fun updateCompetition(
         orienteeringCompetition: OrienteeringCompetition,
-        participantGroups: List<ParticipantGroup>
+        participantGroups: List<ParticipantGroup>? = null
     ): OrienteeringCreatorAction {
         val competitionId = orienteeringCompetition.competitionId
 
@@ -101,7 +101,9 @@ class OrienteeringCompetitionInteractor(
 
         // 2. Всегда обновляем локально
         localRepository.updateCompetition(orienteeringCompetition).onSuccess {
-            localRepository.updateParticipantsGroups(competitionId, participantGroups)
+            participantGroups?.let {
+                localRepository.updateParticipantsGroups(competitionId, participantGroups)
+            }
             return OrienteeringCreatorAction.SuccessfulCompetitionCreate
         }.onFailure {
             return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка локального обновления")
