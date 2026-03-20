@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -64,7 +65,11 @@ fun EventDetailsScreen(
     viewModel: EventDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val sheetState = rememberModalBottomSheetState()
+    
+    // Настраиваем состояние шторки так, чтобы она сразу открывалась полностью
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
 
     LaunchedEffect(idEvent) {
         viewModel.initialize(idEvent)
@@ -79,6 +84,7 @@ fun EventDetailsScreen(
     if (state.isRegistrationSheetVisible) {
         RegistrationBottomSheet(
             state = state,
+            sheetState = sheetState,
             onAction = viewModel::onAction,
             onDismiss = { viewModel.onAction(EventDetailsAction.HideRegistrationDialog) }
         )
@@ -203,6 +209,7 @@ private fun EventActionButtons(
 /**
  * Диалог (BottomSheet) регистрации на событие.
  * @param state Состояние экрана.
+ * @param sheetState Состояние BottomSheet.
  * @param onAction Обработчик действий.
  * @param onDismiss Обработчик закрытия диалога.
  */
@@ -210,11 +217,13 @@ private fun EventActionButtons(
 @Composable
 private fun RegistrationBottomSheet(
     state: EventDetailsState,
+    sheetState: SheetState,
     onAction: (EventDetailsAction) -> Unit,
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = { Spacer(modifier = Modifier.height(16.dp)) }
     ) {
