@@ -30,7 +30,7 @@ class CyclicEventDetailsRepositoryImpl : CyclicEventDetailsRepository {
                     EventParticipantGroup(2, "Ж21", "Профессионалы", 100, 30),
                     EventParticipantGroup(3, "Open", "Любители", 300, 150)
                 ),
-                status = EventStatus.FINISHED,
+                status = EventStatus.REGISTRATION,
                 eventType = EventType.CyclicEvent.Orienteering
             )
         )

@@ -194,7 +194,7 @@ private fun EventResultsPreview() {
                 participantId = 1,
                 totalTime = 1800L,
                 rank = 1,
-                status = ResultStatus.FINISHED
+                status = ResultStatus.REGISTERED
             )
         ),
         ParticipantWithResult(
