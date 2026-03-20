@@ -10,9 +10,13 @@ import com.rodionov.ui.BaseState
  * @property participantGroup Данные о группе участников.
  * @property participants Список участников группы.
  * @property isLoading Флаг загрузки данных.
+ * @property isUserRegistered Зарегистрирован ли текущий пользователь в этой группе.
+ * @property isRegistering Флаг процесса регистрации/отмены регистрации.
  */
 data class EventParticipantGroupState(
     val participantGroup: EventParticipantGroup? = null,
     val participants: List<OrienteeringParticipant> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isUserRegistered: Boolean = false,
+    val isRegistering: Boolean = false
 ) : BaseState

@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -147,7 +148,7 @@ fun ScrollableColumnScreenWithImageAnimation(
 
         // Логика отображения кнопок в зависимости от статуса события
         EventActionButtons(
-            status = state.eventDetails?.status,
+            state = state,
             onAction = onAction
         )
 
@@ -169,23 +170,49 @@ fun ScrollableColumnScreenWithImageAnimation(
 
 /**
  * Отображает кнопки действия в зависимости от статуса события.
- * @param status Статус события.
+ * @param state Состояние экрана.
  * @param onAction Обработчик действий.
  */
 @Composable
 private fun EventActionButtons(
-    status: EventStatus?,
+    state: EventDetailsState,
     onAction: (EventDetailsAction) -> Unit
 ) {
+    val status = state.eventDetails?.status
     when (status) {
         EventStatus.CREATED, EventStatus.REGISTRATION -> {
-            Button(
-                onClick = { onAction(EventDetailsAction.ShowRegistrationDialog) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text("Зарегистрироваться")
+            if (state.isUserRegistered) {
+                Button(
+                    onClick = { onAction(EventDetailsAction.CancelRegistration) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    enabled = !state.isRegistering
+                ) {
+                    if (state.isRegistering) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    } else {
+                        Text("Отменить регистрацию")
+                    }
+                }
+            } else {
+                Button(
+                    onClick = { onAction(EventDetailsAction.ShowRegistrationDialog) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    enabled = !state.isRegistering
+                ) {
+                    Text("Зарегистрироваться")
+                }
             }
         }
 

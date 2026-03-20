@@ -6,6 +6,7 @@ import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.events.data.event_participant_group.EventParticipantGroupState
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -17,7 +18,10 @@ class EventParticipantGroupViewModel(
 ) : BaseViewModel<EventParticipantGroupState>(EventParticipantGroupState()) {
 
     override fun onAction(action: BaseAction) {
-        // Обработка действий пользователя
+        when (action) {
+            is EventParticipantGroupAction.RegisterUser -> registerUser()
+            is EventParticipantGroupAction.CancelRegistration -> cancelRegistration()
+        }
     }
 
     /**
@@ -38,4 +42,58 @@ class EventParticipantGroupViewModel(
                 }
         }
     }
+
+    /**
+     * Регистрация пользователя в группу.
+     */
+    private fun registerUser() {
+        val group = stateValue.participantGroup ?: return
+        viewModelScope.launch {
+            updateState { copy(isRegistering = true) }
+            
+            // Имитация сетевого запроса к серверу (Mock)
+            // repository.registerToGroup(group.eventId, group.groupId)
+            delay(2000) 
+
+            updateState { 
+                copy(
+                    isRegistering = false, 
+                    isUserRegistered = true 
+                ) 
+            }
+            
+            // TODO: После успешного запроса можно обновить список участников
+        }
+    }
+
+    /**
+     * Отмена регистрации пользователя в группе.
+     */
+    private fun cancelRegistration() {
+        val group = stateValue.participantGroup ?: return
+        viewModelScope.launch {
+            updateState { copy(isRegistering = true) }
+
+            // Имитация сетевого запроса на отмену регистрации (Mock)
+            // repository.cancelRegistration(group.eventId, group.groupId)
+            delay(2000)
+
+            updateState {
+                copy(
+                    isRegistering = false,
+                    isUserRegistered = false
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Действия на экране группы участников события.
+ */
+sealed interface EventParticipantGroupAction : BaseAction {
+    /** Зарегистрировать пользователя в группу. */
+    data object RegisterUser : EventParticipantGroupAction
+    /** Отменить регистрацию пользователя. */
+    data object CancelRegistration : EventParticipantGroupAction
 }

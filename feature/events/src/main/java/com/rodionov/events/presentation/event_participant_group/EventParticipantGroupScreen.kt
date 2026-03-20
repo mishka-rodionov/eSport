@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,6 +28,7 @@ import com.rodionov.domain.models.Participant
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.events.data.event_participant_group.EventParticipantGroupState
+import com.rodionov.ui.BaseAction
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -47,7 +51,8 @@ fun EventParticipantGroupScreen(
 
     EventParticipantGroupContent(
         participantGroup = participantGroup,
-        state = state
+        state = state,
+        onAction = viewModel::onAction
     )
 }
 
@@ -55,11 +60,13 @@ fun EventParticipantGroupScreen(
  * Контент экрана группы участников события.
  * @param participantGroup Данные группы.
  * @param state Состояние экрана.
+ * @param onAction Обработчик действий пользователя.
  */
 @Composable
 private fun EventParticipantGroupContent(
     participantGroup: EventParticipantGroup,
-    state: EventParticipantGroupState
+    state: EventParticipantGroupState,
+    onAction: (BaseAction) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -77,9 +84,12 @@ private fun EventParticipantGroupContent(
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.weight(1f)
             )
-            Button(onClick = { /* TODO: Регистрация в группу */ }) {
-                Text(text = "Зарегистрироваться")
-            }
+            
+            RegistrationButton(
+                isUserRegistered = state.isUserRegistered,
+                isRegistering = state.isRegistering,
+                onAction = onAction
+            )
         }
 
         Text(
@@ -97,6 +107,55 @@ private fun EventParticipantGroupContent(
         ) {
             items(state.participants) { participant ->
                 ParticipantItem(participant = participant)
+            }
+        }
+    }
+}
+
+/**
+ * Кнопка регистрации/отмены регистрации.
+ * @param isUserRegistered Зарегистрирован ли пользователь.
+ * @param isRegistering Состояние процесса регистрации.
+ * @param onAction Обработчик действий.
+ */
+@Composable
+private fun RegistrationButton(
+    isUserRegistered: Boolean,
+    isRegistering: Boolean,
+    onAction: (BaseAction) -> Unit
+) {
+    if (isUserRegistered) {
+        Button(
+            onClick = { onAction(EventParticipantGroupAction.CancelRegistration) },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            ),
+            enabled = !isRegistering
+        ) {
+            if (isRegistering) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            } else {
+                Text(text = "Отменить регистрацию")
+            }
+        }
+    } else {
+        Button(
+            onClick = { onAction(EventParticipantGroupAction.RegisterUser) },
+            enabled = !isRegistering
+        ) {
+            if (isRegistering) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text(text = "Зарегистрироваться")
             }
         }
     }
@@ -152,7 +211,8 @@ private fun EventParticipantGroupScreenPreview() {
                             startNumber = "2", startTime = 0L, chipNumber = "222", comment = "", isChipGiven = true
                         )
                     )
-                )
+                ),
+                onAction = {}
             )
         }
     }

@@ -33,6 +33,7 @@ class EventDetailsViewModel(
             is EventDetailsAction.HideRegistrationDialog -> hideRegistrationDialog()
             is EventDetailsAction.SelectGroup -> selectGroup(action.group)
             is EventDetailsAction.ConfirmRegistration -> confirmRegistration()
+            is EventDetailsAction.CancelRegistration -> cancelRegistration()
         }
     }
 
@@ -96,11 +97,37 @@ class EventDetailsViewModel(
                 copy(
                     isRegistering = false, 
                     isRegistrationSheetVisible = false,
-                    selectedGroup = null
+                    selectedGroup = null,
+                    isUserRegistered = true
                 ) 
             }
             
             // TODO: Показать уведомление об успешной регистрации
+        }
+    }
+
+    /**
+     * Отмена регистрации.
+     * Имитирует сетевой запрос.
+     */
+    private fun cancelRegistration() {
+        val eventId = stateValue.eventDetails?.eventId ?: return
+
+        viewModelScope.launch {
+            updateState { copy(isRegistering = true) }
+
+            // Имитация сетевого запроса к серверу для отмены регистрации (Mock)
+            // cyclicEventDetailsRepository.cancelRegistration(eventId)
+            delay(2000)
+
+            updateState {
+                copy(
+                    isRegistering = false,
+                    isUserRegistered = false
+                )
+            }
+
+            // TODO: Показать уведомление об отмене регистрации
         }
     }
 
@@ -147,4 +174,6 @@ sealed interface EventDetailsAction : BaseAction {
     data class SelectGroup(val group: EventParticipantGroup) : EventDetailsAction
     /** Подтвердить регистрацию. */
     data object ConfirmRegistration : EventDetailsAction
+    /** Отменить регистрацию. */
+    data object CancelRegistration : EventDetailsAction
 }

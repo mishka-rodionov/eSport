@@ -11,10 +11,12 @@ import com.rodionov.ui.BaseState
  * @param isRegistrationSheetVisible Видимость BottomSheet регистрации.
  * @param selectedGroup Выбранная группа для регистрации.
  * @param isRegistering Флаг процесса регистрации (загрузка).
+ * @param isUserRegistered Флаг того, зарегистрирован ли пользователь на это событие.
  */
 data class EventDetailsState(
     val eventDetails: CyclicEventDetails? = null,
     val isRegistrationSheetVisible: Boolean = false,
     val selectedGroup: EventParticipantGroup? = null,
-    val isRegistering: Boolean = false
+    val isRegistering: Boolean = false,
+    val isUserRegistered: Boolean = false
 ) : BaseState
