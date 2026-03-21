@@ -8,8 +8,9 @@ import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.domain.models.orienteering.StartTimeMode
+import com.rodionov.domain.models.orienteering.CompetitionStatus
+import com.rodionov.domain.models.orienteering.ResultsStatus
 import com.rodionov.ui.BaseState
-import java.time.LocalDate
 
 /**
  * Состояние экрана создания соревнования.
@@ -49,13 +50,22 @@ data class OrienteeringCreatorState(
         return OrienteeringCompetition(
             competitionId = competitionId ?: (-9999..-1000).random().toLong(),
             competition = Competition(
+                remoteId = null,
                 title = title,
-                date = date,
+                startDate = date,
+                endDate = date + 86400000L, // +1 день по умолчанию
                 kindOfSport = KindOfSport.Orienteering,
                 description = description,
                 address = address,
-                mainOrganizer = userId,
-                coordinates = Coordinates(0.0, 0.0)
+                mainOrganizerId = userId.toLongOrNull(),
+                coordinates = Coordinates(0.0, 0.0),
+                status = CompetitionStatus.DRAFT,
+                registrationStart = System.currentTimeMillis(),
+                registrationEnd = date - 3600000L,
+                maxParticipants = 500,
+                feeAmount = 0.0,
+                feeCurrency = "RUB",
+                resultsStatus = ResultsStatus.NOT_PUBLISHED
             ),
             direction = competitionDirection ?: OrienteeringDirection.FORWARD,
             punchingSystem = punchingSystem,

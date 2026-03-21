@@ -55,7 +55,7 @@ interface OrienteeringCompetitionDao {
     @Query("SELECT * FROM orienteering_competitions")
     suspend fun getAllCompetitionsWithDetails(): List<OrienteeringCompetitionWithDetails>
 
-    @Query("SELECT * FROM orienteering_competitions WHERE mainOrganizer = :userId")
+    @Query("SELECT * FROM orienteering_competitions WHERE mainOrganizerId = :userId")
     suspend fun getCompetitionsByUserId(userId: String): List<OrienteeringCompetitionEntity>
 
 }

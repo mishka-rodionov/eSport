@@ -52,6 +52,6 @@ fun CompetitionResponse.toDomain(): Competition {
 /**
  * Маппер для преобразования координат из ответа сервера в доменную модель.
  */
-fun CoordinatesResponse.toDomain(): Coordinates? {
+fun CoordinatesResponse.toDomain(): Coordinates {
     return Coordinates(latitude, longitude)
 }

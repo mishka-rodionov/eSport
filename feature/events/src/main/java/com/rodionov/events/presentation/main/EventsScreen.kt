@@ -47,6 +47,8 @@ import com.example.designsystem.theme.Dimens
 import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
+import com.rodionov.domain.models.orienteering.CompetitionStatus
+import com.rodionov.domain.models.orienteering.ResultsStatus
 import com.rodionov.resources.R
 import com.rodionov.events.data.main.EventsAction
 import com.rodionov.utils.DateTimeFormat
@@ -154,7 +156,7 @@ fun EventItem(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = DateTimeFormat.transformLongToDisplayDate(event.date),
+                        text = DateTimeFormat.transformLongToDisplayDate(event.startDate),
                         style = MaterialTheme.typography.bodySmall
                     )
                     
@@ -168,7 +170,7 @@ fun EventItem(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = event.address,
+                        text = event.address ?: "",
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -179,7 +181,7 @@ fun EventItem(
 
                 // Описание с логикой развертывания
                 Text(
-                    text = event.description,
+                    text = event.description ?: "",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = if (expanded) Int.MAX_VALUE else 3,
@@ -210,13 +212,17 @@ fun EventItem(
 @Composable
 fun EventItemPreview() {
     val mockEvent = Competition(
+        remoteId = null,
         title = "Чемпионат по спортивному ориентированию \"Осенний лес 2024\"",
-        date = System.currentTimeMillis(),
+        startDate = System.currentTimeMillis(),
+        endDate = System.currentTimeMillis() + 86400000L,
         kindOfSport = KindOfSport.Orienteering,
         description = "Традиционные соревнования в живописном лесу. Вас ждут интересные дистанции различной сложности, электронная отметка и горячий чай на финише. Приглашаются все желающие!",
         address = "Загородный парк, г. Владимир",
-        mainOrganizer = "admin",
-        coordinates = Coordinates(0.0, 0.0)
+        mainOrganizerId = 1L,
+        coordinates = Coordinates(0.0, 0.0),
+        status = CompetitionStatus.DRAFT,
+        resultsStatus = ResultsStatus.NOT_PUBLISHED
     )
     
     MaterialTheme {

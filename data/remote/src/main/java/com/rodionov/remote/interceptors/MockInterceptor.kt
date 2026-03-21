@@ -25,6 +25,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * Интерцептор для имитации ответов сервера.
@@ -107,20 +108,35 @@ class MockInterceptor : Interceptor {
     }
 
     private fun mockEvents(request: Request): Response {
+        val zoneId = ZoneId.systemDefault()
         val mockOrienteeringResponse = listOf(
             OrienteeringCompetitionResponse(
                 competitionId = 1,
                 competition = CompetitionResponse(
+                    remoteId = 1,
                     title = "Городские соревнования",
-                    date = LocalDate.parse("2025-08-25").toEpochDay(),
+                    startDate = LocalDate.parse("2025-08-25").atStartOfDay(zoneId).toInstant().toEpochMilli(),
+                    endDate = LocalDate.parse("2025-08-26").atStartOfDay(zoneId).toInstant().toEpochMilli(),
                     kindOfSport = KindOfSport.Orienteering.name,
                     description = "Новые соревнования по ориентированию.",
                     address = "Саратов",
-                    mainOrganizer = "12345",
+                    mainOrganizerId = 12345L,
                     coordinates = CoordinatesResponse(
                         latitude = 51.3200,
                         longitude = 46.0000
-                    )
+                    ),
+                    status = "REGISTRATION",
+                    registrationStart = LocalDate.parse("2025-07-01").atStartOfDay(zoneId).toInstant().toEpochMilli(),
+                    registrationEnd = LocalDate.parse("2025-08-20").atStartOfDay(zoneId).toInstant().toEpochMilli(),
+                    maxParticipants = 300,
+                    feeAmount = 500.0,
+                    feeCurrency = "RUB",
+                    regulationUrl = null,
+                    mapUrl = null,
+                    contactPhone = "+78452000000",
+                    contactEmail = "info@mock.ru",
+                    website = null,
+                    resultsStatus = "NOT_PUBLISHED"
                 ),
                 direction = OrienteeringDirection.FORWARD.name,
                 punchingSystem = PunchingSystem.SPORTIDUINO,
@@ -132,16 +148,30 @@ class MockInterceptor : Interceptor {
                 punchingSystem = PunchingSystem.SPORTIDUINO,
                 startTimeMode = StartTimeMode.STRICT,
                 competition = CompetitionResponse(
+                    remoteId = 2,
                     title = "Городские соревнования #2",
-                    date = LocalDate.parse("2025-08-27").toEpochDay(),
+                    startDate = LocalDate.parse("2025-08-27").atStartOfDay(zoneId).toInstant().toEpochMilli(),
+                    endDate = LocalDate.parse("2025-08-28").atStartOfDay(zoneId).toInstant().toEpochMilli(),
                     kindOfSport = KindOfSport.Orienteering.name,
                     description = "Новые соревнования по ориентированию.",
                     address = "Балашов",
-                    mainOrganizer = "12345",
+                    mainOrganizerId = 12345L,
                     coordinates = CoordinatesResponse(
                         latitude = 51.3200,
                         longitude = 46.0000
-                    )
+                    ),
+                    status = "CREATED",
+                    registrationStart = null,
+                    registrationEnd = null,
+                    maxParticipants = null,
+                    feeAmount = null,
+                    feeCurrency = null,
+                    regulationUrl = null,
+                    mapUrl = null,
+                    contactPhone = null,
+                    contactEmail = null,
+                    website = null,
+                    resultsStatus = "NOT_PUBLISHED"
                 )
             )
         )
@@ -185,17 +215,31 @@ class MockInterceptor : Interceptor {
             punchingSystem = PunchingSystem.SPORTIDUINO,
             startTimeMode = StartTimeMode.valueOf(competitionRequest?.startTimeMode ?: StartTimeMode.STRICT.name),
             competition = CompetitionResponse(
+                remoteId = (1..99).random().toLong(),
                 title = competitionRequest?.competition?.title ?: "Mocked Competition",
-                date = competitionRequest?.competition?.date ?: LocalDate.now().toEpochDay(),
+                startDate = competitionRequest?.competition?.startDate ?: System.currentTimeMillis(),
+                endDate = competitionRequest?.competition?.endDate,
                 kindOfSport = competitionRequest?.competition?.kindOfSport
                     ?: KindOfSport.Orienteering.name,
                 description = competitionRequest?.competition?.description ?: "Mocked Description",
                 address = competitionRequest?.competition?.address ?: "Mocked Address",
-                mainOrganizer = "12345",
+                mainOrganizerId = 12345L,
                 coordinates = CoordinatesResponse(
                     latitude = competitionRequest?.competition?.coordinates?.latitude ?: 51.0,
                     longitude = competitionRequest?.competition?.coordinates?.longitude ?: 45.0
-                )
+                ),
+                status = competitionRequest?.competition?.status ?: "CREATED",
+                registrationStart = competitionRequest?.competition?.registrationStart,
+                registrationEnd = competitionRequest?.competition?.registrationEnd,
+                maxParticipants = competitionRequest?.competition?.maxParticipants,
+                feeAmount = competitionRequest?.competition?.feeAmount,
+                feeCurrency = competitionRequest?.competition?.feeCurrency,
+                regulationUrl = competitionRequest?.competition?.regulationUrl,
+                mapUrl = competitionRequest?.competition?.mapUrl,
+                contactPhone = competitionRequest?.competition?.contactPhone,
+                contactEmail = competitionRequest?.competition?.contactEmail,
+                website = competitionRequest?.competition?.website,
+                resultsStatus = competitionRequest?.competition?.resultsStatus ?: "NOT_PUBLISHED"
             )
         )
 

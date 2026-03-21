@@ -36,9 +36,11 @@ import com.rodionov.center.data.main.CenterState
 import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
+import com.rodionov.domain.models.orienteering.CompetitionStatus
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.orienteering.PunchingSystem
+import com.rodionov.domain.models.orienteering.ResultsStatus
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
@@ -203,7 +205,7 @@ private fun EventControlCard(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = competition.address,
+                        text = competition.address ?: "",
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(start = 4.dp),
                         maxLines = 1,
@@ -219,7 +221,7 @@ private fun EventControlCard(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = DateTimeFormat.transformLongToDisplayDate(competition.date),
+                        text = DateTimeFormat.transformLongToDisplayDate(competition.startDate),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(start = 4.dp)
                     )
@@ -307,13 +309,17 @@ private fun CenterScreenAuthPreview() {
                 OrienteeringCompetition(
                     competitionId = 1L,
                     competition = Competition(
+                        remoteId = null,
                         title = "Чемпионат города по ориентированию",
-                        date = System.currentTimeMillis(),
+                        startDate = System.currentTimeMillis(),
+                        endDate = System.currentTimeMillis() + 86400000L,
                         address = "Москва, Парк Сокольники",
                         kindOfSport = KindOfSport.Orienteering,
                         description = "",
-                        mainOrganizer = "123",
+                        mainOrganizerId = 123L,
                         coordinates = Coordinates(latitude = 0.0, longitude = 0.0),
+                        status = CompetitionStatus.DRAFT,
+                        resultsStatus = ResultsStatus.NOT_PUBLISHED
                     ),
                     direction = OrienteeringDirection.FORWARD,
                     punchingSystem = PunchingSystem.PUNCH,
