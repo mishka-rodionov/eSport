@@ -34,11 +34,13 @@ class CenterViewModel(
             }
 
             is CenterEffects.OpenOrienteeringCreator -> viewModelScope.launch {
-                navigation.navigate(CenterNavigation.OrienteeringCreatorRoute())
+                navigation.navigate(CenterNavigation.CommonCompetitionFieldRoute())
+//                navigation.navigate(CenterNavigation.OrienteeringCreatorRoute())
             }
 
             is CenterEffects.OpenOrienteeringEditor -> viewModelScope.launch {
-                navigation.navigate(CenterNavigation.OrienteeringCreatorRoute(competitionId = effect.competitionId))
+                navigation.navigate(CenterNavigation.CommonCompetitionFieldRoute(competitionId = effect.competitionId))
+//                navigation.navigate(CenterNavigation.OrienteeringCreatorRoute(competitionId = effect.competitionId))
             }
 
             is CenterEffects.OpenOrienteeringEventControl -> viewModelScope.launch {

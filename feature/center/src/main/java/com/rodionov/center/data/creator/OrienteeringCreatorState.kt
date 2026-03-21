@@ -3,71 +3,107 @@ package com.rodionov.center.data.creator
 import com.rodionov.domain.models.Competition
 import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
-import com.rodionov.domain.models.orienteering.OrienteeringCompetition
-import com.rodionov.domain.models.orienteering.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.*
 import com.rodionov.domain.models.ParticipantGroup
-import com.rodionov.domain.models.orienteering.PunchingSystem
-import com.rodionov.domain.models.orienteering.StartTimeMode
-import com.rodionov.domain.models.orienteering.CompetitionStatus
-import com.rodionov.domain.models.orienteering.ResultsStatus
 import com.rodionov.ui.BaseState
 
 /**
- * Состояние экрана создания соревнования.
+ * Состояние процесса создания соревнования.
  * 
- * @property competitionId ID соревнования (null если создание)
- * @property title Заголовок
- * @property date Дата (millis)
- * @property time Время (строка)
- * @property address Адрес
- * @property description Описание
- * @property participantGroups Список групп
- * @property errors Ошибки валидации
- * @property isShowGroupCreateDialog Показ диалога создания группы
- * @property punchingSystem Система отметки
- * @property editGroupIndex Индекс редактируемой группы
- * @property competitionDirection Направление
- * @property startTimeMode Режим старта
- * @property countdownTimer Таймер отсчета (мин)
+ * @property competitionId Идентификатор соревнования (локальный).
+ * @property title Название.
+ * @property startDate Дата начала.
+ * @property endDate Дата окончания.
+ * @property kindOfSport Вид спорта.
+ * @property description Описание.
+ * @property address Адрес.
+ * @property coordinates Координаты.
+ * @property registrationStart Начало регистрации.
+ * @property registrationEnd Конец регистрации.
+ * @property maxParticipants Лимит участников.
+ * @property feeAmount Сумма взноса.
+ * @property feeCurrency Валюта взноса.
+ * @property regulationUrl Ссылка на регламент.
+ * @property mapUrl Ссылка на карту.
+ * @property contactPhone Телефон.
+ * @property contactEmail Почта.
+ * @property website Сайт.
+ * @property competitionDirection Направление.
+ * @property punchingSystem Система отметки.
+ * @property startTimeMode Режим старта.
+ * @property countdownTimer Таймер.
+ * @property editGroupIndex Индекс редактируемой группы.
+ * @property isShowGroupCreateDialog Флаг отображения диалога создания группы.
+ * @property errors Ошибки валидации.
+ * @property distances Список дистанций.
+ * @property participantGroups Список групп.
+ * @property isLoading Флаг загрузки.
+ * @property error Сообщение об ошибке.
  */
 data class OrienteeringCreatorState(
     val competitionId: Long? = null,
     val title: String = "",
-    val date: Long = System.currentTimeMillis(),
-    val time: String = "12:00",
-    val address: String = "",
+    val startDate: Long = System.currentTimeMillis(),
+    val endDate: Long? = null,
+    val kindOfSport: KindOfSport = KindOfSport.Orienteering,
     val description: String = "",
-    val participantGroups: List<ParticipantGroup> = emptyList(),
-    val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors(),
-    val isShowGroupCreateDialog: Boolean = false,
+    val address: String = "",
+    val coordinates: Coordinates = Coordinates(0.0, 0.0),
+    
+    val registrationStart: Long? = null,
+    val registrationEnd: Long? = null,
+    val maxParticipants: Int? = null,
+    val feeAmount: Double? = null,
+    val feeCurrency: String = "RUB",
+    val regulationUrl: String = "",
+    
+    val mapUrl: String = "",
+    val contactPhone: String = "",
+    val contactEmail: String = "",
+    val website: String = "",
+
+    val competitionDirection: OrienteeringDirection = OrienteeringDirection.FORWARD,
     val punchingSystem: PunchingSystem = PunchingSystem.SPORTIDUINO,
-    val editGroupIndex: Int = -1,
-    val competitionDirection: OrienteeringDirection? = null,
     val startTimeMode: StartTimeMode = StartTimeMode.STRICT,
-    val countdownTimer: Int? = null
+    val countdownTimer: Int? = null,
+
+    val editGroupIndex: Int = -1,
+    val isShowGroupCreateDialog: Boolean = false,
+    val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors(),
+    
+    val distances: List<Distance> = emptyList(),
+    val participantGroups: List<ParticipantGroup> = emptyList(),
+    
+    val isLoading: Boolean = false,
+    val error: String? = null
 ) : BaseState {
-    fun constructOrienteeringCompetition(userId: String): OrienteeringCompetition {
+    
+    fun toOrienteeringCompetition(userId: Long?): OrienteeringCompetition {
         return OrienteeringCompetition(
-            competitionId = competitionId ?: (-9999..-1000).random().toLong(),
+            competitionId = competitionId ?: 0L,
             competition = Competition(
-                remoteId = null,
                 title = title,
-                startDate = date,
-                endDate = date + 86400000L, // +1 день по умолчанию
-                kindOfSport = KindOfSport.Orienteering,
+                startDate = startDate,
+                endDate = endDate,
+                kindOfSport = kindOfSport,
                 description = description,
                 address = address,
-                mainOrganizerId = userId.toLongOrNull(),
-                coordinates = Coordinates(0.0, 0.0),
+                mainOrganizerId = userId,
+                coordinates = coordinates,
                 status = CompetitionStatus.DRAFT,
-                registrationStart = System.currentTimeMillis(),
-                registrationEnd = date - 3600000L,
-                maxParticipants = 500,
-                feeAmount = 0.0,
-                feeCurrency = "RUB",
+                registrationStart = registrationStart,
+                registrationEnd = registrationEnd,
+                maxParticipants = maxParticipants,
+                feeAmount = feeAmount,
+                feeCurrency = feeCurrency,
+                regulationUrl = regulationUrl,
+                mapUrl = mapUrl,
+                contactPhone = contactPhone,
+                contactEmail = contactEmail,
+                website = website,
                 resultsStatus = ResultsStatus.NOT_PUBLISHED
             ),
-            direction = competitionDirection ?: OrienteeringDirection.FORWARD,
+            direction = competitionDirection,
             punchingSystem = punchingSystem,
             startTimeMode = startTimeMode,
             countdownTimer = countdownTimer

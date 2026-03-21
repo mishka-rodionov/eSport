@@ -348,7 +348,7 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
             .fillMaxWidth()
             .onFocusChanged { if (it.isFocused) datePickerDialog.show() },
         label = { Text(text = stringResource(R.string.label_date)) },
-        text = DateTimeFormat.transformLongToDisplayDate(state.date),
+        text = DateTimeFormat.transformLongToDisplayDate(state.startDate),
         readOnly = true,
         trailingIcon = {
             Icon(
@@ -374,7 +374,7 @@ fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
             .fillMaxWidth()
             .onFocusChanged { showDialog = it.isFocused },
         label = { Text(text = stringResource(R.string.label_time)) },
-        text = state.time,
+        text = DateTimeFormat.transformLongToTime(state.startDate),
         readOnly = true,
         trailingIcon = {
             Icon(
@@ -457,7 +457,8 @@ private fun StartTimeModeSelector(
             DSTextInput(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.countdownTimer?.toString() ?: "",
-                onValueChanged = viewModel::updateCountdownTimer,
+//                onValueChanged = viewModel::updateCountdownTimer,
+                onValueChanged = {},
                 label = { Text(text = "Таймер отсчета (мин)") }
             )
         }
