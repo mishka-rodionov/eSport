@@ -6,8 +6,13 @@ data class ParticipantGroup(
     val groupId: Long,
     val competitionId: Long,
     val title: String,
-    val distance: Double,
-    val countOfControls: Int,
-    val maxTimeInMinute: Int,
-    val controlPoints: List<ControlPoint>
+    val gender: Gender?,                   // MALE, FEMALE, MIXED, null – не задано
+    val minAge: Int? = null,
+    val maxAge: Int? = null,
+    val distanceId: Long,                  // ссылка на дистанцию
+    val maxParticipants: Int? = null,      // лимит для группы
+    // Поля синхронизации
+    val isSynced: Boolean = false,
+    val lastModified: Long = System.currentTimeMillis(),
+    val isDeleted: Boolean = false
 )

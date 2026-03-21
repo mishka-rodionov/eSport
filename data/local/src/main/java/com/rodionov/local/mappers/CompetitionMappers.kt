@@ -64,10 +64,14 @@ fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
         groupId = this.groupId,
         competitionId = this.competitionId,
         title = this.title,
-        distance = this.distance,
-        countOfControls = this.countOfControls,
-        maxTimeInMinute = this.maxTimeInMinute,
-        controlPoints = this.controlPoints
+        gender = this.gender,
+        minAge = this.minAge,
+        maxAge = this.maxAge,
+        distanceId = this.distanceId,
+        maxParticipants = this.maxParticipants,
+        isSynced = this.isSynced,
+        lastModified = this.lastModified,
+        isDeleted = this.isDeleted
     )
 }
 
@@ -79,11 +83,14 @@ fun ParticipantGroupEntity.toDomain(): ParticipantGroup {
         groupId = this.groupId,
         competitionId = this.competitionId,
         title = this.title,
-        distance = this.distance,
-        countOfControls = this.countOfControls,
-        maxTimeInMinute = this.maxTimeInMinute,
-        controlPoints = this.controlPoints
-
+        gender = this.gender,
+        minAge = this.minAge,
+        maxAge = this.maxAge,
+        distanceId = this.distanceId,
+        maxParticipants = this.maxParticipants,
+        isSynced = this.isSynced,
+        lastModified = this.lastModified,
+        isDeleted = this.isDeleted
     )
 }
 

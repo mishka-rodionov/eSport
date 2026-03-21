@@ -5,13 +5,14 @@ import com.google.gson.annotations.SerializedName
 /**
  * Ответ сервера с информацией о группе участников соревнования.
  *
- * @property groupId уникальный идентификатор группы.
- * @property competitionId идентификатор соревнования, к которому относится группа.
- * @property title название группы (например, М21, Ж18 и т.п.).
- * @property distance длина дистанции в километрах.
- * @property countOfControls количество контрольных пунктов на дистанции.
- * @property maxTimeInMinute контрольное время прохождения дистанции в минутах.
- * @property controlPoints список контрольных пунктов, назначенных для группы.
+ * @property groupId Уникальный идентификатор группы.
+ * @property competitionId Идентификатор соревнования.
+ * @property title Название группы.
+ * @property gender Пол участников.
+ * @property minAge Минимальный возраст.
+ * @property maxAge Максимальный возраст.
+ * @property distanceId Идентификатор связанной дистанции.
+ * @property maxParticipants Лимит участников для группы.
  */
 data class ParticipantGroupResponse(
     @SerializedName("groupId")
@@ -20,13 +21,14 @@ data class ParticipantGroupResponse(
     val competitionId: Long,
     @SerializedName("title")
     val title: String,
-    @SerializedName("distance")
-    val distance: Double,
-    @SerializedName("countOfControls")
-    val countOfControls: Int,
-    @SerializedName("maxTimeInMinute")
-    val maxTimeInMinute: Int,
-    @SerializedName("controlPoints")
-    val controlPoints: List<ControlPointResponse>
+    @SerializedName("gender")
+    val gender: String?,
+    @SerializedName("minAge")
+    val minAge: Int?,
+    @SerializedName("maxAge")
+    val maxAge: Int?,
+    @SerializedName("distanceId")
+    val distanceId: Long,
+    @SerializedName("maxParticipants")
+    val maxParticipants: Int?
 )
-

@@ -4,9 +4,11 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.rodionov.domain.models.Gender
 import com.rodionov.domain.models.orienteering.ControlPoint
 import com.rodionov.local.converters.CompetitionConverters
 import com.rodionov.local.converters.ControlPointConverters
+import com.rodionov.local.converters.UserConverter
 
 /**
  * Entity (сущность) для представления группы участников в соревновании по спортивному ориентированию.
@@ -32,15 +34,20 @@ import com.rodionov.local.converters.ControlPointConverters
         )
     ]
 )
-@TypeConverters(ControlPointConverters::class)
+@TypeConverters(ControlPointConverters::class, UserConverter::class)
 data class ParticipantGroupEntity(
     @PrimaryKey(autoGenerate = true)
     val groupId: Long = 0,
     val competitionId: Long,
     val title: String,
-    val distance: Double,
-    val countOfControls: Int,
-    val maxTimeInMinute: Int,
-    val controlPoints: List<ControlPoint>
+    val gender: Gender?,                   // MALE, FEMALE, MIXED, null – не задано
+    val minAge: Int? = null,
+    val maxAge: Int? = null,
+    val distanceId: Long,                  // ссылка на дистанцию
+    val maxParticipants: Int? = null,      // лимит для группы
+    // Поля синхронизации
+    val isSynced: Boolean = false,
+    val lastModified: Long = System.currentTimeMillis(),
+    val isDeleted: Boolean = false
 )
 
