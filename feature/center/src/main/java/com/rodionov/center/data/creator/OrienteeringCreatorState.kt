@@ -13,6 +13,7 @@ import com.rodionov.ui.BaseState
  * @property competitionId Идентификатор соревнования (локальный).
  * @property title Название.
  * @property startDate Дата начала.
+ * @property startTimeStr Время начала (строка HH:mm).
  * @property endDate Дата окончания.
  * @property kindOfSport Вид спорта.
  * @property description Описание.
@@ -37,6 +38,7 @@ import com.rodionov.ui.BaseState
  * @property errors Ошибки валидации.
  * @property distances Список дистанций.
  * @property participantGroups Список групп.
+ * @property stages Список этапов (для многодневных соревнований).
  * @property isLoading Флаг загрузки.
  * @property error Сообщение об ошибке.
  */
@@ -44,6 +46,7 @@ data class OrienteeringCreatorState(
     val competitionId: Long? = null,
     val title: String = "",
     val startDate: Long = System.currentTimeMillis(),
+    val startTimeStr: String = "10:00",
     val endDate: Long? = null,
     val kindOfSport: KindOfSport = KindOfSport.Orienteering,
     val description: String = "",
@@ -73,6 +76,7 @@ data class OrienteeringCreatorState(
     
     val distances: List<Distance> = emptyList(),
     val participantGroups: List<ParticipantGroup> = emptyList(),
+    val stages: List<Stage> = emptyList(),
     
     val isLoading: Boolean = false,
     val error: String? = null

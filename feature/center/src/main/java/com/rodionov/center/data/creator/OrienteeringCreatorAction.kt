@@ -28,4 +28,10 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data object SuccessfulCompetitionCreate: OrienteeringCreatorAction()
     data class FailedCompetitionCreate(val message: String): OrienteeringCreatorAction()
     data class UpdateStartTimeMode(val startTimeMode: StartTimeMode): OrienteeringCreatorAction()
+    
+    // Новые действия для пошагового создания
+    data object AddStage : OrienteeringCreatorAction()
+    data class RemoveStage(val index: Int) : OrienteeringCreatorAction()
+    data class UpdateStageDate(val index: Int, val date: Long) : OrienteeringCreatorAction()
+    data class UpdateStageTime(val index: Int, val time: String) : OrienteeringCreatorAction()
 }
