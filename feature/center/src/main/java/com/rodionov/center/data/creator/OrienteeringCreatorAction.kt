@@ -3,6 +3,7 @@ package com.rodionov.center.data.creator
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.StartTimeMode
+import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.ui.BaseAction
 import java.time.LocalDate
 
@@ -34,4 +35,11 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data class RemoveStage(val index: Int) : OrienteeringCreatorAction()
     data class UpdateStageDate(val index: Int, val date: Long) : OrienteeringCreatorAction()
     data class UpdateStageTime(val index: Int, val time: String) : OrienteeringCreatorAction()
+
+    // Действия для работы с дистанциями
+    data object ShowDistanceCreateDialog : OrienteeringCreatorAction()
+    data object HideDistanceCreateDialog : OrienteeringCreatorAction()
+    data class CreateDistance(val distance: Distance, val index: Int) : OrienteeringCreatorAction()
+    data class EditDistanceDialog(val index: Int) : OrienteeringCreatorAction()
+    data class DeleteDistance(val index: Int) : OrienteeringCreatorAction()
 }

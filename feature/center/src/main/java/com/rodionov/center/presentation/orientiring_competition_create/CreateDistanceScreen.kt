@@ -10,12 +10,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.designsystem.theme.Dimens
+import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.data.navigation.CenterNavigation
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 /**
  * Четвертый экран создания соревнования: Настройка дистанций.
+ * 
+ * Позволяет добавлять и просматривать список дистанций для соревнования.
  * 
  * @param competitionId Идентификатор соревнования.
  * @param viewModel Вьюмодель процесса создания.
@@ -59,18 +62,28 @@ fun CreateDistanceScreen(
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
             // Список созданных дистанций
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
-            ) {
-                itemsIndexed(state.distances) { index, distance ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = distance.name ?: "Без названия", fontWeight = FontWeight.Bold)
-                            Text(text = "Длина: ${distance.lengthMeters} м, КП: ${distance.controlsCount}")
+            if (state.distances.isEmpty()) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    Text(
+                        text = "Добавьте хотя бы одну дистанцию",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
+                ) {
+                    itemsIndexed(state.distances) { index, distance ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(text = distance.name ?: "Без названия", fontWeight = FontWeight.Bold)
+                                Text(text = "Длина: ${distance.lengthMeters} м, КП: ${distance.controlsCount}")
+                            }
                         }
                     }
                 }
@@ -79,11 +92,19 @@ fun CreateDistanceScreen(
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
             Button(
-                onClick = { /* TODO: Открыть диалог создания дистанции */ },
+                onClick = { viewModel.onAction(OrienteeringCreatorAction.ShowDistanceCreateDialog) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Добавить дистанцию")
             }
         }
+    }
+
+    // Диалог создания дистанции
+    if (state.isShowDistanceCreateDialog) {
+        DistanceEditor(
+            userAction = viewModel::onAction,
+            state = state
+        )
     }
 }

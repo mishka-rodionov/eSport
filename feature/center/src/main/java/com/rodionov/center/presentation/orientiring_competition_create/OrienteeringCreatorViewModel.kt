@@ -31,6 +31,13 @@ class OrienteeringCreatorViewModel(
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
     override fun onAction(action: BaseAction) {
+        when(action) {
+            OrienteeringCreatorAction.ShowDistanceCreateDialog -> updateState { copy(isShowDistanceCreateDialog = true) }
+            OrienteeringCreatorAction.HideDistanceCreateDialog -> updateState { copy(isShowDistanceCreateDialog = false) }
+            is OrienteeringCreatorAction.CreateDistance -> {
+                updateState {copy(distances = distances + action.distance, isShowDistanceCreateDialog = false)}
+            }
+        }
         // Оставляем пустую реализацию для совместимости с базовым классом, 
         // если действия будут добавлены позже.
     }

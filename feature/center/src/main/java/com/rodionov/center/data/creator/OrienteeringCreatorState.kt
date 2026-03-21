@@ -35,6 +35,8 @@ import com.rodionov.ui.BaseState
  * @property countdownTimer Таймер.
  * @property editGroupIndex Индекс редактируемой группы.
  * @property isShowGroupCreateDialog Флаг отображения диалога создания группы.
+ * @property editDistanceIndex Индекс редактируемой дистанции.
+ * @property isShowDistanceCreateDialog Флаг отображения диалога создания дистанции.
  * @property errors Ошибки валидации.
  * @property distances Список дистанций.
  * @property participantGroups Список групп.
@@ -72,6 +74,8 @@ data class OrienteeringCreatorState(
 
     val editGroupIndex: Int = -1,
     val isShowGroupCreateDialog: Boolean = false,
+    val editDistanceIndex: Int = -1,
+    val isShowDistanceCreateDialog: Boolean = false,
     val errors: OrienteeringCreatorErrors = OrienteeringCreatorErrors(),
     
     val distances: List<Distance> = emptyList(),
