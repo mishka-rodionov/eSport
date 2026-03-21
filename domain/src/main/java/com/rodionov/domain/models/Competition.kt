@@ -7,28 +7,37 @@ import com.rodionov.domain.models.orienteering.ResultsStatus
 /**
  * Базовая модель соревнования.
  *
+ * Представляет общую информацию о спортивном событии, включая его сроки, место проведения,
+ * организаторов, условия участия и статус синхронизации с сервером.
+ *
+ * @property remoteId Идентификатор соревнования на сервере (null, если запись еще не синхронизирована).
  * @property title Название соревнования.
- * @property date Дата проведения соревнования (в миллисекундах).
- * @property kindOfSport Вид спорта.
- * @property description Описание соревнования.
- * @property address Место проведения.
- * @property mainOrganizer Главный организатор (ID пользователя).
- * @property coordinates Географические координаты места проведения.
+ * @property startDate Дата и время начала соревнования (Unix timestamp в мс).
+ * @property endDate Дата и время окончания соревнования (Unix timestamp в мс).
+ * @property kindOfSport Вид спорта (например, ориентирование, лыжные гонки).
+ * @property description Подробное описание мероприятия.
+ * @property address Физический адрес или описание места проведения.
+ * @property mainOrganizerId Локальный идентификатор главного организатора (ссылка на пользователя).
+ * @property coordinates Географические координаты места проведения (широта и долгота).
+ * @property status Текущий статус жизненного цикла соревнования (Черновик, Регистрация, Завершено и т.д.).
+ * @property registrationStart Дата и время начала регистрации участников (Unix timestamp в мс).
+ * @property registrationEnd Дата и время окончания регистрации участников (Unix timestamp в мс).
+ * @property maxParticipants Максимально допустимое количество участников.
+ * @property feeAmount Стоимость участия (взнос).
+ * @property feeCurrency Валюта оплаты взноса.
+ * @property regulationUrl Ссылка на документ с положением или регламентом соревнований.
+ * @property mapUrl Ссылка на карту района соревнований или схему проезда.
+ * @property contactPhone Контактный номер телефона организаторов.
+ * @property contactEmail Контактный адрес электронной почты организаторов.
+ * @property website Официальный сайт или страница соревнований.
+ * @property resultsStatus Статус публикации результатов (Предварительные, Официальные и т.д.).
+ * @property isSynced Флаг успешной синхронизации локальной записи с сервером.
+ * @property lastModified Время последнего изменения записи (Unix timestamp в мс).
+ * @property isDeleted Флаг "мягкого" удаления (запись помечена как удаленная для последующей синхронизации).
+ * @property createdAt Время создания записи в локальной базе данных (Unix timestamp в мс).
+ * @property syncError Текст последней ошибки синхронизации, если она произошла.
  */
-//data class Competition(
-//    val title: String,
-//    val date: Long,
-//    val kindOfSport: KindOfSport,
-//    val description: String,
-//    val address: String,
-//    val mainOrganizer: String,
-//    @Embedded
-//    val coordinates: Coordinates,
-//)
-
 data class Competition(
-//    @PrimaryKey(autoGenerate = true)
-//    val id: Long = 0,
     val remoteId: Long? = null,
     val title: String,
     val startDate: Long,
