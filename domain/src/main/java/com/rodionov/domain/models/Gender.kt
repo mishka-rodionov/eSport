@@ -7,5 +7,8 @@ enum class Gender {
     MALE,
 
     @SerializedName("female")
-    FEMALE
+    FEMALE,
+
+    @SerializedName("mixed")
+    MIXED
 }

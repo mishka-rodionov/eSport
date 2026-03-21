@@ -54,22 +54,16 @@ import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
+import com.rodionov.domain.models.Gender
 import com.rodionov.domain.models.ParticipantGroup
-import com.rodionov.domain.models.orienteering.ControlPoint
 import com.rodionov.resources.R
-import kotlin.math.roundToInt
 
 /**
- * Редактор группы участников соревнований по ориентированию, представленный в виде модального нижнего окна (bottom sheet).
- *
- * Позволяет настраивать основные параметры группы: название, дистанцию и контрольное время.
- * Реализует интерактивное управление списком контрольных пунктов (КП) с возможностью:
- * - Добавления новых КП через ввод номера.
- * - Удаления существующих КП.
- * - Изменения порядка следования КП с помощью перетаскивания (Drag-and-Drop) по долгому нажатию.
- *
- * @param userAction Функция обратного вызова для обработки действий пользователя (сохранение группы, закрытие диалога).
- * @param state Текущее состояние экрана создания соревнования, содержащее данные о группах, ошибки валидации и индекс редактируемой группы.
+ * Редактор группы участников соревнований по ориентированию.
+ * 
+ * Обновлен для поддержки новой модели ParticipantGroup.
+ * Временно закомментированы поля старой модели (КП, дистанция напрямую), 
+ * так как теперь группа ссылается на дистанцию через ID.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,28 +72,26 @@ fun ParticipantGroupEditor(
     state: OrienteeringCreatorState,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var groupTitle by remember { mutableStateOf(if (state.editGroupIndex == -1) "" else state.participantGroups[state.editGroupIndex].title) }
-    var distance by remember { mutableStateOf(if (state.editGroupIndex == -1) "" else state.participantGroups[state.editGroupIndex].distance.toString()) }
-    var countOfControls by remember { mutableIntStateOf(if (state.editGroupIndex == -1) 0 else state.participantGroups[state.editGroupIndex].countOfControls) }
-    var maxTime by remember { mutableIntStateOf(if (state.editGroupIndex == -1) 0 else state.participantGroups[state.editGroupIndex].maxTimeInMinute) }
-
-    var controlPoints by remember {
-        mutableStateOf(
-            if (state.editGroupIndex == -1) emptyList<ControlPoint>()
-            else state.participantGroups[state.editGroupIndex].controlPoints
-        )
-    }
-    var cpInput by remember { mutableStateOf("") }
-
-    // Drag and Drop State
-    val lazyListState = rememberLazyListState()
-    var draggingIndex by remember { mutableStateOf<Int?>(null) }
-    var dragOffset by remember { mutableFloatStateOf(0f) }
+    
+    val initialGroup = state.participantGroups.getOrNull(state.editGroupIndex)
+    
+    var groupTitle by remember { mutableStateOf(initialGroup?.title ?: "") }
+    var minAge by remember { mutableStateOf(initialGroup?.minAge?.toString() ?: "") }
+    var maxAge by remember { mutableStateOf(initialGroup?.maxAge?.toString() ?: "") }
+    var maxParticipants by remember { mutableStateOf(initialGroup?.maxParticipants?.toString() ?: "") }
+    var selectedGender by remember { mutableStateOf(initialGroup?.gender) }
 
     DSBottomDialog(
         sheetState = sheetState,
         sheetContent = {
-            Column(modifier = Modifier.padding(horizontal = Dimens.SIZE_HALF.dp).padding(bottom = Dimens.SIZE_HALF.dp)) {
+            Column(modifier = Modifier.padding(Dimens.SIZE_BASE.dp)) {
+                Text(
+                    text = if (state.editGroupIndex == -1) "Создание группы" else "Редактирование группы",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(text = stringResource(R.string.label_participant_group_title)) },
@@ -109,185 +101,57 @@ fun ParticipantGroupEditor(
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
-                DSTextInput(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.label_participant_group_distance_input)) },
-                    isError = state.errors.isGroupDistanceError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    text = distance,
-                    onValueChanged = { dist ->
-                        val sanitizedInput = dist.replace(',', '.')
-                        val decimalRegex = Regex("^\\d{0,7}([.]\\d{0,2})?$")
-                        if (sanitizedInput.isEmpty() || sanitizedInput.matches(decimalRegex)) {
-                            distance = sanitizedInput
-                        }
-                    })
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DSTextInput(
+                        modifier = Modifier.weight(1f),
+                        label = { Text(text = "Мин. возраст") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        text = minAge,
+                        onValueChanged = { minAge = it })
 
-                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-
-                DSTextInput(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.label_add_control_point)) },
-                    text = cpInput,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    onValueChanged = { input ->
-                        if (input.endsWith(" ") || input.endsWith(",") || input.endsWith(".") || input.endsWith("\n")) {
-                            val number = input.dropLast(1).trim().toIntOrNull()
-                            if (number != null) {
-                                controlPoints = controlPoints + ControlPoint(number = number)
-                                countOfControls = controlPoints.size
-                                cpInput = ""
-                            } else {
-                                cpInput = input
-                            }
-                        } else {
-                            cpInput = input
-                        }
-                    })
-
-                Spacer(modifier = Modifier.height(Dimens.SIZE_QUARTER.dp))
-
-                if (controlPoints.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.label_distance_reorder_hint),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-
-                    val density = androidx.compose.ui.platform.LocalDensity.current
-                    val itemTotalWidthPx = with(density) { (72.dp + 8.dp).toPx() }
-                    val currentItemWidth by rememberUpdatedState(itemTotalWidthPx)
-
-                    LazyRow(
-                        state = lazyListState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        itemsIndexed(controlPoints, key = { _, cp -> System.identityHashCode(cp) }) { index, cp ->
-                            val currentIdx by rememberUpdatedState(index)
-                            val isDragging = draggingIndex == index
-                            val scale by animateFloatAsState(if (isDragging) 1.2f else 1.0f, label = "scale")
-                            val zIndex = if (isDragging) 10f else 1f
-
-                            Box(
-                                modifier = Modifier
-                                    .zIndex(zIndex)
-                                    .scale(scale)
-                                    .offset {
-                                        if (isDragging) IntOffset(dragOffset.roundToInt(), 0)
-                                        else IntOffset.Zero
-                                    }
-                                    .shadow(if (isDragging) 8.dp else 0.dp, RoundedCornerShape(16.dp))
-                                    .pointerInput(Unit) {
-                                        detectDragGesturesAfterLongPress(
-                                            onDragStart = {
-                                                draggingIndex = currentIdx
-                                            },
-                                            onDragEnd = {
-                                                draggingIndex = null
-                                                dragOffset = 0f
-                                            },
-                                            onDragCancel = {
-                                                draggingIndex = null
-                                                dragOffset = 0f
-                                            },
-                                            onDrag = { change, dragAmount ->
-                                                change.consume()
-                                                dragOffset += dragAmount.x
-
-                                                val currentIdxForDrag = draggingIndex ?: return@detectDragGesturesAfterLongPress
-
-                                                val shift = (dragOffset / currentItemWidth).roundToInt()
-                                                val targetIndex = (currentIdxForDrag + shift).coerceIn(0, controlPoints.size - 1)
-
-                                                if (targetIndex != currentIdxForDrag) {
-                                                    val newList = controlPoints.toMutableList()
-                                                    val item = newList.removeAt(currentIdxForDrag)
-                                                    newList.add(targetIndex, item)
-
-                                                    controlPoints = newList
-
-                                                    dragOffset -= (targetIndex - currentIdxForDrag) * currentItemWidth
-                                                    draggingIndex = targetIndex
-                                                }
-                                            }
-                                        )
-                                    }
-                            ) {
-                                Surface(
-                                    shape = RoundedCornerShape(16.dp),
-                                    color = if (isDragging) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                                    border = CardDefaults.outlinedCardBorder()
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = cp.number.toString(),
-                                            fontWeight = FontWeight.Bold,
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(R.drawable.close_24px),
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(16.dp)
-                                                .clickable {
-                                                    controlPoints = controlPoints.toMutableList().apply { removeAt(index) }
-                                                    countOfControls = controlPoints.size
-                                                }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    DSTextInput(
+                        modifier = Modifier.weight(1f),
+                        label = { Text(text = "Макс. возраст") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        text = maxAge,
+                        onValueChanged = { maxAge = it })
                 }
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
                 DSTextInput(
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.label_max_time_input)) },
-                    isError = state.errors.isMaxTimeError,
-                    text = maxTime.takeIf { it != 0 }?.toString() ?: "",
+                    label = { Text(text = "Лимит участников") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    onValueChanged = { time ->
-                        maxTime = time.takeIf { it.isNotBlank() }?.trim()?.toIntOrNull() ?: 0
-                    })
+                    text = maxParticipants,
+                    onValueChanged = { maxParticipants = it })
 
-                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
 
-                with(state.errors) {
-                    if (isGroupTitleError || isGroupDistanceError || isCountOfControlsError || isMaxTimeError){
-                        Text(text = stringResource(R.string.error_all_fields_required), color = MaterialTheme.colorScheme.error)
-                        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-                    }
-                }
-
-                Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                    userAction.invoke(
-                        OrienteeringCreatorAction.CreateParticipantGroup(
-                            participantGroup = ParticipantGroup(
-                                groupId = if (state.editGroupIndex == -1) -1 else state.participantGroups[state.editGroupIndex].groupId,
-                                competitionId = if (state.editGroupIndex == -1) -1 else state.participantGroups[state.editGroupIndex].competitionId,
-                                title = groupTitle,
-                                distance = distance.toDoubleOrNull() ?: 0.0,
-                                countOfControls = countOfControls,
-                                maxTimeInMinute = maxTime,
-                                controlPoints = controlPoints,
-                            ),
-                            index = state.editGroupIndex
+                Button(
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                    onClick = {
+                        userAction.invoke(
+                            OrienteeringCreatorAction.CreateParticipantGroup(
+                                participantGroup = ParticipantGroup(
+                                    groupId = initialGroup?.groupId ?: 0L,
+                                    competitionId = initialGroup?.competitionId ?: 0L,
+                                    title = groupTitle,
+                                    gender = selectedGender,
+                                    minAge = minAge.toIntOrNull(),
+                                    maxAge = maxAge.toIntOrNull(),
+                                    distanceId = initialGroup?.distanceId ?: 1L, // Mock ID
+                                    maxParticipants = maxParticipants.toIntOrNull(),
+                                    isSynced = false,
+                                    lastModified = System.currentTimeMillis()
+                                ),
+                                index = state.editGroupIndex
+                            )
                         )
-                    )
-                }) {
-                    Text(text = stringResource(R.string.label_save_group))
+                    }
+                ) {
+                    Text(text = stringResource(R.string.label_save_group), fontWeight = FontWeight.Bold)
                 }
             }
         },

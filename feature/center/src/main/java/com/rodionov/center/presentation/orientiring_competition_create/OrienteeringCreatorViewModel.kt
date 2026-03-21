@@ -31,17 +31,17 @@ class OrienteeringCreatorViewModel(
         when (action) {
             is OrienteeringCreatorAction.CreateParticipantGroup -> {
                 val isGroupTitleError = action.participantGroup.title.isBlank()
-                val isGroupDistanceError = action.participantGroup.distance == 0.0
-                val isCountOfControlsError = action.participantGroup.countOfControls == 0
-                val isMaxTimeError = action.participantGroup.maxTimeInMinute == 0
-                if (isGroupTitleError || isGroupDistanceError || isCountOfControlsError || isMaxTimeError) {
+//                val isGroupDistanceError = action.participantGroup.distance == 0.0
+//                val isCountOfControlsError = action.participantGroup.countOfControls == 0
+//                val isMaxTimeError = action.participantGroup.maxTimeInMinute == 0
+                if (isGroupTitleError /*|| isGroupDistanceError || isCountOfControlsError || isMaxTimeError*/) {
                     updateState {
                         copy(
                             errors = errors.copy(
                                 isGroupTitleError = isGroupTitleError,
-                                isGroupDistanceError = isGroupDistanceError,
-                                isCountOfControlsError = isCountOfControlsError,
-                                isMaxTimeError = isMaxTimeError
+//                                isGroupDistanceError = isGroupDistanceError,
+//                                isCountOfControlsError = isCountOfControlsError,
+//                                isMaxTimeError = isMaxTimeError
                             )
                         )
                     }

@@ -29,6 +29,7 @@ import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.participant_list.ParticipantListAction
 import com.rodionov.center.data.participant_list.ParticipantListState
+import com.rodionov.domain.models.Gender
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ParticipantGroupParticipants
@@ -404,10 +405,13 @@ fun ParticipantListScreenPreview() {
                             groupId = 1L,
                             competitionId = 1L,
                             title = "M21",
-                            distance = 10.0,
-                            countOfControls = 20,
-                            maxTimeInMinute = 120,
-                            controlPoints = emptyList()
+                            gender = Gender.MALE,
+                            minAge = 21,
+                            maxAge = null,
+                            distanceId = 1L,
+                            maxParticipants = 100,
+                            isSynced = true,
+                            lastModified = System.currentTimeMillis()
                         ),
                         participants = listOf(
                             OrienteeringParticipant(

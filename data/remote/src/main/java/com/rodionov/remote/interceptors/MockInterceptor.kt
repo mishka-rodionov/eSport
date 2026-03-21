@@ -275,15 +275,11 @@ class MockInterceptor : Interceptor {
                 groupId = (1000..9999).random().toLong(),
                 competitionId = it.competitionId,
                 title = it.title,
-                distance = it.distance,
-                countOfControls = it.countOfControls,
-                maxTimeInMinute = it.maxTimeInMinute,
-                controlPoints = listOf(
-                    ControlPointResponse(49, ControlPointRole.ORDINARY, 0),
-                    ControlPointResponse(52, ControlPointRole.ORDINARY, 0),
-                    ControlPointResponse(53, ControlPointRole.ORDINARY, 0),
-                    ControlPointResponse(54, ControlPointRole.ORDINARY, 0)
-                )
+                gender = it.gender,
+                minAge = it.minAge,
+                maxAge = it.maxAge,
+                distanceId = it.distanceId,
+                maxParticipants = it.maxParticipants
             )
         }
 

@@ -297,9 +297,9 @@ fun GroupCard(
             
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             
-            GroupInfoRow(label = "Дистанция", value = "${participantGroup.distance} м")
-            GroupInfoRow(label = "КП", value = "${participantGroup.countOfControls}")
-            GroupInfoRow(label = "Лимит", value = "${participantGroup.maxTimeInMinute} мин")
+            GroupInfoRow(label = "Дистанция", value = "Брать из модели дистанции м")
+            GroupInfoRow(label = "КП", value = "Брать из модели дистанции")
+            GroupInfoRow(label = "Лимит", value = "Брать из модели дистанции мин")
         }
     }
 }

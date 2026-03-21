@@ -64,7 +64,8 @@ class OrientReadCardViewModel(
 
     suspend fun getExpectedControlPoints(groupId: Long): List<ControlPoint> {
         val group = orienteeringCompetitionInteractor.getParticipantGroup(groupId).getOrNull()
-        return group?.controlPoints ?: emptyList()
+        return emptyList() // FIXME добавлено пока нет обработки соответствующего поля из модели дистанции
+//        return group?.controlPoints ?: emptyList()
     }
 
     suspend fun computeParticipantResult(

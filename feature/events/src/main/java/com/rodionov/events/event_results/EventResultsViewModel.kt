@@ -1,6 +1,7 @@
 package com.rodionov.events.event_results
 
 import androidx.lifecycle.viewModelScope
+import com.rodionov.domain.models.Gender
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.ResultStatus
 import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
@@ -68,10 +69,13 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
                 groupId = id,
                 competitionId = eventId,
                 title = title,
-                distance = 5.3,
-                countOfControls = 15,
-                maxTimeInMinute = 60,
-                controlPoints = emptyList()
+                gender = if (title.startsWith("М")) Gender.MALE else if (title.startsWith("Ж")) Gender.FEMALE else Gender.MIXED,
+                minAge = if (title.contains("21")) 21 else 0,
+                maxAge = null,
+                distanceId = id, // Ссылка на дистанцию
+                maxParticipants = 100,
+                isSynced = true,
+                lastModified = System.currentTimeMillis()
             ),
             participants = listOf(
                 ParticipantWithResult(
