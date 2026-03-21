@@ -9,7 +9,10 @@ import com.rodionov.domain.models.Competition
  * @property competition Базовая информация о соревновании
  * @property direction Направление (заданный порядок, по выбору и т.д.)
  * @property punchingSystem Система отметки
- * @property startTimeMode Режим определения времени старта
+ * @property startTimeMode Режим определения времени старта.
+ * Строгий - конкретное время,
+ * пользовательское - время отсчета до старта,
+ * старт по отметке - время старта участника определяется по его отметке на стартовой станции
  * @property countdownTimer Время отсчета перед стартом (в минутах), если [startTimeMode] равен [StartTimeMode.USER_SET]
  * @property startTime Фактическое время старта соревнования (timestamp)
  */
