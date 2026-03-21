@@ -13,13 +13,16 @@ import com.rodionov.local.dao.ParticipantGroupDao
 import com.rodionov.local.dao.UserDao
 import com.rodionov.local.dao.orienteering.OrienteeringParticipantDao
 import com.rodionov.local.dao.orienteering.OrienteeringResultDao
+import com.rodionov.local.entities.orienteering.DistanceEntity
+import com.rodionov.local.entities.orienteering.OrganizerEntity
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
 import com.rodionov.local.entities.orienteering.OrienteeringParticipantEntity
 import com.rodionov.local.entities.orienteering.OrienteeringResultEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
+import com.rodionov.local.entities.orienteering.StageEntity
 import com.rodionov.local.entities.user.UserEntity
 
-private const val DB_VERSION = 17
+private const val DB_VERSION = 18
 
 @Database(
     entities = [
@@ -27,7 +30,10 @@ private const val DB_VERSION = 17
         ParticipantGroupEntity::class,
         OrienteeringParticipantEntity::class,
         UserEntity::class,
-        OrienteeringResultEntity::class
+        OrienteeringResultEntity::class,
+        DistanceEntity::class,
+        OrganizerEntity::class,
+        StageEntity::class
     ],
     version = DB_VERSION,
     exportSchema = false
