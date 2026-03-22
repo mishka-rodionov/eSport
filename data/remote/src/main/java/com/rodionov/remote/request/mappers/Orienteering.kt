@@ -9,7 +9,7 @@ import com.rodionov.remote.request.orienteering.ParticipantGroupRequest
 
 fun OrienteeringCompetition.toRequest(): OrienteeringCompetitionRequest {
     return OrienteeringCompetitionRequest(
-        competitionId,
+        localCompetitionId,
         competition.toRequest(),
         direction.name,
         punchingSystem.name,

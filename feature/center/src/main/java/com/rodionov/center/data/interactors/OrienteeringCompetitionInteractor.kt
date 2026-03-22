@@ -48,14 +48,14 @@ class OrienteeringCompetitionInteractor(
                 localRepository.saveCompetition(competition).fold({
                     //сохранения данных по группам участников на сервере
                     createParticipantsGroupsInfo(
-                        competitionId = competition.competitionId,
+                        competitionId = competition.localCompetitionId,
                         participantGroups = participantGroups
                     )
                     return OrienteeringCreatorAction.SuccessfulCompetitionCreate
                 }, {
                     //сохранения данных по группам участников на сервере
                     createParticipantsGroupsInfo(
-                        competitionId = competition.competitionId,
+                        competitionId = competition.localCompetitionId,
                         participantGroups = participantGroups
                     )
                     return OrienteeringCreatorAction.FailedCompetitionCreate("Сохранено на сервере, ошибка локального сохранения")
@@ -69,7 +69,7 @@ class OrienteeringCompetitionInteractor(
                         localRepository.saveParticipantsGroups(
                             participantGroups.map {
                                 it.copy(
-                                    competitionId = orienteeringCompetition.competitionId
+                                    competitionId = orienteeringCompetition.localCompetitionId
                                 )
                             })
                         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, сохранено локально")
@@ -78,7 +78,7 @@ class OrienteeringCompetitionInteractor(
                         localRepository.saveParticipantsGroups(
                             participantGroups.map {
                                 it.copy(
-                                    competitionId = orienteeringCompetition.competitionId
+                                    competitionId = orienteeringCompetition.localCompetitionId
                                 )
                             })
                         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, ошибка локального созранения")
@@ -88,11 +88,20 @@ class OrienteeringCompetitionInteractor(
         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка")
     }
 
+    suspend fun saveCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
+
+        return localRepository.saveCompetition(orienteeringCompetition)
+    }
+
+    suspend fun updateCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
+        return localRepository.updateCompetition(orienteeringCompetition).mapCatching { orienteeringCompetition }
+    }
+
     suspend fun updateCompetition(
         orienteeringCompetition: OrienteeringCompetition,
         participantGroups: List<ParticipantGroup>? = null
     ): OrienteeringCreatorAction {
-        val competitionId = orienteeringCompetition.competitionId
+        val competitionId = orienteeringCompetition.localCompetitionId
 
         // 1. Пытаемся обновить на сервере
 //        remoteRepository.updateCompetition(orienteeringCompetition).onSuccess {

@@ -13,7 +13,7 @@ data class OrienteeringCompetitionWithGroups(
     val competition: OrienteeringCompetitionEntity,
 
     @Relation(
-        parentColumn = "id",               // поле в OrienteeringCompetitionEntity
+        parentColumn = "localCompetitionId",               // поле в OrienteeringCompetitionEntity
         entityColumn = "competitionId"     // поле в ParticipantGroupEntity
     )
     val groups: List<ParticipantGroupEntity>

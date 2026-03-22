@@ -31,15 +31,66 @@ class OrienteeringCreatorViewModel(
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
     override fun onAction(action: BaseAction) {
-        when(action) {
-            OrienteeringCreatorAction.ShowDistanceCreateDialog -> updateState { copy(isShowDistanceCreateDialog = true) }
-            OrienteeringCreatorAction.HideDistanceCreateDialog -> updateState { copy(isShowDistanceCreateDialog = false) }
-            is OrienteeringCreatorAction.CreateDistance -> {
-                updateState {copy(distances = distances + action.distance, isShowDistanceCreateDialog = false)}
+        when (action) {
+            OrienteeringCreatorAction.ShowDistanceCreateDialog -> updateState {
+                copy(
+                    isShowDistanceCreateDialog = true
+                )
             }
+
+            OrienteeringCreatorAction.HideDistanceCreateDialog -> updateState {
+                copy(
+                    isShowDistanceCreateDialog = false
+                )
+            }
+
+            is OrienteeringCreatorAction.CreateDistance -> {
+                updateState {
+                    copy(
+                        distances = distances + action.distance,
+                        isShowDistanceCreateDialog = false
+                    )
+                }
+            }
+
+            /**
+             * Обработка экшена показа диалога создания группы участников.
+             * Устанавливает флаг isShowGroupCreateDialog в true.
+             */
+            OrienteeringCreatorAction.ShowGroupCreateDialog -> updateState {
+                copy(
+                    isShowGroupCreateDialog = true
+                )
+            }
+
+            /**
+             * Скрытие диалога создания группы.
+             */
+            OrienteeringCreatorAction.HideGroupCreateDialog -> updateState {
+                copy(
+                    isShowGroupCreateDialog = false
+                )
+            }
+
+            /**
+             * Обработка создания/добавления новой группы участников.
+             * Добавляет группу в список и закрывает диалог.
+             */
+            is OrienteeringCreatorAction.CreateParticipantGroup -> {
+                updateState {
+                    copy(
+                        participantGroups = participantGroups + action.participantGroup,
+                        isShowGroupCreateDialog = false
+                    )
+                }
+            }
+
+            is OrienteeringCreatorAction.UpdateCompetitionDate -> {
+                updateStartDate(action.competitionDate)
+            }
+
+            is OrienteeringCreatorAction.UpdateCompetitionTime -> updateState { copy(startTimeStr = action.competitionTime) }
         }
-        // Оставляем пустую реализацию для совместимости с базовым классом, 
-        // если действия будут добавлены позже.
     }
 
     /**
@@ -48,40 +99,37 @@ class OrienteeringCreatorViewModel(
      * @param competitionId Идентификатор соревнования.
      */
     fun initialize(competitionId: Long?) {
-        if (competitionId == null || competitionId == 0L) return
-        
+        if (competitionId == null) return
+
         viewModelScope.launch {
-            orienteeringCompetitionInteractor.getCompetitionWithDetails(competitionId)
-                .onSuccess { details ->
-                    val comp = details.competition
-                    updateState {
-                        copy(
-                            competitionId = competitionId,
-                            title = comp.competition.title,
-                            startDate = comp.competition.startDate,
-                            endDate = comp.competition.endDate,
-                            kindOfSport = comp.competition.kindOfSport,
-                            description = comp.competition.description ?: "",
-                            address = comp.competition.address ?: "",
-                            coordinates = comp.competition.coordinates ?: coordinates,
-                            registrationStart = comp.competition.registrationStart,
-                            registrationEnd = comp.competition.registrationEnd,
-                            maxParticipants = comp.competition.maxParticipants,
-                            feeAmount = comp.competition.feeAmount,
-                            feeCurrency = comp.competition.feeCurrency ?: "RUB",
-                            regulationUrl = comp.competition.regulationUrl ?: "",
-                            mapUrl = comp.competition.mapUrl ?: "",
-                            contactPhone = comp.competition.contactPhone ?: "",
-                            contactEmail = comp.competition.contactEmail ?: "",
-                            website = comp.competition.website ?: "",
-                            competitionDirection = comp.direction,
-                            punchingSystem = comp.punchingSystem,
-                            startTimeMode = comp.startTimeMode,
-                            countdownTimer = comp.countdownTimer,
-                            participantGroups = details.groupsWithParticipants.map { it.group }
-                        )
-                    }
-                }
+            val comp = orienteeringCompetitionInteractor.getCompetition(competitionId) ?: return@launch
+
+            updateState {
+                copy(
+                    competitionId = competitionId,
+                    title = comp.competition.title,
+                    startDate = comp.competition.startDate,
+                    endDate = comp.competition.endDate,
+                    kindOfSport = comp.competition.kindOfSport,
+                    description = comp.competition.description ?: "",
+                    address = comp.competition.address ?: "",
+                    coordinates = comp.competition.coordinates ?: coordinates,
+                    registrationStart = comp.competition.registrationStart,
+                    registrationEnd = comp.competition.registrationEnd,
+                    maxParticipants = comp.competition.maxParticipants,
+                    feeAmount = comp.competition.feeAmount,
+                    feeCurrency = comp.competition.feeCurrency ?: "RUB",
+                    regulationUrl = comp.competition.regulationUrl ?: "",
+                    mapUrl = comp.competition.mapUrl ?: "",
+                    contactPhone = comp.competition.contactPhone ?: "",
+                    contactEmail = comp.competition.contactEmail ?: "",
+                    website = comp.competition.website ?: "",
+                    competitionDirection = comp.direction,
+                    punchingSystem = comp.punchingSystem,
+                    startTimeMode = comp.startTimeMode,
+                    countdownTimer = comp.countdownTimer,
+                )
+            }
         }
     }
 
@@ -94,19 +142,26 @@ class OrienteeringCreatorViewModel(
                 val competition = stateValue.toOrienteeringCompetition(user.id.toLongOrNull())
                 val result = if (stateValue.competitionId == null) {
                     // Создание нового
-                    orienteeringCompetitionInteractor.saveCompetition(competition, emptyList())
+                    orienteeringCompetitionInteractor.saveCompetitionNew(competition)
                 } else {
                     // Обновление существующего
-                    orienteeringCompetitionInteractor.updateCompetition(competition, stateValue.participantGroups)
+                    orienteeringCompetitionInteractor.updateCompetitionNew(competition)
                 }
-                
-                // TODO: Получить ID созданного соревнования, если оно новое
-                // Пока предполагаем, что навигация идет дальше
-                val id = stateValue.competitionId ?: 1L // Заглушка для ID
-                
-                viewModelScope.launch(Dispatchers.Main) {
-                    navigation.navigate(CenterNavigation.RegistrationCompetitionFieldRoute(competitionId = id))
+                result.onSuccess {
+                    val id = it.localCompetitionId
+                    updateState { copy(competitionId = id) }
+                    viewModelScope.launch(Dispatchers.Main) {
+                        navigation.navigate(
+                            CenterNavigation.RegistrationCompetitionFieldRoute(
+                                competitionId = id
+                            )
+                        )
+                    }
                 }
+                    .onFailure {
+                        // TODO здесь будет обработка ошибки
+                    }
+
             }
         }
     }
@@ -117,10 +172,17 @@ class OrienteeringCreatorViewModel(
     fun saveStepTwo() {
         viewModelScope.launch(Dispatchers.IO) {
             val competition = stateValue.toOrienteeringCompetition(null)
-            orienteeringCompetitionInteractor.updateCompetition(competition, stateValue.participantGroups)
-            
+            orienteeringCompetitionInteractor.updateCompetition(
+                competition,
+                stateValue.participantGroups
+            )
+
             viewModelScope.launch(Dispatchers.Main) {
-                navigation.navigate(CenterNavigation.OrganizatorCompetitionFieldRoute(competitionId = stateValue.competitionId ?: 1L))
+                navigation.navigate(
+                    CenterNavigation.OrganizatorCompetitionFieldRoute(
+                        competitionId = stateValue.competitionId ?: 1L
+                    )
+                )
             }
         }
     }
@@ -131,10 +193,17 @@ class OrienteeringCreatorViewModel(
     fun saveStepThree() {
         viewModelScope.launch(Dispatchers.IO) {
             val competition = stateValue.toOrienteeringCompetition(null)
-            orienteeringCompetitionInteractor.updateCompetition(competition, stateValue.participantGroups)
-            
+            orienteeringCompetitionInteractor.updateCompetition(
+                competition,
+                stateValue.participantGroups
+            )
+
             viewModelScope.launch(Dispatchers.Main) {
-                navigation.navigate(CenterNavigation.CreateDistanceRoute(competitionId = stateValue.competitionId ?: 1L))
+                navigation.navigate(
+                    CenterNavigation.CreateDistanceRoute(
+                        competitionId = stateValue.competitionId ?: 1L
+                    )
+                )
             }
         }
     }
@@ -145,7 +214,11 @@ class OrienteeringCreatorViewModel(
     fun saveStepFour() {
         // Логика сохранения дистанций
         viewModelScope.launch(Dispatchers.Main) {
-            navigation.navigate(CenterNavigation.CreateParticipantGroupRoute(competitionId = stateValue.competitionId ?: 1L))
+            navigation.navigate(
+                CenterNavigation.CreateParticipantGroupRoute(
+                    competitionId = stateValue.competitionId ?: 1L
+                )
+            )
         }
     }
 
@@ -155,8 +228,11 @@ class OrienteeringCreatorViewModel(
     fun finishCreation() {
         viewModelScope.launch(Dispatchers.IO) {
             val competition = stateValue.toOrienteeringCompetition(null)
-            orienteeringCompetitionInteractor.updateCompetition(competition, stateValue.participantGroups)
-            
+            orienteeringCompetitionInteractor.updateCompetition(
+                competition,
+                stateValue.participantGroups
+            )
+
             viewModelScope.launch(Dispatchers.Main) {
                 navigation.navigate(CenterNavigation.CenterRoute)
             }
@@ -174,13 +250,15 @@ class OrienteeringCreatorViewModel(
     fun updateDescription(description: String) = updateState { copy(description = description) }
     fun updateStartDate(date: Long) = updateState { copy(startDate = date) }
     fun updateEndDate(date: Long?) = updateState { copy(endDate = date) }
-    
+
     fun updateRegistrationStart(date: Long?) = updateState { copy(registrationStart = date) }
     fun updateRegistrationEnd(date: Long?) = updateState { copy(registrationEnd = date) }
-    fun updateMaxParticipants(max: String) = updateState { copy(maxParticipants = max.toIntOrNull()) }
+    fun updateMaxParticipants(max: String) =
+        updateState { copy(maxParticipants = max.toIntOrNull()) }
+
     fun updateFeeAmount(amount: String) = updateState { copy(feeAmount = amount.toDoubleOrNull()) }
     fun updateRegulationUrl(url: String) = updateState { copy(regulationUrl = url) }
-    
+
     fun updateMapUrl(url: String) = updateState { copy(mapUrl = url) }
     fun updateContactPhone(phone: String) = updateState { copy(contactPhone = phone) }
     fun updateContactEmail(email: String) = updateState { copy(contactEmail = email) }

@@ -27,10 +27,10 @@ interface OrienteeringCompetitionDao {
     @Query("SELECT * FROM orienteering_competitions")
     fun getAll(): Flow<List<OrienteeringCompetitionEntity>>
 
-    @Query("SELECT * FROM orienteering_competitions WHERE id = :id")
+    @Query("SELECT * FROM orienteering_competitions WHERE localCompetitionId = :id")
     suspend fun getCompetitionById(id: Long): OrienteeringCompetitionEntity?
 
-    @Query("SELECT * FROM orienteering_competitions WHERE id IN (:ids)")
+    @Query("SELECT * FROM orienteering_competitions WHERE localCompetitionId IN (:ids)")
     suspend fun getByIds(ids: List<Long>): List<OrienteeringCompetitionEntity>
 
     @Delete
@@ -40,7 +40,7 @@ interface OrienteeringCompetitionDao {
     suspend fun clearAll()
 
     @Transaction
-    @Query("SELECT * FROM orienteering_competitions WHERE id = :id")
+    @Query("SELECT * FROM orienteering_competitions WHERE localCompetitionId = :id")
     suspend fun getCompetitionWithGroups(id: Long): OrienteeringCompetitionWithGroups
 
     @Transaction
@@ -48,7 +48,7 @@ interface OrienteeringCompetitionDao {
     suspend fun getAllCompetitionsWithGroups(): List<OrienteeringCompetitionWithGroups>
 
     @Transaction // Обязательно для вложенных связей!
-    @Query("SELECT * FROM orienteering_competitions WHERE id = :competitionId")
+    @Query("SELECT * FROM orienteering_competitions WHERE localCompetitionId = :competitionId")
     suspend fun getCompetitionWithDetails(competitionId: Long): OrienteeringCompetitionWithDetails
 
     @Transaction

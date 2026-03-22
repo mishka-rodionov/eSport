@@ -156,7 +156,7 @@ fun ParticipantGroupEditor(
             }
         },
         onDismiss = {
-            userAction.invoke(OrienteeringCreatorAction.ShowGroupCreateDialog)
+            userAction.invoke(OrienteeringCreatorAction.HideGroupCreateDialog)
         },
     )
 }

@@ -22,7 +22,7 @@ data class OrienteeringCompetitionWithDetails(
 
     @Relation(
         entity = ParticipantGroupEntity::class, // Указываем промежуточную сущность
-        parentColumn = "id", // Поле из OrienteeringCompetitionEntity
+        parentColumn = "localCompetitionId", // Поле из OrienteeringCompetitionEntity
         entityColumn = "competitionId" // Поле из ParticipantGroupEntity
     )
     val groupsWithParticipants: List<ParticipantGroupWithParticipants>

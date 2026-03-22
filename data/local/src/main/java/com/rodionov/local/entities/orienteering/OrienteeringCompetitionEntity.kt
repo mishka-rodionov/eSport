@@ -13,7 +13,7 @@ import com.rodionov.local.converters.CompetitionConverters
 /**
  * Сущность соревнования по ориентированию для базы данных Room.
  * 
- * @property id Уникальный идентификатор
+ * @property localCompetitionId Уникальный идентификатор
  * @property competition Базовая информация о соревновании
  * @property direction Направление
  * @property punchingSystem Система отметки
@@ -25,7 +25,7 @@ import com.rodionov.local.converters.CompetitionConverters
 @TypeConverters(CompetitionConverters::class)
 data class OrienteeringCompetitionEntity(
     @PrimaryKey
-    val id: Long = 0,
+    val localCompetitionId: Long = 0,
     @Embedded
     val competition: Competition,
     val direction: OrienteeringDirection,

@@ -11,7 +11,7 @@ import com.rodionov.domain.models.Competition
     foreignKeys = [
         ForeignKey(
             entity = OrienteeringCompetitionEntity::class,
-            parentColumns = ["id"],
+            parentColumns = ["localCompetitionId"],
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         )

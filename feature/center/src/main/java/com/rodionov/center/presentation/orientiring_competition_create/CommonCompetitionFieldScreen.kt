@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.TimePickerDialog
@@ -47,20 +48,51 @@ fun CommonCompetitionFieldScreen(
     viewModel: OrienteeringCreatorViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.initialize(competitionId)
     }
 
+    LaunchedEffect(state.error) {
+        state.error?.let { errorMessage ->
+            snackbarHostState.showSnackbar(errorMessage)
+//            viewModel.onErrorShown() // важно сбросить ошибку
+        }
+    }
+
+    CommonCompetitionFieldContent(
+        state = state,
+        onAction = viewModel::onAction,
+        onTitleChanged = viewModel::updateTitle,
+        onAddressChanged = viewModel::updateAddress,
+        onDescriptionChanged = viewModel::updateDescription,
+        onBack = viewModel::back,
+        onNext = viewModel::saveStepOne
+    )
+}
+
+/**
+ * Контент экрана общей информации о соревновании.
+ * Выделен отдельно для поддержки Preview.
+ */
+@Composable
+private fun CommonCompetitionFieldContent(
+    state: OrienteeringCreatorState,
+    onAction: (OrienteeringCreatorAction) -> Unit,
+    onTitleChanged: (String) -> Unit,
+    onAddressChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onBack: () -> Unit,
+    onNext: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+
     Scaffold(
         bottomBar = {
             NavigationButtons(
-                onBack = { 
-                    viewModel.back()
-                },
-                onNext = { viewModel.saveStepOne() },
+                onBack = onBack,
+                onNext = onNext,
                 nextEnabled = state.title.isNotBlank() && state.address.isNotBlank()
             )
         }
@@ -85,7 +117,7 @@ fun CommonCompetitionFieldScreen(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.title,
                 label = { Text("Название соревнования") },
-                onValueChanged = viewModel::updateTitle
+                onValueChanged = onTitleChanged
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
@@ -99,11 +131,11 @@ fun CommonCompetitionFieldScreen(
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier.weight(1f)) {
-                    DatePicker(state = state, userAction = viewModel::onAction)
+                    DatePicker(state = state, userAction = onAction)
                 }
                 Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
                 Box(modifier = Modifier.weight(1f)) {
-                    TimePicker(state = state, userAction = viewModel::onAction)
+                    TimePicker(state = state, userAction = onAction)
                 }
             }
 
@@ -122,13 +154,13 @@ fun CommonCompetitionFieldScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
-                            StageDatePicker(index = index, date = stage.startDate, userAction = viewModel::onAction)
+                            StageDatePicker(index = index, date = stage.startDate, userAction = onAction)
                         }
                         Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
                         Box(modifier = Modifier.weight(1f)) {
-                            StageTimePicker(index = index, date = stage.startDate, userAction = viewModel::onAction)
+                            StageTimePicker(index = index, date = stage.startDate, userAction = onAction)
                         }
-                        IconButton(onClick = { viewModel.onAction(OrienteeringCreatorAction.RemoveStage(index)) }) {
+                        IconButton(onClick = { onAction(OrienteeringCreatorAction.RemoveStage(index)) }) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.delete),
                                 contentDescription = "Remove stage",
@@ -140,7 +172,7 @@ fun CommonCompetitionFieldScreen(
             }
             
             TextButton(
-                onClick = { viewModel.onAction(OrienteeringCreatorAction.AddStage) },
+                onClick = { onAction(OrienteeringCreatorAction.AddStage) },
                 modifier = Modifier.padding(top = 4.dp)
             ) {
                 Icon(ImageVector.vectorResource(R.drawable.ic_add_24px), contentDescription = null)
@@ -155,7 +187,7 @@ fun CommonCompetitionFieldScreen(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.address,
                 label = { Text("Место проведения (адрес)") },
-                onValueChanged = viewModel::updateAddress
+                onValueChanged = onAddressChanged
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
@@ -198,7 +230,7 @@ fun CommonCompetitionFieldScreen(
                     .heightIn(min = 120.dp),
                 text = state.description,
                 label = { Text("Описание соревнования") },
-                onValueChanged = viewModel::updateDescription,
+                onValueChanged = onDescriptionChanged,
                 singleLine = false
             )
             
@@ -295,6 +327,42 @@ private fun StageTimePicker(index: Int, date: Long, userAction: (OrienteeringCre
                 showDialog = false
                 focusManager.clearFocus()
             }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Empty state")
+@Composable
+private fun CommonCompetitionFieldPreview() {
+    MaterialTheme {
+        CommonCompetitionFieldContent(
+            state = OrienteeringCreatorState(),
+            onAction = {},
+            onTitleChanged = {},
+            onAddressChanged = {},
+            onDescriptionChanged = {},
+            onBack = {},
+            onNext = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Filled state")
+@Composable
+private fun CommonCompetitionFieldFilledPreview() {
+    MaterialTheme {
+        CommonCompetitionFieldContent(
+            state = OrienteeringCreatorState(
+                title = "Чемпионат по ориентированию",
+                address = "Лесной массив, 5км",
+                description = "Ежегодные соревнования для профессионалов и любителей."
+            ),
+            onAction = {},
+            onTitleChanged = {},
+            onAddressChanged = {},
+            onDescriptionChanged = {},
+            onBack = {},
+            onNext = {}
         )
     }
 }

@@ -23,6 +23,7 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data class UpdateCompetitionDate(val competitionDate: Long): OrienteeringCreatorAction()
     data class UpdateCompetitionTime(val competitionTime: String): OrienteeringCreatorAction()
     data object ShowGroupCreateDialog: OrienteeringCreatorAction()
+    data object HideGroupCreateDialog: OrienteeringCreatorAction()
     data class EditGroupDialog(val index: Int): OrienteeringCreatorAction()
     data class DeleteGroup(val index: Int): OrienteeringCreatorAction()
     data class UpdateCompetitionDirection(val direction: OrienteeringDirection): OrienteeringCreatorAction()

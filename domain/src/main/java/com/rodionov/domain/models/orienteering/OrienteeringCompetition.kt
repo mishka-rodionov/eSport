@@ -5,7 +5,7 @@ import com.rodionov.domain.models.Competition
 /**
  * Представляет модель соревнований по спортивному ориентированию
  * 
- * @property competitionId Уникальный идентификатор соревнования
+ * @property localCompetitionId Уникальный идентификатор соревнования
  * @property competition Базовая информация о соревновании
  * @property direction Направление (заданный порядок, по выбору и т.д.)
  * @property punchingSystem Система отметки
@@ -17,7 +17,7 @@ import com.rodionov.domain.models.Competition
  * @property startTime Фактическое время старта соревнования (timestamp)
  */
 data class OrienteeringCompetition(
-    val competitionId: Long,
+    val localCompetitionId: Long,
     val competition: Competition,
     val direction: OrienteeringDirection,
     val punchingSystem: PunchingSystem,

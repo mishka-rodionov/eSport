@@ -2,11 +2,9 @@ package com.rodionov.center.presentation.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -18,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -144,7 +141,7 @@ private fun ControlledEventsList(state: CenterState, userAction: (CenterEffects)
         contentPadding = PaddingValues(bottom = Dimens.SIZE_BASE.dp)
     ) {
         itemsIndexed(state.controlledEvents) { _, item ->
-            EventControlCard(item.competition, item.competitionId, userAction)
+            EventControlCard(item.competition, item.localCompetitionId, userAction)
         }
     }
 }
@@ -307,7 +304,7 @@ private fun CenterScreenAuthPreview() {
             isAuthed = true,
             controlledEvents = listOf(
                 OrienteeringCompetition(
-                    competitionId = 1L,
+                    localCompetitionId = 1L,
                     competition = Competition(
                         remoteId = null,
                         title = "Чемпионат города по ориентированию",

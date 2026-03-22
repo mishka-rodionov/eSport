@@ -14,7 +14,7 @@ import com.rodionov.local.entities.orienteering.OrienteeringResultEntity
  */
 fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
     return OrienteeringCompetitionEntity(
-        id = this.competitionId, // Используем тот же ID
+        localCompetitionId = this.localCompetitionId, // Используем тот же ID
         competition = this.competition, // Встраиваемый объект копируется напрямую
         direction = this.direction,     // Enum копируется напрямую (Room обработает через TypeConverter)
         punchingSystem = this.punchingSystem,
@@ -39,7 +39,7 @@ fun List<OrienteeringCompetition>.toEntityList(): List<OrienteeringCompetitionEn
  */
 fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
     return OrienteeringCompetition(
-        competitionId = this.id, // Используем тот же ID
+        localCompetitionId = this.localCompetitionId, // Используем тот же ID
         competition = this.competition, // Встраиваемый объект копируется напрямую
         direction = this.direction,     // Enum копируется напрямую
         punchingSystem = this.punchingSystem,

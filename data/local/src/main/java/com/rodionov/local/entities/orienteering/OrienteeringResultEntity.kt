@@ -33,7 +33,7 @@ import com.rodionov.local.converters.ResultConverters
     foreignKeys = [
         ForeignKey(
             entity = OrienteeringCompetitionEntity::class,
-            parentColumns = ["id"],
+            parentColumns = ["localCompetitionId"],
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         ),

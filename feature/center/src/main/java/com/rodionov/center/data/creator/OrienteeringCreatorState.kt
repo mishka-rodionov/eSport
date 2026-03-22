@@ -88,7 +88,7 @@ data class OrienteeringCreatorState(
     
     fun toOrienteeringCompetition(userId: Long?): OrienteeringCompetition {
         return OrienteeringCompetition(
-            competitionId = competitionId ?: 0L,
+            localCompetitionId = competitionId ?: 0L,
             competition = Competition(
                 title = title,
                 startDate = startDate,

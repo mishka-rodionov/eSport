@@ -28,7 +28,7 @@ import com.rodionov.local.converters.UserConverter
     foreignKeys = [
         ForeignKey(
             entity = OrienteeringCompetitionEntity::class,
-            parentColumns = ["id"],
+            parentColumns = ["localCompetitionId"],
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         )
