@@ -7,19 +7,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
-import com.rodionov.data.navigation.CenterNavigation
-import kotlinx.coroutines.launch
+import com.rodionov.center.data.creator.OrienteeringCreatorState
+import com.rodionov.domain.models.Gender
+import com.rodionov.domain.models.ParticipantGroup
 import org.koin.androidx.compose.koinViewModel
 
 /**
  * Пятый экран создания соревнования: Настройка групп участников.
- * 
- * На этом экране пользователь может добавлять, редактировать и просматривать группы участников
- * для текущего соревнования.
  * 
  * @param competitionId Идентификатор соревнования.
  * @param viewModel Вьюмодель процесса создания.
@@ -35,17 +33,38 @@ fun CreateParticipantGroupScreen(
         viewModel.initialize(competitionId)
     }
 
+    CreateParticipantGroupContent(
+        state = state,
+        onBack = viewModel::back,
+        onNext = viewModel::finishCreation,
+        onAction = viewModel::onAction
+    )
+
+    // Отображение диалога создания/редактирования группы
+    if (state.isShowGroupCreateDialog) {
+        ParticipantGroupEditor(
+            userAction = viewModel::onAction,
+            state = state
+        )
+    }
+}
+
+/**
+ * Контент экрана настройки групп участников.
+ * Выделен отдельно для поддержки Preview.
+ */
+@Composable
+private fun CreateParticipantGroupContent(
+    state: OrienteeringCreatorState,
+    onBack: () -> Unit,
+    onNext: () -> Unit,
+    onAction: (OrienteeringCreatorAction) -> Unit
+) {
     Scaffold(
         bottomBar = {
             NavigationButtons(
-                onBack = { 
-                    // Исправлено: вместо навигации на конкретный роут вызываем возврат назад по стеку
-                    viewModel.back()
-                    // viewModel.viewModelScope.launch {
-                    //    viewModel.navigation.navigate(CenterNavigation.CreateDistanceRoute(competitionId))
-                    // }
-                },
-                onNext = { viewModel.finishCreation() },
+                onBack = onBack,
+                onNext = onNext,
                 nextText = "Завершить",
                 nextEnabled = state.participantGroups.isNotEmpty()
             )
@@ -75,9 +94,7 @@ fun CreateParticipantGroupScreen(
                         modifier = Modifier.fillMaxWidth(),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                         onClick = { 
-                            // Возможность редактирования существующей группы
-                            viewModel.onAction(OrienteeringCreatorAction.ShowGroupCreateDialog)
-                            // TODO: установить индекс редактируемой группы во вьюмодели
+                            onAction(OrienteeringCreatorAction.ShowGroupCreateDialog)
                         }
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -88,7 +105,6 @@ fun CreateParticipantGroupScreen(
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
-                            // Дополнительная информация о группе
                         }
                     }
                 }
@@ -97,19 +113,45 @@ fun CreateParticipantGroupScreen(
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
             Button(
-                onClick = { viewModel.onAction(OrienteeringCreatorAction.ShowGroupCreateDialog) },
+                onClick = { onAction(OrienteeringCreatorAction.ShowGroupCreateDialog) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Добавить группу")
             }
         }
     }
+}
 
-    // Отображение диалога создания/редактирования группы
-    if (state.isShowGroupCreateDialog) {
-        ParticipantGroupEditor(
-            userAction = viewModel::onAction,
-            state = state
+@Preview(showBackground = true, name = "Empty list")
+@Composable
+private fun CreateParticipantGroupEmptyPreview() {
+    MaterialTheme {
+        CreateParticipantGroupContent(
+            state = OrienteeringCreatorState(),
+            onBack = {},
+            onNext = {},
+            onAction = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "With groups")
+@Composable
+private fun CreateParticipantGroupFilledPreview() {
+    MaterialTheme {
+        CreateParticipantGroupContent(
+            state = OrienteeringCreatorState(
+                participantGroups = listOf(
+                    ParticipantGroup(
+                        groupId = 1, competitionId = 1, title = "М21", distanceId = 1, minAge = 21,
+                        gender = Gender.MALE,
+                    ),
+                    ParticipantGroup(groupId = 2, competitionId = 1, title = "Ж18", distanceId = 2, minAge = 16, maxAge = 18, gender = Gender.FEMALE)
+                )
+            ),
+            onBack = {},
+            onNext = {},
+            onAction = {}
         )
     }
 }

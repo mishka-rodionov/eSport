@@ -7,12 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.theme.Dimens
-import com.rodionov.data.navigation.CenterNavigation
-import kotlinx.coroutines.launch
+import com.rodionov.center.data.creator.OrienteeringCreatorState
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -27,23 +26,41 @@ fun RegistrationCompetitionFieldScreen(
     viewModel: OrienteeringCreatorViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         viewModel.initialize(competitionId)
     }
 
+    RegistrationCompetitionFieldContent(
+        state = state,
+        onBack = viewModel::back,
+        onNext = viewModel::saveStepTwo,
+        onUpdateMaxParticipants = viewModel::updateMaxParticipants,
+        onUpdateFeeAmount = viewModel::updateFeeAmount,
+        onUpdateRegulationUrl = viewModel::updateRegulationUrl
+    )
+}
+
+/**
+ * Контент экрана параметров регистрации.
+ * Выделен отдельно для поддержки Preview.
+ */
+@Composable
+private fun RegistrationCompetitionFieldContent(
+    state: OrienteeringCreatorState,
+    onBack: () -> Unit,
+    onNext: () -> Unit,
+    onUpdateMaxParticipants: (String) -> Unit,
+    onUpdateFeeAmount: (String) -> Unit,
+    onUpdateRegulationUrl: (String) -> Unit
+) {
+    val scrollState = rememberScrollState()
+
     Scaffold(
         bottomBar = {
             NavigationButtons(
-                onBack = { 
-                    // Исправлено: вместо навигации на конкретный роут вызываем возврат назад по стеку
-                    viewModel.back()
-                    // viewModel.viewModelScope.launch {
-                    //    viewModel.navigation.navigate(CenterNavigation.CommonCompetitionFieldRoute(competitionId))
-                    // }
-                },
-                onNext = { viewModel.saveStepTwo() }
+                onBack = onBack,
+                onNext = onNext
             )
         }
     ) { padding ->
@@ -67,7 +84,7 @@ fun RegistrationCompetitionFieldScreen(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.registrationStart?.toString() ?: "",
                 label = { Text("Начало регистрации") },
-                onValueChanged = { /* viewModel.updateRegistrationStart(...) */ }
+                onValueChanged = { /* Использование закомментировано до реализации */ }
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
@@ -76,7 +93,7 @@ fun RegistrationCompetitionFieldScreen(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.maxParticipants?.toString() ?: "",
                 label = { Text("Лимит участников") },
-                onValueChanged = viewModel::updateMaxParticipants
+                onValueChanged = onUpdateMaxParticipants
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
@@ -86,7 +103,7 @@ fun RegistrationCompetitionFieldScreen(
                     modifier = Modifier.weight(1f),
                     text = state.feeAmount?.toString() ?: "",
                     label = { Text("Взнос") },
-                    onValueChanged = viewModel::updateFeeAmount
+                    onValueChanged = onUpdateFeeAmount
                 )
                 Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
                 DSTextInput(
@@ -103,8 +120,28 @@ fun RegistrationCompetitionFieldScreen(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.regulationUrl,
                 label = { Text("Ссылка на регламент") },
-                onValueChanged = viewModel::updateRegulationUrl
+                onValueChanged = onUpdateRegulationUrl
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RegistrationCompetitionFieldPreview() {
+    MaterialTheme {
+        RegistrationCompetitionFieldContent(
+            state = OrienteeringCreatorState(
+                maxParticipants = 200,
+                feeAmount = 500.0,
+                feeCurrency = "RUB",
+                regulationUrl = "https://example.com/rules"
+            ),
+            onBack = {},
+            onNext = {},
+            onUpdateMaxParticipants = {},
+            onUpdateFeeAmount = {},
+            onUpdateRegulationUrl = {}
+        )
     }
 }
