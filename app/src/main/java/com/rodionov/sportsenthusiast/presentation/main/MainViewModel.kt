@@ -11,32 +11,40 @@ import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.BaseState
 import com.rodionov.ui.viewmodel.BaseViewModel
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
+/**
+ * Главная вьюмодель приложения.
+ * Управляет общими процессами: навигацией, NFC и состоянием авторизации.
+ * 
+ * @property navigation Интерфейс управления навигацией.
+ * @property sportiduinoHelper Помощник для работы с NFC оборудованием.
+ */
 class MainViewModel(
     private val navigation: Navigation,
     private val sportiduinoHelper: SportiduinoHelper
 ): BaseViewModel<BaseState>(object : BaseState{}) {
 
-    override fun onAction(action: BaseAction) {
+    /**
+     * Поток базовых эффектов навигации (например, BackRoute).
+     */
+    val baseNavigationEffect: SharedFlow<BaseNavigation> = navigation.baseNavigationEffect
 
+    override fun onAction(action: BaseAction) {
+        // Базовая обработка действий
     }
 
+    /**
+     * Подписка на специфичные для модуля эффекты навигации.
+     */
     suspend fun collectNavigationEffect(navigationHandler: (BaseNavigation) -> Unit, destination: BaseNavigation) {
 //        viewModelScope.launch(Dispatchers.Main) {
             navigation.collectNavigationEffect(navigationHandler, destination)
 //        }
     }
 
-    fun navigate() {
-
-    }
-
     fun setNfcAdapter(nfcAdapter: NfcAdapter) = sportiduinoHelper.setNfcAdapter(nfcAdapter)
-
-    fun enableForegroundDispatch(activity: ComponentActivity, pendingIntent: PendingIntent) {
-        sportiduinoHelper.enableForegroundDispatch(activity, pendingIntent)
-    }
 
     fun enableReaderMode(activity: ComponentActivity, handleTag: (Tag) -> Unit) {
         sportiduinoHelper.enableReaderMode(activity, handleTag)
@@ -44,12 +52,9 @@ class MainViewModel(
 
     fun disableReaderMode(activity: ComponentActivity) = sportiduinoHelper.disableReaderMode(activity)
 
-    fun disableForegroundDispatch(activity: ComponentActivity) = sportiduinoHelper.disableForegroundDispatch(activity)
-
     fun onNewTagDetected(tag: Tag) {
         viewModelScope.launch {
             sportiduinoHelper.onNewTagDetected(tag)
         }
     }
-
 }

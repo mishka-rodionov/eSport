@@ -23,6 +23,10 @@ class NavigationImpl : Navigation {
     override val eventsNavigationEffect: SharedFlow<EventsNavigation> =
         _eventsNavigationEffect.asSharedFlow()
 
+    private val _baseNavigationEffect = MutableSharedFlow<BaseNavigation>()
+    override val baseNavigationEffect: SharedFlow<BaseNavigation> =
+        _baseNavigationEffect.asSharedFlow()
+
     override var baseArgument: List<BaseArgument<*>>? = null
 
     override suspend fun collectNavigationEffect(
@@ -33,6 +37,8 @@ class NavigationImpl : Navigation {
             is CenterNavigation -> _centerNavigationEffect.collectLatest(handler)
             is ProfileNavigation -> _profileNavigationEffect.collectLatest(handler)
             is EventsNavigation -> _eventsNavigationEffect.collectLatest(handler)
+            // Добавляем обработку базового потока, если требуется
+            is BackRoute -> _baseNavigationEffect.collectLatest(handler)
         }
     }
 
@@ -42,16 +48,18 @@ class NavigationImpl : Navigation {
             is CenterNavigation -> _centerNavigationEffect.emit(destination)
             is ProfileNavigation -> _profileNavigationEffect.emit(destination)
             is EventsNavigation -> _eventsNavigationEffect.emit(destination)
+            is BackRoute -> _baseNavigationEffect.emit(destination)
         }
     }
 
+    /**
+     * Выполняет переход назад.
+     * Эмитит специальный роут BackRoute в общий поток навигации.
+     */
     override suspend fun back() {
-        // Логика перехода назад через эффекты навигации.
-        // Передаем специальный роут или признак "назад".
-        // В текущей реализации можно добавить BackRoute в BaseNavigation или 
-        // обрабатывать напрямую через NavController.
-        // Для примера используем emit в соответствующий поток.
-        _centerNavigationEffect.emit(CenterNavigation.CenterRoute) // Упрощенно: возврат на главную
+        // Изменено: теперь вместо перехода на CenterRoute мы эмитим BackRoute
+        _baseNavigationEffect.emit(BackRoute)
+        // _centerNavigationEffect.emit(CenterNavigation.CenterRoute)
     }
 
     override fun <T> createArguments(vararg pairs: Pair<String, T?>): List<BaseArgument<*>> {

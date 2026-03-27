@@ -38,9 +38,11 @@ fun CreateDistanceScreen(
         bottomBar = {
             NavigationButtons(
                 onBack = { 
-                    viewModel.viewModelScope.launch {
-                        viewModel.navigation.navigate(CenterNavigation.OrganizatorCompetitionFieldRoute(competitionId))
-                    }
+                    // Исправлено: вместо навигации на конкретный роут вызываем возврат назад по стеку
+                    viewModel.back()
+                    // viewModel.viewModelScope.launch {
+                    //    viewModel.navigation.navigate(CenterNavigation.OrganizatorCompetitionFieldRoute(competitionId))
+                    // }
                 },
                 onNext = { viewModel.saveStepFour() },
                 nextEnabled = state.distances.isNotEmpty()

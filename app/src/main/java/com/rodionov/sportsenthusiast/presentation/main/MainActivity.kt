@@ -48,6 +48,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass
 import com.rodionov.center.navigation.centerGraph
+import com.rodionov.data.navigation.BackRoute
 import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.EventsNavigation
@@ -56,6 +57,7 @@ import com.rodionov.events.navigation.eventsGraph
 import com.rodionov.profile.navigation.profileNavigation
 import com.rodionov.sportsenthusiast.BottomNavItem
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -179,18 +181,31 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                             if (isSelectedTab) {
                                 lifecycleOwner.lifecycleScope.launch {
                                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                                        viewModel.collectNavigationEffect(
-                                            navigationHandler = { route ->
-                                                val navBuilder = route.navOptionsBuilder
-                                                if (navBuilder != null) {
-                                                    navController.navigate(route, navBuilder)
-                                                } else {
-                                                    navController.navigate(route = route)
+                                        
+                                        // Подписка на общий поток (BackRoute)
+                                        launch {
+                                            viewModel.baseNavigationEffect.collectLatest { route ->
+                                                if (route is BackRoute) {
+                                                    navController.popBackStack()
                                                 }
-                                                route.navOptionsBuilder = null
-                                            },
-                                            destination = checkNavigation(tab)
-                                        )
+                                            }
+                                        }
+
+                                        // Подписка на модульные потоки
+                                        launch {
+                                            viewModel.collectNavigationEffect(
+                                                navigationHandler = { route ->
+                                                    val navBuilder = route.navOptionsBuilder
+                                                    if (navBuilder != null) {
+                                                        navController.navigate(route, navBuilder)
+                                                    } else {
+                                                        navController.navigate(route = route)
+                                                    }
+                                                    route.navOptionsBuilder = null
+                                                },
+                                                destination = checkNavigation(tab)
+                                            )
+                                        }
                                     }
                                 }
                             }

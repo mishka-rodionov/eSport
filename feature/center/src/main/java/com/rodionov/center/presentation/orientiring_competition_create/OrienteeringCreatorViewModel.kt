@@ -6,15 +6,10 @@ import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
-import com.rodionov.domain.models.orienteering.OrienteeringCompetition
-import com.rodionov.domain.models.ParticipantGroup
-import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.repository.user.UserRepository
-import com.rodionov.resources.R
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
-import com.rodionov.utils.DateTimeFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

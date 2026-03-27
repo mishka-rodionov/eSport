@@ -11,6 +11,9 @@ sealed interface Navigation {
     val centerNavigationEffect: SharedFlow<CenterNavigation>
     val profileNavigationEffect: SharedFlow<ProfileNavigation>
     val eventsNavigationEffect: SharedFlow<EventsNavigation>
+    
+    /** Общий поток эффектов навигации для всего приложения (например, BackRoute) */
+    val baseNavigationEffect: SharedFlow<BaseNavigation>
 
     var baseArgument: List<BaseArgument<*>>?
 
