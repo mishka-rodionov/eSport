@@ -374,7 +374,7 @@ fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
             .fillMaxWidth()
             .onFocusChanged { showDialog = it.isFocused },
         label = { Text(text = stringResource(R.string.label_time)) },
-        text = DateTimeFormat.transformLongToTime(state.startDate),
+        text = state.startTimeStr,
         readOnly = true,
         trailingIcon = {
             Icon(
