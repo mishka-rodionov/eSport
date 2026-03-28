@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
@@ -117,7 +119,8 @@ private fun CommonCompetitionFieldContent(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.title,
                 label = { Text("Название соревнования") },
-                onValueChanged = onTitleChanged
+                onValueChanged = onTitleChanged,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
@@ -139,8 +142,9 @@ private fun CommonCompetitionFieldContent(
                 }
             }
 
-            // Дополнительные этапы (многодневки)
-            if (state.stages.isNotEmpty()) {
+            // Дополнительные этапы (многодневки) пока отключено
+//            if (state.stages.isNotEmpty()) {
+            if (false) {
                 Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
                 Text(
                     text = "Дополнительные дни",
@@ -170,15 +174,16 @@ private fun CommonCompetitionFieldContent(
                     }
                 }
             }
-            
-            TextButton(
-                onClick = { onAction(OrienteeringCreatorAction.AddStage) },
-                modifier = Modifier.padding(top = 4.dp)
-            ) {
-                Icon(ImageVector.vectorResource(R.drawable.ic_add_24px), contentDescription = null)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Добавить день")
-            }
+
+            // Добавление новый дней соревнования отключено на первом этапе
+//            TextButton(
+//                onClick = { onAction(OrienteeringCreatorAction.AddStage) },
+//                modifier = Modifier.padding(top = 4.dp)
+//            ) {
+//                Icon(ImageVector.vectorResource(R.drawable.ic_add_24px), contentDescription = null)
+//                Spacer(modifier = Modifier.width(4.dp))
+//                Text("Добавить день")
+//            }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
@@ -187,7 +192,8 @@ private fun CommonCompetitionFieldContent(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.address,
                 label = { Text("Место проведения (адрес)") },
-                onValueChanged = onAddressChanged
+                onValueChanged = onAddressChanged,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
@@ -239,6 +245,14 @@ private fun CommonCompetitionFieldContent(
     }
 }
 
+/**
+ * Блок кнопок навигации для переключения между шагами создания соревнования.
+ *
+ * @param onBack Обработчик нажатия кнопки "Назад".
+ * @param onNext Обработчик нажатия основной кнопки действия (например, "Далее" или "Сохранить").
+ * @param nextEnabled Флаг доступности кнопки продолжения.
+ * @param nextText Текст, отображаемый на основной кнопке (по умолчанию "Далее").
+ */
 @Composable
 fun NavigationButtons(
     onBack: () -> Unit,
