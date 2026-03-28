@@ -1,5 +1,6 @@
 package com.rodionov.sportsenthusiast.presentation.main
 
+import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.NfcAdapter
@@ -8,8 +9,10 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -68,7 +71,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
  * Главная Activity приложения.
- * Является точкой входа, управляет жизненным циклом NFC-адаптера и foreground-сервисом соревнования.
+ * Является точкой входа, управляет жизненным циклом NFC-адаптера, foreground-сервисом соревнования
+ * и запросом необходимых разрешений.
  */
 class MainActivity : ComponentActivity() {
 
@@ -92,10 +96,41 @@ class MainActivity : ComponentActivity() {
         setContent {
             val widthSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             SportsEnthusiastTheme {
+                // Запрос разрешений при старте приложения
+                RequestInitialPermissions()
+                
                 MainScreen(viewModel, widthSizeClass)
             }
         }
         observeServiceCommands()
+    }
+
+    /**
+     * Компонент для запроса начальных разрешений: уведомления и местоположение.
+     */
+    @Composable
+    private fun RequestInitialPermissions() {
+        val permissionsToRequest = mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            // Обработка результатов, если требуется логгирование или спец. логика
+            permissions.entries.forEach {
+                Log.d("PERMISSIONS", "${it.key} granted: ${it.value}")
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            launcher.launch(permissionsToRequest.toTypedArray())
+        }
     }
 
     /**
@@ -204,24 +239,20 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                 .padding(innerPadding)
                 .statusBarsPadding()
         ) {
-            // Все NavHost-ы присутствуют в иерархии, но только текущий видим
             BottomNavItem.all.forEach { tab ->
 
                 val isSelected = tab.route == selectedTab
-                Log.d("LOG_TAG", "MainScreen: count")
 
                 AnimatedVisibility(visible = isSelected, enter = fadeIn(), exit = fadeOut()) {
                     saveableStateHolder.SaveableStateProvider(tab.route) {
                         val navController = rememberNavController()
 
-                        // подписка на эффекты только для активного таба
                         val isSelectedTab = selectedTab == tab.route
                         LaunchedEffect(navController, isSelectedTab) {
                             if (isSelectedTab) {
                                 lifecycleOwner.lifecycleScope.launch {
                                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                                         
-                                        // Подписка на общий поток (BackRoute)
                                         launch {
                                             viewModel.baseNavigationEffect.collectLatest { route ->
                                                 if (route is BackRoute) {
@@ -230,7 +261,6 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                                             }
                                         }
 
-                                        // Подписка на модульные потоки
                                         launch {
                                             viewModel.collectNavigationEffect(
                                                 navigationHandler = { route ->
