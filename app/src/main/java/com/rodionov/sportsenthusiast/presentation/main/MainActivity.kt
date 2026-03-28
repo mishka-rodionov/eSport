@@ -30,13 +30,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -56,7 +59,9 @@ import com.rodionov.data.navigation.ProfileNavigation
 import com.rodionov.events.navigation.eventsGraph
 import com.rodionov.profile.navigation.profileNavigation
 import com.rodionov.sportsenthusiast.BottomNavItem
+import com.rodionov.sportsenthusiast.service.CompetitionForegroundService
 import com.rodionov.sportsenthusiast.ui.theme.SportsEnthusiastTheme
+import com.rodionov.ui.CompetitionServiceCommand
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -84,6 +89,30 @@ class MainActivity : ComponentActivity() {
             val widthSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             SportsEnthusiastTheme {
                 MainScreen(viewModel, widthSizeClass)
+            }
+        }
+        observeServiceCommands()
+    }
+
+    private fun observeServiceCommands() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.serviceCommands.collect { cmd ->
+                    when (cmd) {
+                        is CompetitionServiceCommand.Start ->
+                            startForegroundService(
+                                CompetitionForegroundService.startIntent(
+                                    this@MainActivity,
+                                    cmd.competitionId,
+                                    cmd.startTimeMs
+                                )
+                            )
+                        is CompetitionServiceCommand.Stop ->
+                            stopService(
+                                Intent(this@MainActivity, CompetitionForegroundService::class.java)
+                            )
+                    }
+                }
             }
         }
     }
@@ -121,6 +150,7 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     var selectedTab by rememberSaveable { mutableStateOf<String>(BottomNavItem.CompetitionList.route) }
     val saveableStateHolder = rememberSaveableStateHolder()
     val lifecycleOwner = LocalLifecycleOwner.current
+    val scanEvent by viewModel.currentScanEvent.collectAsState()
     
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -168,6 +198,7 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
         ) {
             // Все NavHost-ы присутствуют в иерархии, но только текущий видим
             BottomNavItem.all.forEach { tab ->
+
                 val isSelected = tab.route == selectedTab
                 Log.d("LOG_TAG", "MainScreen: count")
 
@@ -224,6 +255,13 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                     }
                 }
             }
+
+            NfcScanBanner(
+                event = scanEvent,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(10f)
+            )
         }
     }
 }

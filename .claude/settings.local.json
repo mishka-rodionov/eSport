@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /h/android_project/eSport/feature/center/src/main/java -type f -name *.kt)",
+      "Bash(find /h/android_project/eSport -path */build -prune -o -type f -name *.kt -print)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}

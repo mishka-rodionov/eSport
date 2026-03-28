@@ -14,6 +14,8 @@ import com.rodionov.nfchelper.nfccard.CardMifareUltralight
 import com.rodionov.nfchelper.nfccard.ReadWriteCardException
 import com.rodionov.resources.ResourceProvider
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * Реализация интерфейса [SportiduinoHelper], обеспечивающая взаимодействие с NFC-метками в системе Sportiduino.
@@ -39,6 +41,8 @@ class SportiduinoHelperImpl(
     }
 
     private val _readCardFlow = MutableSharedFlow<ReadChipData>()
+    private val _nfcErrorFlow = MutableSharedFlow<String>()
+    override val nfcErrorFlow: SharedFlow<String> = _nfcErrorFlow.asSharedFlow()
 
     override var nfcMode: SportiduinoNfcMode = SportiduinoNfcMode.READ_CARD
 
@@ -114,7 +118,7 @@ class SportiduinoHelperImpl(
                     val buffer = card.read()
                     _readCardFlow.emit(card.parseData(buffer))
                 } catch (e: ReadWriteCardException) {
-
+                    _nfcErrorFlow.emit(e.message ?: "Ошибка чтения метки")
                 } finally {
                     adapter.close()
                 }

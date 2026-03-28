@@ -13,5 +13,6 @@ sealed class OrientEventControlAction: BaseAction {
     data object OpenResults: OrientEventControlAction()
     data object OpenGetOrienteeringChip: OrientEventControlAction()
     data object StartCompetition: OrientEventControlAction()
+    data object StopCompetition: OrientEventControlAction()
 
 }

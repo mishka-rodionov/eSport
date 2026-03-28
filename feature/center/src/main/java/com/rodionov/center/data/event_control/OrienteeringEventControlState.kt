@@ -12,11 +12,13 @@ import com.rodionov.ui.BaseState
  * @property competition Данные соревнования.
  * @property countdownMillis Оставшееся время до старта в миллисекундах.
  * @property isTimerRunning Флаг, запущен ли таймер отсчета.
+ * @property isCompetitionRunning Флаг, запущено ли соревнование (foreground service активен).
  */
 data class OrienteeringEventControlState(
     val participantGroups: List<ParticipantGroup> = emptyList(),
     val competitionTitle: String = "",
     val competition: OrienteeringCompetition? = null,
     val countdownMillis: Long = 0L,
-    val isTimerRunning: Boolean = false
+    val isTimerRunning: Boolean = false,
+    val isCompetitionRunning: Boolean = false
 ) : BaseState

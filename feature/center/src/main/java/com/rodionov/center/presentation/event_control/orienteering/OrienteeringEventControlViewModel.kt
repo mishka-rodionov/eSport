@@ -9,6 +9,7 @@ import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.ui.BaseAction
+import com.rodionov.ui.CompetitionServiceController
 import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.Job
@@ -23,7 +24,8 @@ import kotlinx.coroutines.launch
  */
 class OrienteeringEventControlViewModel(
     private val navigation: Navigation,
-    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor
+    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
+    private val serviceController: CompetitionServiceController
 ) : BaseViewModel<OrienteeringEventControlState>(OrienteeringEventControlState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
@@ -102,6 +104,7 @@ class OrienteeringEventControlViewModel(
             }
 
             OrientEventControlAction.StartCompetition -> handleStartCompetition()
+            OrientEventControlAction.StopCompetition -> handleStopCompetition()
         }
     }
 
@@ -113,22 +116,36 @@ class OrienteeringEventControlViewModel(
         val competition = stateValue.competition ?: return
         val countdownMinutes = competition.countdownTimer ?: 0
         val startTime = System.currentTimeMillis() + (countdownMinutes * 60 * 1000L)
-        
+
         viewModelScope.launch {
             val updatedCompetition = competition.copy(startTime = startTime)
             orienteeringCompetitionInteractor.updateCompetition(
                 orienteeringCompetition = updatedCompetition,
                 participantGroups = null
             )
-            updateState { 
+            updateState {
                 copy(
                     competition = updatedCompetition,
                     countdownMillis = countdownMinutes * 60 * 1000L,
-                    isTimerRunning = true
+                    isTimerRunning = true,
+                    isCompetitionRunning = true
                 )
             }
             startTimer()
+            competitionId?.let { id -> serviceController.start(id, startTime) }
         }
+    }
+
+    /**
+     * Обрабатывает завершение соревнования.
+     * Останавливает таймер и отправляет команду остановки foreground-сервиса.
+     */
+    private fun handleStopCompetition() {
+        timerJob?.cancel()
+        viewModelScope.launch {
+            serviceController.stop()
+        }
+        updateState { copy(isCompetitionRunning = false, isTimerRunning = false) }
     }
 
     /**

@@ -95,6 +95,20 @@ fun OrienteeringEventControlScreen(
                 }
             }
 
+            if (state.isCompetitionRunning) {
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    onClick = { viewModel.onAction(OrientEventControlAction.StopCompetition) },
+                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("ЗАВЕРШИТЬ СОРЕВНОВАНИЕ", fontWeight = FontWeight.Bold)
+                }
+            }
+
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
             // Навигация по разделам

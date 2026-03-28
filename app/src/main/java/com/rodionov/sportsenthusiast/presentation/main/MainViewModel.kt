@@ -8,28 +8,62 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.nfchelper.SportiduinoHelper
+import com.rodionov.sportsenthusiast.service.CompetitionScanEventRepository
+import com.rodionov.sportsenthusiast.service.NfcScanEvent
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.BaseState
+import com.rodionov.ui.CompetitionServiceCommand
+import com.rodionov.ui.CompetitionServiceController
 import com.rodionov.ui.viewmodel.BaseViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
  * Главная вьюмодель приложения.
  * Управляет общими процессами: навигацией, NFC и состоянием авторизации.
- * 
+ *
  * @property navigation Интерфейс управления навигацией.
  * @property sportiduinoHelper Помощник для работы с NFC оборудованием.
+ * @property serviceController Контроллер управления foreground-сервисом соревнования.
+ * @property scanEventRepository Репозиторий событий NFC-сканирования.
  */
 class MainViewModel(
     private val navigation: Navigation,
-    private val sportiduinoHelper: SportiduinoHelper
-): BaseViewModel<BaseState>(object : BaseState{}) {
+    private val sportiduinoHelper: SportiduinoHelper,
+    private val serviceController: CompetitionServiceController,
+    private val scanEventRepository: CompetitionScanEventRepository
+) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     /**
      * Поток базовых эффектов навигации (например, BackRoute).
      */
     val baseNavigationEffect: SharedFlow<BaseNavigation> = navigation.baseNavigationEffect
+
+    /**
+     * Команды запуска/остановки foreground-сервиса, читаются в MainActivity.
+     */
+    val serviceCommands: SharedFlow<CompetitionServiceCommand> = serviceController.commands
+
+    private val _currentScanEvent = MutableStateFlow<NfcScanEvent?>(null)
+
+    /**
+     * Текущее событие NFC-сканирования для отображения баннера. Обнуляется через 4 секунды.
+     */
+    val currentScanEvent: StateFlow<NfcScanEvent?> = _currentScanEvent.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            scanEventRepository.events.collect { event ->
+                _currentScanEvent.value = event
+                delay(4000)
+                _currentScanEvent.compareAndSet(event, null)
+            }
+        }
+    }
 
     override fun onAction(action: BaseAction) {
         // Базовая обработка действий
@@ -40,7 +74,7 @@ class MainViewModel(
      */
     suspend fun collectNavigationEffect(navigationHandler: (BaseNavigation) -> Unit, destination: BaseNavigation) {
 //        viewModelScope.launch(Dispatchers.Main) {
-            navigation.collectNavigationEffect(navigationHandler, destination)
+        navigation.collectNavigationEffect(navigationHandler, destination)
 //        }
     }
 

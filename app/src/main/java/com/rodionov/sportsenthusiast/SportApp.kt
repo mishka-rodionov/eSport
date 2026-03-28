@@ -1,7 +1,11 @@
 package com.rodionov.sportsenthusiast
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import com.rodionov.center.di.centerModule
+import com.rodionov.sportsenthusiast.service.CompetitionForegroundService
 import com.rodionov.data.navigation.di.navigationModule
 import com.rodionov.events.di.eventsModule
 import com.rodionov.local.di.databaseModule
@@ -36,5 +40,17 @@ class SportApp : Application() {
             //feature modules
             modules(mainModule, centerModule, eventsModule, profileModule)
         }
+
+        createNotificationChannel()
+    }
+
+    private fun createNotificationChannel() {
+        val channel = NotificationChannel(
+            CompetitionForegroundService.CHANNEL_ID,
+            "Соревнование",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply { description = "Информация о текущем соревновании" }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 }

@@ -5,8 +5,11 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import androidx.activity.ComponentActivity
 import com.rodionov.domain.models.orienteering.ReadChipData
+import kotlinx.coroutines.flow.SharedFlow
 
 interface SportiduinoHelper {
+
+    val nfcErrorFlow: SharedFlow<String>
 
     var nfcMode: SportiduinoNfcMode
 
