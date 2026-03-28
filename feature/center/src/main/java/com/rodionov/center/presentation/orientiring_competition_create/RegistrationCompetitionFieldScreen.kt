@@ -80,12 +80,39 @@ private fun RegistrationCompetitionFieldContent(
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
             // Поля даты регистрации (заглушки для DSTextInput)
-            DSTextInput(
-                modifier = Modifier.fillMaxWidth(),
-                text = state.registrationStart?.toString() ?: "",
-                label = { Text("Начало регистрации") },
-                onValueChanged = { /* Использование закомментировано до реализации */ }
+            Text(
+                text = "Начало регистрации",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
             )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier.weight(1f)) {
+                    DatePicker(state = state, userAction = {  })
+                }
+                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                Box(modifier = Modifier.weight(1f)) {
+                    TimePicker(state = state, userAction = {  })
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            // Поля даты регистрации (заглушки для DSTextInput)
+            Text(
+                text = "Окончание регистрации",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier.weight(1f)) {
+                    DatePicker(state = state, userAction = {})
+                }
+                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                Box(modifier = Modifier.weight(1f)) {
+                    TimePicker(state = state, userAction = {  })
+                }
+            }
+
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 

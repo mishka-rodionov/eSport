@@ -1,12 +1,16 @@
 package com.example.designsystem.components
 
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
+/**
+ * Базовый компонент ввода текста в дизайн-системе проекта.
+ * Обертка над [OutlinedTextField] с предопределенными стилями.
+ */
 @Composable
 fun DSTextInput(
     modifier: Modifier = Modifier,
@@ -24,7 +28,8 @@ fun DSTextInput(
     singleLine: Boolean = false,
     isError: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     OutlinedTextField(
         value = text,
@@ -42,6 +47,7 @@ fun DSTextInput(
         singleLine = singleLine,
         isError = isError,
         interactionSource = interactionSource,
-        keyboardOptions = keyboardOptions
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions
     )
 }

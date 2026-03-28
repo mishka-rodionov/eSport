@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -19,6 +21,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,6 +43,8 @@ import java.util.Calendar
  * 
  * Включает ввод названия, дат начала (в том числе для многодневных этапов), 
  * адреса, координат места старта и описания.
+ * 
+ * Реализован автоматический фокус на следующее поле при нажатии "Далее" (Enter) на клавиатуре.
  * 
  * @param competitionId Идентификатор редактируемого соревнования.
  * @param viewModel Вьюмодель процесса создания.
@@ -89,6 +94,7 @@ private fun CommonCompetitionFieldContent(
     onNext: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val focusManager = LocalFocusManager.current
 
     Scaffold(
         bottomBar = {
@@ -120,7 +126,13 @@ private fun CommonCompetitionFieldContent(
                 text = state.title,
                 label = { Text("Название соревнования") },
                 onValueChanged = onTitleChanged,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Next) }
+                )
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
@@ -193,7 +205,13 @@ private fun CommonCompetitionFieldContent(
                 text = state.address,
                 label = { Text("Место проведения (адрес)") },
                 onValueChanged = onAddressChanged,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Next) }
+                )
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
@@ -237,7 +255,14 @@ private fun CommonCompetitionFieldContent(
                 text = state.description,
                 label = { Text("Описание соревнования") },
                 onValueChanged = onDescriptionChanged,
-                singleLine = false
+                singleLine = false,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() }
+                )
             )
             
             Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
