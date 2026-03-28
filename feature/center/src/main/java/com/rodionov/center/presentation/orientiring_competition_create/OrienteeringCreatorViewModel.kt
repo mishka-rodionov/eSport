@@ -219,6 +219,7 @@ class OrienteeringCreatorViewModel(
 
     /**
      * Финальное сохранение и выход из мастера.
+     * Выполняет переход на главный экран раздела "Центр" с очисткой навигационного стека вплоть до этого роута.
      */
     fun finishCreation() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -229,7 +230,14 @@ class OrienteeringCreatorViewModel(
             )
 
             viewModelScope.launch(Dispatchers.Main) {
-                navigation.navigate(CenterNavigation.CenterRoute)
+                val destination = CenterNavigation.CenterRoute
+                destination.navOptionsBuilder = {
+                    popUpTo(CenterNavigation.CenterRoute) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+                navigation.navigate(destination)
             }
         }
     }
