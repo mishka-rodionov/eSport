@@ -21,6 +21,10 @@ import com.rodionov.sportsenthusiast.di.mainModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
+/**
+ * Класс приложения Sports Enthusiast.
+ * Выполняет инициализацию Koin (Dependency Injection) и создание каналов уведомлений.
+ */
 class SportApp : Application() {
 
     override fun onCreate() {
@@ -28,22 +32,25 @@ class SportApp : Application() {
 
         startKoin {
             androidContext(this@SportApp)
-            //core modules
+            // core modules
             modules(
                 retrofitModule, databaseModule, navigationModule, resourceModule, nfcModule,
                 localModule
             )
 
-            //data modules
+            // data modules
             modules(authModule, orienteeringModule, eventsDataModule)
 
-            //feature modules
+            // feature modules
             modules(mainModule, centerModule, eventsModule, profileModule)
         }
 
         createNotificationChannel()
     }
 
+    /**
+     * Создает канал уведомлений для работы сервиса соревнований.
+     */
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CompetitionForegroundService.CHANNEL_ID,

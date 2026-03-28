@@ -66,6 +66,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+/**
+ * Главная Activity приложения.
+ * Является точкой входа, управляет жизненным циклом NFC-адаптера и foreground-сервисом соревнования.
+ */
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
@@ -94,6 +98,9 @@ class MainActivity : ComponentActivity() {
         observeServiceCommands()
     }
 
+    /**
+     * Подписка на команды управления сервисом (запуск/остановка).
+     */
     private fun observeServiceCommands() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -142,7 +149,8 @@ class MainActivity : ComponentActivity() {
 /**
  * Основной экран приложения с нижней навигацией.
  * 
- * Использует Material 3 NavigationBar для современного внешнего вида.
+ * @param viewModel Вьюмодель управления общим состоянием.
+ * @param windowSizeClass Параметры размера экрана для адаптивной верстки.
  */
 @Composable
 private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass) {
@@ -266,6 +274,9 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     }
 }
 
+/**
+ * Определяет начальный роут для каждого таба нижней навигации.
+ */
 private fun checkNavigation(tab: BottomNavItem): BaseNavigation = when (tab) {
     BottomNavItem.Profile -> ProfileNavigation.MainProfileRoute
     BottomNavItem.CompetitionList -> EventsNavigation.EventsRoute
