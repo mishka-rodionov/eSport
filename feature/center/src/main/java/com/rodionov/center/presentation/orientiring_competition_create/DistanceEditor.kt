@@ -243,6 +243,7 @@ fun DistanceEditor(
                         userAction.invoke(
                             OrienteeringCreatorAction.CreateDistance(
                                 distance = Distance(
+                                    id = if (state.editDistanceIndex == -1) 0L else state.distances[state.editDistanceIndex].id,
                                     competitionId = state.competitionId ?: 0L,
                                     name = title,
                                     lengthMeters = lengthMeters.toIntOrNull() ?: 0,
