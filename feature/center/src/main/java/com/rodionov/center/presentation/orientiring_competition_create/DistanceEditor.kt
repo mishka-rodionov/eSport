@@ -8,7 +8,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -26,6 +35,9 @@ import com.rodionov.resources.R
 
 /**
  * Диалог редактирования/создания дистанции.
+ * 
+ * Реализован принудительный переход фокуса между полями ввода с использованием FocusRequester
+ * и гарантированное скрытие клавиатуры через SoftwareKeyboardController.
  * 
  * @param userAction Обработчик действий ViewModel.
  * @param state Текущее состояние процесса создания.
@@ -53,7 +65,18 @@ fun DistanceEditor(
             ?: "")
     }
     var description by remember { mutableStateOf(initialDistance?.description ?: "") }
+    
+    // Создаем реквизиторы фокуса для каждого поля
+    val titleFocus = remember { FocusRequester() }
+    val lengthFocus = remember { FocusRequester() }
+    val climbFocus = remember { FocusRequester() }
+    val controlsFocus = remember { FocusRequester() }
+    val pointsFocus = remember { FocusRequester() }
+    val descFocus = remember { FocusRequester() }
+    
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val view = LocalView.current
 
     DSBottomDialog(
         sheetState = sheetState,
@@ -71,15 +94,19 @@ fun DistanceEditor(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
+                // Название дистанции
                 DSTextInput(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(titleFocus),
                     label = { Text("Название дистанции") },
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
-                        onNext = { focusManager.moveFocus(FocusDirection.Next) }
+                        onNext = { lengthFocus.requestFocus() }
                     ),
                     text = title,
                     onValueChanged = { title = it }
@@ -91,23 +118,37 @@ fun DistanceEditor(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // Длина
                     DSTextInput(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .focusRequester(lengthFocus),
                         label = { Text("Длина (м)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
                         keyboardActions = KeyboardActions(
-                            onNext = { focusManager.moveFocus(FocusDirection.Next) }
+                            onNext = { climbFocus.requestFocus() }
                         ),
                         text = lengthMeters,
                         onValueChanged = { lengthMeters = it }
                     )
 
+                    // Набор высоты
                     DSTextInput(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .focusRequester(climbFocus),
                         label = { Text("Набор высоты (м)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
                         keyboardActions = KeyboardActions(
-                            onNext = { focusManager.moveFocus(FocusDirection.Next) }
+                            onNext = { controlsFocus.requestFocus() }
                         ),
                         text = climbMeters,
                         onValueChanged = { climbMeters = it }
@@ -116,12 +157,19 @@ fun DistanceEditor(
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
+                // Количество КП
                 DSTextInput(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(controlsFocus),
                     label = { Text("Количество КП") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
                     keyboardActions = KeyboardActions(
-                        onNext = { focusManager.moveFocus(FocusDirection.Next) }
+                        onNext = { pointsFocus.requestFocus() }
                     ),
                     text = controlsCount,
                     onValueChanged = { controlsCount = it }
@@ -129,13 +177,20 @@ fun DistanceEditor(
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
+                // Список КП (через запятую)
                 DSTextInput(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(pointsFocus),
                     label = { Text("Список КП (через запятую)") },
                     placeholder = { Text("31, 32, 45, 100") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
                     keyboardActions = KeyboardActions(
-                        onNext = { focusManager.moveFocus(FocusDirection.Next) }
+                        onNext = { descFocus.requestFocus() }
                     ),
                     text = controlPointsStr,
                     onValueChanged = { controlPointsStr = it }
@@ -143,10 +198,28 @@ fun DistanceEditor(
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
+                // Описание
                 DSTextInput(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(descFocus),
                     label = { Text("Описание") },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.clearFocus()
+                        },
+                        onDone = {
+                            descFocus.freeFocus()
+                            focusManager.clearFocus(force = true)
+                            view.clearFocus()
+                            keyboardController?.hide()
+                        }
+                    ),
                     text = description,
                     onValueChanged = { description = it }
                 )
@@ -159,6 +232,10 @@ fun DistanceEditor(
                         .height(56.dp),
                     shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
                     onClick = {
+                        // Сбрасываем фокус и скрываем клавиатуру при нажатии кнопки сохранения
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+
                         val points = controlPointsStr.split(",")
                             .mapNotNull { it.trim().toIntOrNull() }
                             .map { ControlPoint(number = it) }
