@@ -313,4 +313,15 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             distanceDao.getDistancesForCompetition(competitionId).map { it.toDomain() }
         }
     }
+
+    /**
+     * Обновляет данные существующей дистанции.
+     * 
+     * @param distance Доменная модель дистанции.
+     */
+    override suspend fun updateDistance(distance: Distance): Result<Any> {
+        return runCatching {
+            distanceDao.updateDistance(distance.toEntity())
+        }
+    }
 }

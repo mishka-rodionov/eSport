@@ -56,4 +56,12 @@ interface OrienteeringCompetitionLocalRepository {
      * Получает список дистанций соревнования.
      */
     suspend fun getDistances(competitionId: Long): Result<List<Distance>>
+
+    /**
+     * Обновляет данные существующей дистанции.
+     * 
+     * @param distance Модель дистанции.
+     * @return Результат операции.
+     */
+    suspend fun updateDistance(distance: Distance): Result<Any>
 }

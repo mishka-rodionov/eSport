@@ -5,7 +5,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -13,12 +16,13 @@ import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.domain.models.orienteering.Distance
+import com.rodionov.resources.R
 import org.koin.androidx.compose.koinViewModel
 
 /**
  * Четвертый экран создания соревнования: Настройка дистанций.
  * 
- * Позволяет добавлять и просматривать список дистанций для соревнования.
+ * Позволяет добавлять, редактировать и просматривать список дистанций для соревнования.
  * 
  * @param competitionId Идентификатор соревнования.
  * @param viewModel Вьюмодель процесса создания.
@@ -78,7 +82,7 @@ private fun CreateDistanceContent(
 
             // Список созданных дистанций
             if (state.distances.isEmpty()) {
-                Box(modifier = Modifier.weight(1f), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                     Text(
                         text = "Добавьте хотя бы одну дистанцию",
                         style = MaterialTheme.typography.bodyMedium,
@@ -95,9 +99,25 @@ private fun CreateDistanceContent(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(text = distance.name ?: "Без названия", fontWeight = FontWeight.Bold)
-                                Text(text = "Длина: ${distance.lengthMeters} м, КП: ${distance.controlsCount}")
+                            Row(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = distance.name ?: "Без названия", fontWeight = FontWeight.Bold)
+                                    Text(text = "Длина: ${distance.lengthMeters} м, КП: ${distance.controlsCount}")
+                                }
+                                
+                                IconButton(onClick = { onAction(OrienteeringCreatorAction.EditDistanceDialog(index)) }) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.edit),
+                                        contentDescription = "Edit distance",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                         }
                     }
@@ -115,7 +135,7 @@ private fun CreateDistanceContent(
         }
     }
 
-    // Диалог создания дистанции
+    // Диалог создания/редактирования дистанции
     if (state.isShowDistanceCreateDialog) {
         DistanceEditor(
             userAction = onAction,

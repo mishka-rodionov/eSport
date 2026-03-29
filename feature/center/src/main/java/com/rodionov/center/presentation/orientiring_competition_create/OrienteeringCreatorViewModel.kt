@@ -52,14 +52,17 @@ class OrienteeringCreatorViewModel(
             }
 
             is OrienteeringCreatorAction.CreateDistance -> {
-                viewModelScope.launch {
-                    orienteeringCompetitionInteractor.saveDistance(action.distance)
-                }
                 val updatedDistances = stateValue.distances.toMutableList()
                 if (action.index == -1) {
                     updatedDistances.add(action.distance)
+                    viewModelScope.launch {
+                        orienteeringCompetitionInteractor.saveDistance(action.distance)
+                    }
                 } else {
                     updatedDistances[action.index] = action.distance
+                    viewModelScope.launch {
+                        orienteeringCompetitionInteractor.updateDistance(action.distance)
+                    }
                 }
                 updateState {
                     copy(

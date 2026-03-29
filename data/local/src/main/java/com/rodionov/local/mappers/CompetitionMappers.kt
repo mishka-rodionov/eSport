@@ -192,7 +192,7 @@ fun List<OrienteeringResultEntity>.toDomainList(): List<OrienteeringResult> {
  */
 fun Distance.toEntity(): DistanceEntity {
     return DistanceEntity(
-        id = 0, // Генерируется автоматически, если не задано обратное
+        id = this.id, // Используем ID из доменной модели для корректного обновления
         remoteId = this.remoteId,
         competitionId = this.competitionId,
         name = this.name,
@@ -212,6 +212,7 @@ fun Distance.toEntity(): DistanceEntity {
  */
 fun DistanceEntity.toDomain(): Distance {
     return Distance(
+        id = this.id, // Передаем ID обратно в доменную модель
         remoteId = this.remoteId,
         competitionId = this.competitionId,
         name = this.name,

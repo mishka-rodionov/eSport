@@ -401,6 +401,16 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
+     * Обновляет существующую дистанцию.
+     * 
+     * @param distance Модель дистанции.
+     * @return Результат операции.
+     */
+    suspend fun updateDistance(distance: Distance): Result<Any> {
+        return localRepository.updateDistance(distance)
+    }
+
+    /**
      * Получает список дистанций соревнования.
      */
     suspend fun getDistances(competitionId: Long): Result<List<Distance>> {

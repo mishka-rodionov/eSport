@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.rodionov.local.entities.orienteering.DistanceEntity
 
 /**
@@ -13,13 +14,21 @@ import com.rodionov.local.entities.orienteering.DistanceEntity
 interface DistanceDao {
 
     /**
-     * Сохраняет новую дистанцию или обновляет существующую.
+     * Сохраняет новую дистанцию.
      * 
      * @param distance Сущность дистанции.
      * @return ID сохраненной записи.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDistance(distance: DistanceEntity): Long
+
+    /**
+     * Обновляет существующую дистанцию.
+     * 
+     * @param distance Сущность дистанции.
+     */
+    @Update
+    suspend fun updateDistance(distance: DistanceEntity)
 
     /**
      * Получает список дистанций для конкретного соревнования.
