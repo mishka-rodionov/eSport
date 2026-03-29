@@ -11,6 +11,7 @@ import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
+import com.rodionov.utils.DateTimeFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -39,7 +40,8 @@ class OrienteeringCreatorViewModel(
         when (action) {
             OrienteeringCreatorAction.ShowDistanceCreateDialog -> updateState {
                 copy(
-                    isShowDistanceCreateDialog = true
+                    isShowDistanceCreateDialog = true,
+                    editDistanceIndex = -1
                 )
             }
 
@@ -53,9 +55,15 @@ class OrienteeringCreatorViewModel(
                 viewModelScope.launch {
                     orienteeringCompetitionInteractor.saveDistance(action.distance)
                 }
+                val updatedDistances = stateValue.distances.toMutableList()
+                if (action.index == -1) {
+                    updatedDistances.add(action.distance)
+                } else {
+                    updatedDistances[action.index] = action.distance
+                }
                 updateState {
                     copy(
-                        distances = distances + action.distance,
+                        distances = updatedDistances,
                         isShowDistanceCreateDialog = false
                     )
                 }
@@ -67,7 +75,8 @@ class OrienteeringCreatorViewModel(
              */
             OrienteeringCreatorAction.ShowGroupCreateDialog -> updateState {
                 copy(
-                    isShowGroupCreateDialog = true
+                    isShowGroupCreateDialog = true,
+                    editGroupIndex = -1
                 )
             }
 
@@ -85,9 +94,15 @@ class OrienteeringCreatorViewModel(
              * Добавляет группу в список и закрывает диалог.
              */
             is OrienteeringCreatorAction.CreateParticipantGroup -> {
+                val updatedGroups = stateValue.participantGroups.toMutableList()
+                if (action.index == -1) {
+                    updatedGroups.add(action.participantGroup)
+                } else {
+                    updatedGroups[action.index] = action.participantGroup
+                }
                 updateState {
                     copy(
-                        participantGroups = participantGroups + action.participantGroup,
+                        participantGroups = updatedGroups,
                         isShowGroupCreateDialog = false
                     )
                 }
@@ -98,11 +113,20 @@ class OrienteeringCreatorViewModel(
             }
 
             is OrienteeringCreatorAction.UpdateCompetitionTime -> updateState { copy(startTimeStr = action.competitionTime) }
+            
+            is OrienteeringCreatorAction.EditDistanceDialog -> updateState {
+                copy(isShowDistanceCreateDialog = true, editDistanceIndex = action.index)
+            }
+            
+            is OrienteeringCreatorAction.EditGroupDialog -> updateState {
+                copy(isShowGroupCreateDialog = true, editGroupIndex = action.index)
+            }
         }
     }
 
     /**
      * Инициализирует состояние данными существующего соревнования для редактирования.
+     * Загружает детали соревнования, список дистанций и список групп.
      * 
      * @param competitionId Идентификатор соревнования.
      */
@@ -110,6 +134,7 @@ class OrienteeringCreatorViewModel(
         if (competitionId == null) return
 
         viewModelScope.launch {
+            // Загрузка основных деталей соревнования
             val comp =
                 orienteeringCompetitionInteractor.getCompetition(competitionId) ?: return@launch
 
@@ -118,6 +143,7 @@ class OrienteeringCreatorViewModel(
                     competitionId = competitionId,
                     title = comp.competition.title,
                     startDate = comp.competition.startDate,
+                    startTimeStr = DateTimeFormat.transformLongToTime(comp.competition.startDate),
                     endDate = comp.competition.endDate,
                     kindOfSport = comp.competition.kindOfSport,
                     description = comp.competition.description ?: "",
@@ -138,6 +164,18 @@ class OrienteeringCreatorViewModel(
                     startTimeMode = comp.startTimeMode,
                     countdownTimer = comp.countdownTimer,
                 )
+            }
+            
+            // Загрузка существующих дистанций
+            orienteeringCompetitionInteractor.getDistances(competitionId).onSuccess { list ->
+                updateState { copy(distances = list) }
+            }
+            
+            // Загрузка существующих групп (через детали соревнования)
+            orienteeringCompetitionInteractor.getCompetitionWithDetails(competitionId).onSuccess { details ->
+                updateState {
+                    copy(participantGroups = details.groupsWithParticipants.map { it.group })
+                }
             }
         }
     }
@@ -263,7 +301,12 @@ class OrienteeringCreatorViewModel(
     fun updateTitle(title: String) = updateState { copy(title = title) }
     fun updateAddress(address: String) = updateState { copy(address = address) }
     fun updateDescription(description: String) = updateState { copy(description = description) }
-    fun updateStartDate(date: Long) = updateState { copy(startDate = date) }
+    
+    fun updateStartDate(date: Long) {
+        val updatedTimestamp = DateTimeFormat.updateTimeInTimestamp(date, stateValue.startTimeStr) ?: date
+        updateState { copy(startDate = updatedTimestamp) }
+    }
+
     fun updateEndDate(date: Long?) = updateState { copy(endDate = date) }
 
     fun updateRegistrationStart(date: Long?) = updateState { copy(registrationStart = date) }
