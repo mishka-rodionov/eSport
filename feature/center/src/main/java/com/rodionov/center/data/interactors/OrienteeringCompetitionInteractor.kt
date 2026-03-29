@@ -9,6 +9,7 @@ import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
+import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 
@@ -387,6 +388,23 @@ class OrienteeringCompetitionInteractor(
         localRepository.updateResults(listOf(orienteeringResult)).onSuccess {
             updateResultsAndRanks(orienteeringResult)
         }
+    }
+
+    /**
+     * Сохраняет новую дистанцию для соревнования.
+     * 
+     * @param distance Модель дистанции.
+     * @return Результат операции с ID сохраненной записи.
+     */
+    suspend fun saveDistance(distance: Distance): Result<Long> {
+        return localRepository.saveDistance(distance)
+    }
+
+    /**
+     * Получает список дистанций соревнования.
+     */
+    suspend fun getDistances(competitionId: Long): Result<List<Distance>> {
+        return localRepository.getDistances(competitionId)
     }
 
 }

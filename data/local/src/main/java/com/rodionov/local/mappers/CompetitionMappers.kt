@@ -4,10 +4,12 @@ import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
+import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.local.entities.orienteering.OrienteeringCompetitionEntity
 import com.rodionov.local.entities.orienteering.OrienteeringParticipantEntity
 import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
 import com.rodionov.local.entities.orienteering.OrienteeringResultEntity
+import com.rodionov.local.entities.orienteering.DistanceEntity
 
 /**
  * Преобразование доменной модели соревнования в сущность базы данных.
@@ -183,4 +185,43 @@ fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
  */
 fun List<OrienteeringResultEntity>.toDomainList(): List<OrienteeringResult> {
     return this.map { it.toDomain() }
+}
+
+/**
+ * Преобразование доменной модели дистанции в сущность базы данных.
+ */
+fun Distance.toEntity(): DistanceEntity {
+    return DistanceEntity(
+        id = 0, // Генерируется автоматически, если не задано обратное
+        remoteId = this.remoteId,
+        competitionId = this.competitionId,
+        name = this.name,
+        lengthMeters = this.lengthMeters,
+        climbMeters = this.climbMeters,
+        controlsCount = this.controlsCount,
+        description = this.description,
+        isSynced = this.isSynced,
+        lastModified = this.lastModified,
+        isDeleted = this.isDeleted,
+        controlPoints = this.controlPoints
+    )
+}
+
+/**
+ * Преобразование сущности дистанции из базы данных в доменную модель.
+ */
+fun DistanceEntity.toDomain(): Distance {
+    return Distance(
+        remoteId = this.remoteId,
+        competitionId = this.competitionId,
+        name = this.name,
+        lengthMeters = this.lengthMeters,
+        climbMeters = this.climbMeters,
+        controlsCount = this.controlsCount,
+        description = this.description,
+        isSynced = this.isSynced,
+        lastModified = this.lastModified,
+        isDeleted = this.isDeleted,
+        controlPoints = this.controlPoints
+    )
 }

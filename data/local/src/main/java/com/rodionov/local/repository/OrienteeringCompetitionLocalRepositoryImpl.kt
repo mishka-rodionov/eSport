@@ -2,6 +2,7 @@ package com.rodionov.local.repository
 
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
@@ -11,6 +12,7 @@ import com.rodionov.local.dao.OrienteeringCompetitionDao
 import com.rodionov.local.dao.ParticipantGroupDao
 import com.rodionov.local.dao.orienteering.OrienteeringParticipantDao
 import com.rodionov.local.dao.orienteering.OrienteeringResultDao
+import com.rodionov.local.dao.orienteering.DistanceDao
 import com.rodionov.local.mappers.toDomain
 import com.rodionov.local.mappers.toEntity
 
@@ -23,12 +25,14 @@ import com.rodionov.local.mappers.toEntity
  * @param participantGroupDao DAO для работы с группами участников
  * @param participantDao DAO для работы с участниками
  * @param orienteeringResultDao DAO для работы с результатами
+ * @param distanceDao DAO для работы с дистанциями
  */
 class OrienteeringCompetitionLocalRepositoryImpl(
     private val orienteeringCompetitionDao: OrienteeringCompetitionDao,
     private val participantGroupDao: ParticipantGroupDao,
     private val participantDao: OrienteeringParticipantDao,
-    private val orienteeringResultDao: OrienteeringResultDao
+    private val orienteeringResultDao: OrienteeringResultDao,
+    private val distanceDao: DistanceDao
 ) : OrienteeringCompetitionLocalRepository {
 
     /**
@@ -283,6 +287,30 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     ): Result<Any> {
         return runCatching {
             orienteeringResultDao.updateIsEditableForCompetition(competitionId, isEditable)
+        }
+    }
+
+    /**
+     * Сохраняет новую дистанцию в локальную базу данных.
+     * 
+     * @param distance Доменная модель дистанции.
+     * @return Result с ID сохраненной записи или ошибкой.
+     */
+    override suspend fun saveDistance(distance: Distance): Result<Long> {
+        return runCatching {
+            distanceDao.insertDistance(distance.toEntity())
+        }
+    }
+
+    /**
+     * Возвращает список всех дистанций для указанного соревнования.
+     * 
+     * @param competitionId Идентификатор соревнования.
+     * @return Result со списком доменных моделей дистанций или ошибкой.
+     */
+    override suspend fun getDistances(competitionId: Long): Result<List<Distance>> {
+        return runCatching {
+            distanceDao.getDistancesForCompetition(competitionId).map { it.toDomain() }
         }
     }
 }

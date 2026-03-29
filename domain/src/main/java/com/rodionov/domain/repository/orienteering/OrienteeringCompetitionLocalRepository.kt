@@ -6,6 +6,7 @@ import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
+import com.rodionov.domain.models.orienteering.Distance
 
 /**
  * Интерфейс локального репозитория для работы с данными соревнований по ориентированию.
@@ -42,4 +43,17 @@ interface OrienteeringCompetitionLocalRepository {
      * @param isEditable Значение флага.
      */
     suspend fun updateIsEditableForCompetition(competitionId: Long, isEditable: Boolean): Result<Any>
+
+    /**
+     * Сохраняет новую дистанцию для соревнования.
+     * 
+     * @param distance Модель дистанции.
+     * @return Результат операции с ID сохраненной записи.
+     */
+    suspend fun saveDistance(distance: Distance): Result<Long>
+
+    /**
+     * Получает список дистанций соревнования.
+     */
+    suspend fun getDistances(competitionId: Long): Result<List<Distance>>
 }

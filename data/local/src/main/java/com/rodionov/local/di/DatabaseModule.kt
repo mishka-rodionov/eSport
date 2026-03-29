@@ -3,6 +3,7 @@ package com.rodionov.local.di
 import com.rodionov.local.dao.OrienteeringCompetitionDao
 import com.rodionov.local.dao.ParticipantGroupDao
 import com.rodionov.local.dao.UserDao
+import com.rodionov.local.dao.orienteering.DistanceDao
 import com.rodionov.local.dao.orienteering.OrienteeringParticipantDao
 import com.rodionov.local.dao.orienteering.OrienteeringResultDao
 import com.rodionov.local.database.DatabaseHelper
@@ -16,4 +17,5 @@ val databaseModule = module {
     single<ParticipantGroupDao> { get<DatabaseHelper>().db.participantGroupsDao() }
     single<OrienteeringParticipantDao> { get<DatabaseHelper>().db.orienteeringParticipantDao() }
     single<OrienteeringResultDao> { get<DatabaseHelper>().db.orienteeringResultDao() }
+    single<DistanceDao> { get<DatabaseHelper>().db.distanceDao() }
 }

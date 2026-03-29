@@ -50,6 +50,9 @@ class OrienteeringCreatorViewModel(
             }
 
             is OrienteeringCreatorAction.CreateDistance -> {
+                viewModelScope.launch {
+                    orienteeringCompetitionInteractor.saveDistance(action.distance)
+                }
                 updateState {
                     copy(
                         distances = distances + action.distance,
