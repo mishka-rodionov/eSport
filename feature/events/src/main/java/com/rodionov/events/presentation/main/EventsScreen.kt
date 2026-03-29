@@ -219,7 +219,7 @@ fun EventItemPreview() {
         kindOfSport = KindOfSport.Orienteering,
         description = "Традиционные соревнования в живописном лесу. Вас ждут интересные дистанции различной сложности, электронная отметка и горячий чай на финише. Приглашаются все желающие!",
         address = "Загородный парк, г. Владимир",
-        mainOrganizerId = 1L,
+        mainOrganizerId = "125",
         coordinates = Coordinates(0.0, 0.0),
         status = CompetitionStatus.DRAFT,
         resultsStatus = ResultsStatus.NOT_PUBLISHED

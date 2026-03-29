@@ -6,6 +6,7 @@ import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.ui.BaseAction
@@ -24,6 +25,15 @@ class OrienteeringCreatorViewModel(
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
     private val userRepository: UserRepository
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
+
+    var user: User? = null
+
+    init {
+        viewModelScope.launch {
+            user = userRepository.retrieveUser().getOrNull()
+        }
+    }
+
 
     override fun onAction(action: BaseAction) {
         when (action) {
@@ -97,7 +107,8 @@ class OrienteeringCreatorViewModel(
         if (competitionId == null) return
 
         viewModelScope.launch {
-            val comp = orienteeringCompetitionInteractor.getCompetition(competitionId) ?: return@launch
+            val comp =
+                orienteeringCompetitionInteractor.getCompetition(competitionId) ?: return@launch
 
             updateState {
                 copy(
@@ -133,31 +144,29 @@ class OrienteeringCreatorViewModel(
      */
     fun saveStepOne() {
         viewModelScope.launch(Dispatchers.IO) {
-            userRepository.retrieveUser().onSuccess { user ->
-                val competition = stateValue.toOrienteeringCompetition(user.id.toLongOrNull())
-                val result = if (stateValue.competitionId == null) {
-                    // Создание нового
-                    orienteeringCompetitionInteractor.saveCompetitionNew(competition)
-                } else {
-                    // Обновление существующего
-                    orienteeringCompetitionInteractor.updateCompetitionNew(competition)
-                }
-                result.onSuccess {
-                    val id = it.localCompetitionId
-                    updateState { copy(competitionId = id) }
-                    viewModelScope.launch(Dispatchers.Main) {
-                        navigation.navigate(
-                            CenterNavigation.RegistrationCompetitionFieldRoute(
-                                competitionId = id
-                            )
-                        )
-                    }
-                }
-                    .onFailure {
-                        // TODO здесь будет обработка ошибки
-                    }
-
+            val competition = stateValue.toOrienteeringCompetition(user?.id)
+            val result = if (stateValue.competitionId == null) {
+                // Создание нового
+                orienteeringCompetitionInteractor.saveCompetitionNew(competition)
+            } else {
+                // Обновление существующего
+                orienteeringCompetitionInteractor.updateCompetitionNew(competition)
             }
+            result.onSuccess {
+                val id = it.localCompetitionId
+                updateState { copy(competitionId = id) }
+                viewModelScope.launch(Dispatchers.Main) {
+                    navigation.navigate(
+                        CenterNavigation.RegistrationCompetitionFieldRoute(
+                            competitionId = id
+                        )
+                    )
+                }
+            }
+                .onFailure {
+                    // TODO здесь будет обработка ошибки
+                }
+
         }
     }
 
@@ -166,7 +175,7 @@ class OrienteeringCreatorViewModel(
      */
     fun saveStepTwo() {
         viewModelScope.launch(Dispatchers.IO) {
-            val competition = stateValue.toOrienteeringCompetition(null)
+            val competition = stateValue.toOrienteeringCompetition(user?.id)
             orienteeringCompetitionInteractor.updateCompetition(
                 competition,
                 stateValue.participantGroups
@@ -187,7 +196,7 @@ class OrienteeringCreatorViewModel(
      */
     fun saveStepThree() {
         viewModelScope.launch(Dispatchers.IO) {
-            val competition = stateValue.toOrienteeringCompetition(null)
+            val competition = stateValue.toOrienteeringCompetition(user?.id)
             orienteeringCompetitionInteractor.updateCompetition(
                 competition,
                 stateValue.participantGroups
@@ -223,7 +232,7 @@ class OrienteeringCreatorViewModel(
      */
     fun finishCreation() {
         viewModelScope.launch(Dispatchers.IO) {
-            val competition = stateValue.toOrienteeringCompetition(null)
+            val competition = stateValue.toOrienteeringCompetition(user?.id)
             orienteeringCompetitionInteractor.updateCompetition(
                 competition,
                 stateValue.participantGroups

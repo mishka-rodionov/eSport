@@ -45,7 +45,7 @@ data class Competition(
     val kindOfSport: KindOfSport,
     val description: String? = null,
     val address: String? = null,
-    val mainOrganizerId: Long? = null,          // ссылка на пользователя (локальный ID)
+    val mainOrganizerId: String? = null,          // ссылка на пользователя (локальный ID)
     @Embedded
     val coordinates: Coordinates? = null,
     val status: CompetitionStatus,

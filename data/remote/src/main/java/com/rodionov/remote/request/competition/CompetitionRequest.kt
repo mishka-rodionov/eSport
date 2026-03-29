@@ -21,7 +21,7 @@ data class CompetitionRequest(
     @SerializedName("address")
     val address: String?,
     @SerializedName("mainOrganizerId")
-    val mainOrganizerId: Long?,
+    val mainOrganizerId: String?,
     @SerializedName("coordinates")
     val coordinates: CoordinatesRequest?,
     @SerializedName("status")

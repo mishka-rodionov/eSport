@@ -21,7 +21,7 @@ data class CompetitionResponse(
     @SerializedName("address")
     val address: String?,
     @SerializedName("mainOrganizerId")
-    val mainOrganizerId: Long?,
+    val mainOrganizerId: String?,
     @SerializedName("coordinates")
     val coordinates: CoordinatesResponse?,
     @SerializedName("status")

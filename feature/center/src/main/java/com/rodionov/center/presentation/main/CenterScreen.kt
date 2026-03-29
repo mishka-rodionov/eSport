@@ -313,7 +313,7 @@ private fun CenterScreenAuthPreview() {
                         address = "Москва, Парк Сокольники",
                         kindOfSport = KindOfSport.Orienteering,
                         description = "",
-                        mainOrganizerId = 123L,
+                        mainOrganizerId = "123",
                         coordinates = Coordinates(latitude = 0.0, longitude = 0.0),
                         status = CompetitionStatus.DRAFT,
                         resultsStatus = ResultsStatus.NOT_PUBLISHED

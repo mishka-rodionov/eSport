@@ -35,7 +35,7 @@ class EventsRepositoryImpl(
                 kindOfSport = "Orienteering",
                 description = "Традиционные городские соревнования для всех категорий участников. Ждем вас в городском парке!",
                 address = "Саратов, Городской парк",
-                mainOrganizerId = 123L,
+                mainOrganizerId = "123",
                 coordinates = CoordinatesResponse(
                     latitude = 51.5335,
                     longitude = 46.0342
@@ -61,7 +61,7 @@ class EventsRepositoryImpl(
                 kindOfSport = "Orienteering",
                 description = "Масштабные соревнования на открытой местности. Сложные дистанции и ценные призы.",
                 address = "Энгельс, лесной массив",
-                mainOrganizerId = 124L,
+                mainOrganizerId = "124",
                 coordinates = CoordinatesResponse(
                     latitude = 51.4800,
                     longitude = 46.1200

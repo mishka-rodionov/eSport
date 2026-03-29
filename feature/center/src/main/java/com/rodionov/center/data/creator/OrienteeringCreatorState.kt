@@ -86,7 +86,7 @@ data class OrienteeringCreatorState(
     val error: String? = null
 ) : BaseState {
     
-    fun toOrienteeringCompetition(userId: Long?): OrienteeringCompetition {
+    fun toOrienteeringCompetition(userId: String?): OrienteeringCompetition {
         return OrienteeringCompetition(
             localCompetitionId = competitionId ?: 0L,
             competition = Competition(
