@@ -200,7 +200,7 @@ class OrienteeringCompetitionInteractor(
      * @param competitionId Идентификатор соревнования
      * @param participantGroups Список групп участников для сохранения
      */
-    private suspend fun createParticipantsGroupsInfo(
+    suspend fun createParticipantsGroupsInfo(
         competitionId: Long,
         participantGroups: List<ParticipantGroup>
     ) {

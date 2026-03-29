@@ -52,7 +52,7 @@ fun ParticipantGroupEditor(
     var selectedGender by remember { mutableStateOf(initialGroup?.gender) }
     
     // Выбранная дистанция для группы
-    var selectedDistanceId by remember { mutableStateOf(initialGroup?.distanceId ?: state.distances.firstOrNull()?.id ?: 0L) }
+    var selectedDistanceId by remember { mutableLongStateOf(initialGroup?.distanceId ?: state.distances.firstOrNull()?.id ?: 0L) }
 
     // Реквизиторы фокуса
     val titleFocus = remember { FocusRequester() }

@@ -94,7 +94,7 @@ private fun CreateParticipantGroupContent(
                         modifier = Modifier.fillMaxWidth(),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                         onClick = { 
-                            onAction(OrienteeringCreatorAction.ShowGroupCreateDialog)
+                            onAction(OrienteeringCreatorAction.EditGroupDialog(index))
                         }
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {

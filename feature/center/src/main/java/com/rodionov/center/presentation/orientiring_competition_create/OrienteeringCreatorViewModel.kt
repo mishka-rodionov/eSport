@@ -100,6 +100,12 @@ class OrienteeringCreatorViewModel(
                 val updatedGroups = stateValue.participantGroups.toMutableList()
                 if (action.index == -1) {
                     updatedGroups.add(action.participantGroup)
+                    viewModelScope.launch {
+                        orienteeringCompetitionInteractor.createParticipantsGroupsInfo(
+                            competitionId = stateValue.competitionId ?: 0L,
+                            participantGroups = listOf(action.participantGroup)
+                        )
+                    }
                 } else {
                     updatedGroups[action.index] = action.participantGroup
                 }
