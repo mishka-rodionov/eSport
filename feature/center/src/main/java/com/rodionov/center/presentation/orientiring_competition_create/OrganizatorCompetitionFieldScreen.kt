@@ -78,15 +78,17 @@ private fun OrganizatorCompetitionFieldContent(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            
-            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
-            DSTextInput(
-                modifier = Modifier.fillMaxWidth(),
-                text = state.mapUrl,
-                label = { Text("Ссылка на карту") },
-                onValueChanged = onUpdateMapUrl
-            )
+            if (false) { //на данный момент отключено
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = state.mapUrl,
+                    label = { Text("Ссылка на карту") },
+                    onValueChanged = onUpdateMapUrl
+                )
+            }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
@@ -106,14 +108,16 @@ private fun OrganizatorCompetitionFieldContent(
                 onValueChanged = onUpdateContactEmail
             )
 
-            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            if (false) { // на данный момент отключено
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
-            DSTextInput(
-                modifier = Modifier.fillMaxWidth(),
-                text = state.website,
-                label = { Text("Официальный сайт") },
-                onValueChanged = onUpdateWebsite
-            )
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = state.website,
+                    label = { Text("Официальный сайт") },
+                    onValueChanged = onUpdateWebsite
+                )
+            }
         }
     }
 }

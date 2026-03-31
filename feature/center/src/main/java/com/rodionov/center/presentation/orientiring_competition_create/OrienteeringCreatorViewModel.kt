@@ -164,6 +164,7 @@ class OrienteeringCreatorViewModel(
                     registrationStart = comp.competition.registrationStart,
                     registrationEnd = comp.competition.registrationEnd,
                     maxParticipants = comp.competition.maxParticipants,
+                    isFeeEnabled = comp.competition.feeAmount != null,
                     feeAmount = comp.competition.feeAmount,
                     feeCurrency = comp.competition.feeCurrency ?: "RUB",
                     regulationUrl = comp.competition.regulationUrl ?: "",
@@ -325,6 +326,12 @@ class OrienteeringCreatorViewModel(
     fun updateRegistrationEnd(date: Long?) = updateState { copy(registrationEnd = date) }
     fun updateMaxParticipants(max: String) =
         updateState { copy(maxParticipants = max.toIntOrNull()) }
+
+    /**
+     * Переключает возможность ввода взноса.
+     * @param enabled true, если взнос включен.
+     */
+    fun updateFeeEnabled(enabled: Boolean) = updateState { copy(isFeeEnabled = enabled) }
 
     fun updateFeeAmount(amount: String) = updateState { copy(feeAmount = amount.toDoubleOrNull()) }
     fun updateRegulationUrl(url: String) = updateState { copy(regulationUrl = url) }

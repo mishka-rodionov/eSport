@@ -5,6 +5,8 @@ import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.KindOfSport
 import com.rodionov.domain.models.orienteering.*
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.CompetitionStatus
+import com.rodionov.domain.models.orienteering.ResultsStatus
 import com.rodionov.ui.BaseState
 
 /**
@@ -22,6 +24,7 @@ import com.rodionov.ui.BaseState
  * @property registrationStart Начало регистрации.
  * @property registrationEnd Конец регистрации.
  * @property maxParticipants Лимит участников.
+ * @property isFeeEnabled Флаг активности поля взноса.
  * @property feeAmount Сумма взноса.
  * @property feeCurrency Валюта взноса.
  * @property regulationUrl Ссылка на регламент.
@@ -58,6 +61,8 @@ data class OrienteeringCreatorState(
     val registrationStart: Long? = null,
     val registrationEnd: Long? = null,
     val maxParticipants: Int? = null,
+    
+    val isFeeEnabled: Boolean = false,
     val feeAmount: Double? = null,
     val feeCurrency: String = "RUB",
     val regulationUrl: String = "",
@@ -102,7 +107,7 @@ data class OrienteeringCreatorState(
                 registrationStart = registrationStart,
                 registrationEnd = registrationEnd,
                 maxParticipants = maxParticipants,
-                feeAmount = feeAmount,
+                feeAmount = if (isFeeEnabled) feeAmount else null,
                 feeCurrency = feeCurrency,
                 regulationUrl = regulationUrl,
                 mapUrl = mapUrl,

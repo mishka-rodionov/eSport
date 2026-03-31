@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +37,7 @@ fun RegistrationCompetitionFieldScreen(
         onBack = viewModel::back,
         onNext = viewModel::saveStepTwo,
         onUpdateMaxParticipants = viewModel::updateMaxParticipants,
+        onUpdateFeeEnabled = viewModel::updateFeeEnabled,
         onUpdateFeeAmount = viewModel::updateFeeAmount,
         onUpdateRegulationUrl = viewModel::updateRegulationUrl
     )
@@ -51,6 +53,7 @@ private fun RegistrationCompetitionFieldContent(
     onBack: () -> Unit,
     onNext: () -> Unit,
     onUpdateMaxParticipants: (String) -> Unit,
+    onUpdateFeeEnabled: (Boolean) -> Unit,
     onUpdateFeeAmount: (String) -> Unit,
     onUpdateRegulationUrl: (String) -> Unit
 ) {
@@ -82,7 +85,7 @@ private fun RegistrationCompetitionFieldContent(
             // Поля даты регистрации (заглушки для DSTextInput)
             Text(
                 text = "Начало регистрации",
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -100,7 +103,7 @@ private fun RegistrationCompetitionFieldContent(
             // Поля даты регистрации (заглушки для DSTextInput)
             Text(
                 text = "Окончание регистрации",
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -113,15 +116,35 @@ private fun RegistrationCompetitionFieldContent(
                 }
             }
 
+            if (false) { // на данном этапе отключено
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
-            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = state.maxParticipants?.toString() ?: "",
+                    label = { Text("Лимит участников") },
+                    onValueChanged = onUpdateMaxParticipants
+                )
+            }
 
-            DSTextInput(
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            // Секция взноса со свитчем
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                text = state.maxParticipants?.toString() ?: "",
-                label = { Text("Лимит участников") },
-                onValueChanged = onUpdateMaxParticipants
-            )
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Платное участие",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Switch(
+                    checked = state.isFeeEnabled,
+                    onCheckedChange = onUpdateFeeEnabled
+                )
+            }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
@@ -130,6 +153,7 @@ private fun RegistrationCompetitionFieldContent(
                     modifier = Modifier.weight(1f),
                     text = state.feeAmount?.toString() ?: "",
                     label = { Text("Взнос") },
+                    enabled = state.isFeeEnabled, // Активно только если включен свитч
                     onValueChanged = onUpdateFeeAmount
                 )
                 Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
@@ -137,18 +161,21 @@ private fun RegistrationCompetitionFieldContent(
                     modifier = Modifier.weight(0.5f),
                     text = state.feeCurrency,
                     label = { Text("Валюта") },
+                    enabled = state.isFeeEnabled, // Активно только если включен свитч
                     onValueChanged = { /* viewModel.updateCurrency(it) */ }
                 )
             }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
-            DSTextInput(
-                modifier = Modifier.fillMaxWidth(),
-                text = state.regulationUrl,
-                label = { Text("Ссылка на регламент") },
-                onValueChanged = onUpdateRegulationUrl
-            )
+            if (false) { //на данном этапе отключено
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = state.regulationUrl,
+                    label = { Text("Ссылка на регламент") },
+                    onValueChanged = onUpdateRegulationUrl
+                )
+            }
         }
     }
 }
@@ -160,6 +187,7 @@ private fun RegistrationCompetitionFieldPreview() {
         RegistrationCompetitionFieldContent(
             state = OrienteeringCreatorState(
                 maxParticipants = 200,
+                isFeeEnabled = true,
                 feeAmount = 500.0,
                 feeCurrency = "RUB",
                 regulationUrl = "https://example.com/rules"
@@ -167,6 +195,7 @@ private fun RegistrationCompetitionFieldPreview() {
             onBack = {},
             onNext = {},
             onUpdateMaxParticipants = {},
+            onUpdateFeeEnabled = {},
             onUpdateFeeAmount = {},
             onUpdateRegulationUrl = {}
         )
