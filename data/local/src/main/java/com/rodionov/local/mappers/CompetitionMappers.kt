@@ -113,7 +113,8 @@ fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
         startTime = startTime,
         chipNumber = chipNumber,
         comment = comment,
-        isChipGiven = isChipGiven
+        isChipGiven = isChipGiven,
+        isSynced = isSynced
     )
 }
 
@@ -134,7 +135,8 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
         startTime = startTime,
         chipNumber = chipNumber,
         comment = comment,
-        isChipGiven = isChipGiven
+        isChipGiven = isChipGiven,
+        isSynced = isSynced
     )
 }
 
@@ -155,7 +157,8 @@ fun OrienteeringResult.toEntity(): OrienteeringResultEntity {
         penaltyTime = penaltyTime,
         splits = splits,
         isEditable = isEditable,
-        isEdited = isEdited
+        isEdited = isEdited,
+        isSynced = isSynced
     )
 }
 
@@ -176,7 +179,8 @@ fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
         penaltyTime = penaltyTime,
         splits = splits,
         isEditable = isEditable,
-        isEdited = isEdited
+        isEdited = isEdited,
+        isSynced = isSynced
     )
 }
 

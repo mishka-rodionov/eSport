@@ -32,5 +32,6 @@ data class OrienteeringResult(
     val penaltyTime: Long = 0, // Штрафное время
     val splits: List<SplitTime>? = null, // Можно хранить как JSON или отдельной таблицей
     val isEditable: Boolean = true,
-    val isEdited: Boolean = false
+    val isEdited: Boolean = false,
+    val isSynced: Boolean = false
 )

@@ -37,6 +37,7 @@ class DrawViewModel(
     override fun onAction(action: BaseAction) {
         when (action) {
             DrawAction.StartDrawOperation -> startDrawOperation()
+            DrawAction.StartGroupDrawOperation -> startGroupDrawOperation()
         }
     }
 
@@ -56,6 +57,60 @@ class DrawViewModel(
                 updateState { copy(participants = sortedParticipants) }
             }
         }
+    }
+
+    private fun startGroupDrawOperation() {
+        competitionId?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                val participants =
+                    interactor.getParticipants(competitionId = competitionId).getOrNull()
+                        ?: return@launch
+                val punchingSystem = competition?.punchingSystem
+                val sortedParticipants =
+                    drawParticipantsByGroups(
+                        participants = participants,
+                        punchingSystem = punchingSystem
+                    )
+                interactor.updateParticipants(sortedParticipants)
+                updateState { copy(participants = sortedParticipants) }
+            }
+        }
+    }
+
+    /**
+     * Жеребьевка участников по группам: внутри каждой группы участники перемешиваются независимо,
+     * стартовое время назначается с первой минуты внутри каждой группы,
+     * поэтому участники из разных групп могут стартовать в одну и ту же минуту.
+     * Стартовые номера уникальны глобально.
+     */
+    private fun drawParticipantsByGroups(
+        participants: List<OrienteeringParticipant>,
+        punchingSystem: PunchingSystem?
+    ): List<OrienteeringParticipant> {
+        if (participants.isEmpty()) return emptyList()
+
+        val result = mutableListOf<OrienteeringParticipant>()
+        var globalNumber = 1
+
+        participants
+            .groupBy { it.groupId }
+            .values
+            .forEach { groupParticipants ->
+                groupParticipants.shuffled().forEachIndexed { index, participant ->
+                    val number = globalNumber.toString()
+                    val time = (index + 1).toLong()
+                    result.add(
+                        participant.copy(
+                            startNumber = number,
+                            startTime = time,
+                            chipNumber = if (punchingSystem == PunchingSystem.SPORTIDUINO) number else participant.chipNumber
+                        )
+                    )
+                    globalNumber++
+                }
+            }
+
+        return result
     }
 
     /**

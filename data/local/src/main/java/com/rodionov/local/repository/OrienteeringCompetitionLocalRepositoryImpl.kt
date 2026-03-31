@@ -158,8 +158,24 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         participantGroups: List<ParticipantGroup>
     ): Result<Any> {
         return runCatching {
-            participantGroupDao.deleteGroupsForCompetition(competitionId)
-            participantGroupDao.insertAll(participantGroups.map { it.toEntity().copy(competitionId = competitionId) })
+            val existingGroups = participantGroupDao.getGroupsForCompetition(competitionId)
+            val existingIds = existingGroups.map { it.groupId }.toSet()
+            val incomingIds = participantGroups.filter { it.groupId != 0L }.map { it.groupId }.toSet()
+
+            // Удаляем только те группы, которые были убраны пользователем
+            existingGroups
+                .filter { it.groupId !in incomingIds }
+                .forEach { participantGroupDao.delete(it) }
+
+            // Обновляем существующие группы и вставляем новые
+            participantGroups.forEach { group ->
+                val entity = group.toEntity().copy(competitionId = competitionId)
+                if (entity.groupId != 0L && entity.groupId in existingIds) {
+                    participantGroupDao.updateParticipantGroup(entity)
+                } else {
+                    participantGroupDao.insert(entity)
+                }
+            }
         }
     }
 

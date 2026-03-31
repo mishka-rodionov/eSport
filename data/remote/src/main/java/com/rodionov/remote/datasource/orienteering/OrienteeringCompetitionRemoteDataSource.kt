@@ -2,8 +2,12 @@ package com.rodionov.remote.datasource.orienteering
 
 import com.rodionov.remote.base.CommonModel
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest
+import com.rodionov.remote.request.orienteering.OrienteeringParticipantRequest
+import com.rodionov.remote.request.orienteering.OrienteeringResultRequest
 import com.rodionov.remote.request.orienteering.ParticipantGroupRequest
 import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
+import com.rodionov.remote.response.orienteering.OrienteeringParticipantResponse
+import com.rodionov.remote.response.orienteering.OrienteeringResultResponse
 import com.rodionov.remote.response.orienteering.ParticipantGroupResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -20,5 +24,11 @@ interface OrienteeringCompetitionRemoteDataSource {
 
     @GET("event/orienteering/competitions")
     suspend fun getCompetitionsByUserid(@Query("userId") userId: String): Result<CommonModel<List<OrienteeringCompetitionResponse>>>
+
+    @POST("event/orienteering/save/participant")
+    suspend fun saveParticipant(@Body request: OrienteeringParticipantRequest): Result<CommonModel<OrienteeringParticipantResponse>>
+
+    @POST("event/orienteering/save/result")
+    suspend fun saveResult(@Body request: OrienteeringResultRequest): Result<CommonModel<OrienteeringResultResponse>>
 
 }

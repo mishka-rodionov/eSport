@@ -171,13 +171,18 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
-     * Сохраняет участника соревнования в локальное хранилище.
+     * Сохраняет участника соревнования локально, затем синхронизирует с сервером.
+     * При успешной синхронизации обновляет флаг isSynced в локальной БД.
      *
      * @param participant Данные участника для сохранения
      * @return Сохранённый участник или null в случае ошибки
      */
     suspend fun saveParticipant(participant: OrienteeringParticipant): OrienteeringParticipant? {
-        return localRepository.saveParticipant(participant).getOrNull()
+        val saved = localRepository.saveParticipant(participant).getOrNull() ?: return null
+        remoteRepository.saveParticipant(saved).onSuccess {
+            localRepository.updateParticipants(listOf(saved.copy(isSynced = true)))
+        }
+        return saved
     }
 
     /**
@@ -256,11 +261,18 @@ class OrienteeringCompetitionInteractor(
         return localRepository.getParticipantGroup(groupId)
     }
 
+    /**
+     * Сохраняет результат участника локально, пересчитывает места,
+     * затем синхронизирует результат с сервером.
+     * При успешной синхронизации обновляет флаг isSynced в локальной БД.
+     */
     suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult) {
-        localRepository.saveParticipantResult(orienteeringResult).onSuccess {
-            updateResultsAndRanks(
-                newResults = orienteeringResult
-            )
+        localRepository.saveParticipantResult(orienteeringResult).onSuccess { savedId ->
+            val savedResult = orienteeringResult.copy(id = savedId as Long)
+            updateResultsAndRanks(newResults = savedResult)
+            remoteRepository.saveResult(savedResult).onSuccess {
+                localRepository.updateResults(listOf(savedResult.copy(isSynced = true)))
+            }
         }
     }
 

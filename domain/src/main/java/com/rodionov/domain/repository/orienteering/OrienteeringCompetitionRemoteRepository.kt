@@ -2,6 +2,8 @@ package com.rodionov.domain.repository.orienteering
 
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.OrienteeringParticipant
+import com.rodionov.domain.models.orienteering.OrienteeringResult
 
 interface OrienteeringCompetitionRemoteRepository {
 
@@ -22,5 +24,9 @@ interface OrienteeringCompetitionRemoteRepository {
     suspend fun deleteCompetitionParticipantsGroups(competitionId: Long): Result<Unit>
 
     suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>>
+
+    suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant>
+
+    suspend fun saveResult(result: OrienteeringResult): Result<OrienteeringResult>
 
 }

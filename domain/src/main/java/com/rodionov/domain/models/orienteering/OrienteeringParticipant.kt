@@ -50,5 +50,6 @@ data class OrienteeringParticipant(
     val startTime: Long,
     val chipNumber: String,
     val comment: String,
-    val isChipGiven: Boolean
+    val isChipGiven: Boolean,
+    val isSynced: Boolean = false
 ): Participant

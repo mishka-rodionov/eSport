@@ -65,5 +65,6 @@ data class OrienteeringResultEntity(
     val penaltyTime: Long = 0,
     val splits: List<SplitTime>? = null,
     val isEditable: Boolean = true,
-    val isEdited: Boolean = false
+    val isEdited: Boolean = false,
+    val isSynced: Boolean = false
 )

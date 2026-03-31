@@ -81,7 +81,7 @@ fun OrienteeringEventControlScreen(
                 onClick = { viewModel.onAction(OrientEventControlAction.OpenGetOrienteeringChip) }
             )
 
-            if (state.competition?.startTimeMode == StartTimeMode.USER_SET && !state.isTimerRunning && state.competition?.startTime == null) {
+            if ((state.competition?.startTimeMode == StartTimeMode.USER_SET || state.competition?.startTimeMode == StartTimeMode.STRICT) && !state.isTimerRunning && state.competition?.startTime == null) {
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
                 Button(
                     modifier = Modifier

@@ -67,25 +67,45 @@ fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
                     )
                 }
 
-                // Кнопка запуска жеребьевки
-                ExtendedFloatingActionButton(
-                    onClick = { userAction.invoke(DrawAction.StartDrawOperation) },
+                // Кнопки запуска жеребьевки
+                Column(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(Dimens.SIZE_BASE.dp),
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-                    icon = {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
-                            contentDescription = null
-                        )
-                    },
-                    text = {
-                        Text(text = "Провести жеребьёвку", fontWeight = FontWeight.Bold)
-                    }
-                )
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
+                ) {
+                    ExtendedFloatingActionButton(
+                        onClick = { userAction.invoke(DrawAction.StartGroupDrawOperation) },
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary,
+                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                        icon = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
+                                contentDescription = null
+                            )
+                        },
+                        text = {
+                            Text(text = "Жеребьёвка по группам", fontWeight = FontWeight.Bold)
+                        }
+                    )
+                    ExtendedFloatingActionButton(
+                        onClick = { userAction.invoke(DrawAction.StartDrawOperation) },
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                        icon = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
+                                contentDescription = null
+                            )
+                        },
+                        text = {
+                            Text(text = "Провести жеребьёвку", fontWeight = FontWeight.Bold)
+                        }
+                    )
+                }
             }
         }
     }

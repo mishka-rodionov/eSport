@@ -2,6 +2,8 @@ package com.rodionov.remote.repository.orienteering
 
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringParticipant
+import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import com.rodionov.remote.datasource.orienteering.OrienteeringCompetitionRemoteDataSource
 import com.rodionov.remote.request.mappers.toRequest
@@ -60,5 +62,15 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     override suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>> {
         return orienteeringCompetitionRemoteDataSource.getCompetitionsByUserid(userId)
             .mapCatching { it.result!!.map { comp -> comp.toDomain() } }
+    }
+
+    override suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant> {
+        return orienteeringCompetitionRemoteDataSource.saveParticipant(participant.toRequest())
+            .mapCatching { it.result!!.toDomain() }
+    }
+
+    override suspend fun saveResult(result: OrienteeringResult): Result<OrienteeringResult> {
+        return orienteeringCompetitionRemoteDataSource.saveResult(result.toRequest())
+            .mapCatching { it.result!!.toDomain() }
     }
 }
