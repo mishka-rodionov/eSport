@@ -1,5 +1,6 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -7,17 +8,29 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
+import com.example.designsystem.components.TimePickerDialog
 import com.example.designsystem.theme.Dimens
+import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
+import com.rodionov.resources.R
+import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Calendar
 
 /**
  * Второй экран создания соревнования: Регистрация.
- * 
+ *
  * @param competitionId Идентификатор соревнования.
  * @param viewModel Вьюмодель процесса создания.
  */
@@ -39,7 +52,8 @@ fun RegistrationCompetitionFieldScreen(
         onUpdateMaxParticipants = viewModel::updateMaxParticipants,
         onUpdateFeeEnabled = viewModel::updateFeeEnabled,
         onUpdateFeeAmount = viewModel::updateFeeAmount,
-        onUpdateRegulationUrl = viewModel::updateRegulationUrl
+        onUpdateRegulationUrl = viewModel::updateRegulationUrl,
+        onAction = viewModel::onAction
     )
 }
 
@@ -55,7 +69,8 @@ private fun RegistrationCompetitionFieldContent(
     onUpdateMaxParticipants: (String) -> Unit,
     onUpdateFeeEnabled: (Boolean) -> Unit,
     onUpdateFeeAmount: (String) -> Unit,
-    onUpdateRegulationUrl: (String) -> Unit
+    onUpdateRegulationUrl: (String) -> Unit,
+    onAction: (OrienteeringCreatorAction) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -79,10 +94,9 @@ private fun RegistrationCompetitionFieldContent(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
-            // Поля даты регистрации (заглушки для DSTextInput)
             Text(
                 text = "Начало регистрации",
                 style = MaterialTheme.typography.titleMedium,
@@ -90,17 +104,26 @@ private fun RegistrationCompetitionFieldContent(
             )
             Row(modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier.weight(1f)) {
-                    DatePicker(state = state, userAction = {  })
+                    RegistrationDatePicker(
+                        displayDate = state.registrationStart,
+                        onDateSelected = { date ->
+                            onAction(OrienteeringCreatorAction.UpdateRegistrationStartDate(date))
+                        }
+                    )
                 }
                 Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
                 Box(modifier = Modifier.weight(1f)) {
-                    TimePicker(state = state, userAction = {  })
+                    RegistrationTimePicker(
+                        displayTime = state.registrationStartTimeStr,
+                        onTimeSelected = { time ->
+                            onAction(OrienteeringCreatorAction.UpdateRegistrationStartTime(time))
+                        }
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
-            // Поля даты регистрации (заглушки для DSTextInput)
             Text(
                 text = "Окончание регистрации",
                 style = MaterialTheme.typography.titleMedium,
@@ -108,11 +131,21 @@ private fun RegistrationCompetitionFieldContent(
             )
             Row(modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier.weight(1f)) {
-                    DatePicker(state = state, userAction = {})
+                    RegistrationDatePicker(
+                        displayDate = state.registrationEnd,
+                        onDateSelected = { date ->
+                            onAction(OrienteeringCreatorAction.UpdateRegistrationEndDate(date))
+                        }
+                    )
                 }
                 Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
                 Box(modifier = Modifier.weight(1f)) {
-                    TimePicker(state = state, userAction = {  })
+                    RegistrationTimePicker(
+                        displayTime = state.registrationEndTimeStr,
+                        onTimeSelected = { time ->
+                            onAction(OrienteeringCreatorAction.UpdateRegistrationEndTime(time))
+                        }
+                    )
                 }
             }
 
@@ -180,6 +213,100 @@ private fun RegistrationCompetitionFieldContent(
     }
 }
 
+/**
+ * Пикер даты для полей регистрации. Отображает переданную дату и вызывает [onDateSelected]
+ * с выбранным значением в миллисекундах.
+ */
+@Composable
+private fun RegistrationDatePicker(
+    displayDate: Long?,
+    onDateSelected: (Long) -> Unit
+) {
+    val context = LocalContext.current
+    val calendar = remember { Calendar.getInstance() }
+    val focusManager = LocalFocusManager.current
+
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val dateMillis = LocalDate.of(year, month + 1, dayOfMonth)
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+                onDateSelected(dateMillis)
+                focusManager.clearFocus()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+
+    datePickerDialog.setOnDismissListener { focusManager.clearFocus() }
+
+    DSTextInput(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { if (it.isFocused) datePickerDialog.show() },
+        label = { Text("Дата") },
+        text = DateTimeFormat.transformLongToDisplayDate(displayDate),
+        readOnly = true,
+        trailingIcon = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_date_range_24px),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    )
+}
+
+/**
+ * Пикер времени для полей регистрации. Отображает переданную строку времени и вызывает
+ * [onTimeSelected] с выбранным значением в формате "HH:mm".
+ */
+@Composable
+private fun RegistrationTimePicker(
+    displayTime: String,
+    onTimeSelected: (String) -> Unit
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+
+    DSTextInput(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { showDialog = it.isFocused },
+        label = { Text("Время") },
+        text = displayTime,
+        readOnly = true,
+        trailingIcon = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_build_24px),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    )
+
+    if (showDialog) {
+        TimePickerDialog(
+            onDismissRequest = {
+                showDialog = false
+                focusManager.clearFocus()
+            },
+            onConfirm = { hour, minute ->
+                onTimeSelected("%02d:%02d".format(hour, minute))
+                showDialog = false
+                focusManager.clearFocus()
+            }
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun RegistrationCompetitionFieldPreview() {
@@ -197,7 +324,8 @@ private fun RegistrationCompetitionFieldPreview() {
             onUpdateMaxParticipants = {},
             onUpdateFeeEnabled = {},
             onUpdateFeeAmount = {},
-            onUpdateRegulationUrl = {}
+            onUpdateRegulationUrl = {},
+            onAction = {}
         )
     }
 }

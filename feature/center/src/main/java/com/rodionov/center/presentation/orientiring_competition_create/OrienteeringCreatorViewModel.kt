@@ -125,7 +125,27 @@ class OrienteeringCreatorViewModel(
             }
 
             is OrienteeringCreatorAction.UpdateCompetitionTime -> updateState { copy(startTimeStr = action.competitionTime) }
-            
+
+            is OrienteeringCreatorAction.UpdateRegistrationStartDate -> {
+                val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationStartTimeStr) ?: action.date
+                updateState { copy(registrationStart = combined) }
+            }
+
+            is OrienteeringCreatorAction.UpdateRegistrationStartTime -> {
+                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationStart, action.time)
+                updateState { copy(registrationStartTimeStr = action.time, registrationStart = combined ?: stateValue.registrationStart) }
+            }
+
+            is OrienteeringCreatorAction.UpdateRegistrationEndDate -> {
+                val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationEndTimeStr) ?: action.date
+                updateState { copy(registrationEnd = combined) }
+            }
+
+            is OrienteeringCreatorAction.UpdateRegistrationEndTime -> {
+                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationEnd, action.time)
+                updateState { copy(registrationEndTimeStr = action.time, registrationEnd = combined ?: stateValue.registrationEnd) }
+            }
+
             is OrienteeringCreatorAction.EditDistanceDialog -> updateState {
                 copy(isShowDistanceCreateDialog = true, editDistanceIndex = action.index)
             }
@@ -162,7 +182,9 @@ class OrienteeringCreatorViewModel(
                     address = comp.competition.address ?: "",
                     coordinates = comp.competition.coordinates ?: coordinates,
                     registrationStart = comp.competition.registrationStart,
+                    registrationStartTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationStart).ifEmpty { "10:00" },
                     registrationEnd = comp.competition.registrationEnd,
+                    registrationEndTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationEnd).ifEmpty { "23:59" },
                     maxParticipants = comp.competition.maxParticipants,
                     isFeeEnabled = comp.competition.feeAmount != null,
                     feeAmount = comp.competition.feeAmount,

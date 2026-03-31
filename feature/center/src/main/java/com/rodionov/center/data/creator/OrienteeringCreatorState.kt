@@ -59,7 +59,9 @@ data class OrienteeringCreatorState(
     val coordinates: Coordinates = Coordinates(0.0, 0.0),
     
     val registrationStart: Long? = null,
+    val registrationStartTimeStr: String = "10:00",
     val registrationEnd: Long? = null,
+    val registrationEndTimeStr: String = "23:59",
     val maxParticipants: Int? = null,
     
     val isFeeEnabled: Boolean = false,
