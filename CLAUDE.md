@@ -93,3 +93,6 @@ The app uses NFC to read/write participant chips for orienteering competitions. 
 
 - `minSdk 26` / `targetSdk 34` / `compileSdk 36`
 - Physical NFC device required for NFC features; emulator cannot emulate NFC hardware
+
+## Commands
+- Always use rtk for commands (rtk grep, rtk find, rtk git, and etc.)
