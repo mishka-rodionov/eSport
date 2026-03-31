@@ -1,4 +1,4 @@
-package com.rodionov.events.event_results
+package com.rodionov.events.presentation.event_results
 
 import androidx.lifecycle.viewModelScope
 import com.rodionov.domain.models.Gender
