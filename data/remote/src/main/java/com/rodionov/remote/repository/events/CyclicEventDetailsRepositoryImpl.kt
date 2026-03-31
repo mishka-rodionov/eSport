@@ -6,12 +6,19 @@ import com.rodionov.domain.models.events.EventStatus
 import com.rodionov.domain.models.events.EventType
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
+import com.rodionov.remote.datasource.events.CyclicEventDetailsRemoteDataSource
+import com.rodionov.remote.request.events.RegisterEventRequest
 
 /**
  * Реализация репозитория для получения деталей циклического события.
- * Содержит моковые данные для тестирования.
+ * Содержит моковые данные для [getEventDetails] и [getParticipants].
+ * Методы регистрации используют реальные сетевые запросы.
+ *
+ * @param dataSource Источник данных для работы с API деталей событий.
  */
-class CyclicEventDetailsRepositoryImpl : CyclicEventDetailsRepository {
+class CyclicEventDetailsRepositoryImpl(
+    private val dataSource: CyclicEventDetailsRemoteDataSource
+) : CyclicEventDetailsRepository {
 
     override suspend fun getEventDetails(eventId: String): Result<CyclicEventDetails?> {
         return Result.success(
@@ -34,6 +41,16 @@ class CyclicEventDetailsRepositoryImpl : CyclicEventDetailsRepository {
                 eventType = EventType.CyclicEvent.Orienteering
             )
         )
+    }
+
+    override suspend fun registerToEvent(eventId: Long, groupId: Long): Result<Unit> {
+        return dataSource.registerToEvent(RegisterEventRequest(eventId = eventId, groupId = groupId))
+            .mapCatching { }
+    }
+
+    override suspend fun cancelRegistration(eventId: Long): Result<Unit> {
+        return dataSource.cancelRegistration(eventId)
+            .mapCatching { }
     }
 
     /**

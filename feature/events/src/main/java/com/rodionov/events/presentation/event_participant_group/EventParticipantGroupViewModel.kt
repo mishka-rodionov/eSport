@@ -6,7 +6,6 @@ import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.events.data.event_participant_group.EventParticipantGroupState
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -30,7 +29,7 @@ class EventParticipantGroupViewModel(
      * @param group Данные группы участников.
      */
     fun initialize(eventId: Long, group: EventParticipantGroup) {
-        updateState { copy(participantGroup = group, isLoading = true) }
+        updateState { copy(eventId = eventId, participantGroup = group, isLoading = true) }
         viewModelScope.launch {
             repository.getParticipants(eventId, group.groupId)
                 .onSuccess { participants ->
@@ -47,22 +46,18 @@ class EventParticipantGroupViewModel(
      * Регистрация пользователя в группу.
      */
     private fun registerUser() {
+        val eventId = stateValue.eventId ?: return
         val group = stateValue.participantGroup ?: return
         viewModelScope.launch {
             updateState { copy(isRegistering = true) }
-            
-            // Имитация сетевого запроса к серверу (Mock)
-            // repository.registerToGroup(group.eventId, group.groupId)
-            delay(2000) 
-
-            updateState { 
-                copy(
-                    isRegistering = false, 
-                    isUserRegistered = true 
-                ) 
-            }
-            
-            // TODO: После успешного запроса можно обновить список участников
+            repository.registerToEvent(eventId, group.groupId)
+                .onSuccess {
+                    updateState { copy(isRegistering = false, isUserRegistered = true) }
+                }
+                .onFailure {
+                    updateState { copy(isRegistering = false) }
+                    // TODO: Добавить обработку ошибок регистрации
+                }
         }
     }
 
@@ -70,20 +65,17 @@ class EventParticipantGroupViewModel(
      * Отмена регистрации пользователя в группе.
      */
     private fun cancelRegistration() {
-        val group = stateValue.participantGroup ?: return
+        val eventId = stateValue.eventId ?: return
         viewModelScope.launch {
             updateState { copy(isRegistering = true) }
-
-            // Имитация сетевого запроса на отмену регистрации (Mock)
-            // repository.cancelRegistration(group.eventId, group.groupId)
-            delay(2000)
-
-            updateState {
-                copy(
-                    isRegistering = false,
-                    isUserRegistered = false
-                )
-            }
+            repository.cancelRegistration(eventId)
+                .onSuccess {
+                    updateState { copy(isRegistering = false, isUserRegistered = false) }
+                }
+                .onFailure {
+                    updateState { copy(isRegistering = false) }
+                    // TODO: Добавить обработку ошибок отмены регистрации
+                }
         }
     }
 }

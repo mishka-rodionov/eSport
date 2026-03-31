@@ -7,6 +7,7 @@ import com.rodionov.ui.BaseState
 
 /**
  * Состояние экрана группы участников события.
+ * @property eventId Идентификатор события.
  * @property participantGroup Данные о группе участников.
  * @property participants Список участников группы.
  * @property isLoading Флаг загрузки данных.
@@ -14,6 +15,7 @@ import com.rodionov.ui.BaseState
  * @property isRegistering Флаг процесса регистрации/отмены регистрации.
  */
 data class EventParticipantGroupState(
+    val eventId: Long? = null,
     val participantGroup: EventParticipantGroup? = null,
     val participants: List<OrienteeringParticipant> = emptyList(),
     val isLoading: Boolean = false,

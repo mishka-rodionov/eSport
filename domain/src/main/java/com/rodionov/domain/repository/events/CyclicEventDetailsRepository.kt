@@ -22,4 +22,17 @@ interface CyclicEventDetailsRepository {
      */
     suspend fun getParticipants(eventId: Long, groupId: Long): Result<List<OrienteeringParticipant>>
 
+    /**
+     * Зарегистрировать текущего пользователя в группу события.
+     * @param eventId Идентификатор события.
+     * @param groupId Идентификатор группы.
+     */
+    suspend fun registerToEvent(eventId: Long, groupId: Long): Result<Unit>
+
+    /**
+     * Отменить регистрацию текущего пользователя на событие.
+     * @param eventId Идентификатор события.
+     */
+    suspend fun cancelRegistration(eventId: Long): Result<Unit>
+
 }

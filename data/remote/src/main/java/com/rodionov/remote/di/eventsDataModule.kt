@@ -2,6 +2,7 @@ package com.rodionov.remote.di
 
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.domain.repository.events.EventsRepository
+import com.rodionov.remote.datasource.events.CyclicEventDetailsRemoteDataSource
 import com.rodionov.remote.datasource.events.EventsRemoteDataSource
 import com.rodionov.remote.extension.singleRemoteDataSourceOf
 import com.rodionov.remote.repository.events.CyclicEventDetailsRepositoryImpl
@@ -13,6 +14,7 @@ import org.koin.dsl.module
 
 val eventsDataModule = module {
     singleRemoteDataSourceOf(EventsRemoteDataSource::class.java)
+    singleRemoteDataSourceOf(CyclicEventDetailsRemoteDataSource::class.java)
     singleOf(::EventsRepositoryImpl) bind EventsRepository::class
     factoryOf(::CyclicEventDetailsRepositoryImpl) bind CyclicEventDetailsRepository::class
 }

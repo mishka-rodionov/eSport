@@ -26,10 +26,13 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
+import com.example.designsystem.components.ExposedDropdownMenuOutlined
 import com.example.designsystem.components.TimePickerDialog
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
 import kotlinx.coroutines.launch
@@ -247,6 +250,12 @@ private fun CommonCompetitionFieldContent(
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
+            OrienteeringCompetitionDirection(state = state, userAction = onAction)
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            StartTimeModeSelector(state = state, userAction = onAction)
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
             // Поле ввода описания
             DSTextInput(
                 modifier = Modifier
@@ -367,6 +376,67 @@ private fun StageTimePicker(index: Int, date: Long, userAction: (OrienteeringCre
                 focusManager.clearFocus()
             }
         )
+    }
+}
+
+@Composable
+private fun OrienteeringCompetitionDirection(
+    state: OrienteeringCreatorState,
+    userAction: (OrienteeringCreatorAction) -> Unit
+) {
+    val context = LocalContext.current
+    ExposedDropdownMenuOutlined(
+        label = stringResource(R.string.label_direction),
+        items = OrienteeringDirection.entries,
+        selectedItem = state.competitionDirection,
+        onItemSelected = {
+            userAction.invoke(OrienteeringCreatorAction.UpdateCompetitionDirection(it))
+        },
+        itemToString = {
+            when(it) {
+                OrienteeringDirection.FORWARD -> context.getString(R.string.label_direction_forward)
+                OrienteeringDirection.BY_CHOICE -> context.getString(R.string.label_direction_by_choice)
+                OrienteeringDirection.MARKING -> context.getString(R.string.label_direction_marking)
+            }
+        }
+    )
+}
+
+/**
+ * Компонент выбора режима времени старта.
+ */
+@Composable
+private fun StartTimeModeSelector(
+    state: OrienteeringCreatorState,
+    userAction: (OrienteeringCreatorAction) -> Unit
+) {
+    val context = LocalContext.current
+    Column {
+        ExposedDropdownMenuOutlined(
+            label = stringResource(R.string.label_start_time_mode),
+            items = StartTimeMode.entries,
+            selectedItem = state.startTimeMode,
+            onItemSelected = {
+                userAction.invoke(OrienteeringCreatorAction.UpdateStartTimeMode(it))
+            },
+            itemToString = {
+                when (it) {
+                    StartTimeMode.STRICT -> context.getString(R.string.label_start_time_mode_strict)
+                    StartTimeMode.USER_SET -> context.getString(R.string.label_start_time_mode_user_set)
+                    StartTimeMode.BY_START_STATION -> context.getString(R.string.label_start_time_mode_by_start_station)
+                }
+            }
+        )
+        if (state.startTimeMode == StartTimeMode.USER_SET) {
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            DSTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                text = state.countdownTimer?.toString() ?: "",
+//                onValueChanged = viewModel::updateCountdownTimer,
+                onValueChanged = {},
+                label = { Text(text = "Таймер отсчета (мин)") }
+            )
+        }
     }
 }
 

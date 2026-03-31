@@ -8,7 +8,6 @@ import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.events.data.details.EventDetailsState
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -77,7 +76,6 @@ class EventDetailsViewModel(
 
     /**
      * Подтверждение регистрации.
-     * Имитирует сетевой запрос и локальное сохранение.
      */
     private fun confirmRegistration() {
         val selectedGroup = stateValue.selectedGroup ?: return
@@ -85,49 +83,40 @@ class EventDetailsViewModel(
 
         viewModelScope.launch {
             updateState { copy(isRegistering = true) }
-            
-            // Имитация сетевого запроса к серверу (Mock)
-            // cyclicEventDetailsRepository.registerToEvent(eventId, selectedGroup.id)
-            delay(2000) 
-
-            // Имитация локального добавления пользователя в таблицу участников
-            // localRepository.addParticipant(user, eventId, selectedGroup)
-            
-            updateState { 
-                copy(
-                    isRegistering = false, 
-                    isRegistrationSheetVisible = false,
-                    selectedGroup = null,
-                    isUserRegistered = true
-                ) 
-            }
-            
-            // TODO: Показать уведомление об успешной регистрации
+            cyclicEventDetailsRepository.registerToEvent(eventId, selectedGroup.groupId)
+                .onSuccess {
+                    updateState {
+                        copy(
+                            isRegistering = false,
+                            isRegistrationSheetVisible = false,
+                            selectedGroup = null,
+                            isUserRegistered = true
+                        )
+                    }
+                }
+                .onFailure {
+                    updateState { copy(isRegistering = false) }
+                    // TODO: Показать уведомление об ошибке регистрации
+                }
         }
     }
 
     /**
      * Отмена регистрации.
-     * Имитирует сетевой запрос.
      */
     private fun cancelRegistration() {
         val eventId = stateValue.eventDetails?.eventId ?: return
 
         viewModelScope.launch {
             updateState { copy(isRegistering = true) }
-
-            // Имитация сетевого запроса к серверу для отмены регистрации (Mock)
-            // cyclicEventDetailsRepository.cancelRegistration(eventId)
-            delay(2000)
-
-            updateState {
-                copy(
-                    isRegistering = false,
-                    isUserRegistered = false
-                )
-            }
-
-            // TODO: Показать уведомление об отмене регистрации
+            cyclicEventDetailsRepository.cancelRegistration(eventId)
+                .onSuccess {
+                    updateState { copy(isRegistering = false, isUserRegistered = false) }
+                }
+                .onFailure {
+                    updateState { copy(isRegistering = false) }
+                    // TODO: Показать уведомление об ошибке отмены регистрации
+                }
         }
     }
 
