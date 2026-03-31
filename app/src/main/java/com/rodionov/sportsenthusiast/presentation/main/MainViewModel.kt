@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.models.orienteering.ResultConflictEvent
+import com.rodionov.domain.repository.ResultConflictRepository
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.sportsenthusiast.service.CompetitionScanEventRepository
 import com.rodionov.sportsenthusiast.service.NfcScanEvent
@@ -35,7 +37,8 @@ class MainViewModel(
     private val navigation: Navigation,
     private val sportiduinoHelper: SportiduinoHelper,
     private val serviceController: CompetitionServiceController,
-    private val scanEventRepository: CompetitionScanEventRepository
+    private val scanEventRepository: CompetitionScanEventRepository,
+    private val resultConflictRepository: ResultConflictRepository
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     /**
@@ -55,6 +58,13 @@ class MainViewModel(
      */
     val currentScanEvent: StateFlow<NfcScanEvent?> = _currentScanEvent.asStateFlow()
 
+    private val _conflictEvent = MutableStateFlow<ResultConflictEvent?>(null)
+
+    /**
+     * Текущее событие конфликта результата для отображения bottom sheet диалога.
+     */
+    val conflictEvent: StateFlow<ResultConflictEvent?> = _conflictEvent.asStateFlow()
+
     init {
         viewModelScope.launch {
             scanEventRepository.events.collect { event ->
@@ -63,6 +73,25 @@ class MainViewModel(
                 _currentScanEvent.compareAndSet(event, null)
             }
         }
+        viewModelScope.launch {
+            resultConflictRepository.events.collect { event ->
+                _conflictEvent.value = event
+            }
+        }
+    }
+
+    /** Применяет конфликтующий результат: вызывает onApply и закрывает диалог. */
+    fun applyConflict() {
+        val event = _conflictEvent.value ?: return
+        viewModelScope.launch {
+            event.onApply()
+            _conflictEvent.value = null
+        }
+    }
+
+    /** Отменяет конфликт без сохранения данных. */
+    fun cancelConflict() {
+        _conflictEvent.value = null
     }
 
     override fun onAction(action: BaseAction) {

@@ -1,5 +1,6 @@
 package com.rodionov.sportsenthusiast.di
 
+import com.rodionov.domain.repository.ResultConflictRepository
 import com.rodionov.sportsenthusiast.presentation.main.MainViewModel
 import com.rodionov.sportsenthusiast.service.CompetitionScanEventRepository
 import com.rodionov.sportsenthusiast.service.CompetitionServiceControllerImpl
@@ -11,4 +12,5 @@ val mainModule = module {
     viewModelOf(::MainViewModel)
     single { CompetitionScanEventRepository() }
     single<CompetitionServiceController> { CompetitionServiceControllerImpl() }
+    single { ResultConflictRepository() }
 }

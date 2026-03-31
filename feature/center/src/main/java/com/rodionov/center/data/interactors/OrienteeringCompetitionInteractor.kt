@@ -186,6 +186,28 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
+     * Возвращает существующий результат участника по его ID, или null если записи нет.
+     */
+    suspend fun getResultByParticipantId(participantId: Long): OrienteeringResult? {
+        return localRepository.getResultByParticipant(participantId).getOrNull()
+    }
+
+    /**
+     * Применяет конфликтующий результат: перезаписывает локальную запись (сохраняя её ID)
+     * и синхронизирует с сервером.
+     *
+     * @param existingId Локальный ID существующей записи в БД.
+     * @param newResult  Новые данные результата.
+     */
+    suspend fun applyConflictResult(existingId: Long, newResult: OrienteeringResult) {
+        val updated = newResult.copy(id = existingId)
+        localRepository.updateResults(listOf(updated)).onSuccess {
+            updateResultsAndRanks(updated)
+            remoteRepository.saveResult(updated)
+        }
+    }
+
+    /**
      * Обновляет список участников в локальном хранилище.
      *
      * @param participants Список участников для обновления

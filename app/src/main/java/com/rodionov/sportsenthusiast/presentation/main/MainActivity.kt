@@ -194,6 +194,7 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     val saveableStateHolder = rememberSaveableStateHolder()
     val lifecycleOwner = LocalLifecycleOwner.current
     val scanEvent by viewModel.currentScanEvent.collectAsState()
+    val conflictEvent by viewModel.conflictEvent.collectAsState()
     
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -301,6 +302,14 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                     .zIndex(10f)
             )
         }
+    }
+
+    conflictEvent?.let { event ->
+        ResultConflictBottomSheet(
+            event = event,
+            onApply = viewModel::applyConflict,
+            onCancel = viewModel::cancelConflict
+        )
     }
 }
 

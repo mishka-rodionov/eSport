@@ -32,6 +32,7 @@ interface OrienteeringCompetitionLocalRepository {
     suspend fun getParticipantByChipNumber(competitionId: Long, chipNumber: Int) : Result<OrienteeringParticipant>
     suspend fun getParticipantGroup(groupId: Long) : Result<ParticipantGroup>
     suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult): Result<Any>
+    suspend fun getResultByParticipant(participantId: Long): Result<OrienteeringResult?>
     suspend fun getResultForGroup(competitionId: Long, groupId: Long): Result<List<OrienteeringResult>>
     suspend fun updateResults(orienteeringResult: List<OrienteeringResult>): Result<Any>
 

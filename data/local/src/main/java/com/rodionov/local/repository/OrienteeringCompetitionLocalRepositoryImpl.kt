@@ -269,6 +269,12 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
+    override suspend fun getResultByParticipant(participantId: Long): Result<OrienteeringResult?> {
+        return runCatching {
+            orienteeringResultDao.getResultForParticipant(participantId)?.toDomain()
+        }
+    }
+
     /**
      * Получает результаты для конкретной группы в рамках соревнования.
      *

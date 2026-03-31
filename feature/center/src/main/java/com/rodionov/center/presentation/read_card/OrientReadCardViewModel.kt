@@ -11,7 +11,9 @@ import com.rodionov.domain.models.orienteering.ControlPoint
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ReadChipData
+import com.rodionov.domain.models.orienteering.ResultConflictEvent
 import com.rodionov.domain.models.orienteering.SplitTime
+import com.rodionov.domain.repository.ResultConflictRepository
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
@@ -22,6 +24,7 @@ import kotlinx.coroutines.launch
 class OrientReadCardViewModel(
     private val sportiduinoHelper: SportiduinoHelper,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
+    private val resultConflictRepository: ResultConflictRepository,
     navigation: Navigation
 ) : BaseViewModel<OrientReadCardState>(OrientReadCardState()) {
 
@@ -107,13 +110,26 @@ class OrientReadCardViewModel(
             penaltyTime = 0,
             splits = result.validSplits
         )
-        updateState {
-            copy(
-                participant = participant,
-                participantResult = newResult
+
+        updateState { copy(participant = participant, participantResult = newResult) }
+
+        val existing = orienteeringCompetitionInteractor.getResultByParticipantId(participant.id)
+
+        if (existing != null) {
+            // Уже есть запись — эмитим конфликт для отображения диалога в MainActivity
+            resultConflictRepository.emit(
+                ResultConflictEvent(
+                    participantName = "${participant.lastName} ${participant.firstName}",
+                    existingResult = existing,
+                    newResult = newResult,
+                    onApply = {
+                        orienteeringCompetitionInteractor.applyConflictResult(existing.id, newResult)
+                    }
+                )
             )
+        } else {
+            orienteeringCompetitionInteractor.saveParticipantResult(newResult)
         }
-        orienteeringCompetitionInteractor.saveParticipantResult(newResult)
     }
 
     fun checkControlPointOrderPro(
