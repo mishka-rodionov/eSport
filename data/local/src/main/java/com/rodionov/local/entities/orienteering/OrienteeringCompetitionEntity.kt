@@ -24,7 +24,7 @@ import com.rodionov.local.converters.CompetitionConverters
 @Entity(tableName = "orienteering_competitions")
 @TypeConverters(CompetitionConverters::class)
 data class OrienteeringCompetitionEntity(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     val localCompetitionId: Long = 0,
     @Embedded
     val competition: Competition,
