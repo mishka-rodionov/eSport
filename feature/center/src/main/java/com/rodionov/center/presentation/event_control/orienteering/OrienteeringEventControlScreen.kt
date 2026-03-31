@@ -87,23 +87,31 @@ private fun OrienteeringEventControlScreenContent(
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
 
-            // Статус и таймер
-            if (state.isTimerRunning || state.competition?.startTime != null) {
-                TimerSection(state = state)
+            // Баннер статуса соревнования
+            if (state.isCompetitionRunning) {
+                if (state.isTimerRunning) {
+                    CountdownBanner(countdownMillis = state.countdownMillis)
+                } else {
+                    CompetitionStartedBanner()
+                }
                 Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
             }
 
             // Основные действия
             SectionHeader(title = "Действия")
-            
+
             ControlActionButton(
                 text = "Выдать чипы",
                 icon = R.drawable.ic_add_24px,
                 onClick = { onAction(OrientEventControlAction.OpenGetOrienteeringChip) }
             )
 
-            if ((state.competition?.startTimeMode == StartTimeMode.USER_SET || state.competition?.startTimeMode == StartTimeMode.STRICT) && !state.isTimerRunning && state.competition?.startTime == null) {
-                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+            if (!state.isCompetitionRunning &&
+                (state.competition?.startTimeMode == StartTimeMode.USER_SET ||
+                        state.competition?.startTimeMode == StartTimeMode.STRICT)
+            ) {
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -117,7 +125,6 @@ private fun OrienteeringEventControlScreenContent(
             }
 
             if (state.isCompetitionRunning) {
-                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -134,15 +141,19 @@ private fun OrienteeringEventControlScreenContent(
 
             // Навигация по разделам
             SectionHeader(title = "Разделы")
-            
+
             NavigationRow(
                 text = "Список участников",
                 onClick = { onAction(OrientEventControlAction.OpenParticipantLists) }
             )
-            NavigationRow(
-                text = "Жеребьёвка",
-                onClick = { onAction(OrientEventControlAction.OpenDrawParticipants) }
-            )
+
+            if (!state.isCompetitionRunning) {
+                NavigationRow(
+                    text = "Жеребьёвка",
+                    onClick = { onAction(OrientEventControlAction.OpenDrawParticipants) }
+                )
+            }
+
             NavigationRow(
                 text = "Результаты",
                 onClick = { onAction(OrientEventControlAction.OpenResults) }
@@ -163,8 +174,11 @@ private fun SectionHeader(title: String) {
     )
 }
 
+/**
+ * Баннер обратного отсчёта — показывается пока идёт таймер до старта.
+ */
 @Composable
-private fun TimerSection(state: OrienteeringEventControlState) {
+private fun CountdownBanner(countdownMillis: Long) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -178,26 +192,54 @@ private fun TimerSection(state: OrienteeringEventControlState) {
                 .padding(Dimens.SIZE_BASE.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val label = if (state.isTimerRunning) "До старта" else "Соревнование начато"
-            Text(text = label, style = MaterialTheme.typography.labelMedium)
-            
-            if (state.isTimerRunning) {
-                val minutes = (state.countdownMillis / 1000) / 60
-                val seconds = (state.countdownMillis / 1000) % 60
-                Text(
-                    text = "%02d:%02d".format(minutes, seconds),
-                    style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Text(
-                    text = "СТАРТ ДАН",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+            Text(
+                text = "До старта",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            val minutes = (countdownMillis / 1000) / 60
+            val seconds = (countdownMillis / 1000) % 60
+            Text(
+                text = "%02d:%02d".format(minutes, seconds),
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+/**
+ * Баннер «Соревнование начато, старт дан» — показывается после истечения таймера.
+ */
+@Composable
+private fun CompetitionStartedBanner() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.SIZE_BASE.dp, vertical = Dimens.SIZE_BASER.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+            )
+            Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+            Text(
+                text = "Соревнование начато • Старт дан",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
     }
 }

@@ -39,24 +39,48 @@ class OrienteeringEventControlViewModel(
         val id = competitionId ?: return
         viewModelScope.launch {
             orienteeringCompetitionInteractor.getCompetitionWithDetails(id).onSuccess { details ->
-                updateState {
-                    copy(
-                        competitionTitle = details.competition.competition.title,
-                        participantGroups = details.groupsWithParticipants.map { it.group },
-                        competition = details.competition
-                    )
-                }
+                val competition = details.competition
+                applyCompetitionState(
+                    competition.competition.title,
+                    competition,
+                    groups = details.groupsWithParticipants.map { it.group }
+                )
             }.onFailure {
                 orienteeringCompetitionInteractor.getCompetition(id)?.let { competition ->
-                    updateState {
-                        copy(
-                            competitionTitle = competition.competition.title,
-                            competition = competition
-                        )
-                    }
+                    applyCompetitionState(competition.competition.title, competition)
                 }
             }
         }
+    }
+
+    /**
+     * Применяет загруженное соревнование к стейту.
+     * Если соревнование уже запущено (startTime != null), восстанавливает флаги
+     * и при необходимости возобновляет таймер обратного отсчёта.
+     */
+    private fun applyCompetitionState(
+        title: String,
+        competition: com.rodionov.domain.models.orienteering.OrienteeringCompetition,
+        groups: List<com.rodionov.domain.models.ParticipantGroup> = emptyList()
+    ) {
+        val startTime = competition.startTime
+        val now = System.currentTimeMillis()
+        val isRunning = startTime != null
+        val isCountingDown = startTime != null && startTime > now
+        val remainingMillis = if (isCountingDown) startTime!! - now else 0L
+
+        updateState {
+            copy(
+                competitionTitle = title,
+                participantGroups = groups,
+                competition = competition,
+                isCompetitionRunning = isRunning,
+                isTimerRunning = isCountingDown,
+                countdownMillis = remainingMillis
+            )
+        }
+
+        if (isCountingDown) startTimer()
     }
 
     override fun onAction(action: BaseAction) {
