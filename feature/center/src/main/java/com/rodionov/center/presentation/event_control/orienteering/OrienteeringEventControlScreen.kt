@@ -25,6 +25,13 @@ import com.example.designsystem.components.clickRipple
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.event_control.OrientEventControlAction
 import com.rodionov.center.data.event_control.OrienteeringEventControlState
+import com.rodionov.domain.models.Competition
+import com.rodionov.domain.models.KindOfSport
+import com.rodionov.domain.models.orienteering.CompetitionStatus
+import com.rodionov.domain.models.orienteering.OrienteeringCompetition
+import com.rodionov.domain.models.orienteering.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.PunchingSystem
+import com.rodionov.domain.models.orienteering.ResultsStatus
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.resources.R
 import org.koin.androidx.compose.koinViewModel
@@ -39,6 +46,20 @@ fun OrienteeringEventControlScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val isExpanded = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
+    
+    OrienteeringEventControlScreenContent(
+        state = state,
+        isExpanded = isExpanded,
+        onAction = viewModel::onAction
+    )
+}
+
+@Composable
+private fun OrienteeringEventControlScreenContent(
+    state: OrienteeringEventControlState,
+    isExpanded: Boolean,
+    onAction: (OrientEventControlAction) -> Unit
+) {
     val scrollState = rememberScrollState()
 
     Surface(
@@ -62,7 +83,7 @@ fun OrienteeringEventControlScreen(
 
             // Панель управления чипами (Сеткой)
             SectionHeader(title = "Панель управления")
-            OrienteeringEventControlContent(isExpanded, viewModel::onAction)
+            OrienteeringEventControlContent(isExpanded, onAction)
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
 
@@ -78,7 +99,7 @@ fun OrienteeringEventControlScreen(
             ControlActionButton(
                 text = "Выдать чипы",
                 icon = R.drawable.ic_add_24px,
-                onClick = { viewModel.onAction(OrientEventControlAction.OpenGetOrienteeringChip) }
+                onClick = { onAction(OrientEventControlAction.OpenGetOrienteeringChip) }
             )
 
             if ((state.competition?.startTimeMode == StartTimeMode.USER_SET || state.competition?.startTimeMode == StartTimeMode.STRICT) && !state.isTimerRunning && state.competition?.startTime == null) {
@@ -87,7 +108,7 @@ fun OrienteeringEventControlScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    onClick = { viewModel.onAction(OrientEventControlAction.StartCompetition) },
+                    onClick = { onAction(OrientEventControlAction.StartCompetition) },
                     shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
@@ -101,7 +122,7 @@ fun OrienteeringEventControlScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    onClick = { viewModel.onAction(OrientEventControlAction.StopCompetition) },
+                    onClick = { onAction(OrientEventControlAction.StopCompetition) },
                     shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
@@ -116,15 +137,15 @@ fun OrienteeringEventControlScreen(
             
             NavigationRow(
                 text = "Список участников",
-                onClick = { viewModel.onAction(OrientEventControlAction.OpenParticipantLists) }
+                onClick = { onAction(OrientEventControlAction.OpenParticipantLists) }
             )
             NavigationRow(
                 text = "Жеребьёвка",
-                onClick = { viewModel.onAction(OrientEventControlAction.OpenDrawParticipants) }
+                onClick = { onAction(OrientEventControlAction.OpenDrawParticipants) }
             )
             NavigationRow(
                 text = "Результаты",
-                onClick = { viewModel.onAction(OrientEventControlAction.OpenResults) }
+                onClick = { onAction(OrientEventControlAction.OpenResults) }
             )
             
             Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
@@ -310,5 +331,34 @@ private fun ControlGridItem(
 fun OrienteeringEventControlScreenPreviewCompact() {
     MaterialTheme {
         OrienteeringEventControlContent(isExpanded = false, userAction = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OrienteeringEventControlScreenPreview() {
+    MaterialTheme {
+        OrienteeringEventControlScreenContent(
+            state = OrienteeringEventControlState(
+                competitionTitle = "Чемпионат города по ориентированию",
+                isTimerRunning = true,
+                countdownMillis = 120000L,
+                competition = OrienteeringCompetition(
+                    localCompetitionId = 1L,
+                    competition = Competition(
+                        title = "Чемпионат города по ориентированию",
+                        startDate = System.currentTimeMillis(),
+                        kindOfSport = KindOfSport.Orienteering,
+                        status = CompetitionStatus.DRAFT,
+                        resultsStatus = ResultsStatus.NOT_PUBLISHED
+                    ),
+                    direction = OrienteeringDirection.FORWARD,
+                    punchingSystem = PunchingSystem.PUNCH,
+                    startTimeMode = StartTimeMode.USER_SET
+                )
+            ),
+            isExpanded = false,
+            onAction = {}
+        )
     }
 }
