@@ -163,6 +163,12 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
+    override suspend fun updateParticipantGroup(participantGroup: ParticipantGroup): Result<Any> {
+        return runCatching {
+            participantGroupDao.updateParticipantGroup(participantGroup.toEntity())
+        }
+    }
+
     /**
      * Сохраняет одиночного участника соревнования.
      *

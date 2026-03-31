@@ -108,6 +108,9 @@ class OrienteeringCreatorViewModel(
                     }
                 } else {
                     updatedGroups[action.index] = action.participantGroup
+                    viewModelScope.launch {
+                        orienteeringCompetitionInteractor.updateParticipantGroup(action.participantGroup)
+                    }
                 }
                 updateState {
                     copy(

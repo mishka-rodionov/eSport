@@ -27,6 +27,9 @@ interface ParticipantGroupDao {
     @Query("DELETE FROM participant_groups WHERE competitionId = :competitionId")
     suspend fun deleteGroupsForCompetition(competitionId: Long)
 
+    @Update
+    suspend fun updateParticipantGroup(participantGroup: ParticipantGroupEntity)
+
     @Query("DELETE FROM participant_groups")
     suspend fun clearAll()
 }

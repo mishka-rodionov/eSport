@@ -215,6 +215,10 @@ class OrienteeringCompetitionInteractor(
 
     }
 
+    suspend fun updateParticipantGroup(participantGroup: ParticipantGroup): Result<Any> {
+        return localRepository.updateParticipantGroup(participantGroup)
+    }
+
     /**
      * Получает список участников соревнования из локального хранилища.
      *
