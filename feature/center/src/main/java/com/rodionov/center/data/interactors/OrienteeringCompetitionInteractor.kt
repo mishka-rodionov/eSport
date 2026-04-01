@@ -217,6 +217,28 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
+     * Обновляет участника только в локальной базе данных.
+     *
+     * @param participant Участник для обновления
+     * @return Result операции локального сохранения
+     */
+    suspend fun updateParticipantLocally(participant: OrienteeringParticipant): Result<Any> {
+        return localRepository.updateParticipants(listOf(participant))
+    }
+
+    /**
+     * Синхронизирует участника с сервером.
+     * При успехе обновляет флаг isSynced в локальной БД.
+     *
+     * @param participant Участник для синхронизации
+     */
+    suspend fun syncParticipantWithServer(participant: OrienteeringParticipant) {
+        remoteRepository.saveParticipant(participant).onSuccess {
+            localRepository.updateParticipants(listOf(participant.copy(isSynced = true)))
+        }
+    }
+
+    /**
      * Создаёт информацию о группах участников для соревнования.
      *
      * Внутренняя функция, которая:

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ import com.rodionov.resources.R
 import com.rodionov.ui.BaseAction
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import java.util.Calendar
 
 /**
  * Экран отображения и управления списком участников соревнований,
@@ -121,7 +123,12 @@ fun ParticipantListContent(
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
                     val participants = state.participantGroupWithParticipants[page].participants
-                        .sortedBy { it.startNumber.toIntOrNull() ?: Int.MAX_VALUE }
+                        .sortedWith(
+                            compareBy(
+                                { if (isValidTimestamp(it.startTime)) it.startTime else Long.MAX_VALUE },
+                                { it.startNumber.toIntOrNull() ?: Int.MAX_VALUE }
+                            )
+                        )
 
                     if (participants.isEmpty()) {
                         EmptyParticipantsView(message = "В этой группе пока нет участников")
@@ -215,6 +222,14 @@ fun CreateParticipantDialogContent(
 ) {
     var firstName by remember(editingParticipant) { mutableStateOf(editingParticipant?.firstName ?: "") }
     var secondName by remember(editingParticipant) { mutableStateOf(editingParticipant?.lastName ?: "") }
+    var startTimeInput by remember(editingParticipant) {
+        mutableStateOf(
+            if (editingParticipant != null && isValidTimestamp(editingParticipant.startTime))
+                formatStartTime(editingParticipant.startTime)
+            else ""
+        )
+    }
+    var startTimeError by remember { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
 
@@ -262,6 +277,31 @@ fun CreateParticipantDialogContent(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
         )
 
+        if (editingParticipant != null) {
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+            DSTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = "Стартовое время (ЧЧ:ММ или ЧЧ:ММ:СС или ММ:СС)") },
+                text = startTimeInput,
+                onValueChanged = {
+                    startTimeInput = it
+                    startTimeError = false
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                isError = startTimeError
+            )
+
+            if (startTimeError) {
+                Text(
+                    text = "Введите время в формате ЧЧ:ММ",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(start = Dimens.SIZE_HALF.dp, top = 2.dp)
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
 
         Button(
@@ -283,11 +323,21 @@ fun CreateParticipantDialogContent(
                         secondName = ""
                         focusRequester.requestFocus()
                     } else {
+                        val parsedStartTime = if (startTimeInput.isNotEmpty()) {
+                            parseTimeInput(startTimeInput, editingParticipant.startTime)
+                        } else {
+                            editingParticipant.startTime
+                        }
+                        if (startTimeInput.isNotEmpty() && parsedStartTime == null) {
+                            startTimeError = true
+                            return@Button
+                        }
                         userAction.invoke(
                             ParticipantListAction.UpdateParticipant(
                                 participant = editingParticipant.copy(
                                     firstName = firstName,
-                                    lastName = secondName
+                                    lastName = secondName,
+                                    startTime = parsedStartTime ?: editingParticipant.startTime
                                 )
                             )
                         )
@@ -331,6 +381,8 @@ fun ParticipantCard(
     displayIndex: Int,
     onEditClick: () -> Unit
 ) {
+    val startTimeText = if (isValidTimestamp(participant.startTime)) formatStartTime(participant.startTime) else "—"
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
@@ -343,7 +395,7 @@ fun ParticipantCard(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Индекс или номер участника
+            // Номер участника
             Box(
                 modifier = Modifier
                     .size(36.dp)
@@ -373,6 +425,11 @@ fun ParticipantCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                Text(
+                    text = "Старт: $startTimeText",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             IconButton(
@@ -390,6 +447,81 @@ fun ParticipantCard(
             }
         }
     }
+}
+
+/** Минимальный допустимый timestamp — 1 января 2000 года. */
+private const val MIN_VALID_TIMESTAMP_MS = 946_684_800_000L
+
+/** Возвращает true, если [ms] — это реальная дата (не плейсхолдер и не отрицательное значение). */
+private fun isValidTimestamp(ms: Long): Boolean = ms >= MIN_VALID_TIMESTAMP_MS
+
+private fun formatStartTime(startTimeMs: Long): String {
+    val calendar = Calendar.getInstance()
+    calendar.timeInMillis = startTimeMs
+    val h = calendar.get(Calendar.HOUR_OF_DAY)
+    val m = calendar.get(Calendar.MINUTE)
+    val s = calendar.get(Calendar.SECOND)
+    return if (s > 0) {
+        String.format("%02d:%02d:%02d", h, m, s)
+    } else {
+        String.format("%02d:%02d", h, m)
+    }
+}
+
+/**
+ * Парсит строку времени в Unix timestamp (мс).
+ *
+ * Поддерживаемые форматы:
+ * - "ЧЧ:ММ"      (2 части, первая ≤ 23) → часы:минуты
+ * - "ММ:СС"      (2 части, первая > 23) → минуты:секунды
+ * - "ЧЧ:ММ:СС"  (3 части)              → часы:минуты:секунды
+ *
+ * Дата берётся из [baseDateMs] если это реальная дата, иначе — текущая.
+ * Возвращает null при неверном формате.
+ */
+private fun parseTimeInput(timeStr: String, baseDateMs: Long): Long? {
+    val parts = timeStr.trim().split(":")
+    val hours: Int
+    val minutes: Int
+    val seconds: Int
+
+    when (parts.size) {
+        2 -> {
+            val first = parts[0].toIntOrNull() ?: return null
+            val second = parts[1].toIntOrNull() ?: return null
+            if (second !in 0..59) return null
+            if (first > 23) {
+                // Интерпретируем как ММ:СС
+                if (first > 59) return null
+                hours = 0
+                minutes = first
+                seconds = second
+            } else {
+                // Интерпретируем как ЧЧ:ММ
+                hours = first
+                minutes = second
+                seconds = 0
+            }
+        }
+        3 -> {
+            hours = parts[0].toIntOrNull() ?: return null
+            minutes = parts[1].toIntOrNull() ?: return null
+            seconds = parts[2].toIntOrNull() ?: return null
+            if (hours !in 0..23 || minutes !in 0..59 || seconds !in 0..59) return null
+        }
+        else -> return null
+    }
+
+    val calendar = Calendar.getInstance()
+    // Используем дату из baseDateMs только если это реальная дата, иначе — сегодня
+    if (isValidTimestamp(baseDateMs)) {
+        calendar.timeInMillis = baseDateMs
+    }
+    calendar.set(Calendar.HOUR_OF_DAY, hours)
+    calendar.set(Calendar.MINUTE, minutes)
+    calendar.set(Calendar.SECOND, seconds)
+    calendar.set(Calendar.MILLISECOND, 0)
+    return calendar.timeInMillis
 }
 
 @Preview(showBackground = true)

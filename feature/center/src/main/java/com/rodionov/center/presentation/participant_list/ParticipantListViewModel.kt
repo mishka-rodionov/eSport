@@ -25,7 +25,6 @@ class ParticipantListViewModel(
 ): BaseViewModel<ParticipantListState>(ParticipantListState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
-    var startNumber = 1
 
     override fun onAction(action: BaseAction) {
         when(action) {
@@ -36,7 +35,13 @@ class ParticipantListViewModel(
                 updateState { copy(group = action.group, editingParticipant = action.participant, isShowParticipantCreateDialog = true) }
             }
             is ParticipantListAction.CreateNewParticipant -> {
-                val group = stateValue.participantGroupWithParticipants.getOrNull(action.group)?.group ?: return
+                val groupData = stateValue.participantGroupWithParticipants.getOrNull(action.group) ?: return
+                val group = groupData.group
+                val existingParticipants = groupData.participants
+                val nextStartNumber = (existingParticipants.mapNotNull { it.startNumber.toIntOrNull() }.maxOrNull() ?: 0) + 1
+                val intervalMs = ((stateValue.competition?.startIntervalSeconds) ?: 60) * 1000L
+                val baseTime = stateValue.competition?.startTime ?: 0L
+                val startTime = if (baseTime > 0L) baseTime + (nextStartNumber - 1) * intervalMs else 0L
                 val participant = OrienteeringParticipant(
                     id = (0..1000L).random(),
                     userId = "",
@@ -46,8 +51,8 @@ class ParticipantListViewModel(
                     groupName = group.title,
                     competitionId = group.competitionId,
                     commandName = "",
-                    startNumber = startNumber++.toString(),
-                    startTime = 10L,
+                    startNumber = nextStartNumber.toString(),
+                    startTime = startTime,
                     chipNumber = "",
                     comment = "",
                     isChipGiven = false
@@ -60,11 +65,13 @@ class ParticipantListViewModel(
                 }
             }
             is ParticipantListAction.UpdateParticipant -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    competitionInteractor.updateParticipants(listOf(action.participant))
-                    getCompetitionDetails()
-                }
                 onAction(ParticipantListAction.HideCreateParticipantDialog)
+                viewModelScope.launch(Dispatchers.IO) {
+                    competitionInteractor.updateParticipantLocally(action.participant).onSuccess {
+                        getCompetitionDetails()
+                        competitionInteractor.syncParticipantWithServer(action.participant)
+                    }
+                }
             }
             ParticipantListAction.HideCreateParticipantDialog -> {
                 updateState { copy(isShowParticipantCreateDialog = false, editingParticipant = null) }
@@ -80,7 +87,12 @@ class ParticipantListViewModel(
         viewModelScope.launch {
             competitionId?.let { compId ->
                 repository.getCompetitionWithDetails(compId).onSuccess {
-                    updateState { copy(participantGroupWithParticipants = it.groupsWithParticipants) }
+                    updateState {
+                        copy(
+                            competition = it.competition,
+                            participantGroupWithParticipants = it.groupsWithParticipants
+                        )
+                    }
                 }
             }
         }
