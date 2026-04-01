@@ -85,13 +85,13 @@ fun DistanceEditor(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(Dimens.SIZE_BASE.dp)
-                    .padding(bottom = 16.dp)
+                    .padding(bottom = Dimens.SIZE_BASE.dp)
             ) {
                 Text(
                     text = if (state.editDistanceIndex == -1) "Новая дистанция" else "Редактирование дистанции",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = Dimens.SIZE_BASE.dp)
                 )
 
                 // Название дистанции
@@ -186,14 +186,18 @@ fun DistanceEditor(
                     placeholder = { Text("31, 32, 45, 100") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
+                        keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
                         onNext = { descFocus.requestFocus() }
                     ),
                     text = controlPointsStr,
-                    onValueChanged = { controlPointsStr = it }
+                    onValueChanged = { newValue ->
+                        // Фильтруем ввод: разрешаем только цифры, запятые и пробелы
+                        val filtered = newValue.filter { it.isDigit() || it == ',' || it == ' ' }
+                        controlPointsStr = filtered
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
