@@ -46,4 +46,7 @@ interface DistanceDao {
      */
     @Query("DELETE FROM distances WHERE id = :id")
     suspend fun deleteDistance(id: Long)
+
+    @Query("DELETE FROM distances WHERE competitionId = :competitionId")
+    suspend fun deleteDistancesByCompetitionId(competitionId: Long)
 }

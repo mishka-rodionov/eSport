@@ -36,4 +36,7 @@ interface OrienteeringParticipantDao {
 
     @Query("DELETE FROM orienteering_participants WHERE id = :id")
     suspend fun deleteParticipantById(id: Long)
+
+    @Query("DELETE FROM orienteering_participants WHERE competitionId = :competitionId")
+    suspend fun deleteParticipantsByCompetitionId(competitionId: Long)
 }

@@ -12,6 +12,7 @@ import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class CenterViewModel(
@@ -50,6 +51,28 @@ class CenterViewModel(
                         EventsConstants.EVENT_ID.name to effect.competitionId
                     )
                 )
+            }
+
+            is CenterEffects.ShowDeleteCompetitionDialog -> {
+                updateState { copy(deletingCompetition = effect.competition) }
+            }
+
+            CenterEffects.HideDeleteCompetitionDialog -> {
+                updateState { copy(deletingCompetition = null) }
+            }
+
+            is CenterEffects.DeleteCompetition -> {
+                updateState { copy(deletingCompetition = null) }
+                viewModelScope.launch(Dispatchers.IO) {
+                    orienteeringCompetitionInteractor.deleteCompetition(effect.competition.localCompetitionId)
+                        .onSuccess {
+                            updateState {
+                                copy(controlledEvents = controlledEvents.filter {
+                                    it.localCompetitionId != effect.competition.localCompetitionId
+                                })
+                            }
+                        }
+                }
             }
         }
     }

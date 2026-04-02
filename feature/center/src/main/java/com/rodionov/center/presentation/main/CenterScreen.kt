@@ -61,6 +61,14 @@ fun CenterScreen(viewModel: CenterViewModel = koinViewModel()) {
     ) {
         CenterScreenContent(state, handleEffects)
     }
+
+    state.deletingCompetition?.let { competition ->
+        DeleteCompetitionDialog(
+            competition = competition,
+            onDismiss = { handleEffects(CenterEffects.HideDeleteCompetitionDialog) },
+            onConfirm = { handleEffects(CenterEffects.DeleteCompetition(competition)) }
+        )
+    }
 }
 
 /**
@@ -141,7 +149,7 @@ private fun ControlledEventsList(state: CenterState, userAction: (CenterEffects)
         contentPadding = PaddingValues(bottom = Dimens.SIZE_BASE.dp)
     ) {
         itemsIndexed(state.controlledEvents) { _, item ->
-            EventControlCard(item.competition, item.localCompetitionId, userAction)
+            EventControlCard(item.competition, item.localCompetitionId, item, userAction)
         }
     }
 }
@@ -153,6 +161,7 @@ private fun ControlledEventsList(state: CenterState, userAction: (CenterEffects)
 private fun EventControlCard(
     competition: Competition,
     eventId: Long,
+    orienteeringCompetition: OrienteeringCompetition,
     userAction: (CenterEffects) -> Unit
 ) {
     Card(
@@ -239,6 +248,23 @@ private fun EventControlCard(
                     modifier = Modifier.size(18.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+
+            // Кнопка удаления события
+            IconButton(
+                onClick = { userAction.invoke(CenterEffects.ShowDeleteCompetitionDialog(orienteeringCompetition)) },
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f), CircleShape)
+                    .size(36.dp)
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.delete),
+                    contentDescription = "Delete event",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
         }
     }
 }
@@ -290,6 +316,71 @@ private fun EmptyControlledEventsView() {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DeleteCompetitionDialog(
+    competition: OrienteeringCompetition,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(Dimens.SIZE_BASE.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "Удалить соревнование?",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+            Text(
+                text = competition.competition.title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
+                ),
+                onClick = onConfirm
+            ) {
+                Text(text = "Удалить", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                onClick = onDismiss
+            ) {
+                Text(text = "Отмена", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+        }
     }
 }
 

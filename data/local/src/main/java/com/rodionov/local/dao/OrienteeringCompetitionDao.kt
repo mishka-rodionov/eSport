@@ -36,6 +36,9 @@ interface OrienteeringCompetitionDao {
     @Delete
     suspend fun delete(competition: OrienteeringCompetitionEntity)
 
+    @Query("DELETE FROM orienteering_competitions WHERE localCompetitionId = :competitionId")
+    suspend fun deleteById(competitionId: Long)
+
     @Query("DELETE FROM orienteering_competitions")
     suspend fun clearAll()
 
