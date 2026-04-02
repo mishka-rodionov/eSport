@@ -63,7 +63,8 @@ fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
                 } else {
                     ParticipantList(
                         participants = state.participants,
-                        onEditClick = {} // На этом экране только просмотр/жеребьевка
+                        onEditClick = {}, // На этом экране только просмотр/жеребьевка
+                        onDeleteClick = {}
                     )
                 }
 

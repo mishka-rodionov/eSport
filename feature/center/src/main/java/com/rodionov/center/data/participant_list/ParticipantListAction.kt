@@ -37,4 +37,21 @@ sealed class ParticipantListAction : BaseAction {
      */
     data class UpdateParticipant(val participant: OrienteeringParticipant) : ParticipantListAction()
 
+    /**
+     * Показать диалог подтверждения удаления участника.
+     * @param participant Участник для удаления.
+     */
+    data class ShowDeleteParticipantDialog(val participant: OrienteeringParticipant) : ParticipantListAction()
+
+    /**
+     * Скрыть диалог подтверждения удаления.
+     */
+    data object HideDeleteParticipantDialog : ParticipantListAction()
+
+    /**
+     * Удалить участника и пересчитать список группы.
+     * @param participant Участник для удаления.
+     */
+    data class DeleteParticipant(val participant: OrienteeringParticipant) : ParticipantListAction()
+
 }

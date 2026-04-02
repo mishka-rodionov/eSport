@@ -226,6 +226,10 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         return runCatching { participantDao.updateAll(participants.map { it.toEntity() }) }
     }
 
+    override suspend fun deleteParticipant(participantId: Long): Result<Unit> {
+        return runCatching { participantDao.deleteParticipantById(participantId) }
+    }
+
     /**
      * Получает участника по номеру чипа в рамках конкретного соревнования.
      *

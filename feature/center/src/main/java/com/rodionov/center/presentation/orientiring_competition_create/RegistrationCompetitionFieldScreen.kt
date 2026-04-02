@@ -44,6 +44,7 @@ fun RegistrationCompetitionFieldScreen(
     LaunchedEffect(Unit) {
         viewModel.initialize(competitionId)
     }
+    competitionId
 
     RegistrationCompetitionFieldContent(
         state = state,

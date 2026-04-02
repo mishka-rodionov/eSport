@@ -19,5 +19,6 @@ data class ParticipantListState(
     val competition: OrienteeringCompetition? = null,
     val isShowParticipantCreateDialog: Boolean = false,
     val group: Int = 0,
-    val editingParticipant: OrienteeringParticipant? = null
+    val editingParticipant: OrienteeringParticipant? = null,
+    val deletingParticipant: OrienteeringParticipant? = null
 ): BaseState

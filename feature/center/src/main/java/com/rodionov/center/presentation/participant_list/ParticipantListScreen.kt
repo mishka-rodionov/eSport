@@ -70,6 +70,14 @@ fun ParticipantListScreen(
             editingParticipant = state.editingParticipant
         )
     }
+
+    state.deletingParticipant?.let { participant ->
+        DeleteParticipantDialog(
+            participant = participant,
+            onDismiss = { userAction.invoke(ParticipantListAction.HideDeleteParticipantDialog) },
+            onConfirm = { userAction.invoke(ParticipantListAction.DeleteParticipant(participant)) }
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -137,6 +145,9 @@ fun ParticipantListContent(
                             participants = participants,
                             onEditClick = { participant ->
                                 userAction.invoke(ParticipantListAction.ShowEditParticipantDialog(page, participant))
+                            },
+                            onDeleteClick = { participant ->
+                                userAction.invoke(ParticipantListAction.ShowDeleteParticipantDialog(participant))
                             }
                         )
                     }
@@ -355,10 +366,76 @@ fun CreateParticipantDialogContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DeleteParticipantDialog(
+    participant: OrienteeringParticipant,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    DSBottomDialog(
+        sheetState = sheetState,
+        sheetContent = {
+            Column(
+                modifier = Modifier
+                    .padding(Dimens.SIZE_BASE.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Удалить участника?",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+                Text(
+                    text = "${participant.firstName} ${participant.lastName} (№${participant.startNumber})",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    onClick = onConfirm
+                ) {
+                    Text(text = "Удалить", fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+                OutlinedButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                    onClick = onDismiss
+                ) {
+                    Text(text = "Отмена", fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+            }
+        },
+        onDismiss = onDismiss
+    )
+}
+
 @Composable
 fun ParticipantList(
     participants: List<OrienteeringParticipant>,
-    onEditClick: (OrienteeringParticipant) -> Unit
+    onEditClick: (OrienteeringParticipant) -> Unit,
+    onDeleteClick: (OrienteeringParticipant) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -369,7 +446,8 @@ fun ParticipantList(
             ParticipantCard(
                 participant = participant,
                 displayIndex = index + 1,
-                onEditClick = { onEditClick(participant) }
+                onEditClick = { onEditClick(participant) },
+                onDeleteClick = { onDeleteClick(participant) }
             )
         }
     }
@@ -379,7 +457,8 @@ fun ParticipantList(
 fun ParticipantCard(
     participant: OrienteeringParticipant,
     displayIndex: Int,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
     val startTimeText = if (isValidTimestamp(participant.startTime)) formatStartTime(participant.startTime) else "—"
 
@@ -442,6 +521,22 @@ fun ParticipantCard(
                     imageVector = ImageVector.vectorResource(R.drawable.edit),
                     contentDescription = "Edit participant",
                     tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+
+            IconButton(
+                onClick = onDeleteClick,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f), CircleShape)
+                    .size(32.dp)
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.delete),
+                    contentDescription = "Delete participant",
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(16.dp)
                 )
             }

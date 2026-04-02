@@ -76,7 +76,56 @@ class ParticipantListViewModel(
             ParticipantListAction.HideCreateParticipantDialog -> {
                 updateState { copy(isShowParticipantCreateDialog = false, editingParticipant = null) }
             }
+            is ParticipantListAction.ShowDeleteParticipantDialog -> {
+                updateState { copy(deletingParticipant = action.participant) }
+            }
+            ParticipantListAction.HideDeleteParticipantDialog -> {
+                updateState { copy(deletingParticipant = null) }
+            }
+            is ParticipantListAction.DeleteParticipant -> {
+                updateState { copy(deletingParticipant = null) }
+                viewModelScope.launch(Dispatchers.IO) {
+                    competitionInteractor.deleteParticipant(action.participant.id).onSuccess {
+                        recalculateAfterDeletion(action.participant)
+                    }
+                }
+            }
         }
+    }
+
+    /**
+     * После удаления участника сдвигает стартовые номера и времена
+     * всех участников той же группы, которые шли после удалённого.
+     */
+    private suspend fun recalculateAfterDeletion(deletedParticipant: OrienteeringParticipant) {
+        val deletedNumber = deletedParticipant.startNumber.toIntOrNull() ?: run {
+            getCompetitionDetails()
+            return
+        }
+        val intervalMs = ((stateValue.competition?.startIntervalSeconds) ?: 60) * 1000L
+
+        val groupData = stateValue.participantGroupWithParticipants
+            .find { it.group.groupId == deletedParticipant.groupId } ?: run {
+            getCompetitionDetails()
+            return
+        }
+
+        val toUpdate = groupData.participants
+            .filter { it.id != deletedParticipant.id }
+            .mapNotNull { p ->
+                val num = p.startNumber.toIntOrNull() ?: return@mapNotNull null
+                if (num > deletedNumber) {
+                    p.copy(
+                        startNumber = (num - 1).toString(),
+                        startTime = if (p.startTime > 0L) p.startTime - intervalMs else p.startTime
+                    )
+                } else null
+            }
+
+        if (toUpdate.isNotEmpty()) {
+            competitionInteractor.updateParticipants(toUpdate)
+        }
+        getCompetitionDetails()
     }
 
     /**

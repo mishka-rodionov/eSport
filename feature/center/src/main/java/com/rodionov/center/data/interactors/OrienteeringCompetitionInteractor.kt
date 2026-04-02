@@ -217,6 +217,16 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
+     * Удаляет участника из локальной базы данных.
+     *
+     * @param participantId Идентификатор участника
+     * @return Result операции удаления
+     */
+    suspend fun deleteParticipant(participantId: Long): Result<Unit> {
+        return localRepository.deleteParticipant(participantId)
+    }
+
+    /**
      * Обновляет участника только в локальной базе данных.
      *
      * @param participant Участник для обновления
