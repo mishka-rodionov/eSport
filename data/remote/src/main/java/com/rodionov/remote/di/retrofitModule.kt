@@ -45,14 +45,15 @@ fun retrofit(
     val okClient = builder
         .addInterceptor(AuthInterceptor(tokenRepository = tokenRepository))
         .authenticator(TokenAuthenticator(tokenRepository = tokenRepository))
-        .addInterceptor(MockInterceptor())
+//        .addInterceptor(MockInterceptor())
         .retryOnConnectionFailure(true)
         .connectTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .readTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .writeTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .build()
     val baseUrl = "https://BASE_URL"
-    val localBaseUrl = "http://192.168.1.113:8080/"
+//    val localBaseUrl = "http://192.168.1.113:8080/"
+    val localBaseUrl = "http://192.168.1.206:8080/"
     return Retrofit.Builder()
         .baseUrl(localBaseUrl)
 //        .baseUrl(baseUrl)

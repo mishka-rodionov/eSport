@@ -146,10 +146,18 @@ class OrienteeringCreatorViewModel(
                 updateState { copy(registrationEndTimeStr = action.time, registrationEnd = combined ?: stateValue.registrationEnd) }
             }
 
+            is OrienteeringCreatorAction.UpdateCompetitionDirection -> updateState {
+                copy(competitionDirection = action.direction)
+            }
+
+            is OrienteeringCreatorAction.UpdateStartTimeMode -> updateState {
+                copy(startTimeMode = action.startTimeMode)
+            }
+
             is OrienteeringCreatorAction.EditDistanceDialog -> updateState {
                 copy(isShowDistanceCreateDialog = true, editDistanceIndex = action.index)
             }
-            
+
             is OrienteeringCreatorAction.EditGroupDialog -> updateState {
                 copy(isShowGroupCreateDialog = true, editGroupIndex = action.index)
             }
