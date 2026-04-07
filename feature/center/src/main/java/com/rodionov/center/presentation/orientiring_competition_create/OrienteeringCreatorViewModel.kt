@@ -360,16 +360,28 @@ class OrienteeringCreatorViewModel(
     }
 
     /**
-     * Финальное сохранение и выход из мастера.
-     * Выполняет переход на главный экран раздела "Центр" с очисткой навигационного стека вплоть до этого роута.
+     * Финальное сохранение, публикация на сервере и выход из мастера.
+     * Обновляет локальные данные, затем отправляет соревнование на сервер.
+     * Навигация выполняется вне зависимости от результата серверного запроса —
+     * данные уже сохранены локально.
+     * Выполняет переход на главный экран раздела "Центр" с очисткой навигационного стека.
      */
     fun finishCreation() {
+        updateState { copy(isLoading = true) }
         viewModelScope.launch(Dispatchers.IO) {
             val competition = stateValue.toOrienteeringCompetition(user?.id)
+
             orienteeringCompetitionInteractor.updateCompetition(
                 competition,
                 stateValue.participantGroups
             )
+
+            orienteeringCompetitionInteractor.publishCompetitionToServer(competition)
+                .onFailure { error ->
+                    updateState { copy(error = error.message) }
+                }
+
+            updateState { copy(isLoading = false) }
 
             viewModelScope.launch(Dispatchers.Main) {
                 val destination = CenterNavigation.CenterRoute

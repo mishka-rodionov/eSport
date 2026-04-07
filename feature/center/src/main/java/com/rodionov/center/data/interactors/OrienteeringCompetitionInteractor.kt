@@ -94,6 +94,23 @@ class OrienteeringCompetitionInteractor(
         return localRepository.saveCompetition(orienteeringCompetition)
     }
 
+    /**
+     * Публикует соревнование на сервере.
+     * Вызывается в конце мастера создания соревнования.
+     *
+     * При успехе обновляет локальную запись данными, пришедшими с сервера.
+     * При неудаче — локальные данные остаются нетронутыми.
+     *
+     * @param competition Данные соревнования для публикации.
+     * @return Result с данными опубликованного соревнования или ошибкой.
+     */
+    suspend fun publishCompetitionToServer(competition: OrienteeringCompetition): Result<OrienteeringCompetition> {
+        return remoteRepository.createCompetition(competition)
+            .onSuccess { serverCompetition ->
+                localRepository.updateCompetition(serverCompetition)
+            }
+    }
+
     suspend fun updateCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
         return localRepository.updateCompetition(orienteeringCompetition).mapCatching { orienteeringCompetition }
     }
