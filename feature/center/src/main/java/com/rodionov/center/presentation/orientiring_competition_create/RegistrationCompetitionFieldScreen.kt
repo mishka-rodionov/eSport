@@ -103,22 +103,48 @@ private fun RegistrationCompetitionFieldContent(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.weight(1f)) {
-                    RegistrationDatePicker(
-                        displayDate = state.registrationStart,
-                        onDateSelected = { date ->
-                            onAction(OrienteeringCreatorAction.UpdateRegistrationStartDate(date))
-                        }
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "В момент создания соревнования",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Switch(
+                    checked = state.registrationStartOnCreate,
+                    onCheckedChange = { onAction(OrienteeringCreatorAction.UpdateRegistrationStartOnCreate(it)) }
+                )
+            }
+            if (!state.registrationStartOnCreate) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        RegistrationDatePicker(
+                            displayDate = state.registrationStart,
+                            isError = state.errors.isEmptyRegistrationStart,
+                            onDateSelected = { date ->
+                                onAction(OrienteeringCreatorAction.UpdateRegistrationStartDate(date))
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                    Box(modifier = Modifier.weight(1f)) {
+                        RegistrationTimePicker(
+                            displayTime = state.registrationStartTimeStr,
+                            isError = state.errors.isEmptyRegistrationStart,
+                            onTimeSelected = { time ->
+                                onAction(OrienteeringCreatorAction.UpdateRegistrationStartTime(time))
+                            }
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
-                Box(modifier = Modifier.weight(1f)) {
-                    RegistrationTimePicker(
-                        displayTime = state.registrationStartTimeStr,
-                        onTimeSelected = { time ->
-                            onAction(OrienteeringCreatorAction.UpdateRegistrationStartTime(time))
-                        }
+                if (state.errors.isEmptyRegistrationStart) {
+                    Text(
+                        text = "Укажите дату и время начала регистрации",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(start = Dimens.SIZE_HALF.dp, top = 4.dp)
                     )
                 }
             }
@@ -130,22 +156,48 @@ private fun RegistrationCompetitionFieldContent(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.weight(1f)) {
-                    RegistrationDatePicker(
-                        displayDate = state.registrationEnd,
-                        onDateSelected = { date ->
-                            onAction(OrienteeringCreatorAction.UpdateRegistrationEndDate(date))
-                        }
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "За сутки до старта",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Switch(
+                    checked = state.registrationEndDayBefore,
+                    onCheckedChange = { onAction(OrienteeringCreatorAction.UpdateRegistrationEndDayBefore(it)) }
+                )
+            }
+            if (!state.registrationEndDayBefore) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        RegistrationDatePicker(
+                            displayDate = state.registrationEnd,
+                            isError = state.errors.isEmptyRegistrationEnd,
+                            onDateSelected = { date ->
+                                onAction(OrienteeringCreatorAction.UpdateRegistrationEndDate(date))
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                    Box(modifier = Modifier.weight(1f)) {
+                        RegistrationTimePicker(
+                            displayTime = state.registrationEndTimeStr,
+                            isError = state.errors.isEmptyRegistrationEnd,
+                            onTimeSelected = { time ->
+                                onAction(OrienteeringCreatorAction.UpdateRegistrationEndTime(time))
+                            }
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
-                Box(modifier = Modifier.weight(1f)) {
-                    RegistrationTimePicker(
-                        displayTime = state.registrationEndTimeStr,
-                        onTimeSelected = { time ->
-                            onAction(OrienteeringCreatorAction.UpdateRegistrationEndTime(time))
-                        }
+                if (state.errors.isEmptyRegistrationEnd) {
+                    Text(
+                        text = "Укажите дату и время окончания регистрации",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(start = Dimens.SIZE_HALF.dp, top = 4.dp)
                     )
                 }
             }
@@ -221,6 +273,7 @@ private fun RegistrationCompetitionFieldContent(
 @Composable
 private fun RegistrationDatePicker(
     displayDate: Long?,
+    isError: Boolean = false,
     onDateSelected: (Long) -> Unit
 ) {
     val context = LocalContext.current
@@ -253,6 +306,7 @@ private fun RegistrationDatePicker(
         label = { Text("Дата") },
         text = DateTimeFormat.transformLongToDisplayDate(displayDate),
         readOnly = true,
+        isError = isError,
         trailingIcon = {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_date_range_24px),
@@ -271,6 +325,7 @@ private fun RegistrationDatePicker(
 @Composable
 private fun RegistrationTimePicker(
     displayTime: String,
+    isError: Boolean = false,
     onTimeSelected: (String) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -283,6 +338,7 @@ private fun RegistrationTimePicker(
         label = { Text("Время") },
         text = displayTime,
         readOnly = true,
+        isError = isError,
         trailingIcon = {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_build_24px),

@@ -34,8 +34,10 @@ sealed class OrienteeringCreatorAction : BaseAction {
     // Действия для регистрации
     data class UpdateRegistrationStartDate(val date: Long) : OrienteeringCreatorAction()
     data class UpdateRegistrationStartTime(val time: String) : OrienteeringCreatorAction()
+    data class UpdateRegistrationStartOnCreate(val enabled: Boolean) : OrienteeringCreatorAction()
     data class UpdateRegistrationEndDate(val date: Long) : OrienteeringCreatorAction()
     data class UpdateRegistrationEndTime(val time: String) : OrienteeringCreatorAction()
+    data class UpdateRegistrationEndDayBefore(val enabled: Boolean) : OrienteeringCreatorAction()
 
     // Новые действия для пошагового создания
     data object AddStage : OrienteeringCreatorAction()

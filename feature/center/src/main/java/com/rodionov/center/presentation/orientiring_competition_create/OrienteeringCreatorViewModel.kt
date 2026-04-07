@@ -128,7 +128,7 @@ class OrienteeringCreatorViewModel(
 
             is OrienteeringCreatorAction.UpdateRegistrationStartDate -> {
                 val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationStartTimeStr) ?: action.date
-                updateState { copy(registrationStart = combined) }
+                updateState { copy(registrationStart = combined, errors = errors.copy(isEmptyRegistrationStart = false)) }
             }
 
             is OrienteeringCreatorAction.UpdateRegistrationStartTime -> {
@@ -136,14 +136,28 @@ class OrienteeringCreatorViewModel(
                 updateState { copy(registrationStartTimeStr = action.time, registrationStart = combined ?: stateValue.registrationStart) }
             }
 
+            is OrienteeringCreatorAction.UpdateRegistrationStartOnCreate -> updateState {
+                copy(
+                    registrationStartOnCreate = action.enabled,
+                    errors = errors.copy(isEmptyRegistrationStart = false)
+                )
+            }
+
             is OrienteeringCreatorAction.UpdateRegistrationEndDate -> {
                 val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationEndTimeStr) ?: action.date
-                updateState { copy(registrationEnd = combined) }
+                updateState { copy(registrationEnd = combined, errors = errors.copy(isEmptyRegistrationEnd = false)) }
             }
 
             is OrienteeringCreatorAction.UpdateRegistrationEndTime -> {
                 val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationEnd, action.time)
                 updateState { copy(registrationEndTimeStr = action.time, registrationEnd = combined ?: stateValue.registrationEnd) }
+            }
+
+            is OrienteeringCreatorAction.UpdateRegistrationEndDayBefore -> updateState {
+                copy(
+                    registrationEndDayBefore = action.enabled,
+                    errors = errors.copy(isEmptyRegistrationEnd = false)
+                )
             }
 
             is OrienteeringCreatorAction.UpdateCompetitionDirection -> updateState {
@@ -256,10 +270,35 @@ class OrienteeringCreatorViewModel(
 
     /**
      * Сохраняет данные второго шага (Регистрация) и переходит к третьему.
+     * Перед сохранением валидирует поля регистрации и вычисляет итоговые значения
+     * в зависимости от состояния свитчей.
      */
     fun saveStepTwo() {
+        val startEmpty = !stateValue.registrationStartOnCreate && stateValue.registrationStart == null
+        val endEmpty = !stateValue.registrationEndDayBefore && stateValue.registrationEnd == null
+        if (startEmpty || endEmpty) {
+            updateState {
+                copy(errors = errors.copy(
+                    isEmptyRegistrationStart = startEmpty,
+                    isEmptyRegistrationEnd = endEmpty
+                ))
+            }
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
-            val competition = stateValue.toOrienteeringCompetition(user?.id)
+            val actualRegistrationStart = if (stateValue.registrationStartOnCreate) null else stateValue.registrationStart
+            val actualRegistrationEnd = if (stateValue.registrationEndDayBefore) {
+                stateValue.startDate - 24L * 60 * 60 * 1000
+            } else {
+                stateValue.registrationEnd
+            }
+
+            val competition = stateValue.copy(
+                registrationStart = actualRegistrationStart,
+                registrationEnd = actualRegistrationEnd
+            ).toOrienteeringCompetition(user?.id)
+
             orienteeringCompetitionInteractor.updateCompetition(
                 competition,
                 stateValue.participantGroups
