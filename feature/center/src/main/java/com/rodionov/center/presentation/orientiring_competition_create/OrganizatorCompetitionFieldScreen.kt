@@ -96,6 +96,10 @@ private fun OrganizatorCompetitionFieldContent(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.contactPhone,
                 label = { Text("Контактный телефон") },
+                isError = state.errors.isEmptyContactPhone,
+                supportingText = if (state.errors.isEmptyContactPhone) {
+                    { Text("Укажите контактный телефон") }
+                } else null,
                 onValueChanged = onUpdateContactPhone
             )
 

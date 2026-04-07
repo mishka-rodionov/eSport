@@ -8,13 +8,15 @@ data class OrienteeringCreatorErrors(
     val isCountOfControlsError: Boolean = false,
     val isMaxTimeError: Boolean = false,
     val isEmptyRegistrationStart: Boolean = false,
-    val isEmptyRegistrationEnd: Boolean = false
+    val isEmptyRegistrationEnd: Boolean = false,
+    val isEmptyContactPhone: Boolean = false
 ) {
 
     fun checkErrors() : Boolean {
         return !isEmptyAddress && !isEmptyGroup && !isGroupTitleError && !isGroupDistanceError
             && !isCountOfControlsError && !isMaxTimeError
             && !isEmptyRegistrationStart && !isEmptyRegistrationEnd
+            && !isEmptyContactPhone
     }
 
 }

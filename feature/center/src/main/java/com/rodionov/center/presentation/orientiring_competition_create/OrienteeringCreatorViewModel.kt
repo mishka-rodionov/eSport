@@ -188,6 +188,10 @@ class OrienteeringCreatorViewModel(
         if (competitionId == null) return
 
         viewModelScope.launch {
+            if (user == null) {
+                user = userRepository.retrieveUser().getOrNull()
+            }
+
             // Загрузка основных деталей соревнования
             val comp =
                 orienteeringCompetitionInteractor.getCompetition(competitionId) ?: return@launch
@@ -213,8 +217,8 @@ class OrienteeringCreatorViewModel(
                     feeCurrency = comp.competition.feeCurrency ?: "RUB",
                     regulationUrl = comp.competition.regulationUrl ?: "",
                     mapUrl = comp.competition.mapUrl ?: "",
-                    contactPhone = comp.competition.contactPhone ?: "",
-                    contactEmail = comp.competition.contactEmail ?: "",
+                    contactPhone = comp.competition.contactPhone?.ifEmpty { user?.phoneNumber ?: "" } ?: user?.phoneNumber ?: "",
+                    contactEmail = comp.competition.contactEmail?.ifEmpty { user?.email ?: "" } ?: user?.email ?: "",
                     website = comp.competition.website ?: "",
                     competitionDirection = comp.direction,
                     punchingSystem = comp.punchingSystem,
@@ -316,8 +320,14 @@ class OrienteeringCreatorViewModel(
 
     /**
      * Сохраняет данные третьего шага (Организатор) и переходит к четвертому.
+     * Валидирует обязательное поле контактного телефона.
      */
     fun saveStepThree() {
+        if (stateValue.contactPhone.isBlank()) {
+            updateState { copy(errors = errors.copy(isEmptyContactPhone = true)) }
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             val competition = stateValue.toOrienteeringCompetition(user?.id)
             orienteeringCompetitionInteractor.updateCompetition(
@@ -406,7 +416,7 @@ class OrienteeringCreatorViewModel(
     fun updateRegulationUrl(url: String) = updateState { copy(regulationUrl = url) }
 
     fun updateMapUrl(url: String) = updateState { copy(mapUrl = url) }
-    fun updateContactPhone(phone: String) = updateState { copy(contactPhone = phone) }
+    fun updateContactPhone(phone: String) = updateState { copy(contactPhone = phone, errors = errors.copy(isEmptyContactPhone = false)) }
     fun updateContactEmail(email: String) = updateState { copy(contactEmail = email) }
     fun updateWebsite(site: String) = updateState { copy(website = site) }
 }
