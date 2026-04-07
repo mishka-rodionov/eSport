@@ -7,7 +7,7 @@ import retrofit2.http.Query
 
 interface EventsRemoteDataSource {
 
-    @GET("url")
+    @GET("event/orienteering/competitions/public")
     suspend fun getEvents(@Query("kind_of_sports") kindOfSport: List<String>): Result<CommonModel<List<CompetitionResponse>>>
 
 }
