@@ -40,9 +40,9 @@ class EventDetailsViewModel(
      * Инициализация экрана. Загрузка детальной информации о событии.
      * @param eventId Идентификатор события.
      */
-    fun initialize(eventId: Long) {
+    fun initialize(eventId: String) {
         viewModelScope.launch {
-            cyclicEventDetailsRepository.getEventDetails(eventId.toString())
+            cyclicEventDetailsRepository.getEventDetails(eventId)
                 .onSuccess { details ->
                     updateState { copy(eventDetails = details) }
                 }

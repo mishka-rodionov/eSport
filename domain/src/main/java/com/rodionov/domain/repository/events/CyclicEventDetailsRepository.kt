@@ -20,19 +20,19 @@ interface CyclicEventDetailsRepository {
      * @param eventId Идентификатор события.
      * @param groupId Идентификатор группы.
      */
-    suspend fun getParticipants(eventId: Long, groupId: Long): Result<List<OrienteeringParticipant>>
+    suspend fun getParticipants(eventId: String, groupId: String): Result<List<OrienteeringParticipant>>
 
     /**
      * Зарегистрировать текущего пользователя в группу события.
      * @param eventId Идентификатор события.
      * @param groupId Идентификатор группы.
      */
-    suspend fun registerToEvent(eventId: Long, groupId: Long): Result<Unit>
+    suspend fun registerToEvent(eventId: String, groupId: String): Result<Unit>
 
     /**
      * Отменить регистрацию текущего пользователя на событие.
      * @param eventId Идентификатор события.
      */
-    suspend fun cancelRegistration(eventId: Long): Result<Unit>
+    suspend fun cancelRegistration(eventId: String): Result<Unit>
 
 }

@@ -22,7 +22,7 @@ import com.rodionov.local.entities.orienteering.ParticipantGroupEntity
 import com.rodionov.local.entities.orienteering.StageEntity
 import com.rodionov.local.entities.user.UserEntity
 
-private const val DB_VERSION = 24
+private const val DB_VERSION = 25
 
 /**
  * Основной класс базы данных приложения (Room).

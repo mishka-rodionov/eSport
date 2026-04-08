@@ -39,16 +39,16 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
      *
      * @param eventId Идентификатор события.
      */
-    fun loadResults(eventId: Long) {
+    fun loadResults(eventId: String) {
         viewModelScope.launch {
             updateState { copy(isLoading = true) }
             // Имитация задержки сети
             delay(1000)
-            
+
             val mockData = listOf(
-                createMockGroup(1, "М21", eventId),
-                createMockGroup(2, "Ж21", eventId),
-                createMockGroup(3, "Open", eventId)
+                createMockGroup(1, "М21"),
+                createMockGroup(2, "Ж21"),
+                createMockGroup(3, "Open")
             )
             
             updateState { 
@@ -63,11 +63,11 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
     /**
      * Создает моковые данные для группы.
      */
-    private fun createMockGroup(id: Long, title: String, eventId: Long): GroupWithParticipantsAndResults {
+    private fun createMockGroup(id: Long, title: String): GroupWithParticipantsAndResults {
         return GroupWithParticipantsAndResults(
             group = ParticipantGroup(
                 groupId = id,
-                competitionId = eventId,
+                competitionId = 0L,
                 title = title,
                 gender = if (title.startsWith("М")) Gender.MALE else if (title.startsWith("Ж")) Gender.FEMALE else Gender.MIXED,
                 minAge = if (title.contains("21")) 21 else 0,
@@ -86,7 +86,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
                         lastName = "Иванов",
                         groupId = id,
                         groupName = title,
-                        competitionId = eventId,
+                        competitionId = 0L,
                         commandName = "Команда А",
                         startNumber = "101",
                         startTime = 0L,
@@ -96,7 +96,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
                     ),
                     result = OrienteeringResult(
                         id = 1,
-                        competitionId = eventId,
+                        competitionId = 0L,
                         groupId = id,
                         participantId = 1,
                         totalTime = 1800,
@@ -112,7 +112,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
                         lastName = "Петров",
                         groupId = id,
                         groupName = title,
-                        competitionId = eventId,
+                        competitionId = 0L,
                         commandName = "Команда Б",
                         startNumber = "102",
                         startTime = 120L,
@@ -122,7 +122,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
                     ),
                     result = OrienteeringResult(
                         id = 2,
-                        competitionId = eventId,
+                        competitionId = 0L,
                         groupId = id,
                         participantId = 2,
                         totalTime = 1950,

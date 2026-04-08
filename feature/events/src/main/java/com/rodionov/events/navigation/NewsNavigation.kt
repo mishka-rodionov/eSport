@@ -18,9 +18,9 @@ import kotlin.reflect.typeOf
 fun NavGraphBuilder.eventsGraph() {
 //    navigation<EventsNavigationGraph.EventsBaseRoute>(startDestination = EventsNavigationGraph.EventsRoute) {
         composable<EventsNavigation.EventsRoute> { EventsScreen() }
-        composable<EventsNavigation.EventDetailsRoute> { 
+        composable<EventsNavigation.EventDetailsRoute> {
             val route = it.toRoute<EventsNavigation.EventDetailsRoute>()
-            EventDetailsScreen(idEvent = route.eventId) 
+            EventDetailsScreen(idEvent = route.eventId)
         }
         composable<EventsNavigation.EventParticipantGroupRoute>(
             typeMap = mapOf(typeOf<EventParticipantGroup>() to EventParticipantGroupNavType)

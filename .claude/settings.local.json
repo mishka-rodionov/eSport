@@ -5,7 +5,8 @@
       "Bash(find /h/android_project/eSport -path */build -prune -o -type f -name *.kt -print)",
       "Bash(xargs grep:*)",
       "Bash(./gradlew compileKotlin)",
-      "Bash(chmod +x /Users/rodionov/backend_projects/eSport/gradlew)"
+      "Bash(chmod +x /Users/rodionov/backend_projects/eSport/gradlew)",
+      "Bash(grep -E \"\\\\.\\(kt\\)$\")"
     ]
   }
 }

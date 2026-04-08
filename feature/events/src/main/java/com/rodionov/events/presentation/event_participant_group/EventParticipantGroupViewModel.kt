@@ -28,7 +28,7 @@ class EventParticipantGroupViewModel(
      * @param eventId Идентификатор события.
      * @param group Данные группы участников.
      */
-    fun initialize(eventId: Long, group: EventParticipantGroup) {
+    fun initialize(eventId: String, group: EventParticipantGroup) {
         updateState { copy(eventId = eventId, participantGroup = group, isLoading = true) }
         viewModelScope.launch {
             repository.getParticipants(eventId, group.groupId)

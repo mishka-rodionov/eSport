@@ -11,7 +11,7 @@ import com.rodionov.remote.request.events.RegisterEventRequest
 
 /**
  * Реализация репозитория для получения деталей циклического события.
- * Содержит моковые данные для [getEventDetails] и [getParticipants].
+ * Методы получения данных используют реальные сетевые запросы.
  * Методы регистрации используют реальные сетевые запросы.
  *
  * @param dataSource Источник данных для работы с API деталей событий.
@@ -21,95 +21,57 @@ class CyclicEventDetailsRepositoryImpl(
 ) : CyclicEventDetailsRepository {
 
     override suspend fun getEventDetails(eventId: String): Result<CyclicEventDetails?> {
-        return Result.success(
-            CyclicEventDetails(
-                eventId = 1L,
-                organizationId = "org_1",
-                title = "Марафон \"Путь к успеху\"",
-                description = "Большой забег через весь город. Приглашаем всех желающих испытать свои силы и насладиться видами нашего прекрасного города.",
-                startDate = System.currentTimeMillis(),
-                endDate = System.currentTimeMillis() + 86400000L,
-                endRegistrationDate = System.currentTimeMillis() - 3600000L,
-                maxParticipants = 500,
-                city = "Москва",
-                participantGroups = listOf(
-                    EventParticipantGroup(1, "М21", "Профессионалы", 100, 45),
-                    EventParticipantGroup(2, "Ж21", "Профессионалы", 100, 30),
-                    EventParticipantGroup(3, "Open", "Любители", 300, 150)
-                ),
-                status = EventStatus.REGISTRATION,
-                eventType = EventType.CyclicEvent.Orienteering
-            )
-        )
+        return dataSource.getEventDetails(eventId)
+            .map { response ->
+                response.result?.let { dto ->
+                    CyclicEventDetails(
+                        eventId = dto.remoteId,
+                        organizationId = dto.mainOrganizerId ?: "",
+                        title = dto.title,
+                        description = dto.description ?: "",
+                        startDate = dto.startDate,
+                        endDate = dto.endDate ?: dto.startDate,
+                        endRegistrationDate = dto.registrationEnd ?: dto.startDate,
+                        maxParticipants = dto.maxParticipants ?: 0,
+                        city = dto.address ?: "",
+                        participantGroups = dto.participantGroups.map { group ->
+                            EventParticipantGroup(
+                                groupId = group.groupId,
+                                title = group.title,
+                                description = null,
+                                maxParticipant = group.maxParticipants ?: 0,
+                                registeredParticipant = group.registeredCount
+                            )
+                        },
+                        status = mapStatus(dto.status),
+                        eventType = EventType.CyclicEvent.Orienteering
+                    )
+                }
+            }
     }
 
-    override suspend fun registerToEvent(eventId: Long, groupId: Long): Result<Unit> {
+    override suspend fun registerToEvent(eventId: String, groupId: String): Result<Unit> {
         return dataSource.registerToEvent(RegisterEventRequest(eventId = eventId, groupId = groupId))
             .mapCatching { }
     }
 
-    override suspend fun cancelRegistration(eventId: Long): Result<Unit> {
+    override suspend fun cancelRegistration(eventId: String): Result<Unit> {
         return dataSource.cancelRegistration(eventId)
             .mapCatching { }
     }
 
-    /**
-     * Возвращает моковый список участников для заданной группы и события.
-     * @param eventId Идентификатор события.
-     * @param groupId Идентификатор группы.
-     */
     override suspend fun getParticipants(
-        eventId: Long,
-        groupId: Long
+        eventId: String,
+        groupId: String
     ): Result<List<OrienteeringParticipant>> {
-        return Result.success(
-            listOf(
-                OrienteeringParticipant(
-                    id = 101L,
-                    userId = "user_1",
-                    firstName = "Иван",
-                    lastName = "Иванов",
-                    groupId = groupId,
-                    groupName = "М21",
-                    competitionId = eventId,
-                    commandName = "Спартак",
-                    startNumber = "1",
-                    startTime = System.currentTimeMillis(),
-                    chipNumber = "CHIP001",
-                    comment = "Мастер спорта",
-                    isChipGiven = true
-                ),
-                OrienteeringParticipant(
-                    id = 102L,
-                    userId = "user_2",
-                    firstName = "Петр",
-                    lastName = "Петров",
-                    groupId = groupId,
-                    groupName = "М21",
-                    competitionId = eventId,
-                    commandName = "Динамо",
-                    startNumber = "2",
-                    startTime = System.currentTimeMillis() + 60000,
-                    chipNumber = "CHIP002",
-                    comment = "",
-                    isChipGiven = false
-                ),
-                OrienteeringParticipant(
-                    id = 103L,
-                    userId = "user_3",
-                    firstName = "Сидор",
-                    lastName = "Сидоров",
-                    groupId = groupId,
-                    groupName = "М21",
-                    competitionId = eventId,
-                    commandName = "Зенит",
-                    startNumber = "3",
-                    startTime = System.currentTimeMillis() + 120000,
-                    chipNumber = "CHIP003",
-                    comment = "КМС",
-                    isChipGiven = true
-                )
-            )
-        )
+        return Result.success(emptyList())
+    }
+
+    private fun mapStatus(status: String): EventStatus = when (status) {
+        "REGISTRATION_OPEN" -> EventStatus.REGISTRATION
+        "IN_PROGRESS" -> EventStatus.STARTED
+        "FINISHED" -> EventStatus.FINISHED
+        "CANCELLED" -> EventStatus.CANCELLED
+        else -> EventStatus.CREATED
     }
 }

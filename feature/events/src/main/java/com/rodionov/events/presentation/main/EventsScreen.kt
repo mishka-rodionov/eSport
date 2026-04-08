@@ -70,8 +70,8 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
         verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp), // Отступ между карточками 8 dp
         contentPadding = PaddingValues(Dimens.SIZE_TWO.dp)
     ) {
-        itemsIndexed(state.events) { index, item ->
-            EventItem(item, userAction = viewModel::onAction, index)
+        itemsIndexed(state.events) { _, item ->
+            EventItem(item, userAction = viewModel::onAction)
         }
     }
 }
@@ -86,8 +86,7 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
 @Composable
 fun EventItem(
     event: Competition,
-    userAction: (EventsAction) -> Unit,
-    index: Int
+    userAction: (EventsAction) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var isOverflowing by remember { mutableStateOf(false) }
@@ -96,7 +95,7 @@ fun EventItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickRipple {
-                userAction.invoke(EventsAction.EventClick(index))
+                userAction.invoke(EventsAction.EventClick(event.remoteId ?: ""))
             },
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp), // Скругление карточки 16 dp
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -229,8 +228,7 @@ fun EventItemPreview() {
         Box(modifier = Modifier.padding(16.dp)) {
             EventItem(
                 event = mockEvent,
-                userAction = {},
-                index = 0
+                userAction = {}
             )
         }
     }

@@ -29,9 +29,7 @@ class EventsViewModel(
             is EventsAction.EventClick -> {
                 viewModelScope.launch {
                     navigation.navigate(
-                        EventsNavigation.EventDetailsRoute(
-                            eventId = action.eventId.toLong()
-                        )
+                        EventsNavigation.EventDetailsRoute(eventId = action.eventId)
                     )
                 }
             }

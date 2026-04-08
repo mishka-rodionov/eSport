@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class EventParticipantGroup(
-    val groupId: Long,
+    val groupId: String,
     val title: String,
     val description: String?,
     val maxParticipant: Int,
