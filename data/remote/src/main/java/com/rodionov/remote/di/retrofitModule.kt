@@ -53,7 +53,7 @@ fun retrofit(
         .build()
     val baseUrl = "https://BASE_URL"
 //    val localBaseUrl = "http://192.168.1.113:8080/"
-    val localBaseUrl = "http://192.168.1.206:8080/"
+    val localBaseUrl = "http://188.68.223.12:8080/"
     return Retrofit.Builder()
         .baseUrl(localBaseUrl)
 //        .baseUrl(baseUrl)
