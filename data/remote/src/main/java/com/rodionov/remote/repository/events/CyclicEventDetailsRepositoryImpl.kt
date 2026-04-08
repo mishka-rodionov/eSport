@@ -8,6 +8,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.remote.datasource.events.CyclicEventDetailsRemoteDataSource
 import com.rodionov.remote.request.events.RegisterEventRequest
+import com.rodionov.remote.response.events.ParticipantPublicResponse
 
 /**
  * Реализация репозитория для получения деталей циклического события.
@@ -64,7 +65,28 @@ class CyclicEventDetailsRepositoryImpl(
         eventId: String,
         groupId: String
     ): Result<List<OrienteeringParticipant>> {
-        return Result.success(emptyList())
+        return dataSource.getParticipantsByGroup(groupId)
+            .map { response ->
+                response.result?.map { it.toDomain() } ?: emptyList()
+            }
+    }
+
+    private fun ParticipantPublicResponse.toDomain(): OrienteeringParticipant {
+        return OrienteeringParticipant(
+            id = 0L,
+            userId = userId ?: "",
+            firstName = firstName,
+            lastName = lastName,
+            groupId = 0L,
+            groupName = groupName,
+            competitionId = 0L,
+            commandName = commandName ?: "",
+            startNumber = startNumber.toString(),
+            startTime = startTime,
+            chipNumber = chipNumber.toString(),
+            comment = comment ?: "",
+            isChipGiven = isChipGiven
+        )
     }
 
     private fun mapStatus(status: String): EventStatus = when (status) {

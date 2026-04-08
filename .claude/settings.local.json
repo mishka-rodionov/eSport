@@ -6,7 +6,8 @@
       "Bash(xargs grep:*)",
       "Bash(./gradlew compileKotlin)",
       "Bash(chmod +x /Users/rodionov/backend_projects/eSport/gradlew)",
-      "Bash(grep -E \"\\\\.\\(kt\\)$\")"
+      "Bash(grep -E \"\\\\.\\(kt\\)$\")",
+      "Bash(git commit:*)"
     ]
   }
 }

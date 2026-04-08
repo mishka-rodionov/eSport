@@ -111,6 +111,13 @@ class OrienteeringCompetitionInteractor(
             }
     }
 
+    suspend fun publishGroupsToServer(
+        remoteCompetitionId: String,
+        groups: List<ParticipantGroup>
+    ): Result<Unit> {
+        return remoteRepository.publishGroupsForCompetition(remoteCompetitionId, groups)
+    }
+
     suspend fun updateCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
         return localRepository.updateCompetition(orienteeringCompetition).mapCatching { orienteeringCompetition }
     }

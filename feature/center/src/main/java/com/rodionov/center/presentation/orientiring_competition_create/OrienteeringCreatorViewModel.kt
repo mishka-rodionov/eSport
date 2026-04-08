@@ -370,13 +370,19 @@ class OrienteeringCreatorViewModel(
         updateState { copy(isLoading = true) }
         viewModelScope.launch(Dispatchers.IO) {
             val competition = stateValue.toOrienteeringCompetition(user?.id)
+            val groups = stateValue.participantGroups
 
             orienteeringCompetitionInteractor.updateCompetition(
                 competition,
-                stateValue.participantGroups
+                groups
             )
 
             orienteeringCompetitionInteractor.publishCompetitionToServer(competition)
+                .onSuccess { serverCompetition ->
+                    serverCompetition.competition.remoteId?.let { remoteId ->
+                        orienteeringCompetitionInteractor.publishGroupsToServer(remoteId, groups)
+                    }
+                }
                 .onFailure { error ->
                     updateState { copy(error = error.message) }
                 }

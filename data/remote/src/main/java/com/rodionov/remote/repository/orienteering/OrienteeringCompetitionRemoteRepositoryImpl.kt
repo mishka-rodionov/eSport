@@ -7,6 +7,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import com.rodionov.remote.datasource.orienteering.OrienteeringCompetitionRemoteDataSource
 import com.rodionov.remote.request.mappers.toRequest
+import com.rodionov.remote.request.orienteering.ParticipantGroupPublishRequest
 import com.rodionov.remote.response.mappers.toDomain
 
 /**
@@ -30,6 +31,26 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
         return orienteeringCompetitionRemoteDataSource.createCompetitionParticipantGroup(
             participantGroups.map { it.toRequest() })
             .mapCatching { it.result!!.map { gr -> gr.toDomain() } }
+    }
+
+    override suspend fun publishGroupsForCompetition(
+        remoteCompetitionId: String,
+        participantGroups: List<ParticipantGroup>
+    ): Result<Unit> {
+        return orienteeringCompetitionRemoteDataSource.publishParticipantGroups(
+            participantGroups.map { group ->
+                ParticipantGroupPublishRequest(
+                    groupId = null,
+                    competitionId = remoteCompetitionId,
+                    title = group.title,
+                    gender = group.gender?.name,
+                    minAge = group.minAge,
+                    maxAge = group.maxAge,
+                    distanceId = group.distanceId.toString(),
+                    maxParticipants = group.maxParticipants
+                )
+            }
+        ).mapCatching { }
     }
 
     override suspend fun getCompetitionById(competitionId: Long): Result<OrienteeringCompetition> {

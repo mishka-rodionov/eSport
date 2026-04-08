@@ -4,6 +4,7 @@ import com.rodionov.remote.base.CommonModel
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest
 import com.rodionov.remote.request.orienteering.OrienteeringParticipantRequest
 import com.rodionov.remote.request.orienteering.OrienteeringResultRequest
+import com.rodionov.remote.request.orienteering.ParticipantGroupPublishRequest
 import com.rodionov.remote.request.orienteering.ParticipantGroupRequest
 import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
 import com.rodionov.remote.response.orienteering.OrienteeringParticipantResponse
@@ -21,6 +22,9 @@ interface OrienteeringCompetitionRemoteDataSource {
 
     @POST("event/orienteering/save/participantGroup")
     suspend fun createCompetitionParticipantGroup(@Body request: List<ParticipantGroupRequest>): Result<CommonModel<List<ParticipantGroupResponse>>>
+
+    @POST("event/orienteering/save/participantGroup")
+    suspend fun publishParticipantGroups(@Body request: List<ParticipantGroupPublishRequest>): Result<CommonModel<List<ParticipantGroupResponse>>>
 
     @GET("event/orienteering/competitions")
     suspend fun getCompetitionsByUserid(@Query("userId") userId: String): Result<CommonModel<List<OrienteeringCompetitionResponse>>>

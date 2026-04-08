@@ -3,11 +3,13 @@ package com.rodionov.remote.datasource.events
 import com.rodionov.remote.base.CommonModel
 import com.rodionov.remote.request.events.RegisterEventRequest
 import com.rodionov.remote.response.events.CompetitionDetailResponse
+import com.rodionov.remote.response.events.ParticipantPublicResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface CyclicEventDetailsRemoteDataSource {
 
@@ -19,5 +21,8 @@ interface CyclicEventDetailsRemoteDataSource {
 
     @DELETE("event/cyclic/register/{eventId}")
     suspend fun cancelRegistration(@Path("eventId") eventId: String): Result<CommonModel<Unit>>
+
+    @GET("event/orienteering/participants")
+    suspend fun getParticipantsByGroup(@Query("groupId") groupId: String): Result<CommonModel<List<ParticipantPublicResponse>>>
 
 }
