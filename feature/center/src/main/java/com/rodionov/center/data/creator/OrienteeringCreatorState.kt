@@ -49,6 +49,7 @@ import com.rodionov.ui.BaseState
  */
 data class OrienteeringCreatorState(
     val competitionId: Long? = null,
+    val remoteCompetitionId: String? = null,
     val title: String = "",
     val startDate: Long = System.currentTimeMillis(),
     val startTimeStr: String = "10:00",
@@ -99,6 +100,7 @@ data class OrienteeringCreatorState(
         return OrienteeringCompetition(
             localCompetitionId = competitionId ?: 0L,
             competition = Competition(
+                remoteId = remoteCompetitionId,
                 title = title,
                 startDate = startDate,
                 endDate = endDate,

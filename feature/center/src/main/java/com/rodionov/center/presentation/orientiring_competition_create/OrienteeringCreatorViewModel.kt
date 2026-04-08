@@ -199,6 +199,7 @@ class OrienteeringCreatorViewModel(
             updateState {
                 copy(
                     competitionId = competitionId,
+                    remoteCompetitionId = comp.competition.remoteId,
                     title = comp.competition.title,
                     startDate = comp.competition.startDate,
                     startTimeStr = DateTimeFormat.transformLongToTime(comp.competition.startDate),
