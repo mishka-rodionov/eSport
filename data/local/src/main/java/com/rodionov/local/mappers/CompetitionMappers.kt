@@ -71,6 +71,7 @@ fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
         maxAge = this.maxAge,
         distanceId = this.distanceId,
         maxParticipants = this.maxParticipants,
+        remoteId = this.remoteId,
         isSynced = this.isSynced,
         lastModified = this.lastModified,
         isDeleted = this.isDeleted
@@ -90,6 +91,7 @@ fun ParticipantGroupEntity.toDomain(): ParticipantGroup {
         maxAge = this.maxAge,
         distanceId = this.distanceId,
         maxParticipants = this.maxParticipants,
+        remoteId = this.remoteId,
         isSynced = this.isSynced,
         lastModified = this.lastModified,
         isDeleted = this.isDeleted

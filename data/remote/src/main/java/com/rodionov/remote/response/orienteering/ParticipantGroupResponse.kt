@@ -5,20 +5,20 @@ import com.google.gson.annotations.SerializedName
 /**
  * Ответ сервера с информацией о группе участников соревнования.
  *
- * @property groupId Уникальный идентификатор группы.
- * @property competitionId Идентификатор соревнования.
+ * @property groupId UUID группы на сервере.
+ * @property competitionId UUID соревнования на сервере.
  * @property title Название группы.
  * @property gender Пол участников.
  * @property minAge Минимальный возраст.
  * @property maxAge Максимальный возраст.
- * @property distanceId Идентификатор связанной дистанции.
+ * @property distanceId UUID связанной дистанции.
  * @property maxParticipants Лимит участников для группы.
  */
 data class ParticipantGroupResponse(
     @SerializedName("groupId")
-    val groupId: Long,
+    val groupId: String,
     @SerializedName("competitionId")
-    val competitionId: Long,
+    val competitionId: String,
     @SerializedName("title")
     val title: String,
     @SerializedName("gender")
@@ -28,7 +28,7 @@ data class ParticipantGroupResponse(
     @SerializedName("maxAge")
     val maxAge: Int?,
     @SerializedName("distanceId")
-    val distanceId: Long,
+    val distanceId: String,
     @SerializedName("maxParticipants")
     val maxParticipants: Int?
 )

@@ -26,23 +26,26 @@ fun OrienteeringCompetitionResponse.toDomain(): OrienteeringCompetition {
 
 /**
  * Преобразует ответ сервера по группе участников в доменную модель.
+ * groupId из ответа — UUID строка, сохраняется в remoteId.
+ * Локальный groupId неизвестен на этом уровне, устанавливается при zip-сопоставлении.
  */
 fun ParticipantGroupResponse.toDomain() : ParticipantGroup {
     return ParticipantGroup(
-        groupId = groupId,
-        competitionId = competitionId,
+        groupId = 0L,
+        competitionId = 0L,
         title = title,
-        gender = gender?.let { 
-            try { 
-                Gender.valueOf(it) 
-            } catch (e: Exception) { 
-                null 
-            } 
+        gender = gender?.let {
+            try {
+                Gender.valueOf(it)
+            } catch (e: Exception) {
+                null
+            }
         },
         minAge = minAge,
         maxAge = maxAge,
-        distanceId = distanceId,
+        distanceId = 0L,
         maxParticipants = maxParticipants,
+        remoteId = groupId,
         isSynced = true,
         lastModified = System.currentTimeMillis()
     )

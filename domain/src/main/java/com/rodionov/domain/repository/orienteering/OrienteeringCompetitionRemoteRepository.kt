@@ -11,7 +11,7 @@ interface OrienteeringCompetitionRemoteRepository {
 
     suspend fun createParticipantsGroupsForCompetition(competitionId: Long, participantGroups: List<ParticipantGroup>): Result<List<ParticipantGroup>>
 
-    suspend fun publishGroupsForCompetition(remoteCompetitionId: String, participantGroups: List<ParticipantGroup>): Result<Unit>
+    suspend fun publishGroupsForCompetition(remoteCompetitionId: String, participantGroups: List<ParticipantGroup>): Result<List<ParticipantGroup>>
 
     suspend fun getCompetitionById(competitionId: Long): Result<OrienteeringCompetition>
 

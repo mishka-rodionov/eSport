@@ -114,6 +114,10 @@ class OrienteeringCompetitionInteractor(
         groups: List<ParticipantGroup>
     ): Result<Unit> {
         return remoteRepository.publishGroupsForCompetition(remoteCompetitionId, groups)
+            .mapCatching { updatedGroups ->
+                // Сохраняем remoteId и isSynced для каждой группы локально
+                updatedGroups.forEach { localRepository.updateParticipantGroup(it) }
+            }
     }
 
     suspend fun updateCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {

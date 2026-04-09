@@ -12,6 +12,7 @@ data class ParticipantGroup(
     val distanceId: Long,                  // ссылка на дистанцию
     val maxParticipants: Int? = null,      // лимит для группы
     // Поля синхронизации
+    val remoteId: String? = null,          // UUID группы на сервере (null = не синхронизирована)
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),
     val isDeleted: Boolean = false

@@ -8,6 +8,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest
+import com.rodionov.remote.request.orienteering.ParticipantGroupPublishRequest
 import com.rodionov.remote.request.orienteering.ParticipantGroupRequest
 import com.rodionov.remote.response.auth.AuthResponse
 import com.rodionov.remote.response.auth.TokenResponse
@@ -269,10 +270,10 @@ class MockInterceptor : Interceptor {
             buffer.readUtf8()
         }
 
-        val participantGroups = gson.fromJson(bodyString, Array<ParticipantGroupRequest>::class.java)
+        val participantGroups = gson.fromJson(bodyString, Array<ParticipantGroupPublishRequest>::class.java)
         val mockGroupsResponse = participantGroups.map {
             ParticipantGroupResponse(
-                groupId = (1000..9999).random().toLong(),
+                groupId = it.groupId ?: java.util.UUID.randomUUID().toString(),
                 competitionId = it.competitionId,
                 title = it.title,
                 gender = it.gender,

@@ -375,10 +375,17 @@ class OrienteeringCreatorViewModel(
                 groups
             )
 
+            // Перезагружаем группы из БД, чтобы получить актуальные локальные ID
+            // (новые группы с groupId=0 получают реальный ID при вставке)
+            val freshGroups = stateValue.competitionId?.let { id ->
+                orienteeringCompetitionInteractor.getCompetitionWithDetails(id)
+                    .getOrNull()?.groupsWithParticipants?.map { it.group }
+            } ?: groups
+
             orienteeringCompetitionInteractor.publishCompetitionToServer(competition)
                 .onSuccess { serverCompetition ->
                     serverCompetition.competition.remoteId?.let { remoteId ->
-                        orienteeringCompetitionInteractor.publishGroupsToServer(remoteId, groups)
+                        orienteeringCompetitionInteractor.publishGroupsToServer(remoteId, freshGroups)
                     }
                 }
                 .onFailure { error ->

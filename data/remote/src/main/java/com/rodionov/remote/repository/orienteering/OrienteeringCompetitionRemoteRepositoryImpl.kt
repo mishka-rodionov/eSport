@@ -36,11 +36,11 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     override suspend fun publishGroupsForCompetition(
         remoteCompetitionId: String,
         participantGroups: List<ParticipantGroup>
-    ): Result<Unit> {
+    ): Result<List<ParticipantGroup>> {
         return orienteeringCompetitionRemoteDataSource.publishParticipantGroups(
             participantGroups.map { group ->
                 ParticipantGroupPublishRequest(
-                    groupId = null,
+                    groupId = group.remoteId,  // null для новых, UUID для существующих
                     competitionId = remoteCompetitionId,
                     title = group.title,
                     gender = group.gender?.name,
@@ -50,7 +50,16 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
                     maxParticipants = group.maxParticipants
                 )
             }
-        ).mapCatching { }
+        ).mapCatching { response ->
+            // Сопоставляем локальные группы с ответом сервера по порядку
+            participantGroups.zip(response.result!!) { localGroup, serverGroup ->
+                localGroup.copy(
+                    remoteId = serverGroup.groupId,
+                    isSynced = true,
+                    lastModified = System.currentTimeMillis()
+                )
+            }
+        }
     }
 
     override suspend fun getCompetitionById(competitionId: Long): Result<OrienteeringCompetition> {
