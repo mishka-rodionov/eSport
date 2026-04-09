@@ -15,6 +15,9 @@ sealed interface Navigation {
     /** Общий поток эффектов навигации для всего приложения (например, BackRoute) */
     val baseNavigationEffect: SharedFlow<BaseNavigation>
 
+    /** Поток переключения табов нижней навигации. Эмитит route таба (см. [TabRoutes]). */
+    val switchTabEffect: SharedFlow<String>
+
     var baseArgument: List<BaseArgument<*>>?
 
     /**
@@ -26,6 +29,12 @@ sealed interface Navigation {
      * Выполняет переход на указанный роут.
      */
     suspend fun navigate(destination: BaseNavigation, argument: List<BaseArgument<*>>? = null)
+
+    /**
+     * Переключает активный таб нижней навигации.
+     * @param tabRoute route таба (см. [TabRoutes]).
+     */
+    suspend fun switchTab(tabRoute: String)
 
     /**
      * Выполняет переход назад (возврат на предыдущий экран).

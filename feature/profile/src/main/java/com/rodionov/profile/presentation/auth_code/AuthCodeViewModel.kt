@@ -3,7 +3,9 @@ package com.rodionov.profile.presentation.auth_code
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.data.navigation.PendingRegistrationRepository
 import com.rodionov.data.navigation.ProfileNavigation
+import com.rodionov.data.navigation.TabRoutes
 import com.rodionov.data.navigation.getArguments
 import com.rodionov.profile.data.auth.AuthAction
 import com.rodionov.profile.data.interactors.AuthInteractor
@@ -16,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class AuthCodeViewModel(
     private val authInteractor: AuthInteractor,
-    private val navigation: Navigation
+    private val navigation: Navigation,
+    private val pendingRegistrationRepository: PendingRegistrationRepository
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     override fun onAction(action: BaseAction) {
@@ -30,7 +33,11 @@ class AuthCodeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             navigation.getArguments<String>(ProfileConstants.AUTH_EMAIL.name)?.let { email ->
                 authInteractor.authorize(email = email, code = code).onSuccess {
-                    navigation.navigate(ProfileNavigation.MainProfileRoute)
+                    if (pendingRegistrationRepository.pending.value != null) {
+                        navigation.switchTab(TabRoutes.EVENTS)
+                    } else {
+                        navigation.navigate(ProfileNavigation.MainProfileRoute)
+                    }
                 }.onFailure {
                     Log.d("LOG_TAG", "sendAuthCode: $it")
                 }

@@ -7,7 +7,12 @@
       "Bash(./gradlew compileKotlin)",
       "Bash(chmod +x /Users/rodionov/backend_projects/eSport/gradlew)",
       "Bash(grep -E \"\\\\.\\(kt\\)$\")",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(grep -E \"\\\\.kt$\")",
+      "Bash(rtk git:*)",
+      "Bash(rtk grep:*)",
+      "Bash(./gradlew :feature:events:compileDebugKotlin :feature:profile:compileDebugKotlin :app:compileDebugKotlin)",
+      "Bash(bash gradlew:*)"
     ]
   }
 }

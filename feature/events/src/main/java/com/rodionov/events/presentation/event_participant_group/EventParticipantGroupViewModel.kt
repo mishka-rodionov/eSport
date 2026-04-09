@@ -1,6 +1,9 @@
 package com.rodionov.events.presentation.event_participant_group
 
 import androidx.lifecycle.viewModelScope
+import com.rodionov.data.navigation.Navigation
+import com.rodionov.data.navigation.PendingRegistrationRepository
+import com.rodionov.data.navigation.TabRoutes
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
@@ -14,10 +17,14 @@ import kotlinx.coroutines.launch
  * Вьюмодель экрана группы участников события.
  * @property repository Репозиторий для получения данных о событии.
  * @property userRepository Репозиторий пользователя.
+ * @property navigation Сервис навигации.
+ * @property pendingRegistrationRepository Хранилище отложенного действия регистрации.
  */
 class EventParticipantGroupViewModel(
     private val repository: CyclicEventDetailsRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val navigation: Navigation,
+    private val pendingRegistrationRepository: PendingRegistrationRepository
 ) : BaseViewModel<EventParticipantGroupState>(EventParticipantGroupState()) {
 
     private var currentUser: User? = null
@@ -55,18 +62,32 @@ class EventParticipantGroupViewModel(
                 .onFailure {
                     updateState { copy(isLoading = false) }
                 }
+
+            // Проверить отложенную регистрацию: если вернулись после авторизации
+            val pending = pendingRegistrationRepository.pending.value
+            if (pending != null && pending.eventId == eventId && pending.groupId == group.groupId) {
+                pendingRegistrationRepository.clear()
+                registerUser()
+            }
         }
     }
 
     /**
      * Регистрация пользователя в группу.
+     * Если пользователь не авторизован — сохраняет отложенное действие и переходит на Profile таб.
      */
     private fun registerUser() {
         val eventId = stateValue.eventId ?: return
         val group = stateValue.participantGroup ?: return
-        val user = currentUser ?: return
 
         viewModelScope.launch {
+            if (!userRepository.isAuthorized()) {
+                pendingRegistrationRepository.set(eventId, group.groupId)
+                navigation.switchTab(TabRoutes.PROFILE)
+                return@launch
+            }
+
+            val user = currentUser ?: return@launch
             updateState { copy(isRegistering = true) }
             repository.registerToEvent(
                 eventId = eventId,

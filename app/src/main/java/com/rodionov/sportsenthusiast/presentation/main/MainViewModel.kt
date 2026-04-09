@@ -47,6 +47,11 @@ class MainViewModel(
     val baseNavigationEffect: SharedFlow<BaseNavigation> = navigation.baseNavigationEffect
 
     /**
+     * Поток команд переключения таба нижней навигации.
+     */
+    val switchTabEffect: SharedFlow<String> = navigation.switchTabEffect
+
+    /**
      * Команды запуска/остановки foreground-сервиса, читаются в MainActivity.
      */
     val serviceCommands: SharedFlow<CompetitionServiceCommand> = serviceController.commands

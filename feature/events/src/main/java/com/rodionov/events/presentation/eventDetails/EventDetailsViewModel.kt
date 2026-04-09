@@ -3,6 +3,8 @@ package com.rodionov.events.presentation.eventDetails
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.EventsNavigation
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.data.navigation.PendingRegistrationRepository
+import com.rodionov.data.navigation.TabRoutes
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
@@ -19,11 +21,13 @@ import kotlinx.coroutines.launch
  * @param cyclicEventDetailsRepository Репозиторий для получения деталей события.
  * @param userRepository Репозиторий пользователя.
  * @param navigation Сервис навигации.
+ * @param pendingRegistrationRepository Хранилище отложенного действия регистрации.
  */
 class EventDetailsViewModel(
     private val cyclicEventDetailsRepository: CyclicEventDetailsRepository,
     private val userRepository: UserRepository,
-    private val navigation: Navigation
+    private val navigation: Navigation,
+    private val pendingRegistrationRepository: PendingRegistrationRepository
 ) : BaseViewModel<EventDetailsState>(
     EventDetailsState(eventDetails = null)
 ) {
@@ -62,11 +66,26 @@ class EventDetailsViewModel(
                 .onFailure {
                     // TODO: Обработка ошибки загрузки
                 }
+
+            // Проверить отложенную регистрацию: если вернулись после авторизации
+            val pending = pendingRegistrationRepository.pending.value
+            if (pending != null && pending.eventId == eventId && pending.groupId == null) {
+                pendingRegistrationRepository.clear()
+                updateState { copy(isRegistrationSheetVisible = true) }
+            }
         }
     }
 
     private fun showRegistrationDialog() {
-        updateState { copy(isRegistrationSheetVisible = true) }
+        viewModelScope.launch {
+            if (!userRepository.isAuthorized()) {
+                val eventId = stateValue.eventDetails?.eventId ?: return@launch
+                pendingRegistrationRepository.set(eventId)
+                navigation.switchTab(TabRoutes.PROFILE)
+                return@launch
+            }
+            updateState { copy(isRegistrationSheetVisible = true) }
+        }
     }
 
     private fun hideRegistrationDialog() {

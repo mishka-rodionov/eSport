@@ -27,6 +27,9 @@ class NavigationImpl : Navigation {
     override val baseNavigationEffect: SharedFlow<BaseNavigation> =
         _baseNavigationEffect.asSharedFlow()
 
+    private val _switchTabEffect = MutableSharedFlow<String>()
+    override val switchTabEffect: SharedFlow<String> = _switchTabEffect.asSharedFlow()
+
     override var baseArgument: List<BaseArgument<*>>? = null
 
     override suspend fun collectNavigationEffect(
@@ -50,6 +53,10 @@ class NavigationImpl : Navigation {
             is EventsNavigation -> _eventsNavigationEffect.emit(destination)
             is BackRoute -> _baseNavigationEffect.emit(destination)
         }
+    }
+
+    override suspend fun switchTab(tabRoute: String) {
+        _switchTabEffect.emit(tabRoute)
     }
 
     /**

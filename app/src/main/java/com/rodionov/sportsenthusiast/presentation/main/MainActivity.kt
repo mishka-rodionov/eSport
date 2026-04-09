@@ -195,6 +195,12 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     val lifecycleOwner = LocalLifecycleOwner.current
     val scanEvent by viewModel.currentScanEvent.collectAsState()
     val conflictEvent by viewModel.conflictEvent.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.switchTabEffect.collect { tabRoute ->
+            selectedTab = tabRoute
+        }
+    }
     
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
