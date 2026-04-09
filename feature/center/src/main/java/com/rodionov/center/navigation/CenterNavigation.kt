@@ -45,12 +45,6 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass) {
         CreateParticipantGroupScreen(competitionId = route.competitionId)
     }
 
-    // Устаревший роут (для обратной совместимости во время перехода)
-    composable<CenterNavigation.OrienteeringCreatorRoute> { backStackEntry ->
-        val route: CenterNavigation.OrienteeringCreatorRoute = backStackEntry.toRoute()
-        OrienteeringCompetitionCreator(competitionId = route.competitionId)
-    }
-
     composable<CenterNavigation.OrienteeringEventControlRoute> {
         OrienteeringEventControlScreen(
             windowSizeClass = windowSizeClass

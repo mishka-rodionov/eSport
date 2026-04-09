@@ -1,6 +1,5 @@
 package com.rodionov.profile.presentation.auth_code
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

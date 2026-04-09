@@ -36,8 +36,6 @@ sealed class CenterNavigation: BaseNavigation {
     data class CreateParticipantGroupRoute(val competitionId: Long): CenterNavigation()
 
     @Serializable
-    data class OrienteeringCreatorRoute(val competitionId: Long? = null): CenterNavigation()
-    @Serializable
     data object OrienteeringEventControlRoute: CenterNavigation()
     @Serializable
     data object OrientReadCardRoute: CenterNavigation()
