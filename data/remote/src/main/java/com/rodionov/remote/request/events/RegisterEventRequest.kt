@@ -3,14 +3,20 @@ package com.rodionov.remote.request.events
 import com.google.gson.annotations.SerializedName
 
 /**
- * Запрос на регистрацию пользователя в группу события.
+ * Запрос на регистрацию пользователя в группу соревнования.
  *
- * @property eventId Идентификатор события.
+ * @property competitionId Идентификатор соревнования (remoteId).
  * @property groupId Идентификатор группы.
+ * @property firstName Имя пользователя.
+ * @property lastName Фамилия пользователя.
  */
 data class RegisterEventRequest(
-    @SerializedName("eventId")
-    val eventId: String,
+    @SerializedName("competitionId")
+    val competitionId: String,
     @SerializedName("groupId")
-    val groupId: String
+    val groupId: String,
+    @SerializedName("firstName")
+    val firstName: String,
+    @SerializedName("lastName")
+    val lastName: String
 )

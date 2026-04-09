@@ -14,13 +14,16 @@ import retrofit2.http.Query
 interface CyclicEventDetailsRemoteDataSource {
 
     @GET("event/orienteering/competitions/public/{eventId}")
-    suspend fun getEventDetails(@Path("eventId") eventId: String): Result<CommonModel<CompetitionDetailResponse>>
+    suspend fun getEventDetails(
+        @Path("eventId") eventId: String,
+        @Query("userId") userId: String? = null
+    ): Result<CommonModel<CompetitionDetailResponse>>
 
-    @POST("event/cyclic/register")
+    @POST("event/orienteering/register")
     suspend fun registerToEvent(@Body request: RegisterEventRequest): Result<CommonModel<Unit>>
 
-    @DELETE("event/cyclic/register/{eventId}")
-    suspend fun cancelRegistration(@Path("eventId") eventId: String): Result<CommonModel<Unit>>
+    @DELETE("event/orienteering/register/{competitionId}")
+    suspend fun cancelRegistration(@Path("competitionId") competitionId: String): Result<CommonModel<Unit>>
 
     @GET("event/orienteering/participants")
     suspend fun getParticipantsByGroup(@Query("groupId") groupId: String): Result<CommonModel<List<ParticipantPublicResponse>>>

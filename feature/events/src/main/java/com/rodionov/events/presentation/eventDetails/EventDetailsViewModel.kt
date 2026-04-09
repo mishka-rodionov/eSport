@@ -4,7 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.EventsNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
+import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
+import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.events.data.details.EventDetailsState
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
@@ -15,14 +17,18 @@ import kotlinx.coroutines.launch
  * Управляет загрузкой данных события, навигацией и процессом регистрации.
  *
  * @param cyclicEventDetailsRepository Репозиторий для получения деталей события.
+ * @param userRepository Репозиторий пользователя.
  * @param navigation Сервис навигации.
  */
 class EventDetailsViewModel(
     private val cyclicEventDetailsRepository: CyclicEventDetailsRepository,
+    private val userRepository: UserRepository,
     private val navigation: Navigation
 ) : BaseViewModel<EventDetailsState>(
     EventDetailsState(eventDetails = null)
 ) {
+
+    private var currentUser: User? = null
 
     override fun onAction(action: BaseAction) {
         when (action) {
@@ -37,14 +43,21 @@ class EventDetailsViewModel(
     }
 
     /**
-     * Инициализация экрана. Загрузка детальной информации о событии.
+     * Инициализация экрана. Загрузка пользователя и детальной информации о событии.
      * @param eventId Идентификатор события.
      */
     fun initialize(eventId: String) {
         viewModelScope.launch {
-            cyclicEventDetailsRepository.getEventDetails(eventId)
+            currentUser = userRepository.retrieveUser().getOrNull()
+
+            cyclicEventDetailsRepository.getEventDetails(eventId, currentUser?.id)
                 .onSuccess { details ->
-                    updateState { copy(eventDetails = details) }
+                    updateState {
+                        copy(
+                            eventDetails = details,
+                            isUserRegistered = details?.isUserRegistered ?: false
+                        )
+                    }
                 }
                 .onFailure {
                     // TODO: Обработка ошибки загрузки
@@ -52,38 +65,34 @@ class EventDetailsViewModel(
         }
     }
 
-    /**
-     * Показывает диалог регистрации.
-     */
     private fun showRegistrationDialog() {
         updateState { copy(isRegistrationSheetVisible = true) }
     }
 
-    /**
-     * Скрывает диалог регистрации.
-     */
     private fun hideRegistrationDialog() {
         updateState { copy(isRegistrationSheetVisible = false, selectedGroup = null) }
     }
 
-    /**
-     * Выбор группы в диалоге.
-     * @param group Выбранная группа.
-     */
     private fun selectGroup(group: EventParticipantGroup) {
         updateState { copy(selectedGroup = group) }
     }
 
     /**
-     * Подтверждение регистрации.
+     * Подтверждение регистрации с данными текущего пользователя.
      */
     private fun confirmRegistration() {
         val selectedGroup = stateValue.selectedGroup ?: return
         val eventId = stateValue.eventDetails?.eventId ?: return
+        val user = currentUser ?: return
 
         viewModelScope.launch {
-            updateState { copy(isRegistering = true) }
-            cyclicEventDetailsRepository.registerToEvent(eventId, selectedGroup.groupId)
+            updateState { copy(isRegistering = true, error = null) }
+            cyclicEventDetailsRepository.registerToEvent(
+                eventId = eventId,
+                groupId = selectedGroup.groupId,
+                firstName = user.firstName,
+                lastName = user.lastName
+            )
                 .onSuccess {
                     updateState {
                         copy(
@@ -94,9 +103,13 @@ class EventDetailsViewModel(
                         )
                     }
                 }
-                .onFailure {
-                    updateState { copy(isRegistering = false) }
-                    // TODO: Показать уведомление об ошибке регистрации
+                .onFailure { e ->
+                    updateState {
+                        copy(
+                            isRegistering = false,
+                            error = e.message
+                        )
+                    }
                 }
         }
     }
@@ -108,22 +121,17 @@ class EventDetailsViewModel(
         val eventId = stateValue.eventDetails?.eventId ?: return
 
         viewModelScope.launch {
-            updateState { copy(isRegistering = true) }
+            updateState { copy(isRegistering = true, error = null) }
             cyclicEventDetailsRepository.cancelRegistration(eventId)
                 .onSuccess {
                     updateState { copy(isRegistering = false, isUserRegistered = false) }
                 }
-                .onFailure {
-                    updateState { copy(isRegistering = false) }
-                    // TODO: Показать уведомление об ошибке отмены регистрации
+                .onFailure { e ->
+                    updateState { copy(isRegistering = false, error = e.message) }
                 }
         }
     }
 
-    /**
-     * Переход к деталям группы участников.
-     * @param group Модель группы.
-     */
     private fun navigateToGroup(group: EventParticipantGroup) {
         val eventId = stateValue.eventDetails?.eventId ?: return
         viewModelScope.launch {
@@ -136,9 +144,6 @@ class EventDetailsViewModel(
         }
     }
 
-    /**
-     * Переход на экран результатов события.
-     */
     private fun navigateToResults() {
         val eventId = stateValue.eventDetails?.eventId ?: return
         viewModelScope.launch {
@@ -151,18 +156,11 @@ class EventDetailsViewModel(
  * Действия на экране деталей события.
  */
 sealed interface EventDetailsAction : BaseAction {
-    /** Клик по группе участников. */
     data class OnGroupClick(val group: EventParticipantGroup) : EventDetailsAction
-    /** Переход к результатам события. */
     data object ToResults : EventDetailsAction
-    /** Показать диалог регистрации. */
     data object ShowRegistrationDialog : EventDetailsAction
-    /** Скрыть диалог регистрации. */
     data object HideRegistrationDialog : EventDetailsAction
-    /** Выбрать группу. */
     data class SelectGroup(val group: EventParticipantGroup) : EventDetailsAction
-    /** Подтвердить регистрацию. */
     data object ConfirmRegistration : EventDetailsAction
-    /** Отменить регистрацию. */
     data object CancelRegistration : EventDetailsAction
 }

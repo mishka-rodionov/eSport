@@ -1,6 +1,5 @@
 package com.rodionov.domain.repository.events
 
-import com.rodionov.domain.models.Participant
 import com.rodionov.domain.models.cyclic_event.CyclicEventDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 
@@ -12,8 +11,9 @@ interface CyclicEventDetailsRepository {
     /**
      * Получить детали события.
      * @param eventId Идентификатор события.
+     * @param userId ID текущего пользователя для проверки регистрации (null = не проверять).
      */
-    suspend fun getEventDetails(eventId: String): Result<CyclicEventDetails?>
+    suspend fun getEventDetails(eventId: String, userId: String? = null): Result<CyclicEventDetails?>
 
     /**
      * Получить список участников группы события.
@@ -24,10 +24,12 @@ interface CyclicEventDetailsRepository {
 
     /**
      * Зарегистрировать текущего пользователя в группу события.
-     * @param eventId Идентификатор события.
+     * @param eventId Идентификатор события (competitionId на сервере).
      * @param groupId Идентификатор группы.
+     * @param firstName Имя пользователя.
+     * @param lastName Фамилия пользователя.
      */
-    suspend fun registerToEvent(eventId: String, groupId: String): Result<Unit>
+    suspend fun registerToEvent(eventId: String, groupId: String, firstName: String, lastName: String): Result<Unit>
 
     /**
      * Отменить регистрацию текущего пользователя на событие.

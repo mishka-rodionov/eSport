@@ -11,18 +11,16 @@ import com.rodionov.remote.request.events.RegisterEventRequest
 import com.rodionov.remote.response.events.ParticipantPublicResponse
 
 /**
- * Реализация репозитория для получения деталей циклического события.
- * Методы получения данных используют реальные сетевые запросы.
- * Методы регистрации используют реальные сетевые запросы.
+ * Реализация репозитория для получения деталей соревнования.
  *
- * @param dataSource Источник данных для работы с API деталей событий.
+ * @param dataSource Источник данных для работы с API.
  */
 class CyclicEventDetailsRepositoryImpl(
     private val dataSource: CyclicEventDetailsRemoteDataSource
 ) : CyclicEventDetailsRepository {
 
-    override suspend fun getEventDetails(eventId: String): Result<CyclicEventDetails?> {
-        return dataSource.getEventDetails(eventId)
+    override suspend fun getEventDetails(eventId: String, userId: String?): Result<CyclicEventDetails?> {
+        return dataSource.getEventDetails(eventId, userId)
             .map { response ->
                 response.result?.let { dto ->
                     CyclicEventDetails(
@@ -45,15 +43,27 @@ class CyclicEventDetailsRepositoryImpl(
                             )
                         },
                         status = mapStatus(dto.status),
-                        eventType = EventType.CyclicEvent.Orienteering
+                        eventType = EventType.CyclicEvent.Orienteering,
+                        isUserRegistered = dto.isUserRegistered
                     )
                 }
             }
     }
 
-    override suspend fun registerToEvent(eventId: String, groupId: String): Result<Unit> {
-        return dataSource.registerToEvent(RegisterEventRequest(eventId = eventId, groupId = groupId))
-            .mapCatching { }
+    override suspend fun registerToEvent(
+        eventId: String,
+        groupId: String,
+        firstName: String,
+        lastName: String
+    ): Result<Unit> {
+        return dataSource.registerToEvent(
+            RegisterEventRequest(
+                competitionId = eventId,
+                groupId = groupId,
+                firstName = firstName,
+                lastName = lastName
+            )
+        ).mapCatching { }
     }
 
     override suspend fun cancelRegistration(eventId: String): Result<Unit> {

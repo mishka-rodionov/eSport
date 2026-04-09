@@ -23,5 +23,6 @@ data class CompetitionDetailResponse(
     @SerializedName("registrationEnd") val registrationEnd: Long?,
     @SerializedName("maxParticipants") val maxParticipants: Int?,
     @SerializedName("resultsStatus") val resultsStatus: String,
-    @SerializedName("participantGroups") val participantGroups: List<ParticipantGroupDetailResponse>
+    @SerializedName("participantGroups") val participantGroups: List<ParticipantGroupDetailResponse>,
+    @SerializedName("isUserRegistered") val isUserRegistered: Boolean = false
 )

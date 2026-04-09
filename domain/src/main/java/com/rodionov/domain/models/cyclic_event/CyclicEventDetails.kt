@@ -15,5 +15,6 @@ data class CyclicEventDetails(
     val city: String,
     val participantGroups: List<EventParticipantGroup>,
     val status: EventStatus,
-    val eventType: EventType
+    val eventType: EventType,
+    val isUserRegistered: Boolean = false
 )

@@ -18,5 +18,6 @@ data class EventDetailsState(
     val isRegistrationSheetVisible: Boolean = false,
     val selectedGroup: EventParticipantGroup? = null,
     val isRegistering: Boolean = false,
-    val isUserRegistered: Boolean = false
+    val isUserRegistered: Boolean = false,
+    val error: String? = null
 ) : BaseState
