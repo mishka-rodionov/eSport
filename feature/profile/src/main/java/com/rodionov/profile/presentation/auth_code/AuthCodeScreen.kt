@@ -59,19 +59,21 @@ fun OtpInputContent(userAction: (AuthAction) -> Unit) {
     fun onOtpValueChanged(index: Int, newValue: String) {
         if (newValue.length <= 1 && newValue.all { it.isDigit() }) {
             otpValues[index] = newValue
-            if (newValue.isNotEmpty() && index < OTP_LENGTH - 1) {
-                focusRequesters[index + 1].requestFocus()
+            if (newValue.isNotEmpty()) {
+                if (index < OTP_LENGTH - 1) {
+                    focusRequesters[index + 1].requestFocus()
+                }
+            } else {
+                // Перемещаем фокус назад при удалении символа
+                if (index > 0) {
+                    focusRequesters[index - 1].requestFocus()
+                }
             }
-            // Не перемещаем фокус назад при удалении здесь, это делается в onKeyEvent
 
             if (otpValues.all { it.isNotEmpty() }) {
                 focusManager.clearFocus()
-                Log.d("LOG_TAG", "onOtpValueChanged: Введенный OTP: ${getFullOtp()}")
                 userAction.invoke(AuthAction.AuthCodeEntered(getFullOtp()))
             }
-        } else if (newValue.isEmpty()) { // Обработка случая, когда значение стало пустым (например, из-за Backspace)
-            otpValues[index] = ""
-            // Логика перемещения фокуса назад при удалении обрабатывается в onKeyEvent
         }
     }
 
@@ -96,27 +98,15 @@ fun OtpInputContent(userAction: (AuthAction) -> Unit) {
                         focusRequester = focusRequesters[i],
                         modifier = Modifier
                             .onKeyEvent { event ->
-                                // ИСПРАВЛЕННОЕ УСЛОВИЕ
                                 if (event.key == Key.Backspace && event.type == KeyEventType.KeyDown) {
                                     if (otpValues[i].isEmpty() && i > 0) {
-                                        // Если текущее поле пустое и это не первое поле,
-                                        // очищаем предыдущее поле и перемещаем фокус на него
-                                        // onOtpValueChanged(i - 1, "") // Обновит значение
-                                        // Вместо прямого вызова onOtpValueChanged, лучше просто обновить состояние
-                                        // и запросить фокус, onValueChange в OtpCell сделает остальное
-                                        otpValues[i - 1] = "" // Убедимся, что значение очищено
+                                        // Если текущее поле пустое, очищаем предыдущее и переходим на него
+                                        otpValues[i - 1] = ""
                                         focusRequesters[i - 1].requestFocus()
-                                        return@onKeyEvent true // Событие обработано
-                                    } else if (otpValues[i].isNotEmpty()) {
-                                        // Если текущее поле не пустое, позволяем BasicTextField обработать удаление.
-                                        // onValueChange в OtpCell будет вызван с пустым значением.
-                                        return@onKeyEvent false
+                                        return@onKeyEvent true
                                     }
-                                    // Если текущее поле пустое и это ПЕРВОЕ поле,
-                                    // ничего не делаем, событие обработано
-                                    return@onKeyEvent true
                                 }
-                                false // Событие не обработано этим onKeyEvent
+                                false
                             }
                     )
                 }
