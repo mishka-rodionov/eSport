@@ -101,10 +101,7 @@ class OrienteeringCreatorViewModel(
                 if (action.index == -1) {
                     updatedGroups.add(action.participantGroup)
                     viewModelScope.launch {
-                        orienteeringCompetitionInteractor.createParticipantsGroupsInfo(
-                            competitionId = stateValue.competitionId ?: 0L,
-                            participantGroups = listOf(action.participantGroup)
-                        )
+                        orienteeringCompetitionInteractor.localSaveParticipantGroups(participantGroups = listOf(action.participantGroup))
                     }
                 } else {
                     updatedGroups[action.index] = action.participantGroup
@@ -304,7 +301,7 @@ class OrienteeringCreatorViewModel(
                 registrationEnd = actualRegistrationEnd
             ).toOrienteeringCompetition(user?.id)
 
-            orienteeringCompetitionInteractor.updateCompetition(
+            orienteeringCompetitionInteractor.localUpdate(
                 competition,
                 stateValue.participantGroups
             )
@@ -331,7 +328,7 @@ class OrienteeringCreatorViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             val competition = stateValue.toOrienteeringCompetition(user?.id)
-            orienteeringCompetitionInteractor.updateCompetition(
+            orienteeringCompetitionInteractor.localUpdate(
                 competition,
                 stateValue.participantGroups
             )
@@ -373,7 +370,7 @@ class OrienteeringCreatorViewModel(
             val competition = stateValue.toOrienteeringCompetition(user?.id)
             val groups = stateValue.participantGroups
 
-            orienteeringCompetitionInteractor.updateCompetition(
+            orienteeringCompetitionInteractor.localUpdate(
                 competition,
                 groups
             )

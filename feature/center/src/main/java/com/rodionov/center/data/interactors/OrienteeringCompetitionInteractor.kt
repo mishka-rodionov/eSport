@@ -67,21 +67,19 @@ class OrienteeringCompetitionInteractor(
                 localRepository.saveCompetition(orienteeringCompetition)
                     .fold({
                         //локальное сохранение информации о группах участников
-                        localRepository.saveParticipantsGroups(
-                            participantGroups.map {
-                                it.copy(
-                                    competitionId = orienteeringCompetition.localCompetitionId
-                                )
-                            })
+                        localSaveParticipantGroups(participantGroups.map {
+                            it.copy(
+                                competitionId = orienteeringCompetition.localCompetitionId
+                            )
+                        })
                         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, сохранено локально")
                     }, {
                         //локальное сохранение информации о группах участников
-                        localRepository.saveParticipantsGroups(
-                            participantGroups.map {
-                                it.copy(
-                                    competitionId = orienteeringCompetition.localCompetitionId
-                                )
-                            })
+                        localSaveParticipantGroups(participantGroups.map {
+                            it.copy(
+                                competitionId = orienteeringCompetition.localCompetitionId
+                            )
+                        })
                         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, ошибка локального созранения")
                     })
 
@@ -129,21 +127,29 @@ class OrienteeringCompetitionInteractor(
         val competitionId = orienteeringCompetition.localCompetitionId
 
         // 1. Пытаемся обновить на сервере
-//        remoteRepository.updateCompetition(orienteeringCompetition).onSuccess {
-//            remoteRepository.updateCompetitionParticipantsGroups(competitionId, participantGroups)
-//        }
-
-        // 2. Всегда обновляем локально
-        localRepository.updateCompetition(orienteeringCompetition).onSuccess {
+        remoteRepository.updateCompetition(orienteeringCompetition).onSuccess {
             participantGroups?.let {
-                localRepository.updateParticipantsGroups(competitionId, participantGroups)
+                remoteRepository.updateCompetitionParticipantsGroups(competitionId, participantGroups)
             }
-            return OrienteeringCreatorAction.SuccessfulCompetitionCreate
-        }.onFailure {
-            return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка локального обновления")
         }
 
+        // 2. Всегда обновляем локально
+        localUpdate(orienteeringCompetition, participantGroups)
+
         return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка")
+    }
+
+    suspend fun localUpdate(
+        orienteeringCompetition: OrienteeringCompetition,
+        participantGroups: List<ParticipantGroup>?
+    ) {
+        localRepository.updateCompetition(orienteeringCompetition).onSuccess {
+            participantGroups?.let {
+                localRepository.updateParticipantsGroups(orienteeringCompetition.localCompetitionId, participantGroups)
+            }
+        }.onFailure {
+
+        }
     }
 
     /**
@@ -301,11 +307,15 @@ class OrienteeringCompetitionInteractor(
             competitionId = competitionId,
             participantGroups = participantGroups
         ).onSuccess { participants ->
-            localRepository.saveParticipantsGroups(participants)
+            localSaveParticipantGroups(participants)
         }.onFailure {
-            localRepository.saveParticipantsGroups(participantGroups)
+            localSaveParticipantGroups(participantGroups)
         }
 
+    }
+
+    suspend fun localSaveParticipantGroups(participantGroups: List<ParticipantGroup>) {
+        localRepository.saveParticipantsGroups(participantGroups)
     }
 
     suspend fun updateParticipantGroup(participantGroup: ParticipantGroup): Result<Any> {
