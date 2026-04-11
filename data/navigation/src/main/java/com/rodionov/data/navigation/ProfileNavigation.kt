@@ -23,7 +23,7 @@ sealed class ProfileNavigation: BaseNavigation {
     @Serializable
     data object AuthRoute : ProfileNavigation()
     @Serializable
-    data object AuthCodeRoute : ProfileNavigation()
+    data class AuthCodeRoute(val email: String) : ProfileNavigation()
     @Serializable
     data object RegistrationRoute : ProfileNavigation()
 }

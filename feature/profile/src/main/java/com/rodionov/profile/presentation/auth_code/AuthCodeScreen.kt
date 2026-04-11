@@ -41,13 +41,22 @@ const val OTP_LENGTH = 6
  * Экран ввода кода авторизации
  * */
 @Composable
-fun AuthCodeScreen(viewModel: AuthCodeViewModel = koinViewModel()) {
-    OtpInputContent(viewModel::onAction)
+fun AuthCodeScreen(userEmail: String, viewModel: AuthCodeViewModel = koinViewModel()) {
+    LaunchedEffect(userEmail) {
+        viewModel.initialize(userEmail)
+    }
+    OtpInputContent(userEmail, viewModel::onAction)
 }
 
+/**
+ * Контент экрана ввода OTP кода.
+ *
+ * @param userEmail Email пользователя.
+ * @param userAction Функция для обработки действий пользователя (ввод кода).
+ */
 @OptIn(ExperimentalComposeUiApi::class) // Нужен для onKeyEvent
 @Composable
-fun OtpInputContent(userAction: (AuthAction) -> Unit) {
+fun OtpInputContent(userEmail: String, userAction: (AuthAction) -> Unit) {
     val otpValues =
         remember { mutableStateListOf<String>().apply { repeat(OTP_LENGTH) { add("") } } }
     val focusRequesters = remember { List(OTP_LENGTH) { FocusRequester() } }
@@ -55,8 +64,15 @@ fun OtpInputContent(userAction: (AuthAction) -> Unit) {
 
     fun getFullOtp(): String = otpValues.joinToString("")
 
+    /**
+     * Обрабатывает изменение значения в конкретной ячейке OTP.
+     * Реализует логику перехода фокуса вперед и назад.
+     */
     fun onOtpValueChanged(index: Int, newValue: String) {
         if (newValue.length <= 1 && newValue.all { it.isDigit() }) {
+            // Если значение в ячейке не изменилось, игнорируем (защита от двойных срабатываний)
+            if (otpValues[index] == newValue) return
+
             otpValues[index] = newValue
             if (newValue.isNotEmpty()) {
                 if (index < OTP_LENGTH - 1) {
@@ -118,6 +134,13 @@ fun OtpInputContent(userAction: (AuthAction) -> Unit) {
     }
 }
 
+/**
+ * Отдельная ячейка для ввода одной цифры OTP.
+ *
+ * @param value Текущее текстовое значение.
+ * @param onValueChange Колбэк при изменении текста.
+ * @param focusRequester Для управления фокусом данной ячейки.
+ */
 @Composable
 fun OtpCell(
     value: String,
@@ -131,7 +154,6 @@ fun OtpCell(
     }
 
     // Синхронизируем textFieldValueState с внешним value
-    // Это важно, если value изменяется извне (например, при удалении из предыдущего поля)
     LaunchedEffect(value) {
         if (textFieldValueState.text != value) {
             textFieldValueState = TextFieldValue(text = value, selection = TextRange(value.length))
@@ -143,8 +165,13 @@ fun OtpCell(
         onValueChange = { newTextFieldValue ->
             // Разрешаем только одну цифру или пустое значение (для удаления)
             if ((newTextFieldValue.text.length <= 1 && newTextFieldValue.text.all { it.isDigit() }) || newTextFieldValue.text.isEmpty()) {
+                val isTextChanged = textFieldValueState.text != newTextFieldValue.text
                 textFieldValueState = newTextFieldValue
-                onValueChange(newTextFieldValue.text) // Передаем только текст во внешний обработчик
+                
+                // Вызываем внешний обработчик только если текст действительно изменился
+                if (isTextChanged) {
+                    onValueChange(newTextFieldValue.text)
+                }
             }
         },
         keyboardOptions = KeyboardOptions(
@@ -183,7 +210,7 @@ fun OtpCell(
 fun OtpInputScreenPreview() {
     MaterialTheme { // Оберните в MaterialTheme для использования Material компонентов и стилей
         Surface {
-            OtpInputContent({})
+            OtpInputContent("example@mail.com",{})
         }
     }
 }

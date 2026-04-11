@@ -26,6 +26,9 @@ class UserRepositoryImpl(
     override suspend fun isAuthorized(): Boolean {
         val user = userDao.getUser()
         return user != null
+    }
 
+    override suspend fun clearUser() {
+        userDao.clearAll()
     }
 }

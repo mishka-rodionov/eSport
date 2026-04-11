@@ -31,6 +31,13 @@ class AuthInteractor(
         userRepository.saveUser(user)
     }
 
+    suspend fun logout(): Result<Unit> {
+        return runCatching {
+            tokenRepository.clear()
+            userRepository.clearUser()
+        }
+    }
+
     suspend fun register(firstName: String, lastName: String, bdate: Long, email: String): Result<Any> {
         return authRepository.register(firstName, lastName, bdate, email)
     }

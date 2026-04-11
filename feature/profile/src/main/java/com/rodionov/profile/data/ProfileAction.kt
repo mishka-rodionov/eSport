@@ -14,4 +14,7 @@ sealed class ProfileAction {
     /** Переход к экрану редактирования профиля. */
     data object ToProfileEditor: ProfileAction()
 
+    /** Выход из аккаунта. */
+    data object Logout: ProfileAction()
+
 }

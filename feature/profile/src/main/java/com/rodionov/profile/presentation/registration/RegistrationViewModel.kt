@@ -37,10 +37,7 @@ class RegistrationViewModel(
                     bdate = bdate,
                     email = email
                 ).onSuccess {
-                    navigation.navigate(
-                        destination = ProfileNavigation.AuthCodeRoute,
-                        argument = navigation.createArguments(ProfileConstants.AUTH_EMAIL.name to email)
-                    )
+                    navigation.navigate(destination = ProfileNavigation.AuthCodeRoute(email))
                 }.onFailure {
                     Log.d("LOG_TAG", "registerUser: fail user register")
                 }

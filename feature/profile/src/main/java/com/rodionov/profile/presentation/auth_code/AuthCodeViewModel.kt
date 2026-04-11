@@ -22,6 +22,8 @@ class AuthCodeViewModel(
     private val pendingRegistrationRepository: PendingRegistrationRepository
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
 
+    private var email = ""
+
     override fun onAction(action: BaseAction) {
         when (action) {
             is AuthAction.AuthCodeEntered -> sendAuthCode(action.code)
@@ -29,18 +31,20 @@ class AuthCodeViewModel(
         }
     }
 
+    fun initialize(userEmail: String) {
+        email = userEmail
+    }
+
     fun sendAuthCode(code: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            navigation.getArguments<String>(ProfileConstants.AUTH_EMAIL.name)?.let { email ->
-                authInteractor.authorize(email = email, code = code).onSuccess {
-                    if (pendingRegistrationRepository.pending.value != null) {
-                        navigation.switchTab(TabRoutes.EVENTS)
-                    } else {
-                        navigation.navigate(ProfileNavigation.MainProfileRoute)
-                    }
-                }.onFailure {
-                    Log.d("LOG_TAG", "sendAuthCode: $it")
+            authInteractor.authorize(email = email, code = code).onSuccess {
+                if (pendingRegistrationRepository.pending.value != null) {
+                    navigation.switchTab(TabRoutes.EVENTS)
+                } else {
+                    navigation.navigate(ProfileNavigation.MainProfileRoute)
                 }
+            }.onFailure {
+                Log.d("LOG_TAG", "sendAuthCode: $it")
             }
         }
     }

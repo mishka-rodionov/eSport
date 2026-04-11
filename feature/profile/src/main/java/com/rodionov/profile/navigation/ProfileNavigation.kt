@@ -2,6 +2,7 @@ package com.rodionov.profile.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.rodionov.data.navigation.ProfileNavigation
 import com.rodionov.profile.presentation.about_app.AboutAppScreen
 import com.rodionov.profile.presentation.auth.AuthScreen
@@ -16,7 +17,9 @@ fun NavGraphBuilder.profileNavigation() {
         composable<ProfileNavigation.ProfileEditorRoute> { ProfileEditorScreen() }
         composable<ProfileNavigation.AboutAppRoute> { AboutAppScreen() }
         composable<ProfileNavigation.AuthRoute> { AuthScreen() }
-        composable<ProfileNavigation.AuthCodeRoute> { AuthCodeScreen() }
+        composable<ProfileNavigation.AuthCodeRoute> {
+                val route = it.toRoute<ProfileNavigation.AuthCodeRoute>()
+                AuthCodeScreen(userEmail = route.email) }
         composable<ProfileNavigation.RegistrationRoute> { RegistrationScreen() }
 //    }
 }

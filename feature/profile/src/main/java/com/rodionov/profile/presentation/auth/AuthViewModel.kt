@@ -24,10 +24,7 @@ class AuthViewModel(
                 viewModelScope.launch {
                     authRepository.login(action.email).onSuccess {
                         Log.d("LOG_TAG", "onAction: success authorization")
-                        navigation.navigate(
-                            destination = ProfileNavigation.AuthCodeRoute,
-                            argument = navigation.createArguments(ProfileConstants.AUTH_EMAIL.name to action.email)
-                        )
+                        navigation.navigate(destination = ProfileNavigation.AuthCodeRoute(action.email))
                     }.onFailure {
 
                     }

@@ -18,7 +18,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -268,6 +270,20 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
                 icon = ImageVector.vectorResource(R.drawable.ic_info_24px),
                 onClick = { /* TODO */ }
             )
+        }
+
+        Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+
+        OutlinedButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onAction(ProfileAction.Logout) },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.error
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+        ) {
+            Text(text = "Выйти", modifier = Modifier.padding(vertical = 4.dp))
         }
     }
 }
