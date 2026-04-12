@@ -207,8 +207,11 @@ class OrienteeringCreatorViewModel(
                     coordinates = comp.competition.coordinates ?: coordinates,
                     registrationStart = comp.competition.registrationStart,
                     registrationStartTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationStart).ifEmpty { "10:00" },
+                    registrationStartOnCreate = comp.competition.registrationStart == null,
                     registrationEnd = comp.competition.registrationEnd,
                     registrationEndTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationEnd).ifEmpty { "23:59" },
+                    registrationEndDayBefore = comp.competition.registrationEnd != null &&
+                        comp.competition.registrationEnd == comp.competition.startDate - 24L * 60 * 60 * 1000,
                     maxParticipants = comp.competition.maxParticipants,
                     isFeeEnabled = comp.competition.feeAmount != null,
                     feeAmount = comp.competition.feeAmount,
