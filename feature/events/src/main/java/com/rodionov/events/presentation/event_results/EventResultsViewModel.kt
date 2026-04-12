@@ -39,7 +39,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
      *
      * @param eventId Идентификатор события.
      */
-    fun loadResults(eventId: String) {
+    fun loadResults(eventId: Long) {
         viewModelScope.launch {
             updateState { copy(isLoading = true) }
             // Имитация задержки сети

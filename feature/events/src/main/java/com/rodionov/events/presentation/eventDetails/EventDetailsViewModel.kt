@@ -50,7 +50,7 @@ class EventDetailsViewModel(
      * Инициализация экрана. Загрузка пользователя и детальной информации о событии.
      * @param eventId Идентификатор события.
      */
-    fun initialize(eventId: String) {
+    fun initialize(eventId: Long) {
         viewModelScope.launch {
             currentUser = userRepository.retrieveUser().getOrNull()
 

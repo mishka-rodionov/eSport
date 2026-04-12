@@ -114,7 +114,7 @@ class MockInterceptor : Interceptor {
             OrienteeringCompetitionResponse(
                 competitionId = 1,
                 competition = CompetitionResponse(
-                    remoteId = "1",
+                    remoteId = 1L,
                     title = "Городские соревнования",
                     startDate = LocalDate.parse("2025-08-25").atStartOfDay(zoneId).toInstant().toEpochMilli(),
                     endDate = LocalDate.parse("2025-08-26").atStartOfDay(zoneId).toInstant().toEpochMilli(),
@@ -149,7 +149,7 @@ class MockInterceptor : Interceptor {
                 punchingSystem = PunchingSystem.SPORTIDUINO,
                 startTimeMode = StartTimeMode.STRICT,
                 competition = CompetitionResponse(
-                    remoteId = "2",
+                    remoteId = 2L,
                     title = "Городские соревнования #2",
                     startDate = LocalDate.parse("2025-08-27").atStartOfDay(zoneId).toInstant().toEpochMilli(),
                     endDate = LocalDate.parse("2025-08-28").atStartOfDay(zoneId).toInstant().toEpochMilli(),
@@ -216,7 +216,7 @@ class MockInterceptor : Interceptor {
             punchingSystem = PunchingSystem.SPORTIDUINO,
             startTimeMode = StartTimeMode.valueOf(competitionRequest?.startTimeMode ?: StartTimeMode.STRICT.name),
             competition = CompetitionResponse(
-                remoteId = (1..99).random().toString(),
+                remoteId = (1L..99L).random(),
                 title = competitionRequest?.competition?.title ?: "Mocked Competition",
                 startDate = competitionRequest?.competition?.startDate ?: System.currentTimeMillis(),
                 endDate = competitionRequest?.competition?.endDate,

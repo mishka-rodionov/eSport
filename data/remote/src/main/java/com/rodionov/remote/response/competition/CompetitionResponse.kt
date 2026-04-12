@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
  */
 data class CompetitionResponse(
     @SerializedName("remoteId")
-    val remoteId: String?,
+    val remoteId: Long?,
     @SerializedName("title")
     val title: String,
     @SerializedName("startDate")

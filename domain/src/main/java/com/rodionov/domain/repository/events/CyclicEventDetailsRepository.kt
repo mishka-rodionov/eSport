@@ -13,14 +13,14 @@ interface CyclicEventDetailsRepository {
      * @param eventId Идентификатор события.
      * @param userId ID текущего пользователя для проверки регистрации (null = не проверять).
      */
-    suspend fun getEventDetails(eventId: String, userId: String? = null): Result<CyclicEventDetails?>
+    suspend fun getEventDetails(eventId: Long, userId: String? = null): Result<CyclicEventDetails?>
 
     /**
      * Получить список участников группы события.
      * @param eventId Идентификатор события.
      * @param groupId Идентификатор группы.
      */
-    suspend fun getParticipants(eventId: String, groupId: String): Result<List<OrienteeringParticipant>>
+    suspend fun getParticipants(eventId: Long, groupId: String): Result<List<OrienteeringParticipant>>
 
     /**
      * Зарегистрировать текущего пользователя в группу события.
@@ -29,12 +29,12 @@ interface CyclicEventDetailsRepository {
      * @param firstName Имя пользователя.
      * @param lastName Фамилия пользователя.
      */
-    suspend fun registerToEvent(eventId: String, groupId: String, firstName: String, lastName: String): Result<Unit>
+    suspend fun registerToEvent(eventId: Long, groupId: String, firstName: String, lastName: String): Result<Unit>
 
     /**
      * Отменить регистрацию текущего пользователя на событие.
      * @param eventId Идентификатор события.
      */
-    suspend fun cancelRegistration(eventId: String): Result<Unit>
+    suspend fun cancelRegistration(eventId: Long): Result<Unit>
 
 }

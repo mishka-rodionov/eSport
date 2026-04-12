@@ -110,7 +110,7 @@ class OrienteeringCompetitionInteractor(
     }
 
     suspend fun publishGroupsToServer(
-        remoteCompetitionId: String,
+        remoteCompetitionId: Long,
         groups: List<ParticipantGroup>
     ): Result<Unit> {
         return remoteRepository.publishGroupsForCompetition(remoteCompetitionId, groups)

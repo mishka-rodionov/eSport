@@ -15,7 +15,7 @@ interface CyclicEventDetailsRemoteDataSource {
 
     @GET("event/orienteering/competitions/public/{eventId}")
     suspend fun getEventDetails(
-        @Path("eventId") eventId: String,
+        @Path("eventId") eventId: Long,
         @Query("userId") userId: String? = null
     ): Result<CommonModel<CompetitionDetailResponse>>
 
@@ -23,7 +23,7 @@ interface CyclicEventDetailsRemoteDataSource {
     suspend fun registerToEvent(@Body request: RegisterEventRequest): Result<CommonModel<Unit>>
 
     @DELETE("event/orienteering/register/{competitionId}")
-    suspend fun cancelRegistration(@Path("competitionId") competitionId: String): Result<CommonModel<Unit>>
+    suspend fun cancelRegistration(@Path("competitionId") competitionId: Long): Result<CommonModel<Unit>>
 
     @GET("event/orienteering/participants")
     suspend fun getParticipantsByGroup(@Query("groupId") groupId: String): Result<CommonModel<List<ParticipantPublicResponse>>>

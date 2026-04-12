@@ -27,9 +27,10 @@ class EventsViewModel(
     fun onAction(action: EventsAction) {
         when (action) {
             is EventsAction.EventClick -> {
+                val id = action.eventId ?: return
                 viewModelScope.launch {
                     navigation.navigate(
-                        EventsNavigation.EventDetailsRoute(eventId = action.eventId)
+                        EventsNavigation.EventDetailsRoute(eventId = id)
                     )
                 }
             }

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * @property groupId Идентификатор группы (null = пользователь ещё не выбрал группу).
  */
 data class PendingRegistration(
-    val eventId: String,
+    val eventId: Long,
     val groupId: String? = null
 )
 
@@ -28,7 +28,7 @@ class PendingRegistrationRepository {
     val pending: StateFlow<PendingRegistration?> = _pending.asStateFlow()
 
     /** Сохраняет отложенное действие регистрации. */
-    fun set(eventId: String, groupId: String? = null) {
+    fun set(eventId: Long, groupId: String? = null) {
         _pending.value = PendingRegistration(eventId, groupId)
     }
 

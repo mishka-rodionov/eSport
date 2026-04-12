@@ -34,7 +34,7 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     }
 
     override suspend fun publishGroupsForCompetition(
-        remoteCompetitionId: String,
+        remoteCompetitionId: Long,
         participantGroups: List<ParticipantGroup>
     ): Result<List<ParticipantGroup>> {
         return orienteeringCompetitionRemoteDataSource.publishParticipantGroups(

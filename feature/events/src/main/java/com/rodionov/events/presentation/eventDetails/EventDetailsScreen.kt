@@ -62,7 +62,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailsScreen(
-    idEvent: String,
+    idEvent: Long,
     viewModel: EventDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -427,7 +427,7 @@ private fun EventDetailsResultsPreview() {
  * Вспомогательная функция для создания мока события.
  */
 private fun mockEvent(status: EventStatus) = CyclicEventDetails(
-    eventId = "1",
+    eventId = 1L,
     organizationId = "org_1",
     title = "Марафон \"Путь к успеху\"",
     description = "Большой забег через весь город.",

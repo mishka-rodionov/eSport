@@ -39,7 +39,7 @@ import org.koin.androidx.compose.koinViewModel
  */
 @Composable
 fun EventParticipantGroupScreen(
-    eventId: String,
+    eventId: Long,
     participantGroup: EventParticipantGroup,
     viewModel: EventParticipantGroupViewModel = koinViewModel()
 ) {

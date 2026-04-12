@@ -95,7 +95,7 @@ fun EventItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickRipple {
-                userAction.invoke(EventsAction.EventClick(event.remoteId ?: ""))
+                userAction.invoke(EventsAction.EventClick(event.remoteId))
             },
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp), // Скругление карточки 16 dp
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),

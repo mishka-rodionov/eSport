@@ -10,7 +10,7 @@ data class ParticipantGroupDetailResponse(
 )
 
 data class CompetitionDetailResponse(
-    @SerializedName("remoteId") val remoteId: String,
+    @SerializedName("remoteId") val remoteId: Long,
     @SerializedName("title") val title: String,
     @SerializedName("startDate") val startDate: Long,
     @SerializedName("endDate") val endDate: Long?,

@@ -40,7 +40,7 @@ import androidx.compose.foundation.pager.rememberPagerState
  */
 @Composable
 fun EventResultsScreen(
-    eventId: String,
+    eventId: Long,
     viewModel: EventResultsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()

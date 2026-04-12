@@ -38,7 +38,7 @@ import com.rodionov.domain.models.orienteering.ResultsStatus
  * @property syncError Текст последней ошибки синхронизации, если она произошла.
  */
 data class Competition(
-    val remoteId: String? = null,
+    val remoteId: Long? = null,
     val title: String,
     val startDate: Long,
     val endDate: Long? = null,

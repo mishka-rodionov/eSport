@@ -15,7 +15,7 @@ import com.rodionov.ui.BaseState
  * @property isRegistering Флаг процесса регистрации/отмены регистрации.
  */
 data class EventParticipantGroupState(
-    val eventId: String? = null,
+    val eventId: Long? = null,
     val participantGroup: EventParticipantGroup? = null,
     val participants: List<OrienteeringParticipant> = emptyList(),
     val isLoading: Boolean = false,
