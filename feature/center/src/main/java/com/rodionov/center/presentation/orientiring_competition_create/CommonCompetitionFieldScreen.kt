@@ -32,6 +32,7 @@ import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
@@ -252,7 +253,11 @@ private fun CommonCompetitionFieldContent(
 
             OrienteeringCompetitionDirection(state = state, userAction = onAction)
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            PunchingSystemSelector(state = state, userAction = onAction)
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             StartTimeModeSelector(state = state, userAction = onAction)
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            StartIntervalSelector(state = state, userAction = onAction)
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
@@ -427,17 +432,61 @@ private fun StartTimeModeSelector(
                 }
             }
         )
-        if (state.startTimeMode == StartTimeMode.USER_SET) {
-            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-            DSTextInput(
-                modifier = Modifier.fillMaxWidth(),
-                text = state.countdownTimer?.toString() ?: "",
-//                onValueChanged = viewModel::updateCountdownTimer,
-                onValueChanged = {},
-                label = { Text(text = "Таймер отсчета (мин)") }
-            )
-        }
     }
+}
+
+/** Доступные значения интервала между стартами спортсменов (в секундах): от 20 до 180 с шагом 20. */
+private val START_INTERVAL_OPTIONS = (1..9).map { it * 20 }
+
+private fun formatIntervalSeconds(seconds: Int): String {
+    val minutes = seconds / 60
+    val secs = seconds % 60
+    return when {
+        minutes == 0 -> "$secs сек"
+        secs == 0 -> "$minutes мин"
+        else -> "$minutes мин $secs сек"
+    }
+}
+
+@Composable
+private fun PunchingSystemSelector(
+    state: OrienteeringCreatorState,
+    userAction: (OrienteeringCreatorAction) -> Unit
+) {
+    val context = LocalContext.current
+    ExposedDropdownMenuOutlined(
+        label = stringResource(R.string.label_punching_system),
+        items = PunchingSystem.entries,
+        selectedItem = state.punchingSystem,
+        onItemSelected = {
+            userAction.invoke(OrienteeringCreatorAction.UpdatePunchingSystem(it))
+        },
+        itemToString = {
+            when (it) {
+                PunchingSystem.PENCIL -> context.getString(R.string.label_punching_system_pencil)
+                PunchingSystem.PUNCH -> context.getString(R.string.label_punching_system_punch)
+                PunchingSystem.SPORTIDUINO -> context.getString(R.string.label_punching_system_sportiduino)
+                PunchingSystem.SFR -> context.getString(R.string.label_punching_system_sfr)
+                PunchingSystem.SPORTIDENT -> context.getString(R.string.label_punching_system_sportident)
+            }
+        }
+    )
+}
+
+@Composable
+private fun StartIntervalSelector(
+    state: OrienteeringCreatorState,
+    userAction: (OrienteeringCreatorAction) -> Unit
+) {
+    ExposedDropdownMenuOutlined(
+        label = stringResource(R.string.label_start_interval),
+        items = START_INTERVAL_OPTIONS,
+        selectedItem = state.startIntervalSeconds,
+        onItemSelected = {
+            userAction.invoke(OrienteeringCreatorAction.UpdateStartInterval(it))
+        },
+        itemToString = { formatIntervalSeconds(it) }
+    )
 }
 
 @Preview(showBackground = true, name = "Empty state")

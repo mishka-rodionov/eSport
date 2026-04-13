@@ -13,7 +13,9 @@
       "Bash(rtk grep:*)",
       "Bash(./gradlew :feature:events:compileDebugKotlin :feature:profile:compileDebugKotlin :app:compileDebugKotlin)",
       "Bash(bash gradlew:*)",
-      "Bash(./gradlew :domain:assembleDebug)"
+      "Bash(./gradlew :domain:assembleDebug)",
+      "Bash(rtk ./gradlew :feature:center:compileDebugKotlin --no-daemon)",
+      "Bash(./gradlew :feature:center:compileDebugKotlin --no-daemon)"
     ]
   }
 }

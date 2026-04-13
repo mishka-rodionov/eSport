@@ -32,5 +32,6 @@ data class OrienteeringCompetitionEntity(
     val punchingSystem: PunchingSystem,
     val startTimeMode: StartTimeMode,
     val countdownTimer: Int? = null,
-    val startTime: Long? = null
+    val startTime: Long? = null,
+    val startIntervalSeconds: Int? = null
 )

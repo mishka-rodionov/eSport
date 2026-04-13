@@ -14,5 +14,6 @@ sealed class OrientEventControlAction: BaseAction {
     data object OpenGetOrienteeringChip: OrientEventControlAction()
     data object StartCompetition: OrientEventControlAction()
     data object StopCompetition: OrientEventControlAction()
+    data class UpdateCountdownTimerInput(val value: String): OrientEventControlAction()
 
 }

@@ -169,6 +169,14 @@ class OrienteeringCreatorViewModel(
                 copy(startTimeMode = action.startTimeMode)
             }
 
+            is OrienteeringCreatorAction.UpdatePunchingSystem -> updateState {
+                copy(punchingSystem = action.punchingSystem)
+            }
+
+            is OrienteeringCreatorAction.UpdateStartInterval -> updateState {
+                copy(startIntervalSeconds = action.seconds)
+            }
+
             is OrienteeringCreatorAction.EditDistanceDialog -> updateState {
                 copy(isShowDistanceCreateDialog = true, editDistanceIndex = action.index)
             }
@@ -229,6 +237,7 @@ class OrienteeringCreatorViewModel(
                     punchingSystem = comp.punchingSystem,
                     startTimeMode = comp.startTimeMode,
                     countdownTimer = comp.countdownTimer,
+                    startIntervalSeconds = comp.startIntervalSeconds,
                 )
             }
             

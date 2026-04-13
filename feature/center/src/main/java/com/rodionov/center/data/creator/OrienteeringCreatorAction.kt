@@ -2,6 +2,7 @@ package com.rodionov.center.data.creator
 
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
+import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.ui.BaseAction
@@ -30,6 +31,8 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data object SuccessfulCompetitionCreate: OrienteeringCreatorAction()
     data class FailedCompetitionCreate(val message: String): OrienteeringCreatorAction()
     data class UpdateStartTimeMode(val startTimeMode: StartTimeMode): OrienteeringCreatorAction()
+    data class UpdatePunchingSystem(val punchingSystem: PunchingSystem): OrienteeringCreatorAction()
+    data class UpdateStartInterval(val seconds: Int?): OrienteeringCreatorAction()
     
     // Действия для регистрации
     data class UpdateRegistrationStartDate(val date: Long) : OrienteeringCreatorAction()

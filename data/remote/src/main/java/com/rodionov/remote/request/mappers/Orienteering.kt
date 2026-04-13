@@ -19,7 +19,8 @@ fun OrienteeringCompetition.toRequest(): OrienteeringCompetitionRequest {
         direction.name,
         punchingSystem.name,
         startTimeMode.name,
-        countdownTimer
+        countdownTimer,
+        startIntervalSeconds
     )
 }
 

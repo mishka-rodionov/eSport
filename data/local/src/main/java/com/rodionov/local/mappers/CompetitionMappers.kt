@@ -22,7 +22,8 @@ fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
         punchingSystem = this.punchingSystem,
         startTimeMode = this.startTimeMode,
         countdownTimer = this.countdownTimer,
-        startTime = this.startTime
+        startTime = this.startTime,
+        startIntervalSeconds = this.startIntervalSeconds
     )
 }
 
@@ -47,7 +48,8 @@ fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
         punchingSystem = this.punchingSystem,
         startTimeMode = this.startTimeMode,
         countdownTimer = this.countdownTimer,
-        startTime = this.startTime
+        startTime = this.startTime,
+        startIntervalSeconds = this.startIntervalSeconds
     )
 }
 

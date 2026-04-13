@@ -20,5 +20,6 @@ data class OrienteeringEventControlState(
     val competition: OrienteeringCompetition? = null,
     val countdownMillis: Long = 0L,
     val isTimerRunning: Boolean = false,
-    val isCompetitionRunning: Boolean = false
+    val isCompetitionRunning: Boolean = false,
+    val countdownTimerInput: String = ""
 ) : BaseState

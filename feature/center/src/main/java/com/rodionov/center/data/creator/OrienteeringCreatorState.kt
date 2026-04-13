@@ -81,6 +81,7 @@ data class OrienteeringCreatorState(
     val punchingSystem: PunchingSystem = PunchingSystem.SPORTIDUINO,
     val startTimeMode: StartTimeMode = StartTimeMode.STRICT,
     val countdownTimer: Int? = null,
+    val startIntervalSeconds: Int? = null,
 
     val editGroupIndex: Int = -1,
     val isShowGroupCreateDialog: Boolean = false,
@@ -125,7 +126,8 @@ data class OrienteeringCreatorState(
             direction = competitionDirection,
             punchingSystem = punchingSystem,
             startTimeMode = startTimeMode,
-            countdownTimer = countdownTimer
+            countdownTimer = countdownTimer,
+            startIntervalSeconds = startIntervalSeconds
         )
     }
 }

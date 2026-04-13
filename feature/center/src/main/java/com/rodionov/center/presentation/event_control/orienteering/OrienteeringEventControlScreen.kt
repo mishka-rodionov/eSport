@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,8 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,6 +37,7 @@ import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.domain.models.orienteering.ResultsStatus
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.resources.R
+import com.example.designsystem.components.DSTextInput
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -112,6 +116,18 @@ private fun OrienteeringEventControlScreenContent(
                 (state.competition?.startTimeMode == StartTimeMode.USER_SET ||
                         state.competition?.startTimeMode == StartTimeMode.STRICT)
             ) {
+                if (state.competition?.startTimeMode == StartTimeMode.USER_SET) {
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                    DSTextInput(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = state.countdownTimerInput,
+                        label = { Text(stringResource(R.string.label_countdown_timer)) },
+                        onValueChanged = { onAction(OrientEventControlAction.UpdateCountdownTimerInput(it)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                }
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()

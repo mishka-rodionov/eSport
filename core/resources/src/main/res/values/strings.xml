@@ -26,6 +26,14 @@
     <string name="label_start_time_mode_strict">Строгое</string>
     <string name="label_start_time_mode_user_set">Задается вручную</string>
     <string name="label_start_time_mode_by_start_station">По стартовой станции</string>
+    <string name="label_punching_system">Тип отметки</string>
+    <string name="label_punching_system_pencil">Карандаш</string>
+    <string name="label_punching_system_punch">Компостер</string>
+    <string name="label_punching_system_sportiduino">Sportiduino</string>
+    <string name="label_punching_system_sfr">SFR</string>
+    <string name="label_punching_system_sportident">SportIdent</string>
+    <string name="label_start_interval">Интервал между стартами</string>
+    <string name="label_countdown_timer">Таймер отсчёта (мин)</string>
 
     <!-- Participant Details -->
     <string name="label_participant_group">Группа: %s</string>

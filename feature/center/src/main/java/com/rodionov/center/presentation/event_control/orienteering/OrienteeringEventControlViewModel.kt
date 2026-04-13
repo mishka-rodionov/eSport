@@ -76,7 +76,8 @@ class OrienteeringEventControlViewModel(
                 competition = competition,
                 isCompetitionRunning = isRunning,
                 isTimerRunning = isCountingDown,
-                countdownMillis = remainingMillis
+                countdownMillis = remainingMillis,
+                countdownTimerInput = competition.countdownTimer?.toString() ?: ""
             )
         }
 
@@ -129,6 +130,10 @@ class OrienteeringEventControlViewModel(
 
             OrientEventControlAction.StartCompetition -> handleStartCompetition()
             OrientEventControlAction.StopCompetition -> handleStopCompetition()
+
+            is OrientEventControlAction.UpdateCountdownTimerInput -> updateState {
+                copy(countdownTimerInput = action.value)
+            }
         }
     }
 
@@ -138,11 +143,16 @@ class OrienteeringEventControlViewModel(
      */
     private fun handleStartCompetition() {
         val competition = stateValue.competition ?: return
-        val countdownMinutes = competition.countdownTimer ?: 0
+        val countdownMinutes = stateValue.countdownTimerInput.toIntOrNull()
+            ?: competition.countdownTimer
+            ?: 0
         val startTime = System.currentTimeMillis() + (countdownMinutes * 60 * 1000L)
 
         viewModelScope.launch {
-            val updatedCompetition = competition.copy(startTime = startTime)
+            val updatedCompetition = competition.copy(
+                startTime = startTime,
+                countdownTimer = countdownMinutes
+            )
             orienteeringCompetitionInteractor.updateCompetition(
                 orienteeringCompetition = updatedCompetition,
                 participantGroups = null
