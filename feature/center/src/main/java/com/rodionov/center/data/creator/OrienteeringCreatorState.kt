@@ -58,6 +58,8 @@ data class OrienteeringCreatorState(
     val description: String = "",
     val address: String = "",
     val coordinates: Coordinates = Coordinates(0.0, 0.0),
+    /** true, если координаты были выбраны пользователем вручную через карту. */
+    val isCoordinatesSetByUser: Boolean = false,
     
     val registrationStart: Long? = null,
     val registrationStartTimeStr: String = "10:00",

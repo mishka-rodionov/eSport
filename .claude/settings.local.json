@@ -15,7 +15,11 @@
       "Bash(bash gradlew:*)",
       "Bash(./gradlew :domain:assembleDebug)",
       "Bash(rtk ./gradlew :feature:center:compileDebugKotlin --no-daemon)",
-      "Bash(./gradlew :feature:center:compileDebugKotlin --no-daemon)"
+      "Bash(./gradlew :feature:center:compileDebugKotlin --no-daemon)",
+      "Bash(./gradlew :feature:center:compileDebugKotlin :data:navigation:compileDebugKotlin :app:compileDebugKotlin)",
+      "Bash(chmod +x gradlew)",
+      "Bash(./gradlew :feature:center:compileDebugKotlin)",
+      "Bash(./gradlew :feature:center:compileDebugKotlin :data:navigation:compileDebugKotlin)"
     ]
   }
 }

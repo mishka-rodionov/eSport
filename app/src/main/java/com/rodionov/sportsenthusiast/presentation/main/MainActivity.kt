@@ -295,7 +295,7 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                             when (tab) {
                                 BottomNavItem.Profile -> profileNavigation()
                                 BottomNavItem.CompetitionList -> eventsGraph()
-                                BottomNavItem.CompetitionConstructor -> centerGraph(windowSizeClass)
+                                BottomNavItem.CompetitionConstructor -> centerGraph(windowSizeClass, navController)
                             }
                         }
                     }

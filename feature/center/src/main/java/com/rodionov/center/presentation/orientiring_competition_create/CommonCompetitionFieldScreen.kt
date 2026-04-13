@@ -65,6 +65,7 @@ fun CommonCompetitionFieldScreen(
         viewModel.initialize(competitionId)
     }
 
+
     LaunchedEffect(state.error) {
         state.error?.let { errorMessage ->
             snackbarHostState.showSnackbar(errorMessage)
@@ -78,6 +79,7 @@ fun CommonCompetitionFieldScreen(
         onTitleChanged = viewModel::updateTitle,
         onAddressChanged = viewModel::updateAddress,
         onDescriptionChanged = viewModel::updateDescription,
+        onOpenMap = { viewModel.openMapPicker() },
         onBack = viewModel::back,
         onNext = viewModel::saveStepOne
     )
@@ -94,6 +96,7 @@ private fun CommonCompetitionFieldContent(
     onTitleChanged: (String) -> Unit,
     onAddressChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
+    onOpenMap: () -> Unit,
     onBack: () -> Unit,
     onNext: () -> Unit
 ) {
@@ -228,7 +231,7 @@ private fun CommonCompetitionFieldContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { /* TODO: Открыть карту */ },
+                    onClick = onOpenMap,
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
                 ) {
@@ -489,6 +492,10 @@ private fun StartIntervalSelector(
     )
 }
 
+/** Ключи savedStateHandle для передачи координат с экрана карты. */
+internal const val MAP_RESULT_LAT = "map_result_lat"
+internal const val MAP_RESULT_LON = "map_result_lon"
+
 @Preview(showBackground = true, name = "Empty state")
 @Composable
 private fun CommonCompetitionFieldPreview() {
@@ -499,6 +506,7 @@ private fun CommonCompetitionFieldPreview() {
             onTitleChanged = {},
             onAddressChanged = {},
             onDescriptionChanged = {},
+            onOpenMap = {},
             onBack = {},
             onNext = {}
         )
@@ -519,6 +527,7 @@ private fun CommonCompetitionFieldFilledPreview() {
             onTitleChanged = {},
             onAddressChanged = {},
             onDescriptionChanged = {},
+            onOpenMap = {},
             onBack = {},
             onNext = {}
         )

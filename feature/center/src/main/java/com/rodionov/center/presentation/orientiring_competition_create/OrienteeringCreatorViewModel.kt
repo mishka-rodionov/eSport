@@ -7,6 +7,7 @@ import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.exception.NetworkException
+import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.NetworkErrorRepository
@@ -184,6 +185,10 @@ class OrienteeringCreatorViewModel(
             is OrienteeringCreatorAction.EditGroupDialog -> updateState {
                 copy(isShowGroupCreateDialog = true, editGroupIndex = action.index)
             }
+
+            is OrienteeringCreatorAction.UpdateCoordinates -> updateState {
+                copy(coordinates = Coordinates(action.latitude, action.longitude))
+            }
         }
     }
 
@@ -216,7 +221,8 @@ class OrienteeringCreatorViewModel(
                     kindOfSport = comp.competition.kindOfSport,
                     description = comp.competition.description ?: "",
                     address = comp.competition.address ?: "",
-                    coordinates = comp.competition.coordinates ?: coordinates,
+                    coordinates = if (isCoordinatesSetByUser) coordinates
+                                 else comp.competition.coordinates ?: coordinates,
                     registrationStart = comp.competition.registrationStart,
                     registrationStartTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationStart).ifEmpty { "10:00" },
                     registrationStartOnCreate = comp.competition.registrationStart == null,
@@ -440,6 +446,21 @@ class OrienteeringCreatorViewModel(
     fun updateTitle(title: String) = updateState { copy(title = title) }
     fun updateAddress(address: String) = updateState { copy(address = address) }
     fun updateDescription(description: String) = updateState { copy(description = description) }
+    fun updateCoordinates(lat: Double, lon: Double) = updateState {
+        copy(coordinates = Coordinates(lat, lon), isCoordinatesSetByUser = true)
+    }
+
+    /** Открывает экран выбора координат на карте. */
+    fun openMapPicker() {
+        viewModelScope.launch(Dispatchers.Main) {
+            navigation.navigate(
+                CenterNavigation.MapPickerRoute(
+                    initLat = stateValue.coordinates.latitude,
+                    initLon = stateValue.coordinates.longitude
+                )
+            )
+        }
+    }
     
     fun updateStartDate(date: Long) {
         val updatedTimestamp = DateTimeFormat.updateTimeInTimestamp(date, stateValue.startTimeStr) ?: date

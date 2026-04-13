@@ -48,6 +48,9 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data class UpdateStageDate(val index: Int, val date: Long) : OrienteeringCreatorAction()
     data class UpdateStageTime(val index: Int, val time: String) : OrienteeringCreatorAction()
 
+    // Обновление координат места старта
+    data class UpdateCoordinates(val latitude: Double, val longitude: Double) : OrienteeringCreatorAction()
+
     // Действия для работы с дистанциями
     data object ShowDistanceCreateDialog : OrienteeringCreatorAction()
     data object HideDistanceCreateDialog : OrienteeringCreatorAction()

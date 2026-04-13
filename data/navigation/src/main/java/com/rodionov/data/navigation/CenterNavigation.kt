@@ -47,4 +47,7 @@ sealed class CenterNavigation: BaseNavigation {
     data object ParticipantResults: CenterNavigation()
     @Serializable
     data class GetOrienteeringChipRoute(val competitionId: Long): CenterNavigation()
+
+    @Serializable
+    data class MapPickerRoute(val initLat: Double = 0.0, val initLon: Double = 0.0): CenterNavigation()
 }

@@ -71,4 +71,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.navigation)
     implementation(libs.koin.compose)
+
+    //osmdroid
+    implementation(libs.osmdroid)
 }
