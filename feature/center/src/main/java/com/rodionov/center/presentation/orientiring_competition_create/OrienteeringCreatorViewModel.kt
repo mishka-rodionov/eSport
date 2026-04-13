@@ -6,7 +6,10 @@ import com.rodionov.center.data.creator.OrienteeringCreatorState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.exception.NetworkException
+import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.user.User
+import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.ui.BaseAction
@@ -24,7 +27,8 @@ class OrienteeringCreatorViewModel(
     val navigation: Navigation,
     private val resourceProvider: ResourceProvider,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val networkErrorRepository: NetworkErrorRepository
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
     var user: User? = null
@@ -267,7 +271,7 @@ class OrienteeringCreatorViewModel(
                 }
             }
                 .onFailure {
-                    // TODO здесь будет обработка ошибки
+                    handleFailure(it)
                 }
 
         }
@@ -393,6 +397,7 @@ class OrienteeringCreatorViewModel(
                 }
                 .onFailure { error ->
                     updateState { copy(error = error.message) }
+                    handleFailure(error)
                 }
 
             updateState { copy(isLoading = false) }
@@ -413,6 +418,13 @@ class OrienteeringCreatorViewModel(
     fun back() {
         viewModelScope.launch(Dispatchers.Main) {
             navigation.back()
+        }
+    }
+
+    private fun handleFailure(throwable: Throwable) {
+        viewModelScope.launch {
+            val code = (throwable as? NetworkException)?.code
+            networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
         }
     }
 

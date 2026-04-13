@@ -7,7 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.orienteering.ResultConflictEvent
+import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.ResultConflictRepository
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.sportsenthusiast.service.CompetitionScanEventRepository
@@ -38,7 +40,8 @@ class MainViewModel(
     private val sportiduinoHelper: SportiduinoHelper,
     private val serviceController: CompetitionServiceController,
     private val scanEventRepository: CompetitionScanEventRepository,
-    private val resultConflictRepository: ResultConflictRepository
+    private val resultConflictRepository: ResultConflictRepository,
+    private val networkErrorRepository: NetworkErrorRepository
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     /**
@@ -70,6 +73,13 @@ class MainViewModel(
      */
     val conflictEvent: StateFlow<ResultConflictEvent?> = _conflictEvent.asStateFlow()
 
+    private val _networkErrorEvent = MutableStateFlow<NetworkErrorEvent?>(null)
+
+    /**
+     * Текущее событие сетевой ошибки для отображения bottom sheet диалога.
+     */
+    val networkErrorEvent: StateFlow<NetworkErrorEvent?> = _networkErrorEvent.asStateFlow()
+
     init {
         viewModelScope.launch {
             scanEventRepository.events.collect { event ->
@@ -83,6 +93,16 @@ class MainViewModel(
                 _conflictEvent.value = event
             }
         }
+        viewModelScope.launch {
+            networkErrorRepository.events.collect { event ->
+                _networkErrorEvent.value = event
+            }
+        }
+    }
+
+    /** Закрывает диалог сетевой ошибки. */
+    fun dismissNetworkError() {
+        _networkErrorEvent.value = null
     }
 
     /** Применяет конфликтующий результат: вызывает onApply и закрывает диалог. */

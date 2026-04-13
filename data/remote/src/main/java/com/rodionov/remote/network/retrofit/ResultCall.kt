@@ -1,5 +1,6 @@
 package com.rodionov.remote.network.retrofit
 
+import com.rodionov.domain.exception.NetworkException
 import com.rodionov.remote.base.BaseModel
 import com.rodionov.remote.base.CommonModel
 import okhttp3.Request
@@ -100,7 +101,12 @@ class ResultCall<T : BaseModel>(private val request: Call<T>) : Call<Result<T>> 
         return if (body !is BaseModel) {
             Throwable(response.errorBody()?.string())
         } else {
-            Throwable(body.getFirstErrorMessage()?.message)
+            val baseError = body.getFirstErrorMessage()
+            if (baseError != null) {
+                NetworkException(code = baseError.code, message = baseError.message)
+            } else {
+                Throwable(response.errorBody()?.string())
+            }
         }
     }
 

@@ -1,25 +1,26 @@
 package com.rodionov.profile.presentation.auth_code
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.PendingRegistrationRepository
 import com.rodionov.data.navigation.ProfileNavigation
 import com.rodionov.data.navigation.TabRoutes
-import com.rodionov.data.navigation.getArguments
+import com.rodionov.domain.exception.NetworkException
+import com.rodionov.domain.models.NetworkErrorEvent
+import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.profile.data.auth.AuthAction
 import com.rodionov.profile.data.interactors.AuthInteractor
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.BaseState
 import com.rodionov.ui.viewmodel.BaseViewModel
-import com.rodionov.utils.constants.ProfileConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AuthCodeViewModel(
     private val authInteractor: AuthInteractor,
     private val navigation: Navigation,
-    private val pendingRegistrationRepository: PendingRegistrationRepository
+    private val pendingRegistrationRepository: PendingRegistrationRepository,
+    private val networkErrorRepository: NetworkErrorRepository
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     private var email = ""
@@ -44,8 +45,15 @@ class AuthCodeViewModel(
                     navigation.navigate(ProfileNavigation.MainProfileRoute)
                 }
             }.onFailure {
-                Log.d("LOG_TAG", "sendAuthCode: $it")
+                handleFailure(it)
             }
+        }
+    }
+
+    private fun handleFailure(throwable: Throwable) {
+        viewModelScope.launch {
+            val code = (throwable as? NetworkException)?.code
+            networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
         }
     }
 

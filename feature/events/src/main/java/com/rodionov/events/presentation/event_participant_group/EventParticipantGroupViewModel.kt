@@ -4,8 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.PendingRegistrationRepository
 import com.rodionov.data.navigation.TabRoutes
+import com.rodionov.domain.exception.NetworkException
+import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.user.User
+import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.events.data.event_participant_group.EventParticipantGroupState
@@ -19,12 +22,14 @@ import kotlinx.coroutines.launch
  * @property userRepository Репозиторий пользователя.
  * @property navigation Сервис навигации.
  * @property pendingRegistrationRepository Хранилище отложенного действия регистрации.
+ * @property networkErrorRepository Репозиторий для передачи сетевых ошибок в MainActivity.
  */
 class EventParticipantGroupViewModel(
     private val repository: CyclicEventDetailsRepository,
     private val userRepository: UserRepository,
     private val navigation: Navigation,
-    private val pendingRegistrationRepository: PendingRegistrationRepository
+    private val pendingRegistrationRepository: PendingRegistrationRepository,
+    private val networkErrorRepository: NetworkErrorRepository
 ) : BaseViewModel<EventParticipantGroupState>(EventParticipantGroupState()) {
 
     private var currentUser: User? = null
@@ -61,6 +66,7 @@ class EventParticipantGroupViewModel(
                 }
                 .onFailure {
                     updateState { copy(isLoading = false) }
+                    handleFailure(it)
                 }
 
             // Проверить отложенную регистрацию: если вернулись после авторизации
@@ -100,6 +106,7 @@ class EventParticipantGroupViewModel(
                 }
                 .onFailure {
                     updateState { copy(isRegistering = false) }
+                    handleFailure(it)
                 }
         }
     }
@@ -117,7 +124,15 @@ class EventParticipantGroupViewModel(
                 }
                 .onFailure {
                     updateState { copy(isRegistering = false) }
+                    handleFailure(it)
                 }
+        }
+    }
+
+    private fun handleFailure(throwable: Throwable) {
+        viewModelScope.launch {
+            val code = (throwable as? NetworkException)?.code
+            networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
         }
     }
 }

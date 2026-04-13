@@ -195,6 +195,7 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     val lifecycleOwner = LocalLifecycleOwner.current
     val scanEvent by viewModel.currentScanEvent.collectAsState()
     val conflictEvent by viewModel.conflictEvent.collectAsState()
+    val networkError by viewModel.networkErrorEvent.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.switchTabEffect.collect { tabRoute ->
@@ -316,6 +317,21 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
             onApply = viewModel::applyConflict,
             onCancel = viewModel::cancelConflict
         )
+    }
+
+    networkError?.let { event ->
+        when (event.code) {
+            401 -> {
+                // TODO: принудительный logout / навигация на экран авторизации
+                viewModel.dismissNetworkError()
+            }
+            else -> {
+                NetworkErrorBottomSheet(
+                    message = event.message ?: "Произошла ошибка",
+                    onDismiss = viewModel::dismissNetworkError
+                )
+            }
+        }
     }
 }
 

@@ -5,8 +5,11 @@ import com.rodionov.data.navigation.EventsNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.PendingRegistrationRepository
 import com.rodionov.data.navigation.TabRoutes
+import com.rodionov.domain.exception.NetworkException
+import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.user.User
+import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.events.data.details.EventDetailsState
@@ -22,12 +25,14 @@ import kotlinx.coroutines.launch
  * @param userRepository Репозиторий пользователя.
  * @param navigation Сервис навигации.
  * @param pendingRegistrationRepository Хранилище отложенного действия регистрации.
+ * @param networkErrorRepository Репозиторий для передачи сетевых ошибок в MainActivity.
  */
 class EventDetailsViewModel(
     private val cyclicEventDetailsRepository: CyclicEventDetailsRepository,
     private val userRepository: UserRepository,
     private val navigation: Navigation,
-    private val pendingRegistrationRepository: PendingRegistrationRepository
+    private val pendingRegistrationRepository: PendingRegistrationRepository,
+    private val networkErrorRepository: NetworkErrorRepository
 ) : BaseViewModel<EventDetailsState>(
     EventDetailsState(eventDetails = null)
 ) {
@@ -64,7 +69,7 @@ class EventDetailsViewModel(
                     }
                 }
                 .onFailure {
-                    // TODO: Обработка ошибки загрузки
+                    handleFailure(it)
                 }
 
             // Проверить отложенную регистрацию: если вернулись после авторизации
@@ -129,6 +134,7 @@ class EventDetailsViewModel(
                             error = e.message
                         )
                     }
+                    handleFailure(e)
                 }
         }
     }
@@ -147,6 +153,7 @@ class EventDetailsViewModel(
                 }
                 .onFailure { e ->
                     updateState { copy(isRegistering = false, error = e.message) }
+                    handleFailure(e)
                 }
         }
     }
@@ -167,6 +174,13 @@ class EventDetailsViewModel(
         val eventId = stateValue.eventDetails?.eventId ?: return
         viewModelScope.launch {
             navigation.navigate(EventsNavigation.EventResultsRoute(eventId = eventId))
+        }
+    }
+
+    private fun handleFailure(throwable: Throwable) {
+        viewModelScope.launch {
+            val code = (throwable as? NetworkException)?.code
+            networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
         }
     }
 }

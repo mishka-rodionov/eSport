@@ -1,7 +1,10 @@
 package com.rodionov.profile.presentation.profile_editor
 
 import androidx.lifecycle.viewModelScope
+import com.rodionov.domain.exception.NetworkException
+import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.user.User
+import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
@@ -13,9 +16,11 @@ import kotlinx.coroutines.launch
  * Управляет загрузкой, редактированием и сохранением данных пользователя.
  *
  * @param userRepository Репозиторий для работы с данными пользователя.
+ * @param networkErrorRepository Репозиторий для передачи сетевых ошибок в MainActivity.
  */
 class ProfileEditorViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val networkErrorRepository: NetworkErrorRepository
 ) : BaseViewModel<ProfileEditorState>(ProfileEditorState()) {
 
     init {
@@ -45,6 +50,7 @@ class ProfileEditorViewModel(
                 }
                 .onFailure {
                     updateState { copy(isLoading = false, error = "Ошибка загрузки данных") }
+                    handleFailure(it)
                 }
         }
     }
@@ -78,7 +84,7 @@ class ProfileEditorViewModel(
         viewModelScope.launch {
             // Имитация задержки сетевого запроса (моки)
             delay(1500)
-            
+
             userRepository.saveUser(userToSave)
                 .onSuccess {
                     updateState { copy(isSaving = false) }
@@ -86,7 +92,15 @@ class ProfileEditorViewModel(
                 }
                 .onFailure {
                     updateState { copy(isSaving = false, error = "Ошибка сохранения") }
+                    handleFailure(it)
                 }
+        }
+    }
+
+    private fun handleFailure(throwable: Throwable) {
+        viewModelScope.launch {
+            val code = (throwable as? NetworkException)?.code
+            networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
         }
     }
 }
