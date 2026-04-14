@@ -2,6 +2,7 @@ package com.rodionov.remote.response.mappers
 
 import com.rodionov.domain.models.Gender
 import com.rodionov.domain.models.ResultStatus
+import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
@@ -10,6 +11,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.SplitTime
 import com.rodionov.remote.response.orienteering.ControlPointResponse
+import com.rodionov.remote.response.orienteering.DistanceResponse
 import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
 import com.rodionov.remote.response.orienteering.OrienteeringParticipantResponse
 import com.rodionov.remote.response.orienteering.OrienteeringResultResponse
@@ -48,6 +50,24 @@ fun ParticipantGroupResponse.toDomain() : ParticipantGroup {
         remoteId = groupId,
         isSynced = true,
         lastModified = System.currentTimeMillis()
+    )
+}
+
+/**
+ * Преобразует ответ сервера по дистанции в доменную модель.
+ * localCompetitionId — локальный ID соревнования в Room, необходим для корректной привязки.
+ */
+fun DistanceResponse.toDomain(localCompetitionId: Long): Distance {
+    return Distance(
+        remoteId = id,
+        competitionId = localCompetitionId,
+        name = name,
+        lengthMeters = lengthMeters,
+        climbMeters = climbMeters,
+        controlsCount = controlsCount,
+        description = description,
+        isSynced = true,
+        controlPoints = emptyList()
     )
 }
 

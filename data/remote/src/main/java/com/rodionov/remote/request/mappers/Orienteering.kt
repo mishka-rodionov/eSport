@@ -1,11 +1,13 @@
 package com.rodionov.remote.request.mappers
 
+import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.ControlPoint
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.remote.request.orienteering.ControlPointRequest
+import com.rodionov.remote.request.orienteering.DistanceRequest
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest
 import com.rodionov.remote.request.orienteering.OrienteeringParticipantRequest
 import com.rodionov.remote.request.orienteering.OrienteeringResultRequest
@@ -37,6 +39,18 @@ fun ParticipantGroup.toRequest(): ParticipantGroupRequest {
         maxAge = maxAge,
         distanceId = distanceId,
         maxParticipants = maxParticipants
+    )
+}
+
+fun Distance.toRequest(remoteCompetitionId: Long): DistanceRequest {
+    return DistanceRequest(
+        distanceId = remoteId,
+        competitionId = remoteCompetitionId,
+        name = name,
+        lengthMeters = lengthMeters,
+        climbMeters = climbMeters,
+        controlsCount = controlsCount,
+        description = description
     )
 }
 

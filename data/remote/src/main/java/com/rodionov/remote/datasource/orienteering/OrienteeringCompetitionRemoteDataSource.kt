@@ -1,11 +1,13 @@
 package com.rodionov.remote.datasource.orienteering
 
 import com.rodionov.remote.base.CommonModel
+import com.rodionov.remote.request.orienteering.DistanceRequest
 import com.rodionov.remote.request.orienteering.OrienteeringCompetitionRequest
 import com.rodionov.remote.request.orienteering.OrienteeringParticipantRequest
 import com.rodionov.remote.request.orienteering.OrienteeringResultRequest
 import com.rodionov.remote.request.orienteering.ParticipantGroupPublishRequest
 import com.rodionov.remote.request.orienteering.ParticipantGroupRequest
+import com.rodionov.remote.response.orienteering.DistanceResponse
 import com.rodionov.remote.response.orienteering.OrienteeringCompetitionResponse
 import com.rodionov.remote.response.orienteering.OrienteeringParticipantResponse
 import com.rodionov.remote.response.orienteering.OrienteeringResultResponse
@@ -34,5 +36,11 @@ interface OrienteeringCompetitionRemoteDataSource {
 
     @POST("event/orienteering/save/result")
     suspend fun saveResult(@Body request: OrienteeringResultRequest): Result<CommonModel<OrienteeringResultResponse>>
+
+    @POST("event/orienteering/save/distances")
+    suspend fun saveDistances(@Body request: List<DistanceRequest>): Result<CommonModel<List<DistanceResponse>>>
+
+    @GET("event/orienteering/distances")
+    suspend fun getDistances(@Query("competitionId") competitionId: Long): Result<CommonModel<List<DistanceResponse>>>
 
 }

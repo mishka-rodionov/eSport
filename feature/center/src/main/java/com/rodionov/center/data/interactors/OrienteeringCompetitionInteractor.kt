@@ -509,8 +509,28 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
+     * Публикует дистанции соревнования на сервер.
+     * После успешной публикации обновляет remoteId и isSynced для каждой дистанции локально.
+     *
+     * @param remoteCompetitionId Серверный ID соревнования.
+     * @param localCompetitionId Локальный ID соревнования в Room.
+     * @param distances Список дистанций для публикации.
+     * @return Список дистанций с проставленными remoteId или ошибка.
+     */
+    suspend fun publishDistancesToServer(
+        remoteCompetitionId: Long,
+        localCompetitionId: Long,
+        distances: List<Distance>
+    ): Result<List<Distance>> {
+        return remoteRepository.publishDistancesForCompetition(remoteCompetitionId, localCompetitionId, distances)
+            .onSuccess { syncedDistances ->
+                syncedDistances.forEach { localRepository.updateDistance(it) }
+            }
+    }
+
+    /**
      * Сохраняет новую дистанцию для соревнования.
-     * 
+     *
      * @param distance Модель дистанции.
      * @return Результат операции с ID сохраненной записи.
      */

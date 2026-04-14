@@ -1,5 +1,6 @@
 package com.rodionov.domain.repository.orienteering
 
+import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
@@ -26,6 +27,12 @@ interface OrienteeringCompetitionRemoteRepository {
     suspend fun deleteCompetitionParticipantsGroups(competitionId: Long): Result<Unit>
 
     suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>>
+
+    suspend fun publishDistancesForCompetition(
+        remoteCompetitionId: Long,
+        localCompetitionId: Long,
+        distances: List<Distance>
+    ): Result<List<Distance>>
 
     suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant>
 

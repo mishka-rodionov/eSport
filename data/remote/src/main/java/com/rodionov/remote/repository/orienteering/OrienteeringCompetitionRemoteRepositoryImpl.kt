@@ -1,5 +1,6 @@
 package com.rodionov.remote.repository.orienteering
 
+import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
@@ -46,7 +47,7 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
                     gender = group.gender?.name,
                     minAge = group.minAge,
                     maxAge = group.maxAge,
-                    distanceId = group.distanceId.toString(),
+                    distanceId = group.distanceId,
                     maxParticipants = group.maxParticipants
                 )
             }
@@ -60,6 +61,22 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
                 )
             }
         }
+    }
+
+    override suspend fun publishDistancesForCompetition(
+        remoteCompetitionId: Long,
+        localCompetitionId: Long,
+        distances: List<Distance>
+    ): Result<List<Distance>> {
+        val requests = distances.map { it.toRequest(remoteCompetitionId) }
+        return orienteeringCompetitionRemoteDataSource.saveDistances(requests)
+            .mapCatching { response ->
+                // Сопоставляем локальные дистанции с серверными по порядку (zip),
+                // сохраняя локальный id и проставляя remoteId из ответа
+                distances.zip(response.result!!) { localDist, serverDist ->
+                    localDist.copy(remoteId = serverDist.id, isSynced = true)
+                }
+            }
     }
 
     override suspend fun getCompetitionById(competitionId: Long): Result<OrienteeringCompetition> {

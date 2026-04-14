@@ -407,7 +407,31 @@ class OrienteeringCreatorViewModel(
             orienteeringCompetitionInteractor.publishCompetitionToServer(competition)
                 .onSuccess { serverCompetition ->
                     serverCompetition.competition.remoteId?.let { remoteId ->
-                        orienteeringCompetitionInteractor.publishGroupsToServer(remoteId, freshGroups)
+                        // Загружаем дистанции из локальной БД
+                        val distances = orienteeringCompetitionInteractor
+                            .getDistances(competition.localCompetitionId)
+                            .getOrDefault(emptyList())
+
+                        // Публикуем дистанции на сервер и получаем их с remoteId
+                        val syncedDistances = if (distances.isNotEmpty()) {
+                            orienteeringCompetitionInteractor.publishDistancesToServer(
+                                remoteCompetitionId = remoteId,
+                                localCompetitionId = competition.localCompetitionId,
+                                distances = distances
+                            ).getOrDefault(emptyList())
+                        } else {
+                            emptyList()
+                        }
+
+                        // Перестраиваем группы: заменяем локальный distanceId на серверный remoteId
+                        val groupsWithRemoteDistanceIds = freshGroups.map { group ->
+                            val serverDistanceId = syncedDistances
+                                .find { it.id == group.distanceId }
+                                ?.remoteId
+                            if (serverDistanceId != null) group.copy(distanceId = serverDistanceId) else group
+                        }
+
+                        orienteeringCompetitionInteractor.publishGroupsToServer(remoteId, groupsWithRemoteDistanceIds)
                     }
                 }
                 .onFailure { error ->
