@@ -21,5 +21,6 @@
       "Bash(./gradlew :feature:center:compileDebugKotlin)",
       "Bash(./gradlew :feature:center:compileDebugKotlin :data:navigation:compileDebugKotlin)"
     ]
-  }
+  },
+  "prefersReducedMotion": true
 }

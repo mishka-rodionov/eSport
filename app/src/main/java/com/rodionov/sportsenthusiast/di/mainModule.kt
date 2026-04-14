@@ -1,5 +1,6 @@
 package com.rodionov.sportsenthusiast.di
 
+import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.ResultConflictRepository
 import com.rodionov.sportsenthusiast.presentation.main.MainViewModel
@@ -15,4 +16,5 @@ val mainModule = module {
     single<CompetitionServiceController> { CompetitionServiceControllerImpl() }
     single { ResultConflictRepository() }
     single { NetworkErrorRepository() }
+    single { LoadingRepository() }
 }

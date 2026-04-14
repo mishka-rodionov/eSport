@@ -16,6 +16,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +26,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -42,10 +46,11 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -196,6 +201,7 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     val scanEvent by viewModel.currentScanEvent.collectAsState()
     val conflictEvent by viewModel.conflictEvent.collectAsState()
     val networkError by viewModel.networkErrorEvent.collectAsState()
+    val isLoading by viewModel.loadingEvent.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.switchTabEffect.collect { tabRoute ->
@@ -311,6 +317,8 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
         }
     }
 
+    GlobalLoader(isLoading = isLoading)
+
     conflictEvent?.let { event ->
         ResultConflictBottomSheet(
             event = event,
@@ -342,4 +350,37 @@ private fun checkNavigation(tab: BottomNavItem): BaseNavigation = when (tab) {
     BottomNavItem.Profile -> ProfileNavigation.MainProfileRoute
     BottomNavItem.CompetitionList -> EventsNavigation.EventsRoute
     BottomNavItem.CompetitionConstructor -> CenterNavigation.CenterRoute
+}
+
+/**
+ * Глобальный индикатор загрузки, перекрывающий весь экран.
+ * Используется для длительных операций, таких как сетевые запросы.
+ *
+ * @param isLoading Флаг отображения лоадера.
+ */
+@Composable
+private fun GlobalLoader(isLoading: Boolean) {
+    AnimatedVisibility(
+        visible = isLoading,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = Modifier.zIndex(100f) // Поверх всего, включая баннеры и диалоги
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {} // Блокируем клики по контенту под лоадером
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(64.dp)
+            )
+        }
+    }
 }

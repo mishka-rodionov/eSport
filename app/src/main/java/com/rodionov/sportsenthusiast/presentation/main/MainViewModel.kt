@@ -9,6 +9,7 @@ import com.rodionov.data.navigation.BaseNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.orienteering.ResultConflictEvent
+import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.ResultConflictRepository
 import com.rodionov.nfchelper.SportiduinoHelper
@@ -22,8 +23,10 @@ import com.rodionov.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -41,8 +44,15 @@ class MainViewModel(
     private val serviceController: CompetitionServiceController,
     private val scanEventRepository: CompetitionScanEventRepository,
     private val resultConflictRepository: ResultConflictRepository,
-    private val networkErrorRepository: NetworkErrorRepository
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val loadingRepository: LoadingRepository
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
+
+    /**
+     * Поток событий состояния загрузки для отображения глобального лоадера.
+     */
+    val loadingEvent: StateFlow<Boolean> = loadingRepository.loadingEvents
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
      * Поток базовых эффектов навигации (например, BackRoute).
