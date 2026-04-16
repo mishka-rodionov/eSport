@@ -479,8 +479,8 @@ class OrienteeringCreatorViewModel(
         viewModelScope.launch(Dispatchers.Main) {
             navigation.navigate(
                 CenterNavigation.MapPickerRoute(
-                    initLat = stateValue.coordinates.latitude,
-                    initLon = stateValue.coordinates.longitude
+                    initLatE6 = (stateValue.coordinates.latitude * 1_000_000).toLong(),
+                    initLonE6 = (stateValue.coordinates.longitude * 1_000_000).toLong()
                 )
             )
         }

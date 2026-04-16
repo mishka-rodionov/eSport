@@ -83,8 +83,8 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass, navController:
     composable<CenterNavigation.MapPickerRoute> { backStackEntry ->
         val route: CenterNavigation.MapPickerRoute = backStackEntry.toRoute()
         MapPickerScreen(
-            initLat = route.initLat,
-            initLon = route.initLon,
+            initLat = route.initLatE6 / 1_000_000.0,
+            initLon = route.initLonE6 / 1_000_000.0,
             onConfirm = { lat, lon ->
                 navController.previousBackStackEntry?.savedStateHandle?.let { handle ->
                     handle[MAP_RESULT_LAT] = lat

@@ -45,7 +45,7 @@ fun ParticipantGroupResponse.toDomain() : ParticipantGroup {
         },
         minAge = minAge,
         maxAge = maxAge,
-        distanceId = 0L,
+        distanceId = distanceId,
         maxParticipants = maxParticipants,
         remoteId = groupId,
         isSynced = true,
