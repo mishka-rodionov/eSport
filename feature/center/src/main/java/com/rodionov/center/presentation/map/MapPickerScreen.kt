@@ -27,8 +27,40 @@ import com.rodionov.resources.R
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.ITileSource
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
+
+/**
+ * Спутниковые тайлы Esri с глобальным покрытием.
+ * Esri использует порядок координат z/y/x вместо стандартного z/x/y,
+ * поэтому переопределяем построение URL.
+ */
+private val ESRI_SATELLITE = object : XYTileSource(
+    "Esri Satellite",
+    0, 19, 256, ".jpg",
+    arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/")
+) {
+    override fun getTileURLString(pMapTileIndex: Long): String =
+        baseUrl +
+            MapTileIndex.getZoom(pMapTileIndex) + "/" +
+            MapTileIndex.getY(pMapTileIndex) + "/" +
+            MapTileIndex.getX(pMapTileIndex)
+}
+
+/**
+ * Топографические тайлы OpenTopoMap с глобальным покрытием.
+ */
+private val OPEN_TOPO = XYTileSource(
+    "OpenTopoMap",
+    0, 17, 256, ".png",
+    arrayOf(
+        "https://a.tile.opentopomap.org/",
+        "https://b.tile.opentopomap.org/",
+        "https://c.tile.opentopomap.org/"
+    )
+)
 
 /**
  * Доступные типы карт для отображения на [MapPickerScreen].
@@ -38,8 +70,8 @@ import org.osmdroid.views.MapView
  */
 private enum class MapType(val label: String, val tileSource: ITileSource) {
     OSM("OpenStreetMap", TileSourceFactory.MAPNIK),
-    SATELLITE("Спутник", TileSourceFactory.USGS_SAT),
-    TOPO("Топография", TileSourceFactory.USGS_TOPO),
+    SATELLITE("Спутник", ESRI_SATELLITE),
+    TOPO("Топография", OPEN_TOPO),
     TRANSPORT("Транспорт", TileSourceFactory.PUBLIC_TRANSPORT),
 }
 
