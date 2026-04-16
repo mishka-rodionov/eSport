@@ -19,10 +19,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,9 +29,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.designsystem.components.DSBottomDialog
+import com.example.designsystem.components.DSButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -143,10 +148,13 @@ fun UnauthorizedUser(userAction: (ProfileAction) -> Unit) {
  * Отображение данных авторизованного пользователя.
  * Группирует информацию в карточки и разделы для лучшего UX.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
     val user = state.user
     val scrollState = rememberScrollState()
+    var showLogoutSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Column(
         modifier = Modifier
@@ -276,7 +284,7 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
 
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { onAction(ProfileAction.Logout) },
+            onClick = { showLogoutSheet = true },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = MaterialTheme.colorScheme.error
@@ -285,6 +293,51 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
         ) {
             Text(text = "Выйти", modifier = Modifier.padding(vertical = 4.dp))
         }
+    }
+
+    if (showLogoutSheet) {
+        DSBottomDialog(
+            sheetState = sheetState,
+            onDismiss = { showLogoutSheet = false },
+            sheetContent = {
+                Text(
+                    text = "Выход из аккаунта",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+                Text(
+                    text = "Вы действительно хотите выйти?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+
+                DSButton(
+                    text = "Выход",
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        showLogoutSheet = false
+                        onAction(ProfileAction.Logout)
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { showLogoutSheet = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(text = "Отмена", modifier = Modifier.padding(vertical = 4.dp))
+                }
+            }
+        )
     }
 }
 
