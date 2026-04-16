@@ -14,17 +14,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.rodionov.resources.R
 import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.ITileSource
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+
+/**
+ * Доступные типы карт для отображения на [MapPickerScreen].
+ *
+ * @param label Название, отображаемое пользователю.
+ * @param tileSource Источник тайлов osmdroid.
+ */
+private enum class MapType(val label: String, val tileSource: ITileSource) {
+    OSM("OpenStreetMap", TileSourceFactory.MAPNIK),
+    SATELLITE("Спутник", TileSourceFactory.USGS_SAT),
+    TOPO("Топография", TileSourceFactory.USGS_TOPO),
+    TRANSPORT("Транспорт", TileSourceFactory.PUBLIC_TRANSPORT),
+}
 
 /**
  * Экран выбора координат места старта на карте OpenStreetMap.
@@ -48,6 +65,8 @@ fun MapPickerScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val mapViewRef = remember { mutableStateOf<MapView?>(null) }
+    var currentMapType by remember { mutableStateOf(MapType.OSM) }
+    var layerMenuExpanded by remember { mutableStateOf(false) }
 
     val hasStoredCoords = initLat != 0.0 || initLon != 0.0
 
@@ -66,7 +85,7 @@ fun MapPickerScreen(
                     )
                     MapView(ctx).also { mapView ->
                         mapViewRef.value = mapView
-                        mapView.setTileSource(TileSourceFactory.MAPNIK)
+                        mapView.setTileSource(currentMapType.tileSource)
                         mapView.setMultiTouchControls(true)
                         mapView.controller.setZoom(15.0)
 
@@ -76,6 +95,9 @@ fun MapPickerScreen(
                         }
                         mapView.controller.setCenter(center)
                     }
+                },
+                update = { mapView ->
+                    mapView.setTileSource(currentMapType.tileSource)
                 }
             )
 
@@ -103,6 +125,39 @@ fun MapPickerScreen(
                     strokeWidth = strokeWidth,
                     cap = StrokeCap.Round
                 )
+            }
+
+            // Переключатель типа карты
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(12.dp)
+            ) {
+                FilledIconButton(onClick = { layerMenuExpanded = true }) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.map_24dp),
+                        contentDescription = "Тип карты"
+                    )
+                }
+                DropdownMenu(
+                    expanded = layerMenuExpanded,
+                    onDismissRequest = { layerMenuExpanded = false }
+                ) {
+                    MapType.entries.forEach { mapType ->
+                        DropdownMenuItem(
+                            text = { Text(mapType.label) },
+                            onClick = {
+                                currentMapType = mapType
+                                layerMenuExpanded = false
+                            },
+                            trailingIcon = {
+                                if (mapType == currentMapType) {
+                                    RadioButton(selected = true, onClick = null)
+                                }
+                            }
+                        )
+                    }
+                }
             }
 
             // Кнопка фиксации координат
