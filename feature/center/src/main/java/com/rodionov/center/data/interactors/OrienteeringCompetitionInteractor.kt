@@ -509,6 +509,53 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
+     * Загружает дистанции и группы участников с сервера и синхронизирует их в локальную БД.
+     *
+     * Алгоритм:
+     * 1. Получает дистанции с сервера, делает upsert (update если remoteId совпадает, insert иначе)
+     * 2. Перезагружает дистанции из локальной БД, строит карту remoteId → localId
+     * 3. Получает группы с сервера, конвертирует distanceId (remote → local), сохраняет в БД
+     *
+     * @param remoteCompetitionId Серверный ID соревнования.
+     * @param localCompetitionId Локальный ID соревнования в Room.
+     */
+    suspend fun fetchAndSyncFromServer(remoteCompetitionId: Long, localCompetitionId: Long) {
+        val serverDistances = remoteRepository
+            .getDistancesForCompetition(remoteCompetitionId, localCompetitionId)
+            .getOrNull() ?: return
+
+        val existingByRemoteId = localRepository.getDistances(localCompetitionId)
+            .getOrNull().orEmpty()
+            .associateBy { it.remoteId }
+
+        serverDistances.forEach { serverDist ->
+            val existing = serverDist.remoteId?.let { existingByRemoteId[it] }
+            if (existing != null) {
+                localRepository.updateDistance(serverDist.copy(id = existing.id))
+            } else {
+                localRepository.saveDistance(serverDist)
+            }
+        }
+
+        val remoteToLocalDistanceId = localRepository.getDistances(localCompetitionId)
+            .getOrNull().orEmpty()
+            .filter { it.remoteId != null }
+            .associate { it.remoteId!! to it.id }
+
+        val serverGroups = remoteRepository
+            .getCompetitionParticipantsGroups(remoteCompetitionId)
+            .getOrNull() ?: return
+
+        val fixedGroups = serverGroups.map { group ->
+            group.copy(
+                competitionId = localCompetitionId,
+                distanceId = remoteToLocalDistanceId[group.distanceId] ?: group.distanceId
+            )
+        }
+        localRepository.updateParticipantsGroups(localCompetitionId, fixedGroups)
+    }
+
+    /**
      * Публикует дистанции соревнования на сервер.
      * После успешной публикации обновляет remoteId и isSynced для каждой дистанции локально.
      *

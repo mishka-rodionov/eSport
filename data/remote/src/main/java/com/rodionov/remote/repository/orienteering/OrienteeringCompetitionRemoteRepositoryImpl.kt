@@ -84,7 +84,16 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     }
 
     override suspend fun getCompetitionParticipantsGroups(competitionId: Long): Result<List<ParticipantGroup>> {
-        TODO("Not yet implemented")
+        return orienteeringCompetitionRemoteDataSource.getParticipantGroups(competitionId)
+            .mapCatching { it.result!!.map { gr -> gr.toDomain() } }
+    }
+
+    override suspend fun getDistancesForCompetition(
+        remoteCompetitionId: Long,
+        localCompetitionId: Long
+    ): Result<List<Distance>> {
+        return orienteeringCompetitionRemoteDataSource.getDistances(remoteCompetitionId)
+            .mapCatching { it.result!!.map { dist -> dist.toDomain(localCompetitionId) } }
     }
 
     override suspend fun updateCompetition(competition: OrienteeringCompetition): Result<OrienteeringCompetition> {

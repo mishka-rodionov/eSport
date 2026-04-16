@@ -247,12 +247,18 @@ class OrienteeringCreatorViewModel(
                 )
             }
             
-            // Загрузка существующих дистанций
+            // Синхронизируем дистанции и группы с сервером (если соревнование опубликовано)
+            val remoteId = comp.competition.remoteId
+            if (remoteId != null) {
+                orienteeringCompetitionInteractor.fetchAndSyncFromServer(remoteId, competitionId)
+            }
+
+            // Загрузка дистанций из локальной БД (уже актуальных после синхронизации)
             orienteeringCompetitionInteractor.getDistances(competitionId).onSuccess { list ->
                 updateState { copy(distances = list) }
             }
-            
-            // Загрузка существующих групп (через детали соревнования)
+
+            // Загрузка групп из локальной БД (уже актуальных после синхронизации)
             orienteeringCompetitionInteractor.getCompetitionWithDetails(competitionId).onSuccess { details ->
                 updateState {
                     copy(participantGroups = details.groupsWithParticipants.map { it.group })

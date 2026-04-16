@@ -34,6 +34,11 @@ interface OrienteeringCompetitionRemoteRepository {
         distances: List<Distance>
     ): Result<List<Distance>>
 
+    suspend fun getDistancesForCompetition(
+        remoteCompetitionId: Long,
+        localCompetitionId: Long
+    ): Result<List<Distance>>
+
     suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant>
 
     suspend fun saveResult(result: OrienteeringResult): Result<OrienteeringResult>
