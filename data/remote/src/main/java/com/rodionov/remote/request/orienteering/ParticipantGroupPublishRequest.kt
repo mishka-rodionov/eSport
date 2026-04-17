@@ -3,7 +3,7 @@ package com.rodionov.remote.request.orienteering
 import com.google.gson.annotations.SerializedName
 
 data class ParticipantGroupPublishRequest(
-    @SerializedName("groupId") val groupId: String? = null,
+    @SerializedName("groupId") val groupId: Long? = null,
     @SerializedName("competitionId") val competitionId: Long,
     @SerializedName("title") val title: String,
     @SerializedName("gender") val gender: String?,

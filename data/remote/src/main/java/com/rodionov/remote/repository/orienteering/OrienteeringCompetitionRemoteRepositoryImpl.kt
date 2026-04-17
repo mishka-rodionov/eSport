@@ -41,7 +41,7 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
         return orienteeringCompetitionRemoteDataSource.publishParticipantGroups(
             participantGroups.map { group ->
                 ParticipantGroupPublishRequest(
-                    groupId = group.remoteId,  // null для новых, UUID для существующих
+                    groupId = group.remoteId,  // null для новых, Long для существующих
                     competitionId = remoteCompetitionId,
                     title = group.title,
                     gender = group.gender?.name,
@@ -123,6 +123,11 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     override suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant> {
         return orienteeringCompetitionRemoteDataSource.saveParticipant(participant.toRequest())
             .mapCatching { it.result!!.toDomain() }
+    }
+
+    override suspend fun getParticipantsForCompetition(remoteCompetitionId: Long): Result<List<OrienteeringParticipant>> {
+        return orienteeringCompetitionRemoteDataSource.getParticipantsByCompetition(remoteCompetitionId)
+            .mapCatching { it.result!!.map { p -> p.toDomain() } }
     }
 
     override suspend fun saveResult(result: OrienteeringResult): Result<OrienteeringResult> {

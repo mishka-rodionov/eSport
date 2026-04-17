@@ -273,7 +273,7 @@ class MockInterceptor : Interceptor {
         val participantGroups = gson.fromJson(bodyString, Array<ParticipantGroupPublishRequest>::class.java)
         val mockGroupsResponse = participantGroups.map {
             ParticipantGroupResponse(
-                groupId = it.groupId ?: java.util.UUID.randomUUID().toString(),
+                groupId = it.groupId ?: 0L,
                 competitionId = it.competitionId,
                 title = it.title,
                 gender = it.gender,

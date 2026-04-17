@@ -38,6 +38,15 @@ class OrienteeringEventControlViewModel(
     private fun loadCompetitionData() {
         val id = competitionId ?: return
         viewModelScope.launch {
+            // Сначала синхронизируем с сервером, если соревнование опубликовано
+            val remoteId = orienteeringCompetitionInteractor.getCompetition(id)
+                ?.competition?.remoteId
+            if (remoteId != null) {
+                orienteeringCompetitionInteractor.fetchAndSyncFromServer(remoteId, id)
+                orienteeringCompetitionInteractor.fetchAndSyncParticipantsFromServer(remoteId, id)
+            }
+
+            // Загружаем актуальные данные из локальной БД (уже синхронизированной)
             orienteeringCompetitionInteractor.getCompetitionWithDetails(id).onSuccess { details ->
                 val competition = details.competition
                 applyCompetitionState(

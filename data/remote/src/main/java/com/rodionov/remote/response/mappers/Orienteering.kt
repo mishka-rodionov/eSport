@@ -87,7 +87,7 @@ fun ControlPointResponse.toDomain() : ControlPoint {
  */
 fun OrienteeringParticipantResponse.toDomain(): OrienteeringParticipant {
     return OrienteeringParticipant(
-        id = id,
+        id = 0L,
         userId = userId,
         firstName = firstName,
         lastName = lastName,
@@ -100,7 +100,8 @@ fun OrienteeringParticipantResponse.toDomain(): OrienteeringParticipant {
         chipNumber = chipNumber,
         comment = comment,
         isChipGiven = isChipGiven,
-        isSynced = true
+        isSynced = true,
+        remoteId = id    // server id сохраняем для последующего upsert
     )
 }
 

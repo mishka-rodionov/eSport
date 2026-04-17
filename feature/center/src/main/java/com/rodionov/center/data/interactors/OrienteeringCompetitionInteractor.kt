@@ -152,8 +152,12 @@ class OrienteeringCompetitionInteractor(
      */
     suspend fun saveParticipant(participant: OrienteeringParticipant): OrienteeringParticipant? {
         val saved = localRepository.saveParticipant(participant).getOrNull() ?: return null
-        remoteRepository.saveParticipant(saved).onSuccess {
-            localRepository.updateParticipants(listOf(saved.copy(isSynced = true)))
+        // При отправке на сервер используем remoteId группы (серверный Long), а не локальный,
+        // чтобы groupId на сервере был стабильным при кросс-устройственной синхронизации
+        val group = localRepository.getParticipantGroup(saved.groupId).getOrNull()
+        val serverGroupId = group?.remoteId ?: saved.groupId
+        remoteRepository.saveParticipant(saved.copy(groupId = serverGroupId)).onSuccess { serverParticipant ->
+            localRepository.updateParticipants(listOf(saved.copy(isSynced = true, remoteId = serverParticipant.remoteId)))
         }
         return saved
     }
@@ -226,8 +230,12 @@ class OrienteeringCompetitionInteractor(
      * @param participant Участник для синхронизации
      */
     suspend fun syncParticipantWithServer(participant: OrienteeringParticipant) {
-        remoteRepository.saveParticipant(participant).onSuccess {
-            localRepository.updateParticipants(listOf(participant.copy(isSynced = true)))
+        val group = localRepository.getParticipantGroup(participant.groupId).getOrNull()
+        val serverGroupId = group?.remoteId ?: participant.groupId
+        remoteRepository.saveParticipant(participant.copy(groupId = serverGroupId)).onSuccess { serverParticipant ->
+            localRepository.updateParticipants(
+                listOf(participant.copy(isSynced = true, remoteId = serverParticipant.remoteId))
+            )
         }
     }
 
@@ -492,6 +500,54 @@ class OrienteeringCompetitionInteractor(
             )
         }
         localRepository.updateParticipantsGroups(localCompetitionId, fixedGroups)
+    }
+
+    /**
+     * Загружает участников с сервера и синхронизирует их в локальную БД.
+     *
+     * Алгоритм:
+     * 1. Получает участников с сервера по remoteCompetitionId
+     * 2. Строит карту server groupId → local groupId (по remoteId группы)
+     * 3. Для каждого участника: update если remoteId совпадает, insert если новый
+     *
+     * Вызывать ПОСЛЕ fetchAndSyncFromServer, чтобы группы уже были синхронизированы.
+     *
+     * @param remoteCompetitionId Серверный ID соревнования.
+     * @param localCompetitionId Локальный ID соревнования в Room.
+     */
+    suspend fun fetchAndSyncParticipantsFromServer(remoteCompetitionId: Long, localCompetitionId: Long) {
+        val serverParticipants = remoteRepository
+            .getParticipantsForCompetition(remoteCompetitionId)
+            .getOrNull() ?: return
+
+        // Карта serverGroupId → localGroupId для корректной привязки участника к группе
+        val remoteToLocalGroupId = localRepository.getCompetitionWithDetails(localCompetitionId)
+            .getOrNull()
+            ?.groupsWithParticipants
+            ?.map { it.group }
+            ?.filter { it.remoteId != null }
+            ?.associate { it.remoteId!! to it.groupId }
+            ?: emptyMap()
+
+        // Карта remoteId → существующий участник для upsert
+        val existingByRemoteId = localRepository.getParticipants(localCompetitionId)
+            .getOrNull().orEmpty()
+            .filter { it.remoteId != null }
+            .associateBy { it.remoteId!! }
+
+        serverParticipants.forEach { serverParticipant ->
+            val localGroupId = remoteToLocalGroupId[serverParticipant.groupId] ?: serverParticipant.groupId
+            val fixed = serverParticipant.copy(
+                competitionId = localCompetitionId,
+                groupId = localGroupId
+            )
+            val existing = fixed.remoteId?.let { existingByRemoteId[it] }
+            if (existing != null) {
+                localRepository.updateParticipants(listOf(fixed.copy(id = existing.id)))
+            } else {
+                localRepository.saveParticipant(fixed)
+            }
+        }
     }
 
     /**

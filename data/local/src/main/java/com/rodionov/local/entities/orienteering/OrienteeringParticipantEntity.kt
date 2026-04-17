@@ -35,5 +35,6 @@ data class OrienteeringParticipantEntity(
     val chipNumber: String,
     val comment: String,
     val isChipGiven: Boolean,
-    val isSynced: Boolean = false
+    val isSynced: Boolean = false,
+    val remoteId: Long? = null    // ID участника на сервере
 )

@@ -118,7 +118,8 @@ fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
         chipNumber = chipNumber,
         comment = comment,
         isChipGiven = isChipGiven,
-        isSynced = isSynced
+        isSynced = isSynced,
+        remoteId = remoteId
     )
 }
 
@@ -140,7 +141,8 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
         chipNumber = chipNumber,
         comment = comment,
         isChipGiven = isChipGiven,
-        isSynced = isSynced
+        isSynced = isSynced,
+        remoteId = remoteId
     )
 }
 

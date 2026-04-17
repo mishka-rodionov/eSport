@@ -46,4 +46,7 @@ interface OrienteeringCompetitionRemoteDataSource {
     @GET("event/orienteering/participantGroups")
     suspend fun getParticipantGroups(@Query("competitionId") competitionId: Long): Result<CommonModel<List<ParticipantGroupResponse>>>
 
+    @GET("event/orienteering/participants/competition")
+    suspend fun getParticipantsByCompetition(@Query("competitionId") competitionId: Long): Result<CommonModel<List<OrienteeringParticipantResponse>>>
+
 }
