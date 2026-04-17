@@ -26,67 +26,6 @@ class OrienteeringCompetitionInteractor(
     private val remoteRepository: OrienteeringCompetitionRemoteRepository
 ) {
 
-    /**
-     * Сохраняет соревнование и группы участников.
-     *
-     * Функция реализует следующую логику:
-     * 1. Пытается сохранить соревнование на сервере
-     * 2. При успехе - сохраняет локально и создаёт группы участников на сервере
-     * 3. При неудаче - сохраняет всё локально
-     *
-     * @param orienteeringCompetition Данные соревнования для сохранения
-     * @param participantGroups Список групп участников
-     * @return Результат операции в виде [OrienteeringCreatorAction]
-     */
-    suspend fun saveCompetition(
-        orienteeringCompetition: OrienteeringCompetition,
-        participantGroups: List<ParticipantGroup>
-    ): OrienteeringCreatorAction {
-        //сетевой запрос на сохранение соревнования на сервере
-        remoteRepository.createCompetition(orienteeringCompetition)
-            .onSuccess { competition ->
-                //сохранение данных соревнования локально
-                localRepository.saveCompetition(competition).fold({
-                    //сохранения данных по группам участников на сервере
-                    createParticipantsGroupsInfo(
-                        competitionId = competition.localCompetitionId,
-                        participantGroups = participantGroups
-                    )
-                    return OrienteeringCreatorAction.SuccessfulCompetitionCreate
-                }, {
-                    //сохранения данных по группам участников на сервере
-                    createParticipantsGroupsInfo(
-                        competitionId = competition.localCompetitionId,
-                        participantGroups = participantGroups
-                    )
-                    return OrienteeringCreatorAction.FailedCompetitionCreate("Сохранено на сервере, ошибка локального сохранения")
-                }
-                )
-            }.onFailure {
-                //локальное сохранение информации о соревновании
-                localRepository.saveCompetition(orienteeringCompetition)
-                    .fold({
-                        //локальное сохранение информации о группах участников
-                        localSaveParticipantGroups(participantGroups.map {
-                            it.copy(
-                                competitionId = orienteeringCompetition.localCompetitionId
-                            )
-                        })
-                        return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, сохранено локально")
-                    }, {
-                        //локальное сохранение информации о группах участников
-                        localSaveParticipantGroups(participantGroups.map {
-                            it.copy(
-                                competitionId = orienteeringCompetition.localCompetitionId
-                            )
-                        })
-                        return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка сервера, ошибка локального созранения")
-                    })
-
-            }
-        return OrienteeringCreatorAction.FailedCompetitionCreate("Ошибка")
-    }
-
     suspend fun saveCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
 
         return localRepository.saveCompetition(orienteeringCompetition)

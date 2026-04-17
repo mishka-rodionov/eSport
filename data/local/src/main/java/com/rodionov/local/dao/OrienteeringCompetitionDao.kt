@@ -18,7 +18,7 @@ interface OrienteeringCompetitionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(competition: OrienteeringCompetitionEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(competitions: List<OrienteeringCompetitionEntity>): List<Long>
 
     @Update

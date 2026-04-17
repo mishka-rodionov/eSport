@@ -82,13 +82,18 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             // 1. Преобразуем в сущности
             val entities = orienteeringCompetition.map { it.toEntity() }
 
-            // 2. Сохраняем
+            // 2. Вставляем (IGNORE — существующие записи не перезаписываются,
+            //    чтобы избежать CASCADE DELETE дочерних distances и participant_groups)
             val ids = orienteeringCompetitionDao.insertAll(entities)
 
-            // 3. Извлекаем обратно по ID
-            val savedEntities = ids.map { id ->
-                orienteeringCompetitionDao.getCompetitionById(id)
-                    ?: throw IllegalStateException("Failed to fetch saved competition with id = $id")
+            // 3. Извлекаем только реально вставленные записи (id == -1 означает IGNORE)
+            val savedEntities = ids.mapIndexedNotNull { index, id ->
+                if (id == -1L) {
+                    // Запись уже существует — берём оригинальный entity, чтобы вернуть его в domain
+                    entities[index]
+                } else {
+                    orienteeringCompetitionDao.getCompetitionById(id)
+                }
             }
 
             // 4. В domain
