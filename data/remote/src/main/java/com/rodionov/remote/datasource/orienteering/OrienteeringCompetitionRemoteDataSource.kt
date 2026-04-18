@@ -34,6 +34,9 @@ interface OrienteeringCompetitionRemoteDataSource {
     @POST("event/orienteering/save/participant")
     suspend fun saveParticipant(@Body request: OrienteeringParticipantRequest): Result<CommonModel<OrienteeringParticipantResponse>>
 
+    @POST("event/orienteering/save/participants")
+    suspend fun saveParticipants(@Body requests: List<OrienteeringParticipantRequest>): Result<CommonModel<List<OrienteeringParticipantResponse>>>
+
     @POST("event/orienteering/save/result")
     suspend fun saveResult(@Body request: OrienteeringResultRequest): Result<CommonModel<OrienteeringResultResponse>>
 

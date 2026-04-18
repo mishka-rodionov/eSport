@@ -55,6 +55,7 @@ class DrawViewModel(
                 competitionStartTime = competitionStartTime
             )
             interactor.updateParticipants(sortedParticipants)
+            interactor.syncParticipantsAfterDraw(sortedParticipants)
             updateState { copy(participants = sortedParticipants) }
         }
     }
@@ -78,6 +79,7 @@ class DrawViewModel(
                 competitionStartTime = competitionStartTime
             )
             interactor.updateParticipants(sortedParticipants)
+            interactor.syncParticipantsAfterDraw(sortedParticipants)
             updateState { copy(participants = sortedParticipants) }
         }
     }

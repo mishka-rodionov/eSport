@@ -195,6 +195,33 @@ class OrienteeringCompetitionInteractor(
         localRepository.updateParticipants(participants = participants)
     }
 
+    suspend fun syncParticipantsAfterDraw(participants: List<OrienteeringParticipant>) {
+        if (participants.isEmpty()) return
+        val competitionId = participants.first().competitionId
+        val competition = localRepository.getCompetition(competitionId).getOrNull()
+        val serverCompetitionId = competition?.competition?.remoteId ?: competitionId
+
+        val groupRemoteIds = participants
+            .map { it.groupId }
+            .distinct()
+            .mapNotNull { localGroupId ->
+                val remoteId = localRepository.getParticipantGroup(localGroupId).getOrNull()?.remoteId
+                remoteId?.let { localGroupId to it }
+            }
+            .toMap()
+
+        val remoteParticipants = participants.map { p ->
+            p.copy(
+                groupId = groupRemoteIds[p.groupId] ?: p.groupId,
+                competitionId = serverCompetitionId
+            )
+        }
+
+        remoteRepository.saveParticipants(remoteParticipants).onSuccess {
+            localRepository.updateParticipants(participants.map { it.copy(isSynced = true) })
+        }
+    }
+
     /**
      * Удаляет соревнование и все связанные данные из локальной базы данных.
      *

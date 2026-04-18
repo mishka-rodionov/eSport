@@ -126,6 +126,12 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
             .mapCatching { it.result!!.toDomain() }
     }
 
+    override suspend fun saveParticipants(participants: List<OrienteeringParticipant>): Result<List<OrienteeringParticipant>> {
+        return orienteeringCompetitionRemoteDataSource
+            .saveParticipants(participants.map { it.toRequest() })
+            .mapCatching { it.result!!.map { r -> r.toDomain() } }
+    }
+
     override suspend fun getParticipantsForCompetition(remoteCompetitionId: Long): Result<List<OrienteeringParticipant>> {
         return orienteeringCompetitionRemoteDataSource.getParticipantsByCompetition(remoteCompetitionId)
             .mapCatching {
