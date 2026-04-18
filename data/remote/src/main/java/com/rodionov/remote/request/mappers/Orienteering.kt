@@ -65,17 +65,17 @@ fun ControlPoint.toRequest(): ControlPointRequest {
 fun OrienteeringParticipant.toRequest(): OrienteeringParticipantRequest {
     return OrienteeringParticipantRequest(
         id = id,
-        userId = userId,
+        userId = userId.ifEmpty { null },
         firstName = firstName,
         lastName = lastName,
         groupId = groupId,
         groupName = groupName,
         competitionId = competitionId,
-        commandName = commandName,
-        startNumber = startNumber,
+        commandName = commandName.ifEmpty { null },
+        startNumber = startNumber.toIntOrNull() ?: 0,
         startTime = startTime,
-        chipNumber = chipNumber,
-        comment = comment,
+        chipNumber = chipNumber.toLongOrNull() ?: 0L,
+        comment = comment.ifEmpty { null },
         isChipGiven = isChipGiven
     )
 }

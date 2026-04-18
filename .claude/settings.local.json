@@ -20,7 +20,8 @@
       "Bash(chmod +x gradlew)",
       "Bash(./gradlew :feature:center:compileDebugKotlin)",
       "Bash(./gradlew :feature:center:compileDebugKotlin :data:navigation:compileDebugKotlin)",
-      "Bash(grep -E \"\\\\.\\(kt|java\\)$\")"
+      "Bash(grep -E \"\\\\.\\(kt|java\\)$\")",
+      "Bash(xargs cat *)"
     ]
   },
   "prefersReducedMotion": true

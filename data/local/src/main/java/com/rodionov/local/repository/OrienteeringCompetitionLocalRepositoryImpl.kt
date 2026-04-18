@@ -164,19 +164,25 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     ): Result<Any> {
         return runCatching {
             val existingGroups = participantGroupDao.getGroupsForCompetition(competitionId)
-            val existingIds = existingGroups.map { it.groupId }.toSet()
-            val incomingIds = participantGroups.filter { it.groupId != 0L }.map { it.groupId }.toSet()
+            val existingByRemoteId = existingGroups
+                .filter { it.remoteId != null }
+                .associateBy { it.remoteId!! }
+            val existingByGroupId = existingGroups.associateBy { it.groupId }
 
-            // Удаляем только те группы, которые были убраны пользователем
+            // Удаляем группы, которых нет во входящем списке (сравниваем по remoteId)
+            val incomingRemoteIds = participantGroups.mapNotNull { it.remoteId }.toSet()
             existingGroups
-                .filter { it.groupId !in incomingIds }
+                .filter { it.remoteId != null && it.remoteId !in incomingRemoteIds }
                 .forEach { participantGroupDao.delete(it) }
 
-            // Обновляем существующие группы и вставляем новые
             participantGroups.forEach { group ->
                 val entity = group.toEntity().copy(competitionId = competitionId)
-                if (entity.groupId != 0L && entity.groupId in existingIds) {
-                    participantGroupDao.updateParticipantGroup(entity)
+                // Ищем существующую группу сначала по remoteId, затем по localGroupId
+                val existing = entity.remoteId?.let { existingByRemoteId[it] }
+                    ?: existingByGroupId[entity.groupId].takeIf { entity.groupId != 0L }
+                if (existing != null) {
+                    // Обновляем данные, сохраняя локальный groupId без изменений
+                    participantGroupDao.updateParticipantGroup(entity.copy(groupId = existing.groupId))
                 } else {
                     participantGroupDao.insert(entity)
                 }

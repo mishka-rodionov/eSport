@@ -152,11 +152,13 @@ class OrienteeringCompetitionInteractor(
      */
     suspend fun saveParticipant(participant: OrienteeringParticipant): OrienteeringParticipant? {
         val saved = localRepository.saveParticipant(participant).getOrNull() ?: return null
-        // При отправке на сервер используем remoteId группы (серверный Long), а не локальный,
-        // чтобы groupId на сервере был стабильным при кросс-устройственной синхронизации
         val group = localRepository.getParticipantGroup(saved.groupId).getOrNull()
+        val competition = localRepository.getCompetition(saved.competitionId).getOrNull()
         val serverGroupId = group?.remoteId ?: saved.groupId
-        remoteRepository.saveParticipant(saved.copy(groupId = serverGroupId)).onSuccess { serverParticipant ->
+        val serverCompetitionId = competition?.competition?.remoteId ?: saved.competitionId
+        remoteRepository.saveParticipant(
+            saved.copy(groupId = serverGroupId, competitionId = serverCompetitionId)
+        ).onSuccess { serverParticipant ->
             localRepository.updateParticipants(listOf(saved.copy(isSynced = true, remoteId = serverParticipant.remoteId)))
         }
         return saved
@@ -231,8 +233,12 @@ class OrienteeringCompetitionInteractor(
      */
     suspend fun syncParticipantWithServer(participant: OrienteeringParticipant) {
         val group = localRepository.getParticipantGroup(participant.groupId).getOrNull()
+        val competition = localRepository.getCompetition(participant.competitionId).getOrNull()
         val serverGroupId = group?.remoteId ?: participant.groupId
-        remoteRepository.saveParticipant(participant.copy(groupId = serverGroupId)).onSuccess { serverParticipant ->
+        val serverCompetitionId = competition?.competition?.remoteId ?: participant.competitionId
+        remoteRepository.saveParticipant(
+            participant.copy(groupId = serverGroupId, competitionId = serverCompetitionId)
+        ).onSuccess { serverParticipant ->
             localRepository.updateParticipants(
                 listOf(participant.copy(isSynced = true, remoteId = serverParticipant.remoteId))
             )
