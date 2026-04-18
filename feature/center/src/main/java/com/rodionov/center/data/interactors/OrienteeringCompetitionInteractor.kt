@@ -165,7 +165,7 @@ class OrienteeringCompetitionInteractor(
     /**
      * Возвращает существующий результат участника по его ID, или null если записи нет.
      */
-    suspend fun getResultByParticipantId(participantId: Long): OrienteeringResult? {
+    suspend fun getResultByParticipantId(participantId: String): OrienteeringResult? {
         return localRepository.getResultByParticipant(participantId).getOrNull()
     }
 
@@ -209,7 +209,7 @@ class OrienteeringCompetitionInteractor(
      * @param participantId Идентификатор участника
      * @return Result операции удаления
      */
-    suspend fun deleteParticipant(participantId: Long): Result<Unit> {
+    suspend fun deleteParticipant(participantId: String): Result<Unit> {
         return localRepository.deleteParticipant(participantId)
     }
 
@@ -529,24 +529,14 @@ class OrienteeringCompetitionInteractor(
             ?.associate { it.remoteId!! to it.groupId }
             ?: emptyMap()
 
-        // Карта remoteId → существующий участник для upsert
-        val existingByRemoteId = localRepository.getParticipants(localCompetitionId)
-            .getOrNull().orEmpty()
-            .filter { it.remoteId != null }
-            .associateBy { it.remoteId!! }
-
         serverParticipants.forEach { serverParticipant ->
             val localGroupId = remoteToLocalGroupId[serverParticipant.groupId] ?: serverParticipant.groupId
-            val fixed = serverParticipant.copy(
-                competitionId = localCompetitionId,
-                groupId = localGroupId
+            localRepository.saveParticipant(
+                serverParticipant.copy(
+                    competitionId = localCompetitionId,
+                    groupId = localGroupId
+                )
             )
-            val existing = fixed.remoteId?.let { existingByRemoteId[it] }
-            if (existing != null) {
-                localRepository.updateParticipants(listOf(fixed.copy(id = existing.id)))
-            } else {
-                localRepository.saveParticipant(fixed)
-            }
         }
     }
 

@@ -23,7 +23,7 @@ interface OrienteeringParticipantDao {
     suspend fun updateAll(participants: List<OrienteeringParticipantEntity>)
 
     @Query("SELECT * FROM orienteering_participants WHERE id = :id")
-    suspend fun getParticipantById(id: Long): OrienteeringParticipantEntity?
+    suspend fun getParticipantById(id: String): OrienteeringParticipantEntity?
 
     @Query("SELECT * FROM orienteering_participants WHERE groupId = :groupId")
     suspend fun getParticipantsByGroupId(groupId: Long): List<OrienteeringParticipantEntity>
@@ -35,7 +35,7 @@ interface OrienteeringParticipantDao {
     suspend fun getParticipantByChipNumber(competitionId: Long, chipNumber: Int): OrienteeringParticipantEntity
 
     @Query("DELETE FROM orienteering_participants WHERE id = :id")
-    suspend fun deleteParticipantById(id: Long)
+    suspend fun deleteParticipantById(id: String)
 
     @Query("DELETE FROM orienteering_participants WHERE competitionId = :competitionId")
     suspend fun deleteParticipantsByCompetitionId(competitionId: Long)

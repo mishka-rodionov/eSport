@@ -1,6 +1,6 @@
 package com.rodionov.domain.models
 
 interface Participant {
-    val id: Long
+    val id: String
     val userId: String
 }

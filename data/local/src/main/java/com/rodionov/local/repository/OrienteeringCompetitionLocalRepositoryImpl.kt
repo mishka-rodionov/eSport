@@ -204,8 +204,8 @@ class OrienteeringCompetitionLocalRepositoryImpl(
      */
     override suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant?> {
         return runCatching {
-            val participantId = participantDao.insertParticipant(participant.toEntity())
-            participantDao.getParticipantById(participantId)?.toDomain()
+            participantDao.insertParticipant(participant.toEntity())
+            participant
         }
     }
 
@@ -231,7 +231,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         return runCatching { participantDao.updateAll(participants.map { it.toEntity() }) }
     }
 
-    override suspend fun deleteParticipant(participantId: Long): Result<Unit> {
+    override suspend fun deleteParticipant(participantId: String): Result<Unit> {
         return runCatching { participantDao.deleteParticipantById(participantId) }
     }
 
@@ -288,9 +288,9 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    override suspend fun getResultByParticipant(participantId: Long): Result<OrienteeringResult?> {
+    override suspend fun getResultByParticipant(participantId: String): Result<OrienteeringResult?> {
         return runCatching {
-            orienteeringResultDao.getResultForParticipant(participantId)?.toDomain()
+            orienteeringResultDao.getResultForParticipant(participantId.toLongOrNull() ?: 0L)?.toDomain()
         }
     }
 

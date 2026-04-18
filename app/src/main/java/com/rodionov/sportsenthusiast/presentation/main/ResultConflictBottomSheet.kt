@@ -240,7 +240,7 @@ private fun ResultConflictBottomSheetPreview() {
         id = 1,
         competitionId = 1,
         groupId = 1,
-        participantId = 1,
+        participantId = "id1",
         status = ResultStatus.FINISHED,
         totalTime = 3600000L, // 1 hour
         finishTime = 10000000L,

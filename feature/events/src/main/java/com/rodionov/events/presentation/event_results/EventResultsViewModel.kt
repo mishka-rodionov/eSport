@@ -80,7 +80,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
             participants = listOf(
                 ParticipantWithResult(
                     participant = OrienteeringParticipant(
-                        id = 1,
+                        id = "id1",
                         userId = "user_1",
                         firstName = "Иван",
                         lastName = "Иванов",
@@ -98,7 +98,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
                         id = 1,
                         competitionId = 0L,
                         groupId = id,
-                        participantId = 1,
+                        participantId = "id1",
                         totalTime = 1800,
                         rank = 1,
                         status = ResultStatus.FINISHED
@@ -106,7 +106,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
                 ),
                 ParticipantWithResult(
                     participant = OrienteeringParticipant(
-                        id = 2,
+                        id = "id2",
                         userId = "user_2",
                         firstName = "Петр",
                         lastName = "Петров",
@@ -124,7 +124,7 @@ class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState
                         id = 2,
                         competitionId = 0L,
                         groupId = id,
-                        participantId = 2,
+                        participantId = "id2",
                         totalTime = 1950,
                         rank = 2,
                         status = ResultStatus.FINISHED

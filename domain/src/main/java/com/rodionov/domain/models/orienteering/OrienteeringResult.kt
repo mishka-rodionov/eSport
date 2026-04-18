@@ -23,7 +23,7 @@ data class OrienteeringResult(
     val id: Long = 0,
     val competitionId: Long,
     val groupId: Long,
-    val participantId: Long,
+    val participantId: String,
     val startTime: Long? = null,
     val finishTime: Long? = null,
     val totalTime: Long? = null, // в секундах

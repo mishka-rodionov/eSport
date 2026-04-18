@@ -38,7 +38,7 @@ import com.rodionov.domain.models.Participant
  * @since 1.0
  */
 data class OrienteeringParticipant(
-    override val id: Long,
+    override val id: String,
     override val userId: String,
     val firstName: String,
     val lastName: String,
@@ -52,5 +52,5 @@ data class OrienteeringParticipant(
     val comment: String,
     val isChipGiven: Boolean,
     val isSynced: Boolean = false,
-    val remoteId: Long? = null    // ID участника на сервере (null = не синхронизирован)
+    val remoteId: String? = null    // ID участника на сервере (null = не синхронизирован)
 ): Participant

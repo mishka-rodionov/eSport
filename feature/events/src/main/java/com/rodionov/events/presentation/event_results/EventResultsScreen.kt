@@ -173,7 +173,7 @@ private fun EventResultsPreview() {
     val mockParticipants = listOf(
         ParticipantWithResult(
             participant = OrienteeringParticipant(
-                id = 1,
+                id = "id1",
                 userId = "user_1",
                 firstName = "Иван",
                 lastName = "Иванов",
@@ -191,7 +191,7 @@ private fun EventResultsPreview() {
                 id = 1,
                 competitionId = 1,
                 groupId = 1,
-                participantId = 1,
+                participantId = "id1",
                 totalTime = 1800L,
                 rank = 1,
                 status = ResultStatus.REGISTERED
@@ -199,7 +199,7 @@ private fun EventResultsPreview() {
         ),
         ParticipantWithResult(
             participant = OrienteeringParticipant(
-                id = 2,
+                id = "id2",
                 userId = "user_2",
                 firstName = "Петр",
                 lastName = "Петров",
@@ -217,7 +217,7 @@ private fun EventResultsPreview() {
                 id = 2,
                 competitionId = 1,
                 groupId = 1,
-                participantId = 2,
+                participantId = "id2",
                 totalTime = 1950L,
                 rank = 2,
                 status = ResultStatus.FINISHED

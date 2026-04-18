@@ -1,5 +1,6 @@
 package com.rodionov.remote.repository.orienteering
 
+import android.util.Log
 import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.OrienteeringCompetition
@@ -127,7 +128,13 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
 
     override suspend fun getParticipantsForCompetition(remoteCompetitionId: Long): Result<List<OrienteeringParticipant>> {
         return orienteeringCompetitionRemoteDataSource.getParticipantsByCompetition(remoteCompetitionId)
-            .mapCatching { it.result!!.map { p -> p.toDomain() } }
+            .mapCatching {
+                it.result!!
+                    .map { p -> p.toDomain() }
+            }
+            .onFailure {
+                Log.d("LOG_TAG", "getParticipantsForCompetition: ${it.message}")
+            }
     }
 
     override suspend fun saveResult(result: OrienteeringResult): Result<OrienteeringResult> {

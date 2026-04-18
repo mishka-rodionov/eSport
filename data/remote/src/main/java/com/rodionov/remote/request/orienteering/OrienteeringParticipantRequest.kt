@@ -1,7 +1,7 @@
 package com.rodionov.remote.request.orienteering
 
 data class OrienteeringParticipantRequest(
-    val id: Long,
+    val id: String,
     val userId: String,
     val firstName: String,
     val lastName: String,

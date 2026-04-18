@@ -85,7 +85,7 @@ fun OrienteeringResult.toRequest(): OrienteeringResultRequest {
         id = id,
         competitionId = competitionId,
         groupId = groupId,
-        participantId = participantId,
+        participantId = participantId.toLongOrNull() ?: 0L,
         startTime = startTime,
         finishTime = finishTime,
         totalTime = totalTime,

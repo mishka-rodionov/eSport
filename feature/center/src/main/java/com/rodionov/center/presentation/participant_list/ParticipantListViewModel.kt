@@ -14,6 +14,7 @@ import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 /**
  * ViewModel для экрана списка участников.
@@ -43,7 +44,7 @@ class ParticipantListViewModel(
                 val baseTime = stateValue.competition?.startTime ?: 0L
                 val startTime = if (baseTime > 0L) baseTime + (nextStartNumber - 1) * intervalMs else 0L
                 val participant = OrienteeringParticipant(
-                    id = (0..1000L).random(),
+                    id = UUID.randomUUID().toString(),
                     userId = "",
                     firstName = action.firstName,
                     lastName = action.secondName,

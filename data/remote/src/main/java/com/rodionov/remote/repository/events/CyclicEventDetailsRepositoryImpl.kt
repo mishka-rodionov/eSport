@@ -83,7 +83,7 @@ class CyclicEventDetailsRepositoryImpl(
 
     private fun ParticipantPublicResponse.toDomain(): OrienteeringParticipant {
         return OrienteeringParticipant(
-            id = 0L,
+            id = id,
             userId = userId ?: "",
             firstName = firstName,
             lastName = lastName,

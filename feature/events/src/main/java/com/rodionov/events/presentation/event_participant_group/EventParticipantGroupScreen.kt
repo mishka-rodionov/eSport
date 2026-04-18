@@ -201,12 +201,12 @@ private fun EventParticipantGroupScreenPreview() {
                 state = EventParticipantGroupState(
                     participants = listOf(
                         OrienteeringParticipant(
-                            id = 1, userId = "u1", firstName = "Иван", lastName = "Иванов",
+                            id = "id1", userId = "u1", firstName = "Иван", lastName = "Иванов",
                             groupId = 1, groupName = "М21", competitionId = 1, commandName = "Клуб 1",
                             startNumber = "1", startTime = 0L, chipNumber = "111", comment = "", isChipGiven = true
                         ),
                         OrienteeringParticipant(
-                            id = 2, userId = "u2", firstName = "Петр", lastName = "Петров",
+                            id = "id2", userId = "u2", firstName = "Петр", lastName = "Петров",
                             groupId = 1, groupName = "М21", competitionId = 1, commandName = "Клуб 2",
                             startNumber = "2", startTime = 0L, chipNumber = "222", comment = "", isChipGiven = true
                         )

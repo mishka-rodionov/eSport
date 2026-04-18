@@ -21,8 +21,8 @@ import androidx.room.PrimaryKey
     ],
 )
 data class OrienteeringParticipantEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val id: String,
     val userId: String,
     val firstName: String,
     val lastName: String,
@@ -36,5 +36,5 @@ data class OrienteeringParticipantEntity(
     val comment: String,
     val isChipGiven: Boolean,
     val isSynced: Boolean = false,
-    val remoteId: Long? = null    // ID участника на сервере
+    val remoteId: String? = null    // ID участника на сервере
 )

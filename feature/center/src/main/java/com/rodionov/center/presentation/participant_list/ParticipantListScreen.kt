@@ -642,7 +642,7 @@ fun ParticipantListScreenPreview() {
                         ),
                         participants = listOf(
                             OrienteeringParticipant(
-                                id = 1,
+                                id = "id1",
                                 userId = "1",
                                 firstName = "Иван",
                                 lastName = "Иванов",

@@ -60,7 +60,7 @@ class GetOrienteeringChipViewModel(
     }
 
     private fun updateParticipantInState(
-        participantId: Long,
+        participantId: String,
         update: (OrienteeringParticipant) -> OrienteeringParticipant
     ) {
         val updatedGroups = stateValue.groupsWithParticipants.map { group ->
