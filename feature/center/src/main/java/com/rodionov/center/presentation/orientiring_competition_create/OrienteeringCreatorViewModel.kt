@@ -126,7 +126,10 @@ class OrienteeringCreatorViewModel(
                 updateStartDate(action.competitionDate)
             }
 
-            is OrienteeringCreatorAction.UpdateCompetitionTime -> updateState { copy(startTimeStr = action.competitionTime) }
+            is OrienteeringCreatorAction.UpdateCompetitionTime -> {
+                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.startDate, action.competitionTime)
+                updateState { copy(startTimeStr = action.competitionTime, startDate = combined ?: stateValue.startDate) }
+            }
 
             is OrienteeringCreatorAction.UpdateRegistrationStartDate -> {
                 val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationStartTimeStr) ?: action.date
