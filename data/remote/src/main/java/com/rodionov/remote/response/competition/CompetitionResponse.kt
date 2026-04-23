@@ -36,6 +36,8 @@ data class CompetitionResponse(
     val feeAmount: Double?,
     @SerializedName("feeCurrency")
     val feeCurrency: String?,
+    @SerializedName("imageUrl")
+    val imageUrl: String? = null,
     @SerializedName("regulationUrl")
     val regulationUrl: String?,
     @SerializedName("mapUrl")

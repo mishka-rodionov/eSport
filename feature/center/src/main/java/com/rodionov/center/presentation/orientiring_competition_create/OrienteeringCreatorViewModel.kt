@@ -1,5 +1,6 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
@@ -11,6 +12,7 @@ import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.NetworkErrorRepository
+import com.rodionov.domain.repository.UploadRepository
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.resources.ResourceProvider
 import com.rodionov.ui.BaseAction
@@ -29,7 +31,9 @@ class OrienteeringCreatorViewModel(
     private val resourceProvider: ResourceProvider,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
     private val userRepository: UserRepository,
-    private val networkErrorRepository: NetworkErrorRepository
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val uploadRepository: UploadRepository,
+    private val context: Context
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
     var user: User? = null
@@ -192,6 +196,18 @@ class OrienteeringCreatorViewModel(
             is OrienteeringCreatorAction.UpdateCoordinates -> updateState {
                 copy(coordinates = Coordinates(action.latitude, action.longitude))
             }
+
+            is OrienteeringCreatorAction.UploadCompetitionImage -> uploadFile(
+                uri = action.uri,
+                type = "competition_image",
+                onSuccess = { url -> updateState { copy(imageUrl = url) } }
+            )
+
+            is OrienteeringCreatorAction.UploadCompetitionMap -> uploadFile(
+                uri = action.uri,
+                type = "competition_map",
+                onSuccess = { url -> updateState { copy(mapUrl = url) } }
+            )
         }
     }
 
@@ -218,6 +234,7 @@ class OrienteeringCreatorViewModel(
                     competitionId = competitionId,
                     remoteCompetitionId = comp.competition.remoteId,
                     title = comp.competition.title,
+                    imageUrl = comp.competition.imageUrl,
                     startDate = comp.competition.startDate,
                     startTimeStr = DateTimeFormat.transformLongToTime(comp.competition.startDate),
                     endDate = comp.competition.endDate,
@@ -481,6 +498,20 @@ class OrienteeringCreatorViewModel(
     fun updateDescription(description: String) = updateState { copy(description = description) }
     fun updateCoordinates(lat: Double, lon: Double) = updateState {
         copy(coordinates = Coordinates(lat, lon), isCoordinatesSetByUser = true)
+    }
+
+    private fun uploadFile(
+        uri: android.net.Uri,
+        type: String,
+        onSuccess: (String) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val bytes = context.contentResolver.openInputStream(uri)?.readBytes() ?: return@launch
+            val fileName = uri.lastPathSegment ?: "file"
+            uploadRepository.uploadFile(bytes, fileName, type)
+                .onSuccess { url -> onSuccess(url) }
+                .onFailure { handleFailure(it) }
+        }
     }
 
     /** Открывает экран выбора координат на карте. */

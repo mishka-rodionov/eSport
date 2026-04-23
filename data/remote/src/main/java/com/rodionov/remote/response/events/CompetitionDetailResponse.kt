@@ -24,5 +24,6 @@ data class CompetitionDetailResponse(
     @SerializedName("maxParticipants") val maxParticipants: Int?,
     @SerializedName("resultsStatus") val resultsStatus: String,
     @SerializedName("participantGroups") val participantGroups: List<ParticipantGroupDetailResponse>,
-    @SerializedName("isUserRegistered") val isUserRegistered: Boolean = false
+    @SerializedName("isUserRegistered") val isUserRegistered: Boolean = false,
+    @SerializedName("imageUrl") val imageUrl: String? = null
 )

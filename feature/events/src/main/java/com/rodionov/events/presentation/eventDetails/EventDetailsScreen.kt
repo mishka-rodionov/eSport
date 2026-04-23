@@ -1,7 +1,6 @@
 package com.rodionov.events.presentation.eventDetails
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,10 +37,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.designsystem.components.NetworkImage
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -121,16 +119,15 @@ fun ScrollableColumnScreenWithImageAnimation(
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(16.dp)
         )
-        Image(
-            painter = painterResource(id = R.drawable.forest),
+        NetworkImage(
+            url = state.eventDetails?.imageUrl,
             contentDescription = "Header Image",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(250.dp)
                 .graphicsLayer {
                     alpha = imageAlpha
-                },
-            contentScale = ContentScale.Crop
+                }
         )
 
         Row(

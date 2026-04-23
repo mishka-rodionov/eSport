@@ -1,5 +1,7 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.theme.Dimens
+import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
 import org.koin.androidx.compose.koinViewModel
 
@@ -38,7 +41,8 @@ fun OrganizatorCompetitionFieldScreen(
         onUpdateMapUrl = viewModel::updateMapUrl,
         onUpdateContactPhone = viewModel::updateContactPhone,
         onUpdateContactEmail = viewModel::updateContactEmail,
-        onUpdateWebsite = viewModel::updateWebsite
+        onUpdateWebsite = viewModel::updateWebsite,
+        onAction = viewModel::onAction
     )
 }
 
@@ -54,9 +58,14 @@ private fun OrganizatorCompetitionFieldContent(
     onUpdateMapUrl: (String) -> Unit,
     onUpdateContactPhone: (String) -> Unit,
     onUpdateContactEmail: (String) -> Unit,
-    onUpdateWebsite: (String) -> Unit
+    onUpdateWebsite: (String) -> Unit,
+    onAction: (OrienteeringCreatorAction) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
+
+    val mapFilePicker = rememberLauncherForActivityResult(GetContent()) { uri ->
+        uri?.let { onAction(OrienteeringCreatorAction.UploadCompetitionMap(it)) }
+    }
 
     Scaffold(
         bottomBar = {
@@ -79,15 +88,27 @@ private fun OrganizatorCompetitionFieldContent(
                 fontWeight = FontWeight.Bold
             )
 
-            if (false) { //на данный момент отключено
-                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
-                DSTextInput(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = state.mapUrl,
-                    label = { Text("Ссылка на карту") },
-                    onValueChanged = onUpdateMapUrl
-                )
+            Text(
+                text = "Карта района соревнований",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            DSTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                text = state.mapUrl,
+                label = { Text("Ссылка на карту") },
+                onValueChanged = onUpdateMapUrl
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            OutlinedButton(
+                onClick = { mapFilePicker.launch("*/*") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Загрузить файл карты")
             }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
@@ -142,7 +163,8 @@ private fun OrganizatorCompetitionFieldPreview() {
             onUpdateMapUrl = {},
             onUpdateContactPhone = {},
             onUpdateContactEmail = {},
-            onUpdateWebsite = {}
+            onUpdateWebsite = {},
+            onAction = {}
         )
     }
 }

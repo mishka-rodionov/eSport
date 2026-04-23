@@ -72,8 +72,9 @@ data class OrienteeringCreatorState(
     val isFeeEnabled: Boolean = false,
     val feeAmount: Double? = null,
     val feeCurrency: String = "RUB",
+    val imageUrl: String? = null,
     val regulationUrl: String = "",
-    
+
     val mapUrl: String = "",
     val contactPhone: String = "",
     val contactEmail: String = "",
@@ -118,6 +119,7 @@ data class OrienteeringCreatorState(
                 maxParticipants = maxParticipants,
                 feeAmount = if (isFeeEnabled) feeAmount else null,
                 feeCurrency = feeCurrency,
+                imageUrl = imageUrl,
                 regulationUrl = regulationUrl,
                 mapUrl = mapUrl,
                 contactPhone = contactPhone,

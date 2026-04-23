@@ -1,5 +1,9 @@
 package com.rodionov.profile.presentation.profile_editor
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,9 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,12 +28,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
+import com.example.designsystem.components.NetworkImage
 import com.rodionov.domain.models.Gender
 import com.rodionov.domain.models.user.User
+import com.rodionov.resources.R
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -72,6 +85,10 @@ private fun ProfileEditorContent(
     val scrollState = rememberScrollState()
     val user = state.user
 
+    val photoPicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+        uri?.let { onAction(ProfileEditorAction.UploadPhoto(it)) }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -84,6 +101,31 @@ private fun ProfileEditorContent(
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
+
+        // Аватарка пользователя
+        Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            NetworkImage(
+                url = user?.photo,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+            )
+            IconButton(
+                onClick = { photoPicker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.edit),
+                    contentDescription = "Изменить фото",
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
 
         // Поля ввода для данных пользователя
         DSTextInput(

@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.rodionov.resources"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

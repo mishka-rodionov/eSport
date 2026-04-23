@@ -1,13 +1,17 @@
 package com.rodionov.profile.presentation.profile_editor
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.rodionov.domain.exception.NetworkException
 import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.NetworkErrorRepository
+import com.rodionov.domain.repository.UploadRepository
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -20,7 +24,9 @@ import kotlinx.coroutines.launch
  */
 class ProfileEditorViewModel(
     private val userRepository: UserRepository,
-    private val networkErrorRepository: NetworkErrorRepository
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val uploadRepository: UploadRepository,
+    private val context: Context
 ) : BaseViewModel<ProfileEditorState>(ProfileEditorState()) {
 
     init {
@@ -35,6 +41,7 @@ class ProfileEditorViewModel(
             is ProfileEditorAction.UpdatePhoneNumber -> updatePhoneNumber(action.phoneNumber)
             is ProfileEditorAction.UpdateEmail -> updateEmail(action.email)
             is ProfileEditorAction.SaveProfile -> saveProfile()
+            is ProfileEditorAction.UploadPhoto -> uploadPhoto(action.uri)
         }
     }
 
@@ -97,6 +104,25 @@ class ProfileEditorViewModel(
         }
     }
 
+    private fun uploadPhoto(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateState { copy(isSaving = true) }
+            val bytes = context.contentResolver.openInputStream(uri)?.readBytes() ?: run {
+                updateState { copy(isSaving = false) }
+                return@launch
+            }
+            val fileName = uri.lastPathSegment ?: "avatar.jpg"
+            uploadRepository.uploadFile(bytes, fileName, "avatar")
+                .onSuccess { url ->
+                    updateState { copy(user = user?.copy(photo = url), isSaving = false) }
+                }
+                .onFailure {
+                    updateState { copy(isSaving = false, error = "Ошибка загрузки фото") }
+                    handleFailure(it)
+                }
+        }
+    }
+
     private fun handleFailure(throwable: Throwable) {
         viewModelScope.launch {
             val code = (throwable as? NetworkException)?.code
@@ -115,4 +141,5 @@ sealed interface ProfileEditorAction : BaseAction {
     data class UpdatePhoneNumber(val phoneNumber: String) : ProfileEditorAction
     data class UpdateEmail(val email: String) : ProfileEditorAction
     data object SaveProfile : ProfileEditorAction
+    data class UploadPhoto(val uri: Uri) : ProfileEditorAction
 }

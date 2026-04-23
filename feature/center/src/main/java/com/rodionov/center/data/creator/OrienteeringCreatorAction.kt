@@ -1,5 +1,6 @@
 package com.rodionov.center.data.creator
 
+import android.net.Uri
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.PunchingSystem
@@ -50,6 +51,10 @@ sealed class OrienteeringCreatorAction : BaseAction {
 
     // Обновление координат места старта
     data class UpdateCoordinates(val latitude: Double, val longitude: Double) : OrienteeringCreatorAction()
+
+    // Загрузка изображений
+    data class UploadCompetitionImage(val uri: Uri) : OrienteeringCreatorAction()
+    data class UploadCompetitionMap(val uri: Uri) : OrienteeringCreatorAction()
 
     // Действия для работы с дистанциями
     data object ShowDistanceCreateDialog : OrienteeringCreatorAction()

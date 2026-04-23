@@ -1,6 +1,5 @@
 package com.rodionov.profile.presentation.main_profile
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,9 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import com.example.designsystem.components.NetworkImage
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -179,14 +177,12 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
             ) {
                 // Аватар с кнопкой редактирования
                 Box {
-                    Image(
-                        painter = painterResource(id = R.drawable.play_arrow_24px), // Временная заглушка
+                    NetworkImage(
+                        url = user?.photo,
                         contentDescription = "User Avatar",
                         modifier = Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentScale = ContentScale.Crop
                     )
                     
                     IconButton(

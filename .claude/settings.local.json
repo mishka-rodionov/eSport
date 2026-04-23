@@ -21,7 +21,20 @@
       "Bash(./gradlew :feature:center:compileDebugKotlin)",
       "Bash(./gradlew :feature:center:compileDebugKotlin :data:navigation:compileDebugKotlin)",
       "Bash(grep -E \"\\\\.\\(kt|java\\)$\")",
-      "Bash(xargs cat *)"
+      "Bash(xargs cat *)",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(./gradlew :data:remote:compileDebugKotlin)",
+      "Bash(./gradlew assembleDebug --rerun-tasks)",
+      "Bash(./gradlew :domain:checkDebugAarMetadata)",
+      "Bash(./gradlew build *)",
+      "WebSearch",
+      "Bash(pandoc --version)",
+      "Bash(python3 -c \"import markdown2, weasyprint; print\\('ok'\\)\")",
+      "Bash(python3 -c \"import reportlab; print\\('reportlab ok'\\)\")",
+      "Bash(python3 -c \"import fpdf; print\\('fpdf ok'\\)\")",
+      "Bash(brew list *)",
+      "Bash(npm list *)",
+      "Bash(npx --yes md-to-pdf --version)"
     ]
   },
   "prefersReducedMotion": true

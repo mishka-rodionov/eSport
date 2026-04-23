@@ -16,6 +16,7 @@ import com.rodionov.remote.di.authModule
 import com.rodionov.remote.di.eventsDataModule
 import com.rodionov.remote.di.orienteeringModule
 import com.rodionov.remote.di.retrofitModule
+import com.rodionov.remote.di.uploadModule
 import com.rodionov.resources.di.resourceModule
 import com.rodionov.sportsenthusiast.di.mainModule
 import org.koin.android.ext.koin.androidContext
@@ -39,7 +40,7 @@ class SportApp : Application() {
             )
 
             // data modules
-            modules(authModule, orienteeringModule, eventsDataModule)
+            modules(authModule, orienteeringModule, eventsDataModule, uploadModule)
 
             // feature modules
             modules(mainModule, centerModule, eventsModule, profileModule)

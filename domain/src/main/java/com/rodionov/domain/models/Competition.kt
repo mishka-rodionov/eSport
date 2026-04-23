@@ -54,6 +54,7 @@ data class Competition(
     val maxParticipants: Int? = null,
     val feeAmount: Double? = null,
     val feeCurrency: String? = null,
+    val imageUrl: String? = null,
     val regulationUrl: String? = null,
     val mapUrl: String? = null,
     val contactPhone: String? = null,

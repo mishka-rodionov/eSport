@@ -32,6 +32,7 @@ fun CompetitionResponse.toDomain(): Competition {
         maxParticipants = maxParticipants,
         feeAmount = feeAmount,
         feeCurrency = feeCurrency,
+        imageUrl = imageUrl,
         regulationUrl = regulationUrl,
         mapUrl = mapUrl,
         contactPhone = contactPhone,

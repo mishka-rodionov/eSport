@@ -44,7 +44,8 @@ class CyclicEventDetailsRepositoryImpl(
                         },
                         status = mapStatus(dto.status),
                         eventType = EventType.CyclicEvent.Orienteering,
-                        isUserRegistered = dto.isUserRegistered
+                        isUserRegistered = dto.isUserRegistered,
+                        imageUrl = dto.imageUrl
                     )
                 }
             }

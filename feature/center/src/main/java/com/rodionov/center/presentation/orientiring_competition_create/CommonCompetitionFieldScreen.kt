@@ -1,6 +1,9 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
 import android.app.DatePickerDialog
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.ExposedDropdownMenuOutlined
+import com.example.designsystem.components.NetworkImage
 import com.example.designsystem.components.TimePickerDialog
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
@@ -103,6 +108,10 @@ private fun CommonCompetitionFieldContent(
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
 
+    val imagePicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+        uri?.let { onAction(OrienteeringCreatorAction.UploadCompetitionImage(it)) }
+    }
+
     Scaffold(
         bottomBar = {
             NavigationButtons(
@@ -141,6 +150,30 @@ private fun CommonCompetitionFieldContent(
                     onNext = { focusManager.moveFocus(FocusDirection.Next) }
                 )
             )
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            // Обложка соревнования
+            Text(
+                text = "Обложка соревнования",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            NetworkImage(
+                url = state.imageUrl,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clip(RoundedCornerShape(Dimens.SIZE_BASE.dp))
+            )
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            OutlinedButton(
+                onClick = { imagePicker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (state.imageUrl.isNullOrBlank()) "Выбрать обложку" else "Изменить обложку")
+            }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
