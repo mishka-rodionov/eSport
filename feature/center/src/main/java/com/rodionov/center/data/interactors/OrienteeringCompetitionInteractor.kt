@@ -70,11 +70,11 @@ class OrienteeringCompetitionInteractor(
         val competitionId = orienteeringCompetition.localCompetitionId
 
         // 1. Пытаемся обновить на сервере
-        remoteRepository.updateCompetition(orienteeringCompetition).onSuccess {
-            participantGroups?.let {
-                remoteRepository.updateCompetitionParticipantsGroups(competitionId, participantGroups)
-            }
-        }
+//        remoteRepository.updateCompetition(orienteeringCompetition).onSuccess {
+//            participantGroups?.let {
+//                remoteRepository.updateCompetitionParticipantsGroups(competitionId, participantGroups)
+//            }
+//        }
 
         // 2. Всегда обновляем локально
         localUpdate(orienteeringCompetition, participantGroups)
@@ -355,6 +355,8 @@ class OrienteeringCompetitionInteractor(
             remoteRepository.saveResult(savedResult).onSuccess {
                 localRepository.updateResults(listOf(savedResult.copy(isSynced = true)))
             }
+        }.onFailure {
+            Log.d("LOG_TAG", "saveParticipantResult: ${it.message}")
         }
     }
 
@@ -611,6 +613,10 @@ class OrienteeringCompetitionInteractor(
      */
     suspend fun updateDistance(distance: Distance): Result<Any> {
         return localRepository.updateDistance(distance)
+    }
+
+    suspend fun getDistanceById(distanceId: Long): Result<Distance?> {
+        return localRepository.getDistanceById(distanceId)
     }
 
     /**

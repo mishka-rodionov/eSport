@@ -26,3 +26,44 @@ val MIGRATION_32_33 = object : Migration(32, 33) {
         )
     }
 }
+
+/**
+ * Миграция с версии 33 на 34.
+ * Меняет тип participantId в orienteering_results с INTEGER на TEXT,
+ * чтобы соответствовать String-типу PK в orienteering_participants.
+ */
+val MIGRATION_33_34 = object : Migration(33, 34) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS orienteering_results_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                competitionId INTEGER NOT NULL,
+                groupId INTEGER NOT NULL,
+                participantId TEXT NOT NULL,
+                startTime INTEGER,
+                finishTime INTEGER,
+                totalTime INTEGER,
+                rank INTEGER,
+                status TEXT NOT NULL,
+                penaltyTime INTEGER NOT NULL DEFAULT 0,
+                splits TEXT,
+                isEditable INTEGER NOT NULL DEFAULT 1,
+                isEdited INTEGER NOT NULL DEFAULT 0,
+                isSynced INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY(competitionId) REFERENCES orienteering_competitions(localCompetitionId) ON DELETE CASCADE,
+                FOREIGN KEY(participantId) REFERENCES orienteering_participants(id) ON DELETE CASCADE
+            )
+        """.trimIndent())
+        db.execSQL("""
+            INSERT INTO orienteering_results_new
+            SELECT id, competitionId, groupId, CAST(participantId AS TEXT),
+                   startTime, finishTime, totalTime, rank, status,
+                   penaltyTime, splits, isEditable, isEdited, isSynced
+            FROM orienteering_results
+        """.trimIndent())
+        db.execSQL("DROP TABLE orienteering_results")
+        db.execSQL("ALTER TABLE orienteering_results_new RENAME TO orienteering_results")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_orienteering_results_competitionId ON orienteering_results(competitionId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_orienteering_results_participantId ON orienteering_results(participantId)")
+    }
+}

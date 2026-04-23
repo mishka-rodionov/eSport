@@ -58,6 +58,11 @@ interface OrienteeringCompetitionLocalRepository {
     suspend fun saveDistance(distance: Distance): Result<Long>
 
     /**
+     * Получает дистанцию по её локальному идентификатору.
+     */
+    suspend fun getDistanceById(distanceId: Long): Result<Distance?>
+
+    /**
      * Получает список дистанций соревнования.
      */
     suspend fun getDistances(competitionId: Long): Result<List<Distance>>

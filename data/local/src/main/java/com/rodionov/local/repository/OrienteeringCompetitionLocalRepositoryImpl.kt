@@ -296,7 +296,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
 
     override suspend fun getResultByParticipant(participantId: String): Result<OrienteeringResult?> {
         return runCatching {
-            orienteeringResultDao.getResultForParticipant(participantId.toLongOrNull() ?: 0L)?.toDomain()
+            orienteeringResultDao.getResultForParticipant(participantId)?.toDomain()
         }
     }
 
@@ -361,6 +361,12 @@ class OrienteeringCompetitionLocalRepositoryImpl(
      * @param competitionId Идентификатор соревнования.
      * @return Result со списком доменных моделей дистанций или ошибкой.
      */
+    override suspend fun getDistanceById(distanceId: Long): Result<Distance?> {
+        return runCatching {
+            distanceDao.getDistanceById(distanceId)?.toDomain()
+        }
+    }
+
     override suspend fun getDistances(competitionId: Long): Result<List<Distance>> {
         return runCatching {
             distanceDao.getDistancesForCompetition(competitionId).map { it.toDomain() }

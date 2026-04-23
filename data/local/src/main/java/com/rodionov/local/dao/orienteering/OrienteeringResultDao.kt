@@ -68,7 +68,7 @@ interface OrienteeringResultDao {
      * @param participantRanks Карта соответствия: ID участника -> занятое место
      */
     @Transaction
-    suspend fun updateRanks(competitionId: Long, participantRanks: Map<Long, Int>) {
+    suspend fun updateRanks(competitionId: Long, participantRanks: Map<String, Int>) {
         val results = getResultsForCompetitionDirect(competitionId)
         val resultsByParticipant = results.associateBy { it.participantId }
 
@@ -108,7 +108,7 @@ interface OrienteeringResultDao {
      * @return Сущность результата или null, если результат не найден
      */
     @Query("SELECT * FROM orienteering_results WHERE participantId = :participantId")
-    suspend fun getResultForParticipant(participantId: Long): OrienteeringResultEntity?
+    suspend fun getResultForParticipant(participantId: String): OrienteeringResultEntity?
 
     /**
      * Удаляет результат по его идентификатору.

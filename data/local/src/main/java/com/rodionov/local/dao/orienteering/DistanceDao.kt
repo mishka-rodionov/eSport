@@ -44,6 +44,9 @@ interface DistanceDao {
      * 
      * @param id Идентификатор дистанции.
      */
+    @Query("SELECT * FROM distances WHERE id = :id")
+    suspend fun getDistanceById(id: Long): DistanceEntity?
+
     @Query("DELETE FROM distances WHERE id = :id")
     suspend fun deleteDistance(id: Long)
 

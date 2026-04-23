@@ -1,5 +1,6 @@
 package com.rodionov.center.presentation.read_card
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.center.data.read_card.CheckResult
@@ -67,8 +68,10 @@ class OrientReadCardViewModel(
 
     suspend fun getExpectedControlPoints(groupId: Long): List<ControlPoint> {
         val group = orienteeringCompetitionInteractor.getParticipantGroup(groupId).getOrNull()
-        return emptyList() // FIXME добавлено пока нет обработки соответствующего поля из модели дистанции
-//        return group?.controlPoints ?: emptyList()
+            ?: return emptyList()
+        val distance = orienteeringCompetitionInteractor.getDistanceById(group.distanceId).getOrNull()
+            ?: return emptyList()
+        return distance.controlPoints
     }
 
     suspend fun computeParticipantResult(
@@ -77,9 +80,11 @@ class OrientReadCardViewModel(
     ) {
         val splits = rawResult.splits
         val cpOrder = rawResult.splits.map { it.controlPoint }
+        Log.d("LOG_TAG", "computeParticipantResult: $splits")
         val lastPunch = splits.lastOrNull() ?: return
         val totalTime = lastPunch.timestamp - participant.startTime
         val expected = getExpectedControlPoints(participant.groupId)
+        Log.d("LOG_TAG", "computeParticipantResult: $expected")
         val result = checkControlPointOrderPro(
             expected = expected,
             actual = splits
