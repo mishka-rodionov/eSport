@@ -115,23 +115,28 @@ class OrienteeringCreatorViewModel(
              * Добавляет группу в список и закрывает диалог.
              */
             is OrienteeringCreatorAction.CreateParticipantGroup -> {
-                val updatedGroups = stateValue.participantGroups.toMutableList()
                 if (action.index == -1) {
-                    updatedGroups.add(action.participantGroup)
+                    val updatedGroups = stateValue.participantGroups.toMutableList().apply { add(action.participantGroup) }
+                    updateState { copy(participantGroups = updatedGroups, isShowGroupCreateDialog = false) }
                     viewModelScope.launch {
                         orienteeringCompetitionInteractor.localSaveParticipantGroups(participantGroups = listOf(action.participantGroup))
+                        // Перезагружаем группы из БД, чтобы получить реальный groupId
+                        // вместо 0L, который приходит из диалога для новых групп.
+                        // Без этого updateParticipantsGroups в finishCreation вставит группу повторно.
+                        stateValue.competitionId?.let { compId ->
+                            orienteeringCompetitionInteractor.getCompetitionWithDetails(compId)
+                                .getOrNull()
+                                ?.groupsWithParticipants
+                                ?.map { it.group }
+                                ?.let { freshGroups -> updateState { copy(participantGroups = freshGroups) } }
+                        }
                     }
                 } else {
-                    updatedGroups[action.index] = action.participantGroup
+                    val updatedGroups = stateValue.participantGroups.toMutableList().apply { set(action.index, action.participantGroup) }
+                    updateState { copy(participantGroups = updatedGroups, isShowGroupCreateDialog = false) }
                     viewModelScope.launch {
                         orienteeringCompetitionInteractor.updateParticipantGroup(action.participantGroup)
                     }
-                }
-                updateState {
-                    copy(
-                        participantGroups = updatedGroups,
-                        isShowGroupCreateDialog = false
-                    )
                 }
             }
 
