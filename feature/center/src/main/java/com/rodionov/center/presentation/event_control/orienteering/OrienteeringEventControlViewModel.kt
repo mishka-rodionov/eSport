@@ -7,6 +7,7 @@ import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
+import com.rodionov.domain.models.orienteering.CompetitionStatus
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.CompetitionServiceController
@@ -148,7 +149,7 @@ class OrienteeringEventControlViewModel(
 
     /**
      * Обрабатывает нажатие на кнопку "Старт".
-     * Записывает время старта и запускает таймер отсчета.
+     * Устанавливает время старта, меняет статус на IN_PROGRESS и синхронизирует с сервером.
      */
     private fun handleStartCompetition() {
         val competition = stateValue.competition ?: return
@@ -160,12 +161,16 @@ class OrienteeringEventControlViewModel(
         viewModelScope.launch {
             val updatedCompetition = competition.copy(
                 startTime = startTime,
-                countdownTimer = countdownMinutes
+                countdownTimer = countdownMinutes,
+                competition = competition.competition.copy(
+                    status = CompetitionStatus.IN_PROGRESS
+                )
             )
             orienteeringCompetitionInteractor.updateCompetition(
                 orienteeringCompetition = updatedCompetition,
                 participantGroups = null
             )
+            orienteeringCompetitionInteractor.publishCompetitionToServer(updatedCompetition)
             updateState {
                 copy(
                     competition = updatedCompetition,
@@ -181,11 +186,19 @@ class OrienteeringEventControlViewModel(
 
     /**
      * Обрабатывает завершение соревнования.
-     * Останавливает таймер и отправляет команду остановки foreground-сервиса.
+     * Меняет статус на FINISHED, останавливает таймер и синхронизирует с сервером.
      */
     private fun handleStopCompetition() {
         timerJob?.cancel()
+        val competition = stateValue.competition
         viewModelScope.launch {
+            if (competition != null) {
+                val finished = competition.copy(
+                    competition = competition.competition.copy(status = CompetitionStatus.FINISHED)
+                )
+                orienteeringCompetitionInteractor.updateCompetition(finished, null)
+                orienteeringCompetitionInteractor.publishCompetitionToServer(finished)
+            }
             serviceController.stop()
         }
         updateState { copy(isCompetitionRunning = false, isTimerRunning = false) }
