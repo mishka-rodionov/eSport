@@ -7,8 +7,12 @@ import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
+import com.rodionov.domain.exception.NetworkException
+import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.orienteering.CompetitionStatus
 import com.rodionov.domain.models.orienteering.StartTimeMode
+import com.rodionov.domain.repository.LoadingRepository
+import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.CompetitionServiceController
 import com.rodionov.ui.viewmodel.BaseViewModel
@@ -26,7 +30,9 @@ import kotlinx.coroutines.launch
 class OrienteeringEventControlViewModel(
     private val navigation: Navigation,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
-    private val serviceController: CompetitionServiceController
+    private val serviceController: CompetitionServiceController,
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val loadingRepository: LoadingRepository
 ) : BaseViewModel<OrienteeringEventControlState>(OrienteeringEventControlState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
@@ -39,6 +45,7 @@ class OrienteeringEventControlViewModel(
     private fun loadCompetitionData() {
         val id = competitionId ?: return
         viewModelScope.launch {
+            loadingRepository.emit(true)
             // Сначала синхронизируем с сервером, если соревнование опубликовано
             val remoteId = orienteeringCompetitionInteractor.getCompetition(id)
                 ?.competition?.remoteId
@@ -59,7 +66,9 @@ class OrienteeringEventControlViewModel(
                 orienteeringCompetitionInteractor.getCompetition(id)?.let { competition ->
                     applyCompetitionState(competition.competition.title, competition)
                 }
+                handleFailure(it)
             }
+            loadingRepository.emit(false)
         }
     }
 
@@ -159,6 +168,7 @@ class OrienteeringEventControlViewModel(
         val startTime = System.currentTimeMillis() + (countdownMinutes * 60 * 1000L)
 
         viewModelScope.launch {
+            loadingRepository.emit(true)
             val updatedCompetition = competition.copy(
                 startTime = startTime,
                 countdownTimer = countdownMinutes,
@@ -171,6 +181,7 @@ class OrienteeringEventControlViewModel(
                 participantGroups = null
             )
             orienteeringCompetitionInteractor.publishCompetitionToServer(updatedCompetition)
+                .onFailure { handleFailure(it) }
             updateState {
                 copy(
                     competition = updatedCompetition,
@@ -180,6 +191,7 @@ class OrienteeringEventControlViewModel(
                 )
             }
             startTimer()
+            loadingRepository.emit(false)
             competitionId?.let { id -> serviceController.start(id, startTime) }
         }
     }
@@ -192,14 +204,17 @@ class OrienteeringEventControlViewModel(
         timerJob?.cancel()
         val competition = stateValue.competition
         viewModelScope.launch {
+            loadingRepository.emit(true)
             if (competition != null) {
                 val finished = competition.copy(
                     competition = competition.competition.copy(status = CompetitionStatus.FINISHED)
                 )
                 orienteeringCompetitionInteractor.updateCompetition(finished, null)
                 orienteeringCompetitionInteractor.publishCompetitionToServer(finished)
+                    .onFailure { handleFailure(it) }
             }
             serviceController.stop()
+            loadingRepository.emit(false)
         }
         updateState { copy(isCompetitionRunning = false, isTimerRunning = false) }
     }
@@ -215,6 +230,13 @@ class OrienteeringEventControlViewModel(
                 updateState { copy(countdownMillis = countdownMillis - 1000) }
             }
             updateState { copy(isTimerRunning = false) }
+        }
+    }
+
+    private fun handleFailure(throwable: Throwable) {
+        viewModelScope.launch {
+            val code = (throwable as? NetworkException)?.code
+            networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
         }
     }
 }

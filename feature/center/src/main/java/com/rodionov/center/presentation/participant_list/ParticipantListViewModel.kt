@@ -8,6 +8,7 @@ import com.rodionov.center.data.participant_list.ParticipantListState
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
+import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
@@ -22,7 +23,8 @@ import java.util.UUID
 class ParticipantListViewModel(
     private val repository: OrienteeringCompetitionLocalRepository,
     private val competitionInteractor: OrienteeringCompetitionInteractor,
-    private val navigation: Navigation
+    private val navigation: Navigation,
+    private val loadingRepository: LoadingRepository
 ): BaseViewModel<ParticipantListState>(ParticipantListState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
@@ -59,19 +61,23 @@ class ParticipantListViewModel(
                     isChipGiven = false
                 )
                 viewModelScope.launch(Dispatchers.IO) {
+                    loadingRepository.emit(true)
                     val savedParticipant = competitionInteractor.saveParticipant(participant)
                     if (savedParticipant != null) {
                         getCompetitionDetails()
                     }
+                    loadingRepository.emit(false)
                 }
             }
             is ParticipantListAction.UpdateParticipant -> {
                 onAction(ParticipantListAction.HideCreateParticipantDialog)
                 viewModelScope.launch(Dispatchers.IO) {
+                    loadingRepository.emit(true)
                     competitionInteractor.updateParticipantLocally(action.participant).onSuccess {
                         getCompetitionDetails()
                         competitionInteractor.syncParticipantWithServer(action.participant)
                     }
+                    loadingRepository.emit(false)
                 }
             }
             ParticipantListAction.HideCreateParticipantDialog -> {

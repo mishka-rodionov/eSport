@@ -7,6 +7,10 @@ import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.center.data.main.CenterState
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
+import com.rodionov.domain.exception.NetworkException
+import com.rodionov.domain.models.NetworkErrorEvent
+import com.rodionov.domain.repository.LoadingRepository
+import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.ui.BaseAction
@@ -19,7 +23,9 @@ class CenterViewModel(
     private val userRepository: UserRepository,
     private val navigation: Navigation,
     private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository,
-    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor
+    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val loadingRepository: LoadingRepository
 ) : BaseViewModel<CenterState>(CenterState()) {
 
     override fun onAction(action: BaseAction) {
@@ -64,6 +70,7 @@ class CenterViewModel(
             is CenterEffects.DeleteCompetition -> {
                 updateState { copy(deletingCompetition = null) }
                 viewModelScope.launch(Dispatchers.IO) {
+                    loadingRepository.emit(true)
                     orienteeringCompetitionInteractor.deleteCompetition(effect.competition.localCompetitionId)
                         .onSuccess {
                             updateState {
@@ -72,6 +79,8 @@ class CenterViewModel(
                                 })
                             }
                         }
+                        .onFailure { handleFailure(it) }
+                    loadingRepository.emit(false)
                 }
             }
         }
@@ -84,6 +93,7 @@ class CenterViewModel(
                 copy(isAuthed = isAuthed)
             }
             if (isAuthed) {
+                loadingRepository.emit(true)
                 userRepository.retrieveUser().onSuccess { user ->
                     orienteeringCompetitionInteractor.getCompetitionsByUserId(user.id)
                         .onSuccess { competitions ->
@@ -92,9 +102,7 @@ class CenterViewModel(
                                 copy(controlledEvents = competitions)
                             }
                         }
-                        .onFailure {
-                            Log.d("LOG_TAG", "initialize: $it")
-                        }
+                        .onFailure { handleFailure(it) }
 //                    orienteeringCompetitionRemoteRepository.getCompetitionsByUserid(user.id)
 //                        .onSuccess { competitions ->
 //
@@ -102,9 +110,17 @@ class CenterViewModel(
 //                                copy(controlledEvents = competitions)
 //                            }
 //                        }
-                }
+                }.onFailure { handleFailure(it) }
+                loadingRepository.emit(false)
             }
 
+        }
+    }
+
+    private fun handleFailure(throwable: Throwable) {
+        viewModelScope.launch {
+            val code = (throwable as? NetworkException)?.code
+            networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
         }
     }
 

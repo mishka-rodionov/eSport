@@ -8,6 +8,7 @@ import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.PunchingSystem
+import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
@@ -25,7 +26,8 @@ private const val MIN_VALID_TIMESTAMP_MS = 946_684_800_000L
  */
 class DrawViewModel(
     private val interactor: OrienteeringCompetitionInteractor,
-    private val navigation: Navigation
+    private val navigation: Navigation,
+    private val loadingRepository: LoadingRepository
 ) : BaseViewModel<DrawState>(DrawState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
@@ -45,18 +47,23 @@ class DrawViewModel(
     private fun startDrawOperation() {
         val compId = competitionId ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            val competition = interactor.getCompetition(compId) ?: return@launch
-            val participants = interactor.getParticipants(competitionId = compId).getOrNull()
-                ?: return@launch
-            val competitionStartTime = resolveStartTime(competition)
-            val sortedParticipants = drawParticipants(
-                participants = participants.shuffled(),
-                punchingSystem = competition.punchingSystem,
-                competitionStartTime = competitionStartTime
-            )
-            interactor.updateParticipants(sortedParticipants)
-            interactor.syncParticipantsAfterDraw(sortedParticipants)
-            updateState { copy(participants = sortedParticipants) }
+            loadingRepository.emit(true)
+            try {
+                val competition = interactor.getCompetition(compId) ?: return@launch
+                val participants = interactor.getParticipants(competitionId = compId).getOrNull()
+                    ?: return@launch
+                val competitionStartTime = resolveStartTime(competition)
+                val sortedParticipants = drawParticipants(
+                    participants = participants.shuffled(),
+                    punchingSystem = competition.punchingSystem,
+                    competitionStartTime = competitionStartTime
+                )
+                interactor.updateParticipants(sortedParticipants)
+                interactor.syncParticipantsAfterDraw(sortedParticipants)
+                updateState { copy(participants = sortedParticipants) }
+            } finally {
+                loadingRepository.emit(false)
+            }
         }
     }
 
@@ -69,18 +76,23 @@ class DrawViewModel(
     private fun startGroupDrawOperation() {
         val compId = competitionId ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            val competition = interactor.getCompetition(compId) ?: return@launch
-            val participants = interactor.getParticipants(competitionId = compId).getOrNull()
-                ?: return@launch
-            val competitionStartTime = resolveStartTime(competition)
-            val sortedParticipants = drawParticipantsByGroups(
-                participants = participants,
-                punchingSystem = competition.punchingSystem,
-                competitionStartTime = competitionStartTime
-            )
-            interactor.updateParticipants(sortedParticipants)
-            interactor.syncParticipantsAfterDraw(sortedParticipants)
-            updateState { copy(participants = sortedParticipants) }
+            loadingRepository.emit(true)
+            try {
+                val competition = interactor.getCompetition(compId) ?: return@launch
+                val participants = interactor.getParticipants(competitionId = compId).getOrNull()
+                    ?: return@launch
+                val competitionStartTime = resolveStartTime(competition)
+                val sortedParticipants = drawParticipantsByGroups(
+                    participants = participants,
+                    punchingSystem = competition.punchingSystem,
+                    competitionStartTime = competitionStartTime
+                )
+                interactor.updateParticipants(sortedParticipants)
+                interactor.syncParticipantsAfterDraw(sortedParticipants)
+                updateState { copy(participants = sortedParticipants) }
+            } finally {
+                loadingRepository.emit(false)
+            }
         }
     }
 

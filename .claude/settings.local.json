@@ -39,7 +39,8 @@
       "Bash(./gradlew :data:local:assembleDebug)",
       "Bash(./gradlew :data:remote:assembleDebug :feature:center:assembleDebug)",
       "Bash(./gradlew test *)",
-      "Bash(rtk find *)"
+      "Bash(rtk find *)",
+      "Bash(./gradlew :feature:center:compileDebugKotlin :feature:events:compileDebugKotlin :feature:profile:compileDebugKotlin)"
     ]
   },
   "prefersReducedMotion": true

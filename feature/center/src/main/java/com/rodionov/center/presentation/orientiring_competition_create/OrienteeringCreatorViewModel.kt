@@ -12,6 +12,7 @@ import com.rodionov.domain.exception.NetworkException
 import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.user.User
+import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.UploadRepository
 import com.rodionov.domain.repository.user.UserRepository
@@ -34,7 +35,8 @@ class OrienteeringCreatorViewModel(
     private val userRepository: UserRepository,
     private val networkErrorRepository: NetworkErrorRepository,
     private val uploadRepository: UploadRepository,
-    private val context: Context
+    private val context: Context,
+    private val loadingRepository: LoadingRepository
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
     var user: User? = null
@@ -306,6 +308,7 @@ class OrienteeringCreatorViewModel(
      */
     fun saveStepOne() {
         viewModelScope.launch(Dispatchers.IO) {
+            loadingRepository.emit(true)
             val competition = stateValue.toOrienteeringCompetition(user?.id)
             val result = if (stateValue.competitionId == null) {
                 // Создание нового
@@ -328,7 +331,7 @@ class OrienteeringCreatorViewModel(
                 .onFailure {
                     handleFailure(it)
                 }
-
+            loadingRepository.emit(false)
         }
     }
 
@@ -429,6 +432,7 @@ class OrienteeringCreatorViewModel(
     fun finishCreation() {
         updateState { copy(isLoading = true) }
         viewModelScope.launch(Dispatchers.IO) {
+            loadingRepository.emit(true)
             val competition = stateValue.toOrienteeringCompetition(user?.id)
             val groups = stateValue.participantGroups
 
@@ -480,6 +484,7 @@ class OrienteeringCreatorViewModel(
                 }
 
             updateState { copy(isLoading = false) }
+            loadingRepository.emit(false)
 
             viewModelScope.launch(Dispatchers.Main) {
                 val destination = CenterNavigation.CenterRoute
@@ -520,11 +525,16 @@ class OrienteeringCreatorViewModel(
         onSuccess: (String) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val bytes = context.contentResolver.openInputStream(uri)?.readBytes() ?: return@launch
+            loadingRepository.emit(true)
+            val bytes = context.contentResolver.openInputStream(uri)?.readBytes() ?: run {
+                loadingRepository.emit(false)
+                return@launch
+            }
             val fileName = uri.lastPathSegment ?: "file"
             uploadRepository.uploadFile(bytes, fileName, type)
                 .onSuccess { url -> onSuccess(url) }
                 .onFailure { handleFailure(it) }
+            loadingRepository.emit(false)
         }
     }
 

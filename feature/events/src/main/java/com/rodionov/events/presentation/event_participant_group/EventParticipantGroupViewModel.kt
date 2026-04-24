@@ -8,6 +8,7 @@ import com.rodionov.domain.exception.NetworkException
 import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.user.User
+import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.domain.repository.user.UserRepository
@@ -29,7 +30,8 @@ class EventParticipantGroupViewModel(
     private val userRepository: UserRepository,
     private val navigation: Navigation,
     private val pendingRegistrationRepository: PendingRegistrationRepository,
-    private val networkErrorRepository: NetworkErrorRepository
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val loadingRepository: LoadingRepository
 ) : BaseViewModel<EventParticipantGroupState>(EventParticipantGroupState()) {
 
     private var currentUser: User? = null
@@ -49,6 +51,7 @@ class EventParticipantGroupViewModel(
     fun initialize(eventId: Long, group: EventParticipantGroup) {
         updateState { copy(eventId = eventId, participantGroup = group, isLoading = true) }
         viewModelScope.launch {
+            loadingRepository.emit(true)
             currentUser = userRepository.retrieveUser().getOrNull()
 
             repository.getParticipants(eventId, group.groupId)
@@ -68,6 +71,7 @@ class EventParticipantGroupViewModel(
                     updateState { copy(isLoading = false) }
                     handleFailure(it)
                 }
+            loadingRepository.emit(false)
 
             // Проверить отложенную регистрацию: если вернулись после авторизации
             val pending = pendingRegistrationRepository.pending.value

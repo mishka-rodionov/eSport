@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.domain.exception.NetworkException
 import com.rodionov.domain.models.NetworkErrorEvent
 import com.rodionov.domain.models.user.User
+import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.UploadRepository
 import com.rodionov.domain.repository.user.UserRepository
@@ -26,7 +27,8 @@ class ProfileEditorViewModel(
     private val userRepository: UserRepository,
     private val networkErrorRepository: NetworkErrorRepository,
     private val uploadRepository: UploadRepository,
-    private val context: Context
+    private val context: Context,
+    private val loadingRepository: LoadingRepository
 ) : BaseViewModel<ProfileEditorState>(ProfileEditorState()) {
 
     init {
@@ -51,6 +53,7 @@ class ProfileEditorViewModel(
     private fun loadUser() {
         updateState { copy(isLoading = true) }
         viewModelScope.launch {
+            loadingRepository.emit(true)
             userRepository.retrieveUser()
                 .onSuccess { user ->
                     updateState { copy(user = user, isLoading = false) }
@@ -59,6 +62,7 @@ class ProfileEditorViewModel(
                     updateState { copy(isLoading = false, error = "Ошибка загрузки данных") }
                     handleFailure(it)
                 }
+            loadingRepository.emit(false)
         }
     }
 
@@ -89,6 +93,7 @@ class ProfileEditorViewModel(
         val userToSave = stateValue.user ?: return
         updateState { copy(isSaving = true) }
         viewModelScope.launch {
+            loadingRepository.emit(true)
             // Имитация задержки сетевого запроса (моки)
             delay(1500)
 
@@ -101,14 +106,17 @@ class ProfileEditorViewModel(
                     updateState { copy(isSaving = false, error = "Ошибка сохранения") }
                     handleFailure(it)
                 }
+            loadingRepository.emit(false)
         }
     }
 
     private fun uploadPhoto(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             updateState { copy(isSaving = true) }
+            loadingRepository.emit(true)
             val bytes = context.contentResolver.openInputStream(uri)?.readBytes() ?: run {
                 updateState { copy(isSaving = false) }
+                loadingRepository.emit(false)
                 return@launch
             }
             val fileName = uri.lastPathSegment ?: "avatar.jpg"
@@ -120,6 +128,7 @@ class ProfileEditorViewModel(
                     updateState { copy(isSaving = false, error = "Ошибка загрузки фото") }
                     handleFailure(it)
                 }
+            loadingRepository.emit(false)
         }
     }
 
