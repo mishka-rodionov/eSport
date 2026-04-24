@@ -50,7 +50,8 @@ fun Distance.toRequest(remoteCompetitionId: Long): DistanceRequest {
         lengthMeters = lengthMeters,
         climbMeters = climbMeters,
         controlsCount = controlsCount,
-        description = description
+        description = description,
+        controlPoints = controlPoints.map { it.toRequest() }
     )
 }
 

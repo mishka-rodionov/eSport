@@ -1,6 +1,7 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
@@ -66,11 +67,19 @@ class OrienteeringCreatorViewModel(
                     updatedDistances.add(action.distance)
                     viewModelScope.launch {
                         orienteeringCompetitionInteractor.saveDistance(action.distance)
+                            .onFailure { error ->
+                                Log.e("OrienteeringCreatorVM", "saveDistance failed", error)
+                                handleFailure(error)
+                            }
                     }
                 } else {
                     updatedDistances[action.index] = action.distance
                     viewModelScope.launch {
                         orienteeringCompetitionInteractor.updateDistance(action.distance)
+                            .onFailure { error ->
+                                Log.e("OrienteeringCreatorVM", "updateDistance failed", error)
+                                handleFailure(error)
+                            }
                     }
                 }
                 updateState {

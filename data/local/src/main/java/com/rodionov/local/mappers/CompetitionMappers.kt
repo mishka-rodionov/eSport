@@ -233,6 +233,6 @@ fun DistanceEntity.toDomain(): Distance {
         isSynced = this.isSynced,
         lastModified = this.lastModified,
         isDeleted = this.isDeleted,
-        controlPoints = this.controlPoints
+        controlPoints = this.controlPoints.orEmpty()
     )
 }

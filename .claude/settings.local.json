@@ -34,7 +34,11 @@
       "Bash(python3 -c \"import fpdf; print\\('fpdf ok'\\)\")",
       "Bash(brew list *)",
       "Bash(npm list *)",
-      "Bash(npx --yes md-to-pdf --version)"
+      "Bash(npx --yes md-to-pdf --version)",
+      "Bash(./gradlew :feature:center:assembleDebug)",
+      "Bash(./gradlew :data:local:assembleDebug)",
+      "Bash(./gradlew :data:remote:assembleDebug :feature:center:assembleDebug)",
+      "Bash(./gradlew test *)"
     ]
   },
   "prefersReducedMotion": true

@@ -27,5 +27,7 @@ data class DistanceResponse(
     @SerializedName("controlsCount")
     val controlsCount: Int,
     @SerializedName("description")
-    val description: String?
+    val description: String?,
+    @SerializedName("controlPoints")
+    val controlPoints: List<ControlPointResponse> = emptyList()
 )

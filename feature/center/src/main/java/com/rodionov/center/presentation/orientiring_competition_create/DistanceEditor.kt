@@ -1,13 +1,17 @@
 package com.rodionov.center.presentation.orientiring_competition_create
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
@@ -60,10 +64,10 @@ fun DistanceEditor(
             initialDistance?.controlsCount?.toString() ?: ""
         )
     }
-    var controlPointsStr by remember {
-        mutableStateOf(initialDistance?.controlPoints?.joinToString(", ") { it.number.toString() }
-            ?: "")
+    var controlPointsList by remember {
+        mutableStateOf<List<Int>>(initialDistance?.controlPoints?.map { it.number }.orEmpty())
     }
+    var currentInput by remember { mutableStateOf("") }
     var description by remember { mutableStateOf(initialDistance?.description ?: "") }
     
     // Создаем реквизиторы фокуса для каждого поля
@@ -74,6 +78,20 @@ fun DistanceEditor(
     val pointsFocus = remember { FocusRequester() }
     val descFocus = remember { FocusRequester() }
     
+    LaunchedEffect(controlPointsList) {
+        if (controlPointsList.isNotEmpty()) {
+            controlsCount = controlPointsList.size.toString()
+        }
+    }
+
+    val addCurrentInput: () -> Unit = {
+        val number = currentInput.trim().toIntOrNull()
+        if (number != null) {
+            controlPointsList = controlPointsList + number
+            currentInput = ""
+        }
+    }
+
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val view = LocalView.current
@@ -177,28 +195,74 @@ fun DistanceEditor(
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
-                // Список КП (через запятую)
-                DSTextInput(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(pointsFocus),
-                    label = { Text("Список КП (через запятую)") },
-                    placeholder = { Text("31, 32, 45, 100") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { descFocus.requestFocus() }
-                    ),
-                    text = controlPointsStr,
-                    onValueChanged = { newValue ->
-                        // Фильтруем ввод: разрешаем только цифры, запятые и пробелы
-                        val filtered = newValue.filter { it.isDigit() || it == ',' || it == ' ' }
-                        controlPointsStr = filtered
-                    }
+                // Список КП (чипы)
+                Text(
+                    text = "Список КП",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = Dimens.SIZE_QUARTER.dp, bottom = Dimens.SIZE_QUARTER.dp)
                 )
+
+                if (controlPointsList.isNotEmpty()) {
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp)
+                    ) {
+                        controlPointsList.forEachIndexed { index, cpNumber ->
+                            InputChip(
+                                selected = false,
+                                onClick = { /* no-op */ },
+                                label = { Text(text = cpNumber.toString()) },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.close_24px),
+                                        contentDescription = "Удалить КП $cpNumber",
+                                        modifier = Modifier
+                                            .size(Dimens.SIZE_BASE.dp)
+                                            .clickable {
+                                                controlPointsList = controlPointsList.toMutableList()
+                                                    .also { it.removeAt(index) }
+                                            }
+                                    )
+                                }
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_QUARTER.dp))
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DSTextInput(
+                        modifier = Modifier
+                            .weight(1f)
+                            .focusRequester(pointsFocus),
+                        label = { Text("Добавить КП") },
+                        placeholder = { Text("31") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { addCurrentInput() }
+                        ),
+                        text = currentInput,
+                        onValueChanged = { newValue ->
+                            currentInput = newValue.filter { it.isDigit() }
+                        }
+                    )
+                    IconButton(onClick = addCurrentInput) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
+                            contentDescription = "Добавить КП"
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
@@ -240,9 +304,7 @@ fun DistanceEditor(
                         focusManager.clearFocus()
                         keyboardController?.hide()
 
-                        val points = controlPointsStr.split(",")
-                            .mapNotNull { it.trim().toIntOrNull() }
-                            .map { ControlPoint(number = it) }
+                        val points = controlPointsList.map { ControlPoint(number = it) }
 
                         userAction.invoke(
                             OrienteeringCreatorAction.CreateDistance(

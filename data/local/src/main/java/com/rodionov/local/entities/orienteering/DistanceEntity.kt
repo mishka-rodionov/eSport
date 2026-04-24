@@ -36,5 +36,5 @@ data class DistanceEntity(
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),
     val isDeleted: Boolean = false,
-    val controlPoints: List<ControlPoint>
+    val controlPoints: List<ControlPoint> = emptyList()
 )

@@ -43,11 +43,10 @@ class ControlPointConverters {
     }
 
     @TypeConverter
-    fun toControlPointList(jsonString: String?): List<ControlPoint>? {
-        return jsonString?.let {
-            val listType = object : TypeToken<List<ControlPoint>>() {}.type
-            gson.fromJson(it, listType)
-        }
+    fun toControlPointList(jsonString: String?): List<ControlPoint> {
+        if (jsonString == null) return emptyList()
+        val listType = object : TypeToken<List<ControlPoint>>() {}.type
+        return gson.fromJson(jsonString, listType) ?: emptyList()
     }
 
     @TypeConverter
