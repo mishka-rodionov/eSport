@@ -6,6 +6,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.VisualTransformation
 
 /**
  * Базовый компонент ввода текста в дизайн-системе проекта.
@@ -29,7 +30,8 @@ fun DSTextInput(
     isError: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     OutlinedTextField(
         value = text,
@@ -48,6 +50,7 @@ fun DSTextInput(
         isError = isError,
         interactionSource = interactionSource,
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions
+        keyboardActions = keyboardActions,
+        visualTransformation = visualTransformation
     )
 }

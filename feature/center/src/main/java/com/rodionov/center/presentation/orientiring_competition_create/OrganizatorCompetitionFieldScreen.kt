@@ -5,10 +5,16 @@ import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.DSTextInput
@@ -18,8 +24,54 @@ import com.rodionov.center.data.creator.OrienteeringCreatorState
 import org.koin.androidx.compose.koinViewModel
 
 /**
+ * Форматирует строку цифр телефона в вид `+7 XXX XXX XX XX`.
+ * Принимает только цифры, возвращает отформатированную строку.
+ */
+private class PhoneNumberVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val digits = text.text
+        val formatted = buildString {
+            digits.take(11).forEachIndexed { i, c ->
+                when (i) {
+                    0 -> append("+$c ")
+                    3 -> append("$c ")
+                    6 -> append("$c ")
+                    8 -> append("$c ")
+                    else -> append(c)
+                }
+            }
+        }
+
+        // Строим маппинги позиций на основе реального отформатированного текста
+        val originalToFormatted = IntArray(digits.length + 1)
+        val formattedToOriginal = IntArray(formatted.length + 1)
+
+        var rawIndex = 0
+        for (fmtIndex in formatted.indices) {
+            formattedToOriginal[fmtIndex] = rawIndex
+            if (formatted[fmtIndex].isDigit()) {
+                originalToFormatted[rawIndex] = fmtIndex
+                rawIndex++
+            }
+        }
+        originalToFormatted[rawIndex] = formatted.length
+        formattedToOriginal[formatted.length] = rawIndex
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                originalToFormatted[offset.coerceIn(0, digits.length)]
+
+            override fun transformedToOriginal(offset: Int): Int =
+                formattedToOriginal[offset.coerceIn(0, formatted.length)]
+        }
+
+        return TransformedText(AnnotatedString(formatted), offsetMapping)
+    }
+}
+
+/**
  * Третий экран создания соревнования: Информация об организаторе.
- * 
+ *
  * @param competitionId Идентификатор соревнования.
  * @param viewModel Вьюмодель процесса создания.
  */
@@ -115,13 +167,18 @@ private fun OrganizatorCompetitionFieldContent(
 
             DSTextInput(
                 modifier = Modifier.fillMaxWidth(),
-                text = state.contactPhone,
+                text = state.contactPhone.filter { it.isDigit() }.take(11),
                 label = { Text("Контактный телефон") },
                 isError = state.errors.isEmptyContactPhone,
                 supportingText = if (state.errors.isEmptyContactPhone) {
                     { Text("Укажите контактный телефон") }
                 } else null,
-                onValueChanged = onUpdateContactPhone
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                visualTransformation = PhoneNumberVisualTransformation(),
+                onValueChanged = { newValue ->
+                    onUpdateContactPhone(newValue.filter { it.isDigit() }.take(11))
+                }
             )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))

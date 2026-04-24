@@ -26,6 +26,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.SplitTime
 import com.rodionov.resources.R
+import com.rodionov.utils.DateTimeFormat
 import com.rodionov.utils.orienteering.toRaceTime
 import com.rodionov.utils.orienteering.toSplitTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -184,8 +185,8 @@ private fun RaceSummaryCard(participant: OrienteeringParticipant, result: Orient
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                InfoColumn(label = "Старт", value = participant.startTime.toString()) // Предполагается формат времени
-                InfoColumn(label = "Финиш", value = result.finishTime?.toString() ?: "--:--")
+                InfoColumn(label = "Старт", value = DateTimeFormat.transformLongToDisplayDate(participant.startTime)) // Предполагается формат времени
+                InfoColumn(label = "Финиш", value = DateTimeFormat.transformLongToDisplayDate(result.finishTime))
             }
             
             HorizontalDivider(
