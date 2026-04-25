@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.window.core.layout.WindowSizeClass
+import com.example.designsystem.components.DSBottomDialog
+import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.clickRipple
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.event_control.OrientEventControlAction
@@ -37,7 +40,6 @@ import com.rodionov.domain.models.orienteering.PunchingSystem
 import com.rodionov.domain.models.orienteering.ResultsStatus
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.resources.R
-import com.example.designsystem.components.DSTextInput
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -50,7 +52,7 @@ fun OrienteeringEventControlScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val isExpanded = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
-    
+
     OrienteeringEventControlScreenContent(
         state = state,
         isExpanded = isExpanded,
@@ -58,6 +60,7 @@ fun OrienteeringEventControlScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OrienteeringEventControlScreenContent(
     state: OrienteeringEventControlState,
@@ -85,23 +88,23 @@ private fun OrienteeringEventControlScreenContent(
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
-            // Панель управления чипами (Сеткой)
             SectionHeader(title = "Панель управления")
             OrienteeringEventControlContent(isExpanded, onAction)
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
 
-            // Баннер статуса соревнования
             if (state.isCompetitionRunning) {
                 if (state.isTimerRunning) {
-                    CountdownBanner(countdownMillis = state.countdownMillis)
+                    CountdownBanner(
+                        countdownMillis = state.countdownMillis,
+                        onCancel = { onAction(OrientEventControlAction.CancelCountdown) }
+                    )
                 } else {
                     CompetitionStartedBanner()
                 }
                 Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
             }
 
-            // Основные действия
             SectionHeader(title = "Действия")
 
             ControlActionButton(
@@ -128,11 +131,22 @@ private fun OrienteeringEventControlScreenContent(
                     )
                     Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
                 }
+
+                if (!state.allChipsDistributed) {
+                    Text(
+                        text = "Не все участники получили чипы",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(bottom = Dimens.SIZE_HALF.dp)
+                    )
+                }
+
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    onClick = { onAction(OrientEventControlAction.StartCompetition) },
+                    onClick = { onAction(OrientEventControlAction.ShowStartConfirmDialog) },
+                    enabled = state.allChipsDistributed,
                     shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
@@ -141,11 +155,12 @@ private fun OrienteeringEventControlScreenContent(
             }
 
             if (state.isCompetitionRunning) {
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    onClick = { onAction(OrientEventControlAction.StopCompetition) },
+                    onClick = { onAction(OrientEventControlAction.ShowStopConfirmDialog) },
                     shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
@@ -155,7 +170,6 @@ private fun OrienteeringEventControlScreenContent(
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
-            // Навигация по разделам
             SectionHeader(title = "Разделы")
 
             NavigationRow(
@@ -174,9 +188,114 @@ private fun OrienteeringEventControlScreenContent(
                 text = "Результаты",
                 onClick = { onAction(OrientEventControlAction.OpenResults) }
             )
-            
+
             Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
         }
+    }
+
+    if (state.isShowStartConfirmDialog) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        DSBottomDialog(
+            sheetState = sheetState,
+            onDismiss = { onAction(OrientEventControlAction.HideStartConfirmDialog) },
+            sheetContent = {
+                StartConfirmContent(
+                    onConfirm = { onAction(OrientEventControlAction.StartCompetition) },
+                    onCancel = { onAction(OrientEventControlAction.HideStartConfirmDialog) }
+                )
+            }
+        )
+    }
+
+    if (state.isShowStopConfirmDialog) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        DSBottomDialog(
+            sheetState = sheetState,
+            onDismiss = { onAction(OrientEventControlAction.HideStopConfirmDialog) },
+            sheetContent = {
+                StopConfirmContent(
+                    onConfirm = { onAction(OrientEventControlAction.StopCompetition) },
+                    onCancel = { onAction(OrientEventControlAction.HideStopConfirmDialog) }
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun StartConfirmContent(onConfirm: () -> Unit, onCancel: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(Dimens.SIZE_BASE.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = "Запустить соревнование?",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+        Text(
+            text = "Участники начнут стартовать согласно расписанию. Убедитесь, что всё готово.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+        Button(
+            onClick = onConfirm,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+        ) {
+            Text("Запустить", fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+        OutlinedButton(
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+        ) {
+            Text("Отмена", fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+    }
+}
+
+@Composable
+private fun StopConfirmContent(onConfirm: () -> Unit, onCancel: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(Dimens.SIZE_BASE.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = "Завершить соревнование?",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+        Text(
+            text = "Всем участникам без финишного результата будет присвоен статус DNF.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+        Button(
+            onClick = onConfirm,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+        ) {
+            Text("Завершить", fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+        OutlinedButton(
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+        ) {
+            Text("Отмена", fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
     }
 }
 
@@ -194,7 +313,7 @@ private fun SectionHeader(title: String) {
  * Баннер обратного отсчёта — показывается пока идёт таймер до старта.
  */
 @Composable
-private fun CountdownBanner(countdownMillis: Long) {
+private fun CountdownBanner(countdownMillis: Long, onCancel: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -221,6 +340,13 @@ private fun CountdownBanner(countdownMillis: Long) {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            OutlinedButton(
+                onClick = onCancel,
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+            ) {
+                Text("Отменить старт", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ import com.rodionov.center.presentation.orientiring_competition_create.Orienteer
 import com.rodionov.center.presentation.participant_list.ParticipantListViewModel
 import com.rodionov.center.presentation.read_card.OrientReadCardViewModel
 import com.rodionov.center.presentation.results.OrienteeringCompetitionResultsViewModel
+import com.rodionov.center.presentation.splits.ParticipantSplitsViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -22,5 +23,6 @@ val centerModule = module {
     viewModelOf(::DrawViewModel)
     viewModelOf(::OrienteeringCompetitionResultsViewModel)
     viewModelOf(::GetOrienteeringChipViewModel)
+    viewModelOf(::ParticipantSplitsViewModel)
     factoryOf(::OrienteeringCompetitionInteractor)
 }

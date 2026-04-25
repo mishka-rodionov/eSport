@@ -86,6 +86,13 @@ fun OrienteeringCompetitionResultsScreen(
                             onEditClick = {
                                 selectedParticipant = participantWithResult
                                 showBottomSheet = true
+                            },
+                            onCardClick = {
+                                viewModel.onAction(
+                                    OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenSplits(
+                                        participantWithResult.participant.id
+                                    )
+                                )
                             }
                         )
                     }
@@ -142,10 +149,13 @@ fun OrienteeringCompetitionResultsScreen(
 @Composable
 fun ResultParticipantCard(
     result: ParticipantWithResult,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onCardClick: () -> Unit = {}
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickRipple(onClick = onCardClick),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)

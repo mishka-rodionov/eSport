@@ -18,6 +18,7 @@ import com.rodionov.center.presentation.orientiring_competition_create.*
 import com.rodionov.center.presentation.participant_list.ParticipantListScreen
 import com.rodionov.center.presentation.read_card.OrientReadCardScreen
 import com.rodionov.center.presentation.results.OrienteeringCompetitionResultsScreen
+import com.rodionov.center.presentation.splits.ParticipantSplitsScreen
 import com.rodionov.center.presentation.orientiring_competition_create.MAP_RESULT_LAT
 import com.rodionov.center.presentation.orientiring_competition_create.MAP_RESULT_LON
 import com.rodionov.data.navigation.CenterNavigation
@@ -78,6 +79,14 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass, navController:
     composable<CenterNavigation.GetOrienteeringChipRoute> { backStackEntry ->
         val route: CenterNavigation.GetOrienteeringChipRoute = backStackEntry.toRoute()
         GetOrienteeringChipScreen(competitionId = route.competitionId)
+    }
+
+    composable<CenterNavigation.ParticipantSplitsRoute> { backStackEntry ->
+        val route: CenterNavigation.ParticipantSplitsRoute = backStackEntry.toRoute()
+        ParticipantSplitsScreen(
+            participantId = route.participantId,
+            competitionId = route.competitionId
+        )
     }
 
     composable<CenterNavigation.MapPickerRoute> { backStackEntry ->

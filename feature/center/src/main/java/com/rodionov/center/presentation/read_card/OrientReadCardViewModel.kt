@@ -8,6 +8,7 @@ import com.rodionov.center.data.read_card.OrientReadCardState
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
 import com.rodionov.domain.models.ResultStatus
+import com.rodionov.domain.models.orienteering.CompetitionStatus
 import com.rodionov.domain.models.orienteering.ControlPoint
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
@@ -37,14 +38,20 @@ class OrientReadCardViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            competitionId?.let { id ->
+                val competition = orienteeringCompetitionInteractor.getCompetition(id)
+                if (competition?.competition?.status == CompetitionStatus.FINISHED) {
+                    updateState { copy(isCompetitionFinished = true) }
+                }
+            }
             sportiduinoHelper.subscribeToReadCard { chipData ->
                 handleChipData(chipData)
-//                updateState { copy(text = text) }
             }
         }
     }
 
     fun handleChipData(chipData: ReadChipData) {
+        if (stateValue.isCompetitionFinished) return
         when (chipData) {
             is ReadChipData.RawResult -> {
                 competitionId?.let {

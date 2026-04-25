@@ -154,23 +154,25 @@ fun ParticipantListContent(
                 }
             }
 
-            FloatingActionButton(
-                onClick = {
-                    if (state.participantGroupWithParticipants.isNotEmpty()) {
-                        userAction.invoke(ParticipantListAction.ShowCreateParticipantDialog(pagerState.currentPage))
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(Dimens.SIZE_BASE.dp),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
-                    contentDescription = "Add participant"
-                )
+            if (state.competition?.isDrawConducted != true) {
+                FloatingActionButton(
+                    onClick = {
+                        if (state.participantGroupWithParticipants.isNotEmpty()) {
+                            userAction.invoke(ParticipantListAction.ShowCreateParticipantDialog(pagerState.currentPage))
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(Dimens.SIZE_BASE.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
+                        contentDescription = "Add participant"
+                    )
+                }
             }
         }
     }

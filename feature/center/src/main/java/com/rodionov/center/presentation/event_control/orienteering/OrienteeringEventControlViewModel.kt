@@ -46,7 +46,6 @@ class OrienteeringEventControlViewModel(
         val id = competitionId ?: return
         viewModelScope.launch {
             loadingRepository.emit(true)
-            // Сначала синхронизируем с сервером, если соревнование опубликовано
             val remoteId = orienteeringCompetitionInteractor.getCompetition(id)
                 ?.competition?.remoteId
             if (remoteId != null) {
@@ -54,13 +53,16 @@ class OrienteeringEventControlViewModel(
                 orienteeringCompetitionInteractor.fetchAndSyncParticipantsFromServer(remoteId, id)
             }
 
-            // Загружаем актуальные данные из локальной БД (уже синхронизированной)
             orienteeringCompetitionInteractor.getCompetitionWithDetails(id).onSuccess { details ->
+                val allChipsDistributed = details.groupsWithParticipants.all { group ->
+                    group.participants.all { it.isChipGiven }
+                }
                 val competition = details.competition
                 applyCompetitionState(
                     competition.competition.title,
                     competition,
-                    groups = details.groupsWithParticipants.map { it.group }
+                    groups = details.groupsWithParticipants.map { it.group },
+                    allChipsDistributed = allChipsDistributed
                 )
             }.onFailure {
                 orienteeringCompetitionInteractor.getCompetition(id)?.let { competition ->
@@ -80,7 +82,8 @@ class OrienteeringEventControlViewModel(
     private fun applyCompetitionState(
         title: String,
         competition: com.rodionov.domain.models.orienteering.OrienteeringCompetition,
-        groups: List<com.rodionov.domain.models.ParticipantGroup> = emptyList()
+        groups: List<com.rodionov.domain.models.ParticipantGroup> = emptyList(),
+        allChipsDistributed: Boolean = true
     ) {
         val startTime = competition.startTime
         val now = System.currentTimeMillis()
@@ -96,7 +99,8 @@ class OrienteeringEventControlViewModel(
                 isCompetitionRunning = isRunning,
                 isTimerRunning = isCountingDown,
                 countdownMillis = remainingMillis,
-                countdownTimerInput = competition.countdownTimer?.toString() ?: ""
+                countdownTimerInput = competition.countdownTimer?.toString() ?: "",
+                allChipsDistributed = allChipsDistributed
             )
         }
 
@@ -147,8 +151,29 @@ class OrienteeringEventControlViewModel(
                 }
             }
 
-            OrientEventControlAction.StartCompetition -> handleStartCompetition()
-            OrientEventControlAction.StopCompetition -> handleStopCompetition()
+            OrientEventControlAction.ShowStartConfirmDialog ->
+                updateState { copy(isShowStartConfirmDialog = true) }
+
+            OrientEventControlAction.HideStartConfirmDialog ->
+                updateState { copy(isShowStartConfirmDialog = false) }
+
+            OrientEventControlAction.StartCompetition -> {
+                updateState { copy(isShowStartConfirmDialog = false) }
+                handleStartCompetition()
+            }
+
+            OrientEventControlAction.ShowStopConfirmDialog ->
+                updateState { copy(isShowStopConfirmDialog = true) }
+
+            OrientEventControlAction.HideStopConfirmDialog ->
+                updateState { copy(isShowStopConfirmDialog = false) }
+
+            OrientEventControlAction.StopCompetition -> {
+                updateState { copy(isShowStopConfirmDialog = false) }
+                handleStopCompetition()
+            }
+
+            OrientEventControlAction.CancelCountdown -> handleCancelCountdown()
 
             is OrientEventControlAction.UpdateCountdownTimerInput -> updateState {
                 copy(countdownTimerInput = action.value)
@@ -198,7 +223,8 @@ class OrienteeringEventControlViewModel(
 
     /**
      * Обрабатывает завершение соревнования.
-     * Меняет статус на FINISHED, останавливает таймер и синхронизирует с сервером.
+     * Меняет статус на FINISHED, останавливает таймер, выставляет DNF незафинишировавшим
+     * и синхронизирует с сервером.
      */
     private fun handleStopCompetition() {
         timerJob?.cancel()
@@ -212,6 +238,9 @@ class OrienteeringEventControlViewModel(
                 orienteeringCompetitionInteractor.updateCompetition(finished, null)
                 orienteeringCompetitionInteractor.publishCompetitionToServer(finished)
                     .onFailure { handleFailure(it) }
+                competitionId?.let { id ->
+                    orienteeringCompetitionInteractor.markNonFinishedAsDNF(id)
+                }
             }
             serviceController.stop()
             loadingRepository.emit(false)
@@ -220,7 +249,37 @@ class OrienteeringEventControlViewModel(
     }
 
     /**
+     * Отменяет предстартовый таймер и возвращает соревнование в статус DRAFT.
+     */
+    private fun handleCancelCountdown() {
+        timerJob?.cancel()
+        val competition = stateValue.competition ?: return
+        val reverted = competition.copy(
+            startTime = null,
+            competition = competition.competition.copy(status = CompetitionStatus.DRAFT)
+        )
+        viewModelScope.launch {
+            loadingRepository.emit(true)
+            orienteeringCompetitionInteractor.updateCompetition(reverted, null)
+            orienteeringCompetitionInteractor.publishCompetitionToServer(reverted)
+                .onFailure { handleFailure(it) }
+            serviceController.stop()
+            loadingRepository.emit(false)
+        }
+        updateState {
+            copy(
+                competition = reverted,
+                countdownMillis = 0L,
+                isTimerRunning = false,
+                isCompetitionRunning = false
+            )
+        }
+    }
+
+    /**
      * Запускает таймер обратного отсчета.
+     * Для режима USER_SET по истечении таймера пересчитывает фактическое время старта
+     * и стартовые времена всех участников.
      */
     private fun startTimer() {
         timerJob?.cancel()
@@ -230,6 +289,38 @@ class OrienteeringEventControlViewModel(
                 updateState { copy(countdownMillis = countdownMillis - 1000) }
             }
             updateState { copy(isTimerRunning = false) }
+            onCountdownFinished()
+        }
+    }
+
+    /**
+     * Вызывается после обнуления таймера.
+     * Для режима USER_SET фиксирует фактическое время старта и пересчитывает
+     * стартовые времена участников с учётом стартового интервала.
+     */
+    private fun onCountdownFinished() {
+        val competition = stateValue.competition ?: return
+        if (competition.startTimeMode != StartTimeMode.USER_SET) return
+        val compId = competitionId ?: return
+
+        viewModelScope.launch {
+            val actualStartTime = System.currentTimeMillis()
+            val updatedCompetition = competition.copy(startTime = actualStartTime)
+            orienteeringCompetitionInteractor.updateCompetition(updatedCompetition, null)
+            orienteeringCompetitionInteractor.publishCompetitionToServer(updatedCompetition)
+                .onFailure { handleFailure(it) }
+
+            val intervalMs = (competition.startIntervalSeconds ?: 60) * 1000L
+            val participants = orienteeringCompetitionInteractor.getParticipants(compId).getOrNull()
+            if (!participants.isNullOrEmpty()) {
+                val updated = participants.map { p ->
+                    val number = p.startNumber.toIntOrNull() ?: return@map p
+                    p.copy(startTime = actualStartTime + (number - 1) * intervalMs)
+                }
+                orienteeringCompetitionInteractor.updateParticipants(updated)
+            }
+
+            updateState { copy(competition = updatedCompetition) }
         }
     }
 

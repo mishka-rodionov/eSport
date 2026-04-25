@@ -28,6 +28,18 @@ val MIGRATION_32_33 = object : Migration(32, 33) {
 }
 
 /**
+ * Миграция с версии 34 на 35.
+ * Добавляет поле isDrawConducted в таблицу orienteering_competitions.
+ */
+val MIGRATION_34_35 = object : Migration(34, 35) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "ALTER TABLE orienteering_competitions ADD COLUMN isDrawConducted INTEGER NOT NULL DEFAULT 0"
+        )
+    }
+}
+
+/**
  * Миграция с версии 33 на 34.
  * Меняет тип participantId в orienteering_results с INTEGER на TEXT,
  * чтобы соответствовать String-типу PK в orienteering_participants.

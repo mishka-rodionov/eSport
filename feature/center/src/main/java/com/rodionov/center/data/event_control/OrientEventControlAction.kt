@@ -12,8 +12,17 @@ sealed class OrientEventControlAction: BaseAction {
     data object OpenDrawParticipants: OrientEventControlAction()
     data object OpenResults: OrientEventControlAction()
     data object OpenGetOrienteeringChip: OrientEventControlAction()
+
+    data object ShowStartConfirmDialog: OrientEventControlAction()
+    data object HideStartConfirmDialog: OrientEventControlAction()
     data object StartCompetition: OrientEventControlAction()
+
+    data object ShowStopConfirmDialog: OrientEventControlAction()
+    data object HideStopConfirmDialog: OrientEventControlAction()
     data object StopCompetition: OrientEventControlAction()
+
+    data object CancelCountdown: OrientEventControlAction()
+
     data class UpdateCountdownTimerInput(val value: String): OrientEventControlAction()
 
 }

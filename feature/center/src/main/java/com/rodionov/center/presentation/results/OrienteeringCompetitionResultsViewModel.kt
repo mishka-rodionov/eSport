@@ -3,6 +3,7 @@ package com.rodionov.center.presentation.results
 import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
 import com.rodionov.center.data.results.OrienteeringCompetitionResultsState
+import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
 import com.rodionov.domain.models.orienteering.OrienteeringResult
@@ -49,6 +50,14 @@ class OrienteeringCompetitionResultsViewModel(
         when (action) {
             is OrienteeringResultsAction.UpdateResult -> updateParticipantResult(action.participantWithResult, action.startTime, action.finishTime)
             is OrienteeringResultsAction.ApproveResults -> approveResults()
+            is OrienteeringResultsAction.OpenSplits -> openSplits(action.participantId)
+        }
+    }
+
+    private fun openSplits(participantId: String) {
+        val compId = competitionId ?: return
+        viewModelScope.launch {
+            navigation.navigate(CenterNavigation.ParticipantSplitsRoute(participantId, compId))
         }
     }
 
@@ -90,18 +99,14 @@ class OrienteeringCompetitionResultsViewModel(
      * Действия на экране результатов.
      */
     sealed class OrienteeringResultsAction : BaseAction {
-        /**
-         * Обновление результата конкретного участника.
-         */
         data class UpdateResult(
             val participantWithResult: ParticipantWithResult,
             val startTime: Long?,
             val finishTime: Long?
         ) : OrienteeringResultsAction()
 
-        /**
-         * Утверждение всех результатов соревнования.
-         */
         object ApproveResults : OrienteeringResultsAction()
+
+        data class OpenSplits(val participantId: String) : OrienteeringResultsAction()
     }
 }

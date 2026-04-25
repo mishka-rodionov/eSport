@@ -46,7 +46,9 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        if (state.participant == null) {
+        if (state.isCompetitionFinished) {
+            CompetitionFinishedView()
+        } else if (state.participant == null) {
             EmptyReadCardView()
         } else {
             ReadCardContent(
@@ -54,6 +56,41 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
                 result = state.participantResult
             )
         }
+    }
+}
+
+/**
+ * Экран при завершённом соревновании — считывание чипов недоступно.
+ */
+@Composable
+private fun CompetitionFinishedView() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(Dimens.SIZE_DOUBLE.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
+            contentDescription = null,
+            modifier = Modifier.size(80.dp),
+            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+        Text(
+            text = "Соревнование завершено",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Запись результатов недоступна после завершения соревнования.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -115,7 +152,7 @@ private fun ReadCardContent(
  * Карточка с информацией об участнике.
  */
 @Composable
-private fun ParticipantInfoCard(participant: OrienteeringParticipant) {
+internal fun ParticipantInfoCard(participant: OrienteeringParticipant) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
@@ -174,7 +211,7 @@ private fun ParticipantInfoCard(participant: OrienteeringParticipant) {
  * Карточка с общим временем гонки.
  */
 @Composable
-private fun RaceSummaryCard(participant: OrienteeringParticipant, result: OrienteeringResult) {
+internal fun RaceSummaryCard(participant: OrienteeringParticipant, result: OrienteeringResult) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
@@ -219,7 +256,7 @@ private fun RaceSummaryCard(participant: OrienteeringParticipant, result: Orient
  * Карточка со списком сплитов.
  */
 @Composable
-private fun SplitsCard(participant: OrienteeringParticipant, splits: List<SplitTime>) {
+internal fun SplitsCard(participant: OrienteeringParticipant, splits: List<SplitTime>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
@@ -295,7 +332,7 @@ private fun SplitsCard(participant: OrienteeringParticipant, splits: List<SplitT
 }
 
 @Composable
-private fun InfoColumn(label: String, value: String) {
+internal fun InfoColumn(label: String, value: String) {
     Column {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)

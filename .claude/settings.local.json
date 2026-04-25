@@ -41,7 +41,11 @@
       "Bash(./gradlew test *)",
       "Bash(rtk find *)",
       "Bash(./gradlew :feature:center:compileDebugKotlin :feature:events:compileDebugKotlin :feature:profile:compileDebugKotlin)",
-      "Bash(./gradlew :core:designsystem:compileDebugKotlin :feature:center:compileDebugKotlin)"
+      "Bash(./gradlew :core:designsystem:compileDebugKotlin :feature:center:compileDebugKotlin)",
+      "Bash(grep -E \"event_control.*\\\\.kt$\")",
+      "Bash(rtk ./gradlew :feature:center:compileDebugKotlin)",
+      "Bash(rtk ./gradlew :app:compileDebugKotlin)",
+      "Bash(rtk ./gradlew :feature:center:test)"
     ]
   },
   "prefersReducedMotion": true

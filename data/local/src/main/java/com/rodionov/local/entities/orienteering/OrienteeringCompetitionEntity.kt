@@ -33,5 +33,6 @@ data class OrienteeringCompetitionEntity(
     val startTimeMode: StartTimeMode,
     val countdownTimer: Int? = null,
     val startTime: Long? = null,
-    val startIntervalSeconds: Int? = null
+    val startIntervalSeconds: Int? = null,
+    val isDrawConducted: Boolean = false
 )

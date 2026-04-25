@@ -13,6 +13,9 @@ import com.rodionov.ui.BaseState
  * @property countdownMillis Оставшееся время до старта в миллисекундах.
  * @property isTimerRunning Флаг, запущен ли таймер отсчета.
  * @property isCompetitionRunning Флаг, запущено ли соревнование (foreground service активен).
+ * @property allChipsDistributed Флаг, выданы ли чипы всем участникам.
+ * @property isShowStartConfirmDialog Флаг отображения диалога подтверждения старта.
+ * @property isShowStopConfirmDialog Флаг отображения диалога подтверждения завершения.
  */
 data class OrienteeringEventControlState(
     val participantGroups: List<ParticipantGroup> = emptyList(),
@@ -21,5 +24,8 @@ data class OrienteeringEventControlState(
     val countdownMillis: Long = 0L,
     val isTimerRunning: Boolean = false,
     val isCompetitionRunning: Boolean = false,
-    val countdownTimerInput: String = ""
+    val countdownTimerInput: String = "",
+    val allChipsDistributed: Boolean = true,
+    val isShowStartConfirmDialog: Boolean = false,
+    val isShowStopConfirmDialog: Boolean = false
 ) : BaseState

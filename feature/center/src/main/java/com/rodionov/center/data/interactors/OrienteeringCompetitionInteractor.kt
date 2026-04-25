@@ -626,4 +626,47 @@ class OrienteeringCompetitionInteractor(
         return localRepository.getDistances(competitionId)
     }
 
+    /**
+     * Помечает соревнование как «жеребьёвка проведена» и сохраняет в локальной БД.
+     */
+    suspend fun setDrawConducted(competitionId: Long) {
+        val competition = localRepository.getCompetition(competitionId).getOrNull() ?: return
+        localRepository.updateCompetition(competition.copy(isDrawConducted = true))
+    }
+
+    /**
+     * Проставляет статус DNF всем участникам, которые не имеют результата
+     * со статусом FINISHED, DSQ или DNS.
+     *
+     * Вызывается при завершении соревнования.
+     */
+    suspend fun markNonFinishedAsDNF(competitionId: Long) {
+        val participants = localRepository.getParticipants(competitionId).getOrNull() ?: return
+        val terminalStatuses = setOf(ResultStatus.FINISHED, ResultStatus.DSQ, ResultStatus.DNS)
+
+        participants.forEach { participant ->
+            val existing = localRepository.getResultByParticipant(participant.id).getOrNull()
+            when {
+                existing == null -> {
+                    val dnf = OrienteeringResult(
+                        competitionId = competitionId,
+                        participantId = participant.id,
+                        groupId = participant.groupId,
+                        startTime = participant.startTime.takeIf { it > 0 },
+                        finishTime = null,
+                        totalTime = null,
+                        rank = null,
+                        status = ResultStatus.DNF,
+                        penaltyTime = 0,
+                        splits = null
+                    )
+                    localRepository.saveParticipantResult(dnf)
+                }
+                existing.status !in terminalStatuses -> {
+                    localRepository.updateResults(listOf(existing.copy(status = ResultStatus.DNF)))
+                }
+            }
+        }
+    }
+
 }

@@ -12,7 +12,7 @@ class DatabaseHelper(private val context: Context) {
     fun createDatabase() =
         Room
             .databaseBuilder(context = context, SEDatabase::class.java, DATABASE_NAME)
-            .addMigrations(MIGRATION_27_28, MIGRATION_32_33, MIGRATION_33_34)
+            .addMigrations(MIGRATION_27_28, MIGRATION_32_33, MIGRATION_33_34, MIGRATION_34_35)
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 

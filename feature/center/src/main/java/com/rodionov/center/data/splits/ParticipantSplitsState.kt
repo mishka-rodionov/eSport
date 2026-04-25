@@ -1,11 +1,10 @@
-package com.rodionov.center.data.read_card
+package com.rodionov.center.data.splits
 
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.ui.BaseState
 
-data class OrientReadCardState(
+data class ParticipantSplitsState(
     val participant: OrienteeringParticipant? = null,
-    val participantResult: OrienteeringResult? = null,
-    val isCompetitionFinished: Boolean = false
+    val result: OrienteeringResult? = null
 ) : BaseState

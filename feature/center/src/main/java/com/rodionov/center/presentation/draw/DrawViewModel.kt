@@ -60,6 +60,7 @@ class DrawViewModel(
                 )
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
+                interactor.setDrawConducted(compId)
                 updateState { copy(participants = sortedParticipants) }
             } finally {
                 loadingRepository.emit(false)
@@ -89,6 +90,7 @@ class DrawViewModel(
                 )
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
+                interactor.setDrawConducted(compId)
                 updateState { copy(participants = sortedParticipants) }
             } finally {
                 loadingRepository.emit(false)

@@ -23,7 +23,8 @@ fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
         startTimeMode = this.startTimeMode,
         countdownTimer = this.countdownTimer,
         startTime = this.startTime,
-        startIntervalSeconds = this.startIntervalSeconds
+        startIntervalSeconds = this.startIntervalSeconds,
+        isDrawConducted = this.isDrawConducted
     )
 }
 
@@ -49,7 +50,8 @@ fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
         startTimeMode = this.startTimeMode,
         countdownTimer = this.countdownTimer,
         startTime = this.startTime,
-        startIntervalSeconds = this.startIntervalSeconds
+        startIntervalSeconds = this.startIntervalSeconds,
+        isDrawConducted = this.isDrawConducted
     )
 }
 
