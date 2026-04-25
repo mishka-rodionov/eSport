@@ -4,9 +4,12 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
+import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ReadChipData
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.sportsenthusiast.R
@@ -14,22 +17,38 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 /**
  * Foreground Service для управления соревнованием.
- * Запускает секундомер в уведомлении и обрабатывает NFC-сканирования.
+ * Запускает секундомер в уведомлении, отслеживает стартовые времена участников,
+ * воспроизводит звуковые сигналы и обрабатывает NFC-сканирования.
  */
 class CompetitionForegroundService : Service() {
 
     private val sportiduinoHelper: SportiduinoHelper by inject()
     private val scanEventRepository: CompetitionScanEventRepository by inject()
+    private val startAlertRepository: CompetitionStartAlertRepository by inject()
     private val interactor: OrienteeringCompetitionInteractor by inject()
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var competitionId: Long = -1L
     private var startTimeMs: Long = 0L
+
+    /** Текст уведомления о последнем финишировавшем (из NFC-скана). */
+    @Volatile private var lastScanNotificationText: String? = null
+
+    /** Следующий стартующий участник — обновляется мониторингом. */
+    @Volatile private var nextStarterText: String? = null
+
+    private val toneGenerator: ToneGenerator? by lazy {
+        try { ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME) }
+        catch (_: Exception) { null }
+    }
 
     private val notificationManager by lazy {
         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -38,15 +57,25 @@ class CompetitionForegroundService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        competitionId = intent?.getLongExtra(EXTRA_COMPETITION_ID, -1L) ?: -1L
-        startTimeMs = intent?.getLongExtra(EXTRA_START_TIME_MS, System.currentTimeMillis())
+        val newCompetitionId = intent?.getLongExtra(EXTRA_COMPETITION_ID, -1L) ?: -1L
+        val newStartTimeMs = intent?.getLongExtra(EXTRA_START_TIME_MS, System.currentTimeMillis())
             ?: System.currentTimeMillis()
 
-        startForeground(NOTIFICATION_ID, buildNotification(startTimeMs))
+        // Обновляем параметры (может быть переданы повторно при изменении startTime)
+        competitionId = newCompetitionId
+        startTimeMs = newStartTimeMs
+
+        startForeground(NOTIFICATION_ID, buildNotification(""))
         subscribeToNfcEvents()
+
+        if (competitionId != -1L) {
+            launchParticipantMonitoring()
+        }
 
         return START_STICKY
     }
+
+    // ───────────────────────────────────────────────────────── NFC ──
 
     private fun subscribeToNfcEvents() {
         serviceScope.launch {
@@ -59,7 +88,6 @@ class CompetitionForegroundService : Service() {
             sportiduinoHelper.nfcErrorFlow.collect { errorMessage ->
                 val event = NfcScanEvent.ReadError(errorMessage)
                 scanEventRepository.emit(event)
-                updateNotificationText("Ошибка: $errorMessage")
             }
         }
     }
@@ -79,26 +107,135 @@ class CompetitionForegroundService : Service() {
                         groupName = participant.groupName
                     )
                     scanEventRepository.emit(event)
-                    updateNotificationText("$name • №${participant.startNumber}")
+                    // Сохраняем текст последнего финишировавшего для уведомления
+                    lastScanNotificationText = "Финиш: $name №${participant.startNumber}"
                 }.onFailure {
-                    val event = NfcScanEvent.UnknownChip(chipData.chipNumber)
-                    scanEventRepository.emit(event)
-                    updateNotificationText("Неизвестный чип: №${chipData.chipNumber}")
+                    scanEventRepository.emit(NfcScanEvent.UnknownChip(chipData.chipNumber))
                 }
             }
             is ReadChipData.MasterChipData -> {
-                val event = NfcScanEvent.ReadError("Мастер-карта")
-                scanEventRepository.emit(event)
-                updateNotificationText("Отсканирована мастер-карта")
+                scanEventRepository.emit(NfcScanEvent.ReadError("Мастер-карта"))
             }
         }
     }
 
-    private fun buildNotification(startTimeMs: Long) =
+    // ─────────────────────────────────────── Monitoring participants ──
+
+    private fun launchParticipantMonitoring() {
+        serviceScope.launch {
+            val participants = interactor.getParticipants(competitionId)
+                .getOrNull()
+                .orEmpty()
+                .filter { it.startTime > 0 }
+                .sortedBy { it.startTime }
+
+            if (participants.isEmpty()) return@launch
+
+            monitorParticipants(participants)
+        }
+    }
+
+    private suspend fun CoroutineScope.monitorParticipants(
+        participants: List<OrienteeringParticipant>
+    ) {
+        val playedSounds = mutableSetOf<String>()
+        var lastNotificationSecond = -1L
+
+        while (isActive) {
+            val now = System.currentTimeMillis()
+
+            // Участники, которые ещё не стартовали
+            val upcoming = participants.filter { it.startTime > now }
+
+            // Участники, которые стартовали в последние 2 секунды
+            val justStarted = participants.filter {
+                it.startTime <= now && it.startTime > now - 2000
+            }
+
+            // Звук старта (длинный сигнал) и событие для UI
+            justStarted.forEach { p ->
+                val key = "${p.id}_started"
+                if (playedSounds.add(key)) {
+                    playLongBeep()
+                    startAlertRepository.emit(
+                        ParticipantStartAlert.Started(
+                            participantName = "${p.lastName} ${p.firstName}",
+                            startNumber = p.startNumber
+                        )
+                    )
+                }
+            }
+
+            val nextStarter = upcoming.firstOrNull()
+            val nextNextStarter = upcoming.getOrNull(1)
+
+            if (nextStarter != null) {
+                val msUntilStart = nextStarter.startTime - now
+                val secondsUntilStart = (msUntilStart / 1000).toInt()
+
+                // Короткие звуковые сигналы за 10, 5, 4, 3, 2, 1 секунды
+                val soundTargets = setOf(10, 5, 4, 3, 2, 1)
+                if (secondsUntilStart in soundTargets) {
+                    val key = "${nextStarter.id}_$secondsUntilStart"
+                    if (playedSounds.add(key)) playShortBeep()
+                }
+
+                // Событие для UI-баннера в диапазоне 0..10 секунд
+                if (secondsUntilStart in 0..10) {
+                    startAlertRepository.emit(
+                        ParticipantStartAlert.Upcoming(
+                            participantName = "${nextStarter.lastName} ${nextStarter.firstName}",
+                            startNumber = nextStarter.startNumber,
+                            countdownSeconds = secondsUntilStart,
+                            nextParticipantName = nextNextStarter?.let {
+                                "${it.lastName} ${it.firstName}"
+                            },
+                            nextStartNumber = nextNextStarter?.startNumber
+                        )
+                    )
+                }
+
+                // Строка для уведомления
+                nextStarterText = if (secondsUntilStart in 0..10) {
+                    "СТАРТ: №${nextStarter.startNumber} ${nextStarter.lastName} • ${secondsUntilStart}с"
+                } else {
+                    val minutes = secondsUntilStart / 60
+                    val seconds = secondsUntilStart % 60
+                    "→ №${nextStarter.startNumber} ${nextStarter.lastName} И. • %02d:%02d".format(minutes, seconds)
+                }
+            } else {
+                nextStarterText = null
+            }
+
+            // Обновляем уведомление раз в секунду
+            val currentSecond = now / 1000
+            if (currentSecond != lastNotificationSecond) {
+                lastNotificationSecond = currentSecond
+                val notifText = nextStarterText ?: lastScanNotificationText ?: ""
+                updateNotification(notifText)
+            }
+
+            delay(200)
+        }
+    }
+
+    // ─────────────────────────────────────────────── Sound helpers ──
+
+    private fun playShortBeep() {
+        toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 200)
+    }
+
+    private fun playLongBeep() {
+        toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 900)
+    }
+
+    // ─────────────────────────────────────────── Notification helpers ──
+
+    private fun buildNotification(contentText: String) =
         NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Соревнование идёт")
-            .setContentText("Нет сканирований")
+            .setContentText(contentText)
             .setWhen(startTimeMs)
             .setUsesChronometer(true)
             .setChronometerCountDown(false)
@@ -106,23 +243,16 @@ class CompetitionForegroundService : Service() {
             .setOnlyAlertOnce(true)
             .build()
 
-    private fun updateNotificationText(text: String) {
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Соревнование идёт")
-            .setContentText(text)
-            .setWhen(startTimeMs)
-            .setUsesChronometer(true)
-            .setChronometerCountDown(false)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .build()
-        notificationManager.notify(NOTIFICATION_ID, notification)
+    private fun updateNotification(contentText: String) {
+        notificationManager.notify(NOTIFICATION_ID, buildNotification(contentText))
     }
+
+    // ──────────────────────────────────────────────────── Lifecycle ──
 
     override fun onDestroy() {
         super.onDestroy()
-        serviceScope.coroutineContext[Job]?.cancel()
+        toneGenerator?.release()
+        serviceScope.cancel()
     }
 
     companion object {

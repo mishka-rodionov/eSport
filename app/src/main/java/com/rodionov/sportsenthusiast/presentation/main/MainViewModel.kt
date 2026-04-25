@@ -14,7 +14,9 @@ import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.ResultConflictRepository
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.sportsenthusiast.service.CompetitionScanEventRepository
+import com.rodionov.sportsenthusiast.service.CompetitionStartAlertRepository
 import com.rodionov.sportsenthusiast.service.NfcScanEvent
+import com.rodionov.sportsenthusiast.service.ParticipantStartAlert
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.BaseState
 import com.rodionov.ui.CompetitionServiceCommand
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -43,6 +46,7 @@ class MainViewModel(
     private val sportiduinoHelper: SportiduinoHelper,
     private val serviceController: CompetitionServiceController,
     private val scanEventRepository: CompetitionScanEventRepository,
+    private val startAlertRepository: CompetitionStartAlertRepository,
     private val resultConflictRepository: ResultConflictRepository,
     private val networkErrorRepository: NetworkErrorRepository,
     private val loadingRepository: LoadingRepository
@@ -90,12 +94,29 @@ class MainViewModel(
      */
     val networkErrorEvent: StateFlow<NetworkErrorEvent?> = _networkErrorEvent.asStateFlow()
 
+    private val _startAlertEvent = MutableStateFlow<ParticipantStartAlert?>(null)
+
+    /**
+     * Текущее предстартовое оповещение для отображения UI-баннера.
+     * Обнуляется через 3 секунды после старта участника.
+     */
+    val startAlertEvent: StateFlow<ParticipantStartAlert?> = _startAlertEvent.asStateFlow()
+
     init {
         viewModelScope.launch {
             scanEventRepository.events.collect { event ->
                 _currentScanEvent.value = event
                 delay(4000)
                 _currentScanEvent.compareAndSet(event, null)
+            }
+        }
+        viewModelScope.launch {
+            startAlertRepository.events.collectLatest { event ->
+                _startAlertEvent.value = event
+                if (event is ParticipantStartAlert.Started) {
+                    delay(3000)
+                    _startAlertEvent.compareAndSet(event, null)
+                }
             }
         }
         viewModelScope.launch {

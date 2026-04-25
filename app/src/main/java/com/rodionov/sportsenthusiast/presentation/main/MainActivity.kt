@@ -199,6 +199,7 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     val saveableStateHolder = rememberSaveableStateHolder()
     val lifecycleOwner = LocalLifecycleOwner.current
     val scanEvent by viewModel.currentScanEvent.collectAsState()
+    val startAlertEvent by viewModel.startAlertEvent.collectAsState()
     val conflictEvent by viewModel.conflictEvent.collectAsState()
     val networkError by viewModel.networkErrorEvent.collectAsState()
     val isLoading by viewModel.loadingEvent.collectAsState()
@@ -307,6 +308,13 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                     }
                 }
             }
+
+            ParticipantStartBanner(
+                event = startAlertEvent,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(11f)
+            )
 
             NfcScanBanner(
                 event = scanEvent,

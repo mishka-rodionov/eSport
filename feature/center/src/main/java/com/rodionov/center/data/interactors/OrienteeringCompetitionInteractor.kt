@@ -564,12 +564,19 @@ class OrienteeringCompetitionInteractor(
             ?.associate { it.remoteId!! to it.groupId }
             ?: emptyMap()
 
+        // Сохраняем локальные isChipGiven — сервер не является источником истины для этого поля
+        val existingChipGivenById = localRepository.getParticipants(localCompetitionId)
+            .getOrNull().orEmpty()
+            .associate { it.id to it.isChipGiven }
+
         serverParticipants.forEach { serverParticipant ->
             val localGroupId = remoteToLocalGroupId[serverParticipant.groupId] ?: serverParticipant.groupId
+            val preservedIsChipGiven = existingChipGivenById[serverParticipant.id] ?: serverParticipant.isChipGiven
             localRepository.saveParticipant(
                 serverParticipant.copy(
                     competitionId = localCompetitionId,
-                    groupId = localGroupId
+                    groupId = localGroupId,
+                    isChipGiven = preservedIsChipGiven
                 )
             )
         }
