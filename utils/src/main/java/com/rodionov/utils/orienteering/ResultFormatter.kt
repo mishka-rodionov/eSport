@@ -8,7 +8,7 @@ package com.rodionov.utils.orienteering
  * 3665000 -> 1:01:05
  */
 fun Long.toRaceTime(): String {
-    val totalSeconds = this / 1000
+    val totalSeconds = this
 
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60

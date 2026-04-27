@@ -25,4 +25,6 @@ sealed class OrientEventControlAction: BaseAction {
 
     data class UpdateCountdownTimerInput(val value: String): OrientEventControlAction()
 
+    data object Reload: OrientEventControlAction()
+
 }

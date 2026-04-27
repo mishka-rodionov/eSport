@@ -45,7 +45,10 @@
       "Bash(grep -E \"event_control.*\\\\.kt$\")",
       "Bash(rtk ./gradlew :feature:center:compileDebugKotlin)",
       "Bash(rtk ./gradlew :app:compileDebugKotlin)",
-      "Bash(rtk ./gradlew :feature:center:test)"
+      "Bash(rtk ./gradlew :feature:center:test)",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(./gradlew :feature:center:compileDebugKotlin :app:compileDebugKotlin)"
     ]
   },
   "prefersReducedMotion": true

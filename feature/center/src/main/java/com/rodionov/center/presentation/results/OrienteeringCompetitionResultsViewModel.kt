@@ -6,6 +6,7 @@ import com.rodionov.center.data.results.OrienteeringCompetitionResultsState
 import com.rodionov.data.navigation.CenterNavigation
 import com.rodionov.data.navigation.Navigation
 import com.rodionov.data.navigation.getArguments
+import com.rodionov.domain.models.ResultStatus
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ParticipantWithResult
 import com.rodionov.ui.BaseAction
@@ -39,11 +40,29 @@ class OrienteeringCompetitionResultsViewModel(
         competitionId?.let {
             viewModelScope.launch(Dispatchers.IO) {
                 val results = orienteeringCompetitionInteractor.getResultsByGroups(it).getOrNull() ?: emptyList()
-                updateState { copy(
-                    groupsWithParticipantsAndResults =  results
-                ) }
+                val sortedResults = results.map { group ->
+                    group.copy(
+                        participants = group.participants.sortedWith(
+                            compareBy(
+                                { p -> statusSortOrder(p.result?.status) },
+                                { p -> p.result?.totalTime ?: Long.MAX_VALUE }
+                            )
+                        )
+                    )
+                }
+                updateState { copy(groupsWithParticipantsAndResults = sortedResults) }
             }
         }
+    }
+
+    private fun statusSortOrder(status: ResultStatus?): Int = when (status) {
+        ResultStatus.FINISHED -> 0
+        ResultStatus.DSQ -> 1
+        ResultStatus.DNF -> 2
+        ResultStatus.DNS -> 3
+        ResultStatus.STARTED -> 4
+        ResultStatus.REGISTERED -> 5
+        null -> 9
     }
 
     override fun onAction(action: BaseAction) {

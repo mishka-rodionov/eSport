@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.window.core.layout.WindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import com.example.designsystem.components.DSBottomDialog
 import com.example.designsystem.components.DSTextInput
 import com.example.designsystem.components.clickRipple
@@ -52,6 +53,10 @@ fun OrienteeringEventControlScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val isExpanded = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
+
+    LaunchedEffect(Unit) {
+        viewModel.onAction(OrientEventControlAction.Reload)
+    }
 
     OrienteeringEventControlScreenContent(
         state = state,
@@ -88,106 +93,122 @@ private fun OrienteeringEventControlScreenContent(
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
-            SectionHeader(title = "Панель управления")
-            OrienteeringEventControlContent(isExpanded, onAction)
+            if (state.isFinished) {
+                SectionHeader(title = "Разделы")
 
-            Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
-
-            if (state.isCompetitionRunning) {
-                if (state.isTimerRunning) {
-                    CountdownBanner(
-                        countdownMillis = state.countdownMillis,
-                        onCancel = { onAction(OrientEventControlAction.CancelCountdown) }
-                    )
-                } else {
-                    CompetitionStartedBanner()
-                }
-                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
-            }
-
-            SectionHeader(title = "Действия")
-
-            ControlActionButton(
-                text = "Выдать чипы",
-                icon = R.drawable.ic_add_24px,
-                onClick = { onAction(OrientEventControlAction.OpenGetOrienteeringChip) }
-            )
-
-            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-
-            if (!state.isCompetitionRunning &&
-                (state.competition?.startTimeMode == StartTimeMode.USER_SET ||
-                        state.competition?.startTimeMode == StartTimeMode.STRICT)
-            ) {
-                if (state.competition?.startTimeMode == StartTimeMode.USER_SET) {
-                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-                    DSTextInput(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = state.countdownTimerInput,
-                        label = { Text(stringResource(R.string.label_countdown_timer)) },
-                        onValueChanged = { onAction(OrientEventControlAction.UpdateCountdownTimerInput(it)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-                }
-
-                if (!state.allChipsDistributed) {
-                    Text(
-                        text = "Не все участники получили чипы",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(bottom = Dimens.SIZE_HALF.dp)
-                    )
-                }
-
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    onClick = { onAction(OrientEventControlAction.ShowStartConfirmDialog) },
-                    enabled = state.allChipsDistributed,
-                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("ЗАПУСТИТЬ ТАЙМЕР", fontWeight = FontWeight.Bold)
-                }
-            }
-
-            if (state.isCompetitionRunning) {
-                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    onClick = { onAction(OrientEventControlAction.ShowStopConfirmDialog) },
-                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("ЗАВЕРШИТЬ СОРЕВНОВАНИЕ", fontWeight = FontWeight.Bold)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
-
-            SectionHeader(title = "Разделы")
-
-            NavigationRow(
-                text = "Список участников",
-                onClick = { onAction(OrientEventControlAction.OpenParticipantLists) }
-            )
-
-            if (!state.isCompetitionRunning) {
                 NavigationRow(
-                    text = "Жеребьёвка",
-                    onClick = { onAction(OrientEventControlAction.OpenDrawParticipants) }
+                    text = "Стартовый протокол",
+                    onClick = { onAction(OrientEventControlAction.OpenParticipantLists) }
+                )
+
+                NavigationRow(
+                    text = "Результаты",
+                    onClick = { onAction(OrientEventControlAction.OpenResults) }
+                )
+            } else {
+                SectionHeader(title = "Панель управления")
+                OrienteeringEventControlContent(isExpanded, onAction)
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+
+                if (state.isCompetitionRunning) {
+                    if (state.isTimerRunning) {
+                        CountdownBanner(
+                            countdownMillis = state.countdownMillis,
+                            onCancel = { onAction(OrientEventControlAction.CancelCountdown) }
+                        )
+                    } else if (state.allParticipantsFinished) {
+                        AllParticipantsFinishedBanner()
+                    } else {
+                        CompetitionStartedBanner()
+                    }
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+                }
+
+                SectionHeader(title = "Действия")
+
+                ControlActionButton(
+                    text = "Выдать чипы",
+                    icon = R.drawable.ic_add_24px,
+                    onClick = { onAction(OrientEventControlAction.OpenGetOrienteeringChip) }
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+                if (!state.isCompetitionRunning &&
+                    (state.competition?.startTimeMode == StartTimeMode.USER_SET ||
+                            state.competition?.startTimeMode == StartTimeMode.STRICT)
+                ) {
+                    if (state.competition.startTimeMode == StartTimeMode.USER_SET) {
+                        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                        DSTextInput(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = state.countdownTimerInput,
+                            label = { Text(stringResource(R.string.label_countdown_timer)) },
+                            onValueChanged = { onAction(OrientEventControlAction.UpdateCountdownTimerInput(it)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true
+                        )
+                        Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                    }
+
+                    if (!state.allChipsDistributed) {
+                        Text(
+                            text = "Не все участники получили чипы",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(bottom = Dimens.SIZE_HALF.dp)
+                        )
+                    }
+
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        onClick = { onAction(OrientEventControlAction.ShowStartConfirmDialog) },
+                        enabled = state.allChipsDistributed,
+                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("ЗАПУСТИТЬ ТАЙМЕР", fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                if (state.isCompetitionRunning) {
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        onClick = { onAction(OrientEventControlAction.ShowStopConfirmDialog) },
+                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("ЗАВЕРШИТЬ СОРЕВНОВАНИЕ", fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+                SectionHeader(title = "Разделы")
+
+                NavigationRow(
+                    text = "Список участников",
+                    onClick = { onAction(OrientEventControlAction.OpenParticipantLists) }
+                )
+
+                if (!state.isCompetitionRunning) {
+                    NavigationRow(
+                        text = "Жеребьёвка",
+                        onClick = { onAction(OrientEventControlAction.OpenDrawParticipants) }
+                    )
+                }
+
+                NavigationRow(
+                    text = "Результаты",
+                    onClick = { onAction(OrientEventControlAction.OpenResults) }
                 )
             }
-
-            NavigationRow(
-                text = "Результаты",
-                onClick = { onAction(OrientEventControlAction.OpenResults) }
-            )
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
         }
@@ -381,6 +402,38 @@ private fun CompetitionStartedBanner() {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+    }
+}
+
+@Composable
+private fun AllParticipantsFinishedBanner() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        ),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.SIZE_BASE.dp, vertical = Dimens.SIZE_BASER.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .background(MaterialTheme.colorScheme.tertiary, CircleShape)
+            )
+            Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+            Text(
+                text = "Все участники финишировали",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
             )
         }
     }

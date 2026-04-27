@@ -89,7 +89,7 @@ class OrientReadCardViewModel(
         val cpOrder = rawResult.splits.map { it.controlPoint }
         Log.d("LOG_TAG", "computeParticipantResult: $splits")
         val lastPunch = splits.lastOrNull() ?: return
-        val totalTime = lastPunch.timestamp - participant.startTime
+        val totalTime = (lastPunch.timestamp - participant.startTime) / 1000L
         val expected = getExpectedControlPoints(participant.groupId)
         Log.d("LOG_TAG", "computeParticipantResult: $expected")
         val result = checkControlPointOrderPro(

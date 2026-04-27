@@ -26,6 +26,8 @@ data class OrienteeringEventControlState(
     val isCompetitionRunning: Boolean = false,
     val countdownTimerInput: String = "",
     val allChipsDistributed: Boolean = true,
+    val allParticipantsFinished: Boolean = false,
+    val isFinished: Boolean = false,
     val isShowStartConfirmDialog: Boolean = false,
     val isShowStopConfirmDialog: Boolean = false
 ) : BaseState

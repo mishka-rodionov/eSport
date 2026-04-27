@@ -13,6 +13,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ReadChipData
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.sportsenthusiast.R
+import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -171,7 +172,9 @@ class CompetitionForegroundService : Service() {
 
             if (nextStarter != null) {
                 val msUntilStart = nextStarter.startTime - now
-                val secondsUntilStart = (msUntilStart / 1000).toInt()
+                // ceil обеспечивает равномерность: seconds=N срабатывает когда msUntilStart ≤ N*1000,
+                // что гарантирует ровно ~1000ms между сигналами независимо от фазы polling
+                val secondsUntilStart = ceil(msUntilStart.toDouble() / 1000).toInt()
 
                 // Короткие звуковые сигналы за 10, 5, 4, 3, 2, 1 секунды
                 val soundTargets = setOf(10, 5, 4, 3, 2, 1)
@@ -180,8 +183,9 @@ class CompetitionForegroundService : Service() {
                     if (playedSounds.add(key)) playShortBeep()
                 }
 
-                // Событие для UI-баннера в диапазоне 0..10 секунд
-                if (secondsUntilStart in 0..10) {
+                // Событие для UI-баннера в диапазоне 1..10 секунд
+                // (0 не используется: при msUntilStart→0 участник переходит в justStarted → GO)
+                if (secondsUntilStart in 1..10) {
                     startAlertRepository.emit(
                         ParticipantStartAlert.Upcoming(
                             participantName = "${nextStarter.lastName} ${nextStarter.firstName}",

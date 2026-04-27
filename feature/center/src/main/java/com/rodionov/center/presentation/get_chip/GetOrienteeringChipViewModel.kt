@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.rodionov.center.data.get_chip.GetOrienteeringChipAction
 import com.rodionov.center.data.get_chip.GetOrienteeringChipState
 import com.rodionov.center.data.interactors.OrienteeringCompetitionInteractor
+import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
@@ -13,16 +14,21 @@ import kotlinx.coroutines.launch
  * ViewModel для экрана выдачи чипов участникам.
  *
  * @property orienteeringCompetitionInteractor Интерактор для работы с данными соревнований.
+ * @property navigation Навигация для возврата на предыдущий экран.
  */
 class GetOrienteeringChipViewModel(
-    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor
+    private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
+    private val navigation: Navigation
 ) : BaseViewModel<GetOrienteeringChipState>(GetOrienteeringChipState()) {
+
+    private var competitionId: Long? = null
 
     /**
      * Загружает группы участников для указанного соревнования.
      * @param competitionId ID соревнования.
      */
     fun loadParticipants(competitionId: Long) {
+        this.competitionId = competitionId
         updateState { copy(isLoading = true) }
         viewModelScope.launch {
             orienteeringCompetitionInteractor.getCompetitionWithDetails(competitionId).onSuccess { details ->
@@ -78,7 +84,9 @@ class GetOrienteeringChipViewModel(
         viewModelScope.launch {
             val allParticipants = stateValue.groupsWithParticipants.flatMap { it.participants }
             orienteeringCompetitionInteractor.updateParticipants(allParticipants)
+            orienteeringCompetitionInteractor.syncParticipantsAfterDraw(allParticipants)
             updateState { copy(isSaving = false) }
+            navigation.back()
         }
     }
 }

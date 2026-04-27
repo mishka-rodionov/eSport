@@ -38,10 +38,6 @@ class OrienteeringEventControlViewModel(
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
     private var timerJob: Job? = null
 
-    init {
-        loadCompetitionData()
-    }
-
     private fun loadCompetitionData() {
         val id = competitionId ?: return
         viewModelScope.launch {
@@ -58,11 +54,15 @@ class OrienteeringEventControlViewModel(
                     group.participants.all { it.isChipGiven }
                 }
                 val competition = details.competition
+                val isRunning = competition.competition.status == CompetitionStatus.IN_PROGRESS
+                val allParticipantsFinished = isRunning &&
+                        orienteeringCompetitionInteractor.areAllParticipantsFinished(id)
                 applyCompetitionState(
-                    competition.competition.title,
-                    competition,
+                    title = competition.competition.title,
+                    competition = competition,
                     groups = details.groupsWithParticipants.map { it.group },
-                    allChipsDistributed = allChipsDistributed
+                    allChipsDistributed = allChipsDistributed,
+                    allParticipantsFinished = allParticipantsFinished
                 )
             }.onFailure {
                 orienteeringCompetitionInteractor.getCompetition(id)?.let { competition ->
@@ -76,20 +76,23 @@ class OrienteeringEventControlViewModel(
 
     /**
      * Применяет загруженное соревнование к стейту.
-     * Если соревнование уже запущено (startTime != null), восстанавливает флаги
-     * и при необходимости возобновляет таймер обратного отсчёта.
+     * Использует status == IN_PROGRESS как источник истины для isCompetitionRunning,
+     * поскольку startTime может быть сброшен при синхронизации с сервером.
+     * Таймер обратного отсчёта возобновляется, если startTime ещё в будущем.
      */
     private fun applyCompetitionState(
         title: String,
         competition: com.rodionov.domain.models.orienteering.OrienteeringCompetition,
         groups: List<com.rodionov.domain.models.ParticipantGroup> = emptyList(),
-        allChipsDistributed: Boolean = true
+        allChipsDistributed: Boolean = true,
+        allParticipantsFinished: Boolean = false
     ) {
         val startTime = competition.startTime
         val now = System.currentTimeMillis()
-        val isRunning = startTime != null
-        val isCountingDown = startTime != null && startTime > now
-        val remainingMillis = if (isCountingDown) startTime!! - now else 0L
+        val isFinished = competition.competition.status == CompetitionStatus.FINISHED
+        val isRunning = competition.competition.status == CompetitionStatus.IN_PROGRESS
+        val isCountingDown = isRunning && startTime != null && startTime > now
+        val remainingMillis = if (isCountingDown) startTime - now else 0L
 
         updateState {
             copy(
@@ -100,7 +103,9 @@ class OrienteeringEventControlViewModel(
                 isTimerRunning = isCountingDown,
                 countdownMillis = remainingMillis,
                 countdownTimerInput = competition.countdownTimer?.toString() ?: "",
-                allChipsDistributed = allChipsDistributed
+                allChipsDistributed = allChipsDistributed,
+                allParticipantsFinished = allParticipantsFinished,
+                isFinished = isFinished
             )
         }
 
@@ -178,6 +183,8 @@ class OrienteeringEventControlViewModel(
             is OrientEventControlAction.UpdateCountdownTimerInput -> updateState {
                 copy(countdownTimerInput = action.value)
             }
+
+            OrientEventControlAction.Reload -> loadCompetitionData()
         }
     }
 
@@ -245,7 +252,7 @@ class OrienteeringEventControlViewModel(
             serviceController.stop()
             loadingRepository.emit(false)
         }
-        updateState { copy(isCompetitionRunning = false, isTimerRunning = false) }
+        updateState { copy(isCompetitionRunning = false, isTimerRunning = false, isFinished = true) }
     }
 
     /**

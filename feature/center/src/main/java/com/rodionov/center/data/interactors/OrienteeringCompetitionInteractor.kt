@@ -9,6 +9,7 @@ import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.rodionov.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
+import com.rodionov.domain.models.orienteering.CompetitionStatus
 import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
@@ -181,8 +182,10 @@ class OrienteeringCompetitionInteractor(
     suspend fun applyConflictResult(existingId: Long, newResult: OrienteeringResult) {
         val updated = newResult.copy(id = existingId)
         localRepository.updateResults(listOf(updated)).onSuccess {
-            updateResultsAndRanks(updated)
-            remoteRepository.saveResult(updated)
+            val updatedResults = updateResultsAndRanks(updated)
+            val resultWithRank = updatedResults.find { it.participantId == updated.participantId }
+                ?: updated
+            remoteRepository.saveResult(resultWithRank)
         }
     }
 
@@ -351,9 +354,11 @@ class OrienteeringCompetitionInteractor(
     suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult) {
         localRepository.saveParticipantResult(orienteeringResult).onSuccess { savedId ->
             val savedResult = orienteeringResult.copy(id = savedId as Long)
-            updateResultsAndRanks(newResults = savedResult)
-            remoteRepository.saveResult(savedResult).onSuccess {
-                localRepository.updateResults(listOf(savedResult.copy(isSynced = true)))
+            val updatedResults = updateResultsAndRanks(newResults = savedResult)
+            val resultWithRank = updatedResults.find { it.participantId == savedResult.participantId }
+                ?: savedResult
+            remoteRepository.saveResult(resultWithRank).onSuccess {
+                localRepository.updateResults(listOf(resultWithRank.copy(isSynced = true)))
             }
         }.onFailure {
             Log.d("LOG_TAG", "saveParticipantResult: ${it.message}")
@@ -572,13 +577,17 @@ class OrienteeringCompetitionInteractor(
         serverParticipants.forEach { serverParticipant ->
             val localGroupId = remoteToLocalGroupId[serverParticipant.groupId] ?: serverParticipant.groupId
             val preservedIsChipGiven = existingChipGivenById[serverParticipant.id] ?: serverParticipant.isChipGiven
-            localRepository.saveParticipant(
-                serverParticipant.copy(
-                    competitionId = localCompetitionId,
-                    groupId = localGroupId,
-                    isChipGiven = preservedIsChipGiven
-                )
+            val participantToSave = serverParticipant.copy(
+                competitionId = localCompetitionId,
+                groupId = localGroupId,
+                isChipGiven = preservedIsChipGiven
             )
+            if (serverParticipant.id in existingChipGivenById) {
+                // Обновляем без DELETE+INSERT, чтобы не триггерить CASCADE удаление результатов
+                localRepository.updateParticipants(listOf(participantToSave))
+            } else {
+                localRepository.saveParticipant(participantToSave)
+            }
         }
     }
 
@@ -639,6 +648,49 @@ class OrienteeringCompetitionInteractor(
     suspend fun setDrawConducted(competitionId: Long) {
         val competition = localRepository.getCompetition(competitionId).getOrNull() ?: return
         localRepository.updateCompetition(competition.copy(isDrawConducted = true))
+    }
+
+    /**
+     * Возвращает true, если все участники соревнования имеют терминальный статус результата.
+     * Не изменяет никакие данные.
+     */
+    suspend fun areAllParticipantsFinished(competitionId: Long): Boolean {
+        val participants = localRepository.getParticipants(competitionId).getOrNull() ?: return false
+        if (participants.isEmpty()) return false
+        val terminalStatuses = setOf(ResultStatus.FINISHED, ResultStatus.DSQ, ResultStatus.DNS, ResultStatus.DNF)
+        return participants.all { p ->
+            localRepository.getResultByParticipant(p.id).getOrNull()?.status in terminalStatuses
+        }
+    }
+
+    /**
+     * Проверяет, завершили ли все участники соревнование (имеют терминальный статус результата).
+     * Если да — меняет статус соревнования на FINISHED и синхронизирует с сервером.
+     *
+     * @param competitionId Идентификатор соревнования.
+     * @return true если автоматически перевёл соревнование в FINISHED.
+     */
+    suspend fun tryAutoFinish(competitionId: Long): Boolean {
+        val participants = localRepository.getParticipants(competitionId).getOrNull() ?: return false
+        if (participants.isEmpty()) return false
+
+        val terminalStatuses = setOf(
+            ResultStatus.FINISHED, ResultStatus.DSQ, ResultStatus.DNS, ResultStatus.DNF
+        )
+        val allDone = participants.all { p ->
+            localRepository.getResultByParticipant(p.id).getOrNull()?.status in terminalStatuses
+        }
+        if (!allDone) return false
+
+        val competition = localRepository.getCompetition(competitionId).getOrNull() ?: return false
+        if (competition.competition.status == CompetitionStatus.FINISHED) return false
+
+        val finished = competition.copy(
+            competition = competition.competition.copy(status = CompetitionStatus.FINISHED)
+        )
+        localRepository.updateCompetition(finished)
+        remoteRepository.createCompetition(finished)
+        return true
     }
 
     /**
