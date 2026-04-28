@@ -45,6 +45,7 @@ class EventDetailsViewModel(
         when (action) {
             is EventDetailsAction.OnGroupClick -> navigateToGroup(action.group)
             is EventDetailsAction.ToResults -> navigateToResults()
+            is EventDetailsAction.ToLiveResults -> navigateToLiveResults()
             is EventDetailsAction.ShowRegistrationDialog -> showRegistrationDialog()
             is EventDetailsAction.HideRegistrationDialog -> hideRegistrationDialog()
             is EventDetailsAction.SelectGroup -> selectGroup(action.group)
@@ -181,6 +182,13 @@ class EventDetailsViewModel(
         }
     }
 
+    private fun navigateToLiveResults() {
+        val eventId = stateValue.eventDetails?.eventId ?: return
+        viewModelScope.launch {
+            navigation.navigate(EventsNavigation.LiveResultsRoute(eventId = eventId))
+        }
+    }
+
     private fun handleFailure(throwable: Throwable) {
         viewModelScope.launch {
             val code = (throwable as? NetworkException)?.code
@@ -195,6 +203,7 @@ class EventDetailsViewModel(
 sealed interface EventDetailsAction : BaseAction {
     data class OnGroupClick(val group: EventParticipantGroup) : EventDetailsAction
     data object ToResults : EventDetailsAction
+    data object ToLiveResults : EventDetailsAction
     data object ShowRegistrationDialog : EventDetailsAction
     data object HideRegistrationDialog : EventDetailsAction
     data class SelectGroup(val group: EventParticipantGroup) : EventDetailsAction

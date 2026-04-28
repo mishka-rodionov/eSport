@@ -47,4 +47,6 @@ interface OrienteeringCompetitionRemoteRepository {
 
     suspend fun saveResult(result: OrienteeringResult): Result<OrienteeringResult>
 
+    suspend fun getResultsByCompetition(competitionId: Long): Result<List<OrienteeringResult>>
+
 }

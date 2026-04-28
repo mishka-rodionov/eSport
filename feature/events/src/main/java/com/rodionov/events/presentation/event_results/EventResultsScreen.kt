@@ -25,7 +25,7 @@ import com.rodionov.domain.models.ResultStatus
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ParticipantWithResult
-import com.rodionov.utils.DateTimeFormat
+import com.rodionov.utils.orienteering.toRaceTime
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.pager.HorizontalPager
@@ -162,7 +162,7 @@ private fun ResultItem(item: ParticipantWithResult) {
 private fun formatResult(result: OrienteeringResult?): String {
     if (result == null) return "-"
     return when (result.status) {
-        ResultStatus.FINISHED -> DateTimeFormat.transformLongToTime(result.totalTime?.let { it * 1000 })
+        ResultStatus.FINISHED -> result.totalTime?.toRaceTime() ?: "-"
         else -> result.status.name
     }
 }

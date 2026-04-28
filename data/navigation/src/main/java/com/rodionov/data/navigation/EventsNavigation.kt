@@ -52,4 +52,11 @@ sealed class EventsNavigation: BaseNavigation {
      */
     @Serializable
     data class EventResultsRoute(val eventId: Long) : EventsNavigation()
+
+    /**
+     * Роут онлайн-результатов соревнования (live режим, только для IN_PROGRESS).
+     * @param eventId Идентификатор события.
+     */
+    @Serializable
+    data class LiveResultsRoute(val eventId: Long) : EventsNavigation()
 }

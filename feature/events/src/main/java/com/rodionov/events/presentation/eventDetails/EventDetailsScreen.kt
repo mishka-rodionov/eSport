@@ -213,6 +213,20 @@ private fun EventActionButtons(
             }
         }
 
+        EventStatus.STARTED -> {
+            Button(
+                onClick = { onAction(EventDetailsAction.ToLiveResults) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Онлайн результаты")
+            }
+        }
+
         EventStatus.FINISHED -> {
             Button(
                 onClick = { onAction(EventDetailsAction.ToResults) },
