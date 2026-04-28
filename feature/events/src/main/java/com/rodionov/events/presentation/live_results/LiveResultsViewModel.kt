@@ -72,7 +72,7 @@ class LiveResultsViewModel(
         val participantsByGroup = participants.groupBy { it.groupId }
 
         val groupsWithResults = groups.map { group ->
-            val groupParticipants = participantsByGroup[group.groupId] ?: emptyList()
+            val groupParticipants = participantsByGroup[group.remoteId] ?: emptyList()
             val participantsWithResults = groupParticipants.map { participant ->
                 ParticipantWithResult(
                     participant = participant,

@@ -113,7 +113,7 @@ fun OrienteeringResultResponse.toDomain(): OrienteeringResult {
         id = id,
         competitionId = competitionId,
         groupId = groupId,
-        participantId = participantId.toString(),
+        participantId = participantId,
         startTime = startTime,
         finishTime = finishTime,
         totalTime = totalTime,

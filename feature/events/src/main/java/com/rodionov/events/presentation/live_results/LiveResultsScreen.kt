@@ -14,10 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.components.clickRipple
 import com.example.designsystem.theme.Dimens
+import com.rodionov.domain.models.Gender
+import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.ResultStatus
+import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ParticipantWithResult
@@ -282,10 +286,11 @@ private fun SplitsBottomSheet(
                         Text(text = "Статус", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(text = formatResultTime(result), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     }
-                    if (result.rank != null && result.rank > 0) {
+                    val rank = result.rank
+                    if (rank != null && rank > 0) {
                         Column(horizontalAlignment = Alignment.End) {
                             Text(text = "Место", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(text = result.rank.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text(text = rank.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -315,6 +320,208 @@ private fun SplitsBottomSheet(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+    }
+}
+
+private fun previewParticipant(
+    id: String,
+    firstName: String,
+    lastName: String,
+    startNumber: String,
+    startTime: Long = 1_700_000_000_000L
+) = OrienteeringParticipant(
+    id = id,
+    userId = "",
+    firstName = firstName,
+    lastName = lastName,
+    groupId = 1,
+    groupName = "М21",
+    competitionId = 1,
+    commandName = "",
+    startNumber = startNumber,
+    startTime = startTime,
+    chipNumber = "",
+    comment = "",
+    isChipGiven = true
+)
+
+private fun previewResult(
+    participantId: String,
+    totalTime: Long?,
+    rank: Int?,
+    status: ResultStatus,
+    splits: List<SplitTime>? = null
+) = OrienteeringResult(
+    id = 1,
+    competitionId = 1,
+    groupId = 1,
+    participantId = participantId,
+    startTime = 1_700_000_000_000L,
+    finishTime = if (totalTime != null) 1_700_000_000_000L + totalTime * 1000 else null,
+    totalTime = totalTime,
+    rank = rank,
+    status = status,
+    splits = splits
+)
+
+private fun previewGroup(title: String, gender: Gender? = null) = ParticipantGroup(
+    groupId = 1,
+    competitionId = 1,
+    title = title,
+    gender = gender,
+    distanceId = 1
+)
+
+private val previewParticipantsM21 = listOf(
+    ParticipantWithResult(
+        participant = previewParticipant("1", "Иван", "Иванов", "101"),
+        result = previewResult(
+            participantId = "1",
+            totalTime = 3723L,
+            rank = 1,
+            status = ResultStatus.FINISHED,
+            splits = listOf(
+                SplitTime(31, 1_700_000_000_000L + 720_000),
+                SplitTime(32, 1_700_000_000_000L + 1_800_000),
+                SplitTime(33, 1_700_000_000_000L + 3_723_000)
+            )
+        )
+    ),
+    ParticipantWithResult(
+        participant = previewParticipant("2", "Петр", "Петров", "102"),
+        result = previewResult("2", 4015L, 2, ResultStatus.FINISHED)
+    ),
+    ParticipantWithResult(
+        participant = previewParticipant("3", "Алексей", "Сидоров", "103"),
+        result = previewResult("3", null, null, ResultStatus.STARTED)
+    ),
+    ParticipantWithResult(
+        participant = previewParticipant("4", "Мария", "Козлова", "104"),
+        result = previewResult("4", null, null, ResultStatus.DNS)
+    )
+)
+
+@Preview(showBackground = true, name = "Список результатов")
+@Composable
+private fun LiveResultsListPreview() {
+    MaterialTheme {
+        LiveResultsList(
+            participants = previewParticipantsM21,
+            onParticipantClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Строка результата — 1 место")
+@Composable
+private fun LiveResultRowFinishedPreview() {
+    MaterialTheme {
+        LiveResultRow(
+            item = previewParticipantsM21[0],
+            onClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Строка результата — на дистанции")
+@Composable
+private fun LiveResultRowStartedPreview() {
+    MaterialTheme {
+        LiveResultRow(
+            item = previewParticipantsM21[2],
+            onClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Заголовок — с временем обновления")
+@Composable
+private fun LiveResultsHeaderPreview() {
+    MaterialTheme {
+        LiveResultsHeader(lastUpdated = System.currentTimeMillis())
+    }
+}
+
+@Preview(showBackground = true, name = "Заголовок — без времени")
+@Composable
+private fun LiveResultsHeaderNoTimePreview() {
+    MaterialTheme {
+        LiveResultsHeader(lastUpdated = null)
+    }
+}
+
+@Preview(showBackground = true, name = "Пустое состояние")
+@Composable
+private fun LiveResultsEmptyPreview() {
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                LiveResultsHeader(lastUpdated = null)
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Результаты пока не поступали",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Загрузка")
+@Composable
+private fun LiveResultsLoadingPreview() {
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                LiveResultsHeader(lastUpdated = null)
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Экран с группами")
+@Composable
+private fun LiveResultsWithGroupsPreview() {
+    val groups = listOf(
+        GroupWithParticipantsAndResults(
+            group = previewGroup("М21", Gender.MALE),
+            participants = previewParticipantsM21
+        ),
+        GroupWithParticipantsAndResults(
+            group = previewGroup("Ж21", Gender.FEMALE),
+            participants = previewParticipantsM21.map { it.copy(participant = it.participant.copy(groupName = "Ж21")) }
+        )
+    )
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                LiveResultsHeader(lastUpdated = System.currentTimeMillis())
+                val pagerState = rememberPagerState(pageCount = { groups.size })
+                val scope = rememberCoroutineScope()
+                ScrollableTabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    edgePadding = 16.dp,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.primary
+                ) {
+                    groups.forEachIndexed { index, g ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                            text = { Text(text = g.group.title) }
+                        )
+                    }
+                }
+                HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
+                    LiveResultsList(participants = groups[page].participants, onParticipantClick = {})
+                }
             }
         }
     }

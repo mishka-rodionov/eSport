@@ -4,7 +4,7 @@ data class OrienteeringResultResponse(
     val id: Long,
     val competitionId: Long,
     val groupId: Long,
-    val participantId: Long,
+    val participantId: String,
     val startTime: Long?,
     val finishTime: Long?,
     val totalTime: Long?,
