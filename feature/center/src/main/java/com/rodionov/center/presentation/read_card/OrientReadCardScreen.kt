@@ -53,7 +53,8 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
         } else {
             ReadCardContent(
                 participant = state.participant!!,
-                result = state.participantResult
+                result = state.participantResult,
+                rawSplits = state.rawSplits
             )
         }
     }
@@ -100,7 +101,8 @@ private fun CompetitionFinishedView() {
 @Composable
 private fun ReadCardContent(
     participant: OrienteeringParticipant,
-    result: OrienteeringResult?
+    result: OrienteeringResult?,
+    rawSplits: List<SplitTime>? = null
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -129,7 +131,9 @@ private fun ReadCardContent(
             }
 
             // Секция сплитов
-            result.splits?.let { splits ->
+            val displaySplits = rawSplits ?: result.splits
+            if (!displaySplits.isNullOrEmpty()) {
+                val validCpNumbers = result.splits?.map { it.controlPoint }?.toSet() ?: emptySet()
                 item {
                     Text(
                         text = "Сплиты по пунктам",
@@ -139,9 +143,9 @@ private fun ReadCardContent(
                         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                     )
                 }
-                
+
                 item {
-                    SplitsCard(participant, splits)
+                    SplitsCard(participant, displaySplits, validCpNumbers)
                 }
             }
         }
@@ -254,9 +258,19 @@ internal fun RaceSummaryCard(participant: OrienteeringParticipant, result: Orien
 
 /**
  * Карточка со списком сплитов.
+ *
+ * @param splits Все отметки с чипа (сырые).
+ * @param validCpNumbers Номера КП, входящих в маршрут дистанции. Остальные выделяются жёлтым.
  */
 @Composable
-internal fun SplitsCard(participant: OrienteeringParticipant, splits: List<SplitTime>) {
+internal fun SplitsCard(
+    participant: OrienteeringParticipant,
+    splits: List<SplitTime>,
+    validCpNumbers: Set<Int> = emptySet()
+) {
+    // Для расчёта сплита учитываем только предыдущую валидную отметку
+    val validSplitsSorted = splits.filter { it.controlPoint in validCpNumbers }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
@@ -279,16 +293,29 @@ internal fun SplitsCard(participant: OrienteeringParticipant, splits: List<Split
             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
             splits.forEachIndexed { index, item ->
+                val isValid = validCpNumbers.isEmpty() || item.controlPoint in validCpNumbers
+
+                // Сплит — разница с предыдущей отметкой (любой, включая невалидные)
                 val splitTime = if (index == 0) {
                     (item.timestamp - participant.startTime).toSplitTime()
                 } else {
                     (item.timestamp - splits[index - 1].timestamp).toSplitTime()
                 }
-                val totalTimeAtCP = (item.timestamp - participant.startTime).toSplitTime()
+
+                // Накопленное время от старта — только для валидных КП
+                val totalTimeAtCP = if (isValid) {
+                    (item.timestamp - participant.startTime).toSplitTime()
+                } else {
+                    "—"
+                }
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(
+                            if (!isValid) Color(0xFFFFEB3B).copy(alpha = 0.25f)
+                            else Color.Transparent
+                        )
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -298,31 +325,33 @@ internal fun SplitsCard(participant: OrienteeringParticipant, splits: List<Split
                         text = item.controlPoint.toString(),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        color = if (!isValid) Color(0xFF9E8000) else MaterialTheme.colorScheme.onSurface
                     )
-                    
+
                     // Сплит (время на перегоне)
                     Text(
-                        text = splitTime,
+                        text = if (isValid) splitTime else "—",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = if (!isValid) Color(0xFF9E8000) else MaterialTheme.colorScheme.secondary
                     )
-                    
+
                     // Общее время на этом КП
                     Text(
                         text = totalTimeAtCP,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.End
+                        textAlign = TextAlign.End,
+                        color = if (!isValid) Color(0xFF9E8000) else MaterialTheme.colorScheme.onSurface
                     )
                 }
-                
+
                 if (index < splits.size - 1) {
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        thickness = 0.5.dp, 
+                        thickness = 0.5.dp,
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                     )
                 }

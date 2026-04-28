@@ -50,7 +50,9 @@ class OrienteeringCompetitionResultsViewModel(
                         )
                     )
                 }
-                updateState { copy(groupsWithParticipantsAndResults = sortedResults) }
+                val isApproved = sortedResults.isNotEmpty() &&
+                    sortedResults.all { group -> group.participants.all { it.result?.isEditable == false } }
+                updateState { copy(groupsWithParticipantsAndResults = sortedResults, isApproved = isApproved) }
             }
         }
     }

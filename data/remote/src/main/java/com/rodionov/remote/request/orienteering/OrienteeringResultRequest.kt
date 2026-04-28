@@ -8,6 +8,7 @@ data class OrienteeringResultRequest(
     val startTime: Long?,
     val finishTime: Long?,
     val totalTime: Long?,
+    val rank: Int?,
     val status: String,
     val penaltyTime: Long,
     val splits: List<SplitTimeRequest>?,

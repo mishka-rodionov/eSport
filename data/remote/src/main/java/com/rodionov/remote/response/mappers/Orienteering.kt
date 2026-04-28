@@ -119,6 +119,7 @@ fun OrienteeringResultResponse.toDomain(): OrienteeringResult {
         totalTime = totalTime,
         status = try { ResultStatus.valueOf(status) } catch (e: Exception) { ResultStatus.DNS },
         penaltyTime = penaltyTime,
+        rank = rank,
         splits = splits?.map { SplitTime(it.controlPoint, it.timestamp) },
         isEditable = isEditable,
         isEdited = isEdited,

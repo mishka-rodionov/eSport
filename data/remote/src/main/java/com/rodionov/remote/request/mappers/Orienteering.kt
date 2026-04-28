@@ -90,6 +90,7 @@ fun OrienteeringResult.toRequest(): OrienteeringResultRequest {
         startTime = startTime,
         finishTime = finishTime,
         totalTime = totalTime,
+        rank = rank,
         status = status.name,
         penaltyTime = penaltyTime,
         splits = splits?.map { SplitTimeRequest(it.controlPoint, it.timestamp) },

@@ -15,9 +15,6 @@ import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/** Интервал между стартами участников по умолчанию — 1 минута. */
-private const val DRAW_INTERVAL_MS = 60_000L
-
 /** Минимальный допустимый timestamp — 1 января 2000 года. */
 private const val MIN_VALID_TIMESTAMP_MS = 946_684_800_000L
 
@@ -42,7 +39,7 @@ class DrawViewModel(
     /**
      * Общая жеребьевка: участники из всех групп перемешиваются вместе с чередованием групп.
      * Стартовые номера и времена назначаются глобально — каждый следующий участник
-     * стартует на [DRAW_INTERVAL_MS] позже предыдущего.
+     * стартует на `startIntervalSeconds` позже предыдущего.
      */
     private fun startDrawOperation() {
         val compId = competitionId ?: return
@@ -53,10 +50,12 @@ class DrawViewModel(
                 val participants = interactor.getParticipants(competitionId = compId).getOrNull()
                     ?: return@launch
                 val competitionStartTime = resolveStartTime(competition)
+                val intervalMs = (competition.startIntervalSeconds?.toLong() ?: 60L) * 1000L
                 val sortedParticipants = drawParticipants(
                     participants = participants.shuffled(),
                     punchingSystem = competition.punchingSystem,
-                    competitionStartTime = competitionStartTime
+                    competitionStartTime = competitionStartTime,
+                    intervalMs = intervalMs
                 )
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
@@ -83,10 +82,12 @@ class DrawViewModel(
                 val participants = interactor.getParticipants(competitionId = compId).getOrNull()
                     ?: return@launch
                 val competitionStartTime = resolveStartTime(competition)
+                val intervalMs = (competition.startIntervalSeconds?.toLong() ?: 60L) * 1000L
                 val sortedParticipants = drawParticipantsByGroups(
                     participants = participants,
                     punchingSystem = competition.punchingSystem,
-                    competitionStartTime = competitionStartTime
+                    competitionStartTime = competitionStartTime,
+                    intervalMs = intervalMs
                 )
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
@@ -114,14 +115,15 @@ class DrawViewModel(
 
     /**
      * Жеребьевка по группам: внутри каждой группы участники перемешиваются независимо.
-     * Стартовое время каждого участника — [competitionStartTime] + позиция_в_группе * [DRAW_INTERVAL_MS].
+     * Стартовое время каждого участника — [competitionStartTime] + позиция_в_группе * intervalMs.
      * Участники из разных групп с одинаковой позицией получают одинаковое стартовое время.
      * Стартовые номера назначаются глобально (уникальны по всем группам).
      */
     private fun drawParticipantsByGroups(
         participants: List<OrienteeringParticipant>,
         punchingSystem: PunchingSystem?,
-        competitionStartTime: Long
+        competitionStartTime: Long,
+        intervalMs: Long
     ): List<OrienteeringParticipant> {
         if (participants.isEmpty()) return emptyList()
 
@@ -134,7 +136,7 @@ class DrawViewModel(
             .forEach { groupParticipants ->
                 groupParticipants.shuffled().forEachIndexed { indexInGroup, participant ->
                     val number = globalNumber.toString()
-                    val startTime = competitionStartTime + indexInGroup * DRAW_INTERVAL_MS
+                    val startTime = competitionStartTime + (indexInGroup + 1) * intervalMs
                     result.add(
                         participant.copy(
                             startNumber = number,
@@ -152,12 +154,13 @@ class DrawViewModel(
     /**
      * Общая жеребьевка: участники перемешиваются с чередованием групп,
      * чтобы подряд не стартовали участники одной группы.
-     * Стартовое время каждого участника — [competitionStartTime] + глобальная_позиция * [DRAW_INTERVAL_MS].
+     * Стартовое время каждого участника — [competitionStartTime] + глобальная_позиция * intervalMs.
      */
     private fun drawParticipants(
         participants: List<OrienteeringParticipant>,
         punchingSystem: PunchingSystem?,
-        competitionStartTime: Long
+        competitionStartTime: Long,
+        intervalMs: Long
     ): List<OrienteeringParticipant> {
         if (participants.isEmpty()) return emptyList()
 
@@ -193,7 +196,7 @@ class DrawViewModel(
         // Присваиваем стартовые номера и времена по глобальной позиции
         return mixedResult.mapIndexed { index, participant ->
             val number = (index + 1).toString()
-            val startTime = competitionStartTime + index * DRAW_INTERVAL_MS
+            val startTime = competitionStartTime + (index + 1) * intervalMs
             participant.copy(
                 startNumber = number,
                 startTime = startTime,

@@ -86,21 +86,23 @@ class OrientReadCardViewModel(
         rawResult: ReadChipData.RawResult
     ) {
         val splits = rawResult.splits
-        val cpOrder = rawResult.splits.map { it.controlPoint }
         Log.d("LOG_TAG", "computeParticipantResult: $splits")
-        val lastPunch = splits.lastOrNull() ?: return
-        val totalTime = (lastPunch.timestamp - participant.startTime) / 1000L
+        if (splits.isEmpty()) return
         val expected = getExpectedControlPoints(participant.groupId)
         Log.d("LOG_TAG", "computeParticipantResult: $expected")
         val result = checkControlPointOrderPro(
             expected = expected,
             actual = splits
         )
+        val lastValidPunch = result.validSplits.lastOrNull() ?: splits.last()
+        val finishTime = lastValidPunch.timestamp
+        val totalTime = (finishTime - participant.startTime) / 1000L
         createParticipantResult(
             participant = participant,
-            finishTime = lastPunch.timestamp,
+            finishTime = finishTime,
             totalTime = totalTime,
             result = result,
+            rawSplits = splits
         )
     }
 
@@ -108,7 +110,8 @@ class OrientReadCardViewModel(
         participant: OrienteeringParticipant,
         finishTime: Long,
         totalTime: Long,
-        result: CheckResult
+        result: CheckResult,
+        rawSplits: List<SplitTime>
     ) {
         val newResult = OrienteeringResult(
             competitionId = participant.competitionId,
@@ -123,7 +126,7 @@ class OrientReadCardViewModel(
             splits = result.validSplits
         )
 
-        updateState { copy(participant = participant, participantResult = newResult) }
+        updateState { copy(participant = participant, participantResult = newResult, rawSplits = rawSplits) }
 
         val existing = orienteeringCompetitionInteractor.getResultByParticipantId(participant.id)
 

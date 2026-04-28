@@ -24,6 +24,7 @@ import com.example.designsystem.theme.Dimens
 import com.rodionov.domain.models.orienteering.ParticipantWithResult
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
+import com.rodionov.utils.orienteering.toRaceTime
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -105,20 +106,21 @@ fun OrienteeringCompetitionResultsScreen(
                 }
             }
 
-            // Кнопка "Утвердить"
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Dimens.SIZE_BASE.dp)
-            ) {
-                Button(
-                    onClick = { viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ApproveResults) },
+            if (!state.isApproved) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+                        .padding(Dimens.SIZE_BASE.dp)
                 ) {
-                    Text(text = "Утвердить результаты", fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = { viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ApproveResults) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+                    ) {
+                        Text(text = "Утвердить результаты", fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
@@ -205,7 +207,7 @@ fun ResultParticipantCard(
 
             // Время
             Text(
-                text = DateTimeFormat.transformLongToTime(result.result?.totalTime?.let { it * 1000 }),
+                text = result.result?.totalTime?.toRaceTime() ?: "",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
