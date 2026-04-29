@@ -123,7 +123,7 @@ class OrienteeringCompetitionInteractor(
      */
     suspend fun getCompetitionsByUserId(userId: String): Result<List<OrienteeringCompetition>> {
         // 1. Сначала пробуем получить из сети
-        val remoteResult = remoteRepository.getCompetitionsByUserid(userId)
+        val remoteResult = remoteRepository.getCompetitionsByUserid()
 
         remoteResult.onSuccess { competitions ->
             // 2. Если сеть успешна — обновляем локальное хранилище

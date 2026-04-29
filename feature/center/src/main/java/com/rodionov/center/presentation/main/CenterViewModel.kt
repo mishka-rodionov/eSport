@@ -99,7 +99,7 @@ class CenterViewModel(
                         .onSuccess { competitions ->
                             Log.d("LOG_TAG", "initialize: ${competitions.size}")
                             updateState {
-                                copy(controlledEvents = competitions)
+                                copy(controlledEvents = competitions.sortedByDescending { it.competition.startDate })
                             }
                         }
                         .onFailure { handleFailure(it) }

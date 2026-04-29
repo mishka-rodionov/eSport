@@ -234,36 +234,47 @@ private fun EventControlCard(
                 }
             }
 
-            // Кнопка редактирования настроек события
-            IconButton(
-                onClick = { userAction.invoke(CenterEffects.OpenOrienteeringEditor(eventId)) },
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
-                    .size(36.dp)
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.edit),
-                    contentDescription = "Edit event",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
+            if (competition.status != CompetitionStatus.FINISHED) {
+                // Кнопка редактирования настроек события
+                IconButton(
+                    onClick = { userAction.invoke(CenterEffects.OpenOrienteeringEditor(eventId)) },
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                        .size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.edit),
+                        contentDescription = "Edit event",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
 
-            Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
 
-            // Кнопка удаления события
-            IconButton(
-                onClick = { userAction.invoke(CenterEffects.ShowDeleteCompetitionDialog(orienteeringCompetition)) },
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f), CircleShape)
-                    .size(36.dp)
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.delete),
-                    contentDescription = "Delete event",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(18.dp)
-                )
+                // Кнопка удаления события
+                IconButton(
+                    onClick = {
+                        userAction.invoke(
+                            CenterEffects.ShowDeleteCompetitionDialog(
+                                orienteeringCompetition
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
+                            CircleShape
+                        )
+                        .size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.delete),
+                        contentDescription = "Delete event",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
     }

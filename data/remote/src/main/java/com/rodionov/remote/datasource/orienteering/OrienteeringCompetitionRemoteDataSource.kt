@@ -29,7 +29,7 @@ interface OrienteeringCompetitionRemoteDataSource {
     suspend fun publishParticipantGroups(@Body request: List<ParticipantGroupPublishRequest>): Result<CommonModel<List<ParticipantGroupResponse>>>
 
     @GET("event/orienteering/competitions")
-    suspend fun getCompetitionsByUserid(@Query("userId") userId: String): Result<CommonModel<List<OrienteeringCompetitionResponse>>>
+    suspend fun getCompetitionsByUserid(): Result<CommonModel<List<OrienteeringCompetitionResponse>>>
 
     @POST("event/orienteering/save/participant")
     suspend fun saveParticipant(@Body request: OrienteeringParticipantRequest): Result<CommonModel<OrienteeringParticipantResponse>>

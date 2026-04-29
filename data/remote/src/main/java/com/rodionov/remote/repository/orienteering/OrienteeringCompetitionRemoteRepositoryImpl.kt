@@ -116,8 +116,8 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
         TODO("Not yet implemented")
     }
 
-    override suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>> {
-        return orienteeringCompetitionRemoteDataSource.getCompetitionsByUserid(userId)
+    override suspend fun getCompetitionsByUserid(): Result<List<OrienteeringCompetition>> {
+        return orienteeringCompetitionRemoteDataSource.getCompetitionsByUserid()
             .mapCatching { it.result!!.map { comp -> comp.toDomain() } }
     }
 

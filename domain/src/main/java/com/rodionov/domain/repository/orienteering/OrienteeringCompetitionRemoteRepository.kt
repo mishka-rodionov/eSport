@@ -26,7 +26,7 @@ interface OrienteeringCompetitionRemoteRepository {
 
     suspend fun deleteCompetitionParticipantsGroups(competitionId: Long): Result<Unit>
 
-    suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>>
+    suspend fun getCompetitionsByUserid(): Result<List<OrienteeringCompetition>>
 
     suspend fun publishDistancesForCompetition(
         remoteCompetitionId: Long,

@@ -48,7 +48,7 @@ class EventsViewModel(
             loadingRepository.emit(true)
             eventsRepository.getEvents(kindOfSport = kindOfSports).onSuccess { events ->
                 events?.also { list ->
-                    updateState { copy(events = list) }
+                    updateState { copy(events = list.sortedByDescending { it.startDate }) }
                 }
                 loadingRepository.emit(false)
             }.onFailure {
