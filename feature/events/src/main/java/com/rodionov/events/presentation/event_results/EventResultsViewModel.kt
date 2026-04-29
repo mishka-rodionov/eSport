@@ -1,136 +1,81 @@
 package com.rodionov.events.presentation.event_results
 
 import androidx.lifecycle.viewModelScope
-import com.rodionov.domain.models.Gender
-import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.ResultStatus
 import com.rodionov.domain.models.orienteering.GroupWithParticipantsAndResults
-import com.rodionov.domain.models.orienteering.OrienteeringParticipant
-import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ParticipantWithResult
+import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.BaseState
 import com.rodionov.ui.viewmodel.BaseViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-/**
- * Состояние экрана результатов события.
- *
- * @property isLoading Флаг загрузки данных.
- * @property groupsWithResults Список групп с результатами участников.
- */
 data class EventResultsState(
-    val isLoading: Boolean = false,
-    val groupsWithResults: List<GroupWithParticipantsAndResults> = emptyList()
+    val isLoading: Boolean = true,
+    val groupsWithResults: List<GroupWithParticipantsAndResults> = emptyList(),
+    val selectedParticipant: ParticipantWithResult? = null
 ) : BaseState
 
-/**
- * ViewModel для экрана результатов события.
- * Отвечает за загрузку данных результатов по идентификатору события.
- */
-class EventResultsViewModel : BaseViewModel<EventResultsState>(EventResultsState()) {
+sealed interface EventResultsAction : BaseAction {
+    data class ShowSplits(val participant: ParticipantWithResult) : EventResultsAction
+    data object HideSplits : EventResultsAction
+}
 
-    override fun onAction(action: BaseAction) {}
+class EventResultsViewModel(
+    private val remoteRepository: OrienteeringCompetitionRemoteRepository
+) : BaseViewModel<EventResultsState>(EventResultsState()) {
 
-    /**
-     * Загружает результаты события.
-     * Используются моковые данные для имитации сетевого запроса.
-     *
-     * @param eventId Идентификатор события.
-     */
-    fun loadResults(eventId: Long) {
-        viewModelScope.launch {
-            updateState { copy(isLoading = true) }
-            // Имитация задержки сети
-            delay(1000)
-
-            val mockData = listOf(
-                createMockGroup(1, "М21"),
-                createMockGroup(2, "Ж21"),
-                createMockGroup(3, "Open")
-            )
-            
-            updateState { 
-                copy(
-                    isLoading = false,
-                    groupsWithResults = mockData
-                )
-            }
+    override fun onAction(action: BaseAction) {
+        when (action) {
+            is EventResultsAction.ShowSplits -> updateState { copy(selectedParticipant = action.participant) }
+            is EventResultsAction.HideSplits -> updateState { copy(selectedParticipant = null) }
         }
     }
 
-    /**
-     * Создает моковые данные для группы.
-     */
-    private fun createMockGroup(id: Long, title: String): GroupWithParticipantsAndResults {
-        return GroupWithParticipantsAndResults(
-            group = ParticipantGroup(
-                groupId = id,
-                competitionId = 0L,
-                title = title,
-                gender = if (title.startsWith("М")) Gender.MALE else if (title.startsWith("Ж")) Gender.FEMALE else Gender.MIXED,
-                minAge = if (title.contains("21")) 21 else 0,
-                maxAge = null,
-                distanceId = id, // Ссылка на дистанцию
-                maxParticipants = 100,
-                isSynced = true,
-                lastModified = System.currentTimeMillis()
-            ),
-            participants = listOf(
-                ParticipantWithResult(
-                    participant = OrienteeringParticipant(
-                        id = "id1",
-                        userId = "user_1",
-                        firstName = "Иван",
-                        lastName = "Иванов",
-                        groupId = id,
-                        groupName = title,
-                        competitionId = 0L,
-                        commandName = "Команда А",
-                        startNumber = "101",
-                        startTime = 0L,
-                        chipNumber = "12345",
-                        comment = "",
-                        isChipGiven = true
-                    ),
-                    result = OrienteeringResult(
-                        id = 1,
-                        competitionId = 0L,
-                        groupId = id,
-                        participantId = "id1",
-                        totalTime = 1800,
-                        rank = 1,
-                        status = ResultStatus.FINISHED
+    fun loadResults(eventId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateState { copy(isLoading = true) }
+
+            val groupsDeferred = async { remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList() }
+            val participantsDeferred = async { remoteRepository.getParticipantsForCompetition(eventId).getOrNull() ?: emptyList() }
+            val resultsDeferred = async { remoteRepository.getResultsByCompetition(eventId).getOrNull() ?: emptyList() }
+
+            val groups = groupsDeferred.await()
+            val participants = participantsDeferred.await()
+            val results = resultsDeferred.await()
+
+            val resultsByParticipant = results.associateBy { it.participantId }
+            val participantsByGroup = participants.groupBy { it.groupId }
+
+            val groupsWithResults = groups.map { group ->
+                val groupParticipants = participantsByGroup[group.remoteId] ?: emptyList()
+                val participantsWithResults = groupParticipants.map { participant ->
+                    ParticipantWithResult(
+                        participant = participant,
+                        result = resultsByParticipant[participant.id]
                     )
-                ),
-                ParticipantWithResult(
-                    participant = OrienteeringParticipant(
-                        id = "id2",
-                        userId = "user_2",
-                        firstName = "Петр",
-                        lastName = "Петров",
-                        groupId = id,
-                        groupName = title,
-                        competitionId = 0L,
-                        commandName = "Команда Б",
-                        startNumber = "102",
-                        startTime = 120L,
-                        chipNumber = "54321",
-                        comment = "",
-                        isChipGiven = true
-                    ),
-                    result = OrienteeringResult(
-                        id = 2,
-                        competitionId = 0L,
-                        groupId = id,
-                        participantId = "id2",
-                        totalTime = 1950,
-                        rank = 2,
-                        status = ResultStatus.FINISHED
+                }.sortedWith(
+                    compareBy(
+                        { statusSortOrder(it.result?.status) },
+                        { it.result?.totalTime ?: Long.MAX_VALUE }
                     )
                 )
-            )
-        )
+                GroupWithParticipantsAndResults(group = group, participants = participantsWithResults)
+            }
+
+            updateState { copy(isLoading = false, groupsWithResults = groupsWithResults) }
+        }
+    }
+
+    private fun statusSortOrder(status: ResultStatus?): Int = when (status) {
+        ResultStatus.FINISHED -> 0
+        ResultStatus.DSQ -> 1
+        ResultStatus.DNF -> 2
+        ResultStatus.DNS -> 3
+        ResultStatus.STARTED -> 4
+        ResultStatus.REGISTERED -> 5
+        null -> 9
     }
 }

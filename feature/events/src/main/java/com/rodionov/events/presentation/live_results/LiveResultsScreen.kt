@@ -7,8 +7,18 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +36,8 @@ import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ParticipantWithResult
 import com.rodionov.domain.models.orienteering.SplitTime
-import com.rodionov.utils.orienteering.toRaceTime
+import com.rodionov.events.presentation.SplitsBottomSheet
+import com.rodionov.events.presentation.formatResultTime
 import com.rodionov.utils.orienteering.toSplitTime
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -228,100 +239,6 @@ private fun LiveResultRow(
             color = if (item.result?.rank == 1) Color(0xFFB8860B) else MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.End
         )
-    }
-}
-
-private fun formatResultTime(result: OrienteeringResult?): String {
-    if (result == null) return "—"
-    return when (result.status) {
-        ResultStatus.FINISHED -> result.totalTime?.toRaceTime() ?: "—"
-        ResultStatus.DSQ -> "DSQ"
-        ResultStatus.DNF -> "DNF"
-        ResultStatus.DNS -> "DNS"
-        else -> result.status.name
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SplitsBottomSheet(
-    participantWithResult: ParticipantWithResult,
-    onDismiss: () -> Unit
-) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val participant = participantWithResult.participant
-    val result = participantWithResult.result
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.SIZE_BASE.dp)
-                .padding(bottom = 32.dp)
-        ) {
-            Text(
-                text = "${participant.lastName} ${participant.firstName}",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = participant.groupName,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 2.dp, bottom = Dimens.SIZE_BASE.dp)
-            )
-
-            if (result != null) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = Dimens.SIZE_BASE.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text(text = "Статус", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(text = formatResultTime(result), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    }
-                    val rank = result.rank
-                    if (rank != null && rank > 0) {
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(text = "Место", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(text = rank.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-
-                val splits = result.splits
-                if (!splits.isNullOrEmpty()) {
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-                    Text(
-                        text = "Сплиты",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = Dimens.SIZE_HALF.dp)
-                    )
-                    SplitsTable(participant = participant, splits = splits)
-                } else {
-                    Text(
-                        text = "Сплиты отсутствуют",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = Dimens.SIZE_HALF.dp)
-                    )
-                }
-            } else {
-                Text(
-                    text = "Результат пока не зафиксирован",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
     }
 }
 

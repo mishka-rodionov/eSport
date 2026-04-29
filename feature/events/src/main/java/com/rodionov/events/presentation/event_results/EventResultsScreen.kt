@@ -1,5 +1,6 @@
 package com.rodionov.events.presentation.event_results
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
@@ -17,19 +21,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.designsystem.components.clickRipple
 import com.rodionov.domain.models.ResultStatus
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ParticipantWithResult
-import com.rodionov.utils.orienteering.toRaceTime
+import com.rodionov.events.presentation.SplitsBottomSheet
+import com.rodionov.events.presentation.formatResultTime
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 
 /**
  * Экран результатов события.
@@ -49,40 +54,60 @@ fun EventResultsScreen(
         viewModel.loadResults(eventId)
     }
 
-    if (state.groupsWithResults.isNotEmpty()) {
-        val groups = state.groupsWithResults
-        val pagerState = rememberPagerState(pageCount = { groups.size })
-        val scope = rememberCoroutineScope()
+    when {
+        state.isLoading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        state.groupsWithResults.isEmpty() -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = "Результаты недоступны",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        else -> {
+            val groups = state.groupsWithResults
+            val pagerState = rememberPagerState(pageCount = { groups.size })
+            val scope = rememberCoroutineScope()
 
-        Column(modifier = Modifier.fillMaxSize()) {
-            ScrollableTabRow(
-                selectedTabIndex = pagerState.currentPage,
-                edgePadding = 16.dp,
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.primary
-            ) {
-                groups.forEachIndexed { index, groupWithResults ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        },
-                        text = {
-                            Text(text = groupWithResults.group.title)
-                        }
+            Column(modifier = Modifier.fillMaxSize()) {
+                ScrollableTabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    edgePadding = 16.dp,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.primary
+                ) {
+                    groups.forEachIndexed { index, groupWithResults ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                            text = { Text(text = groupWithResults.group.title) }
+                        )
+                    }
+                }
+
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.weight(1f)
+                ) { page ->
+                    ResultsList(
+                        participants = groups[page].participants,
+                        onParticipantClick = { viewModel.onAction(EventResultsAction.ShowSplits(it)) }
                     )
                 }
             }
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { page ->
-                ResultsList(participants = groups[page].participants)
-            }
         }
+    }
+
+    state.selectedParticipant?.let { selected ->
+        SplitsBottomSheet(
+            participantWithResult = selected,
+            onDismiss = { viewModel.onAction(EventResultsAction.HideSplits) }
+        )
     }
 }
 
@@ -92,7 +117,10 @@ fun EventResultsScreen(
  * @param participants Список участников с их результатами.
  */
 @Composable
-private fun ResultsList(participants: List<ParticipantWithResult>) {
+private fun ResultsList(
+    participants: List<ParticipantWithResult>,
+    onParticipantClick: (ParticipantWithResult) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -102,7 +130,7 @@ private fun ResultsList(participants: List<ParticipantWithResult>) {
             ResultsHeader()
         }
         items(participants) { item ->
-            ResultItem(item = item)
+            ResultItem(item = item, onClick = { onParticipantClick(item) })
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         }
     }
@@ -131,10 +159,11 @@ private fun ResultsHeader() {
  * @param item Данные участника и его результата.
  */
 @Composable
-private fun ResultItem(item: ParticipantWithResult) {
+private fun ResultItem(item: ParticipantWithResult, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickRipple(onClick = onClick)
             .padding(vertical = 12.dp)
     ) {
         Text(
@@ -146,7 +175,7 @@ private fun ResultItem(item: ParticipantWithResult) {
             modifier = Modifier.weight(0.5f)
         )
         Text(
-            text = formatResult(item.result),
+            text = formatResultTime(item.result),
             modifier = Modifier.weight(0.3f)
         )
         Text(
@@ -156,16 +185,6 @@ private fun ResultItem(item: ParticipantWithResult) {
     }
 }
 
-/**
- * Форматирует время результата или статус.
- */
-private fun formatResult(result: OrienteeringResult?): String {
-    if (result == null) return "-"
-    return when (result.status) {
-        ResultStatus.FINISHED -> result.totalTime?.toRaceTime() ?: "-"
-        else -> result.status.name
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -225,6 +244,6 @@ private fun EventResultsPreview() {
         )
     )
     MaterialTheme {
-        ResultsList(participants = mockParticipants)
+        ResultsList(participants = mockParticipants, onParticipantClick = {})
     }
 }
