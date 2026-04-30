@@ -30,7 +30,8 @@ fun Competition.toRequest(): CompetitionRequest {
         contactPhone = contactPhone,
         contactEmail = contactEmail,
         website = website,
-        resultsStatus = resultsStatus.name
+        resultsStatus = resultsStatus.name,
+        imageUrl = imageUrl
     )
 }
 

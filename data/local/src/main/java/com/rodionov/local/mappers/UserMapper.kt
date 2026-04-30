@@ -14,7 +14,7 @@ fun User.toEntity(): UserEntity {
         middleName = middleName,
         birthDate = birthDate,
         gender = gender,
-        photo = photo,
+        avatarUrl = avatarUrl,
         phoneNumber = phoneNumber,
         email = email,
         qualification = qualification
@@ -32,7 +32,7 @@ fun UserEntity.toDomain(): User {
         middleName = middleName,
         birthDate = birthDate,
         gender = gender,
-        photo = photo,
+        avatarUrl = avatarUrl,
         phoneNumber = phoneNumber,
         email = email,
         qualification = qualification

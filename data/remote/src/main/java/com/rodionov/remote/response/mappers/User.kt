@@ -28,7 +28,7 @@ fun UserResponse.toDomain(): User {
         middleName = middleName,
         birthDate = birthDate,
         gender = gender,
-        photo = photo,
+        avatarUrl = avatarUrl,
         phoneNumber = phoneNumber,
         email = email,
         qualification = qualification.map(QualificationResponse::toDomain)

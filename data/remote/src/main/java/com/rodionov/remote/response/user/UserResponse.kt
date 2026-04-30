@@ -30,8 +30,8 @@ data class UserResponse(
     val birthDate: Long,
     @SerializedName("gender")
     val gender: Gender,
-    @SerializedName("photo")
-    val photo: String,
+    @SerializedName("avatar_url")
+    val avatarUrl: String,
     @SerializedName("phone_number")
     val phoneNumber: String?,
     @SerializedName("email")

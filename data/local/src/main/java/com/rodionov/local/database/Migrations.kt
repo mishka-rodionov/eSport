@@ -28,6 +28,33 @@ val MIGRATION_32_33 = object : Migration(32, 33) {
 }
 
 /**
+ * Миграция с версии 35 на 36.
+ * Переименовывает колонку photo → avatarUrl в таблице users.
+ */
+val MIGRATION_35_36 = object : Migration(35, 36) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            CREATE TABLE users_new (
+                id TEXT NOT NULL,
+                firstName TEXT NOT NULL,
+                lastName TEXT NOT NULL,
+                middleName TEXT,
+                birthDate INTEGER NOT NULL,
+                gender TEXT NOT NULL,
+                avatarUrl TEXT NOT NULL DEFAULT '',
+                phoneNumber TEXT,
+                email TEXT NOT NULL,
+                qualification TEXT NOT NULL,
+                PRIMARY KEY(id)
+            )
+        """.trimIndent())
+        db.execSQL("INSERT INTO users_new SELECT id, firstName, lastName, middleName, birthDate, gender, photo, phoneNumber, email, qualification FROM users")
+        db.execSQL("DROP TABLE users")
+        db.execSQL("ALTER TABLE users_new RENAME TO users")
+    }
+}
+
+/**
  * Миграция с версии 34 на 35.
  * Добавляет поле isDrawConducted в таблицу orienteering_competitions.
  */

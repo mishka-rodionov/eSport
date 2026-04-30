@@ -80,7 +80,7 @@ class MockInterceptor : Interceptor {
                 // Используем Long для даты рождения в моковом ответе
                 birthDate = DateTimeFormat.transformApiDateToLong("15.05.1990"),
                 gender = Gender.MALE,
-                photo = "https://example.com/photos/ivan.jpg",
+                avatarUrl = "https://example.com/photos/ivan.jpg",
                 phoneNumber = "+79998887766",
                 email = "ivan.ivanov@example.com",
                 qualification = emptyList()

@@ -178,7 +178,7 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
                 // Аватар с кнопкой редактирования
                 Box {
                     NetworkImage(
-                        url = user?.photo,
+                        url = user?.avatarUrl,
                         contentDescription = "User Avatar",
                         modifier = Modifier
                             .size(80.dp)

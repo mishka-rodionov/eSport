@@ -9,6 +9,7 @@ import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.UploadRepository
+import com.rodionov.domain.repository.user.UserProfileRepository
 import com.rodionov.domain.repository.user.UserRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
  */
 class ProfileEditorViewModel(
     private val userRepository: UserRepository,
+    private val userProfileRepository: UserProfileRepository,
     private val networkErrorRepository: NetworkErrorRepository,
     private val uploadRepository: UploadRepository,
     private val context: Context,
@@ -122,7 +124,15 @@ class ProfileEditorViewModel(
             val fileName = uri.lastPathSegment ?: "avatar.jpg"
             uploadRepository.uploadFile(bytes, fileName, "avatar")
                 .onSuccess { url ->
-                    updateState { copy(user = user?.copy(photo = url), isSaving = false) }
+                    userProfileRepository.updateAvatarUrl(url)
+                        .onSuccess { updatedUser ->
+                            userRepository.saveUser(updatedUser)
+                            updateState { copy(user = updatedUser, isSaving = false) }
+                        }
+                        .onFailure {
+                            updateState { copy(isSaving = false, error = "Ошибка сохранения фото") }
+                            handleFailure(it)
+                        }
                 }
                 .onFailure {
                     updateState { copy(isSaving = false, error = "Ошибка загрузки фото") }

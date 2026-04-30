@@ -31,7 +31,7 @@ data class UserEntity(
     val middleName: String?,
     val birthDate: Long,
     val gender: Gender,
-    val photo: String,
+    val avatarUrl: String,
     val phoneNumber: String?,
     val email: String,
     val qualification: List<Qualification>

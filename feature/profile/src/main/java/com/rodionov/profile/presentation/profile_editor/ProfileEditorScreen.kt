@@ -105,7 +105,7 @@ private fun ProfileEditorContent(
         // Аватарка пользователя
         Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             NetworkImage(
-                url = user?.photo,
+                url = user?.avatarUrl,
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape)
@@ -209,7 +209,7 @@ private fun ProfileEditorPreview() {
                     middleName = "Иванович",
                     birthDate = 0L,
                     gender = Gender.MALE,
-                    photo = "",
+                    avatarUrl = "",
                     phoneNumber = "+79991234567",
                     email = "ivanov@example.com",
                     qualification = emptyList()

@@ -1,7 +1,7 @@
 package com.rodionov.center.presentation.main
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import com.example.designsystem.components.NetworkImage
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -17,8 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -181,13 +180,12 @@ private fun EventControlCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Миниатюра события
-            Image(
-                painter = painterResource(R.drawable.forest),
+            NetworkImage(
+                url = competition.imageUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)
-                    .clip(RoundedCornerShape(Dimens.SIZE_HALF.dp)),
-                contentScale = ContentScale.Crop
+                    .clip(RoundedCornerShape(Dimens.SIZE_HALF.dp))
             )
 
             Spacer(modifier = Modifier.width(Dimens.SIZE_BASE.dp))
