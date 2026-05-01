@@ -13,6 +13,7 @@ import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.ReadChipData
 import com.rodionov.nfchelper.SportiduinoHelper
 import com.rodionov.sportsenthusiast.R
+import com.rodionov.ui.CompetitionStartTimeRepository
 import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +35,7 @@ class CompetitionForegroundService : Service() {
     private val sportiduinoHelper: SportiduinoHelper by inject()
     private val scanEventRepository: CompetitionScanEventRepository by inject()
     private val startAlertRepository: CompetitionStartAlertRepository by inject()
+    private val startTimeRepository: CompetitionStartTimeRepository by inject()
     private val interactor: OrienteeringCompetitionInteractor by inject()
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -65,6 +67,7 @@ class CompetitionForegroundService : Service() {
         // Обновляем параметры (может быть переданы повторно при изменении startTime)
         competitionId = newCompetitionId
         startTimeMs = newStartTimeMs
+        startTimeRepository.set(newStartTimeMs)
 
         startForeground(NOTIFICATION_ID, buildNotification(""))
         subscribeToNfcEvents()
@@ -257,6 +260,7 @@ class CompetitionForegroundService : Service() {
         super.onDestroy()
         toneGenerator?.release()
         serviceScope.cancel()
+        startTimeRepository.clear()
     }
 
     companion object {

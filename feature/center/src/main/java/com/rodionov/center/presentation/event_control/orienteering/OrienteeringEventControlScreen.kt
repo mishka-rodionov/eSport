@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.window.core.layout.WindowSizeClass
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import com.example.designsystem.components.DSBottomDialog
 import com.example.designsystem.components.DSTextInput
@@ -58,6 +59,14 @@ fun OrienteeringEventControlScreen(
         viewModel.onAction(OrientEventControlAction.Reload)
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            if (!state.isCompetitionRunning && !state.isTimerRunning) {
+                viewModel.onAction(OrientEventControlAction.StopService)
+            }
+        }
+    }
+
     OrienteeringEventControlScreenContent(
         state = state,
         isExpanded = isExpanded,
@@ -84,6 +93,11 @@ private fun OrienteeringEventControlScreenContent(
                 .verticalScroll(scrollState)
                 .padding(Dimens.SIZE_BASE.dp)
         ) {
+            if (state.isCompetitionRunning && !state.isTimerRunning) {
+                StopwatchBanner(elapsedMillis = state.stopwatchMillis)
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+            }
+
             Text(
                 text = state.competitionTitle,
                 style = MaterialTheme.typography.headlineSmall,
@@ -560,6 +574,35 @@ private fun ControlGridItem(
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+/**
+ * Баннер секундомера соревнования — показывает прошедшее время в формате ЧЧ:ММ:СС.мс.
+ */
+@Composable
+private fun StopwatchBanner(elapsedMillis: Long) {
+    val hours = elapsedMillis / 3_600_000L
+    val minutes = (elapsedMillis % 3_600_000L) / 60_000L
+    val seconds = (elapsedMillis % 60_000L) / 1_000L
+    val millis = elapsedMillis % 1_000L
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+        ),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+    ) {
+        Text(
+            text = "%02d:%02d:%02d.%03d".format(hours, minutes, seconds, millis),
+            style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = Dimens.SIZE_HALF.dp),
+            textAlign = TextAlign.Center
+        )
     }
 }
 

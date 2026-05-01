@@ -11,6 +11,7 @@ import com.rodionov.ui.BaseState
  * @property competitionTitle Название соревнования.
  * @property competition Данные соревнования.
  * @property countdownMillis Оставшееся время до старта в миллисекундах.
+ * @property stopwatchMillis Прошедшее время с момента старта соревнования в миллисекундах, обновляется каждые 16 мс.
  * @property isTimerRunning Флаг, запущен ли таймер отсчета.
  * @property isCompetitionRunning Флаг, запущено ли соревнование (foreground service активен).
  * @property allChipsDistributed Флаг, выданы ли чипы всем участникам.
@@ -22,6 +23,7 @@ data class OrienteeringEventControlState(
     val competitionTitle: String = "",
     val competition: OrienteeringCompetition? = null,
     val countdownMillis: Long = 0L,
+    val stopwatchMillis: Long = 0L,
     val isTimerRunning: Boolean = false,
     val isCompetitionRunning: Boolean = false,
     val countdownTimerInput: String = "",

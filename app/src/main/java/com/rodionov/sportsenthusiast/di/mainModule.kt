@@ -8,6 +8,7 @@ import com.rodionov.sportsenthusiast.service.CompetitionScanEventRepository
 import com.rodionov.sportsenthusiast.service.CompetitionStartAlertRepository
 import com.rodionov.sportsenthusiast.service.CompetitionServiceControllerImpl
 import com.rodionov.ui.CompetitionServiceController
+import com.rodionov.ui.CompetitionStartTimeRepository
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -16,6 +17,7 @@ val mainModule = module {
     single { CompetitionScanEventRepository() }
     single { CompetitionStartAlertRepository() }
     single<CompetitionServiceController> { CompetitionServiceControllerImpl() }
+    single { CompetitionStartTimeRepository() }
     single { ResultConflictRepository() }
     single { NetworkErrorRepository() }
     single { LoadingRepository() }

@@ -27,4 +27,6 @@ sealed class OrientEventControlAction: BaseAction {
 
     data object Reload: OrientEventControlAction()
 
+    data object StopService: OrientEventControlAction()
+
 }

@@ -15,6 +15,7 @@ import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.CompetitionServiceController
+import com.rodionov.ui.CompetitionStartTimeRepository
 import com.rodionov.ui.viewmodel.BaseViewModel
 import com.rodionov.utils.constants.EventsConstants
 import kotlinx.coroutines.Job
@@ -31,12 +32,14 @@ class OrienteeringEventControlViewModel(
     private val navigation: Navigation,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
     private val serviceController: CompetitionServiceController,
+    private val startTimeRepository: CompetitionStartTimeRepository,
     private val networkErrorRepository: NetworkErrorRepository,
     private val loadingRepository: LoadingRepository
 ) : BaseViewModel<OrienteeringEventControlState>(OrienteeringEventControlState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
     private var timerJob: Job? = null
+    private var stopwatchJob: Job? = null
 
     private fun loadCompetitionData() {
         val id = competitionId ?: return
@@ -93,6 +96,7 @@ class OrienteeringEventControlViewModel(
         val isRunning = competition.competition.status == CompetitionStatus.IN_PROGRESS
         val isCountingDown = isRunning && startTime != null && startTime > now
         val remainingMillis = if (isCountingDown) startTime - now else 0L
+        val wasServiceRunning = stateValue.isCompetitionRunning
 
         updateState {
             copy(
@@ -110,6 +114,20 @@ class OrienteeringEventControlViewModel(
         }
 
         if (isCountingDown) startTimer()
+
+        if (isRunning) {
+            if (!wasServiceRunning) {
+                val repoTime = startTimeRepository.startTimeMs.value
+                if (repoTime == 0L) {
+                    val st = competition.startTime ?: System.currentTimeMillis()
+                    startTimeRepository.set(st)
+                    competitionId?.let { id ->
+                        viewModelScope.launch { serviceController.start(id, st) }
+                    }
+                }
+            }
+            if (!isCountingDown) startStopwatch()
+        }
     }
 
     override fun onAction(action: BaseAction) {
@@ -185,6 +203,10 @@ class OrienteeringEventControlViewModel(
             }
 
             OrientEventControlAction.Reload -> loadCompetitionData()
+
+            OrientEventControlAction.StopService -> viewModelScope.launch {
+                serviceController.stop()
+            }
         }
     }
 
@@ -222,7 +244,9 @@ class OrienteeringEventControlViewModel(
                     isCompetitionRunning = true
                 )
             }
+            startTimeRepository.set(startTime)
             startTimer()
+            startStopwatch()
             loadingRepository.emit(false)
             competitionId?.let { id -> serviceController.start(id, startTime) }
         }
@@ -235,6 +259,8 @@ class OrienteeringEventControlViewModel(
      */
     private fun handleStopCompetition() {
         timerJob?.cancel()
+        stopwatchJob?.cancel()
+        startTimeRepository.clear()
         val competition = stateValue.competition
         viewModelScope.launch {
             loadingRepository.emit(true)
@@ -252,7 +278,7 @@ class OrienteeringEventControlViewModel(
             serviceController.stop()
             loadingRepository.emit(false)
         }
-        updateState { copy(isCompetitionRunning = false, isTimerRunning = false, isFinished = true) }
+        updateState { copy(isCompetitionRunning = false, isTimerRunning = false, isFinished = true, stopwatchMillis = 0L) }
     }
 
     /**
@@ -260,6 +286,8 @@ class OrienteeringEventControlViewModel(
      */
     private fun handleCancelCountdown() {
         timerJob?.cancel()
+        stopwatchJob?.cancel()
+        startTimeRepository.clear()
         val competition = stateValue.competition ?: return
         val reverted = competition.copy(
             startTime = null,
@@ -277,6 +305,7 @@ class OrienteeringEventControlViewModel(
             copy(
                 competition = reverted,
                 countdownMillis = 0L,
+                stopwatchMillis = 0L,
                 isTimerRunning = false,
                 isCompetitionRunning = false
             )
@@ -301,6 +330,25 @@ class OrienteeringEventControlViewModel(
     }
 
     /**
+     * Запускает секундомер соревнования — считает прошедшее время с момента старта.
+     * Обновляет [OrienteeringEventControlState.stopwatchMillis] каждые 16 мс.
+     */
+    private fun startStopwatch() {
+        stopwatchJob?.cancel()
+        stopwatchJob = viewModelScope.launch {
+            while (true) {
+                val startTimeMs = startTimeRepository.startTimeMs.value
+                    .takeIf { it > 0L }
+                    ?: stateValue.competition?.startTime
+                    ?: break
+                val elapsed = (System.currentTimeMillis() - startTimeMs).coerceAtLeast(0L)
+                updateState { copy(stopwatchMillis = elapsed) }
+                delay(16)
+            }
+        }
+    }
+
+    /**
      * Вызывается после обнуления таймера.
      * Для режима USER_SET фиксирует фактическое время старта и пересчитывает
      * стартовые времена участников с учётом стартового интервала.
@@ -312,6 +360,7 @@ class OrienteeringEventControlViewModel(
 
         viewModelScope.launch {
             val actualStartTime = System.currentTimeMillis()
+            startTimeRepository.set(actualStartTime)
             val updatedCompetition = competition.copy(startTime = actualStartTime)
             orienteeringCompetitionInteractor.updateCompetition(updatedCompetition, null)
             orienteeringCompetitionInteractor.publishCompetitionToServer(updatedCompetition)
@@ -328,6 +377,7 @@ class OrienteeringEventControlViewModel(
             }
 
             updateState { copy(competition = updatedCompetition) }
+            startStopwatch()
         }
     }
 
@@ -336,5 +386,11 @@ class OrienteeringEventControlViewModel(
             val code = (throwable as? NetworkException)?.code
             networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        timerJob?.cancel()
+        stopwatchJob?.cancel()
     }
 }
