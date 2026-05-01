@@ -94,8 +94,15 @@ class OrienteeringEventControlViewModel(
         val now = System.currentTimeMillis()
         val isFinished = competition.competition.status == CompetitionStatus.FINISHED
         val isRunning = competition.competition.status == CompetitionStatus.IN_PROGRESS
-        val isCountingDown = isRunning && startTime != null && startTime > now
-        val remainingMillis = if (isCountingDown) startTime - now else 0L
+
+        // Репозиторий — надёжный источник startTime, не зависит от серверной синхронизации.
+        // Если репозиторий заполнен — используем его (он установлен при старте через handleStartCompetition
+        // или onCountdownFinished), иначе fallback на competition.startTime из БД.
+        val repoStartTime = startTimeRepository.startTimeMs.value
+        val effectiveStartTime = repoStartTime.takeIf { it > 0L } ?: startTime
+
+        val isCountingDown = isRunning && effectiveStartTime != null && effectiveStartTime > now
+        val remainingMillis = if (isCountingDown) effectiveStartTime!! - now else 0L
         val wasServiceRunning = stateValue.isCompetitionRunning
 
         updateState {
@@ -116,14 +123,11 @@ class OrienteeringEventControlViewModel(
         if (isCountingDown) startTimer()
 
         if (isRunning) {
-            if (!wasServiceRunning) {
-                val repoTime = startTimeRepository.startTimeMs.value
-                if (repoTime == 0L) {
-                    val st = competition.startTime ?: System.currentTimeMillis()
-                    startTimeRepository.set(st)
-                    competitionId?.let { id ->
-                        viewModelScope.launch { serviceController.start(id, st) }
-                    }
+            if (!wasServiceRunning && repoStartTime == 0L) {
+                val st = startTime ?: System.currentTimeMillis()
+                startTimeRepository.set(st)
+                competitionId?.let { id ->
+                    viewModelScope.launch { serviceController.start(id, st) }
                 }
             }
             if (!isCountingDown) startStopwatch()
