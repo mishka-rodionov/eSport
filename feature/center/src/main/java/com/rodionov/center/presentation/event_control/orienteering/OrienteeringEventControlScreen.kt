@@ -141,11 +141,13 @@ private fun OrienteeringEventControlScreenContent(
 
                 SectionHeader(title = "Действия")
 
-                ControlActionButton(
-                    text = "Выдать чипы",
-                    icon = R.drawable.ic_add_24px,
-                    onClick = { onAction(OrientEventControlAction.OpenGetOrienteeringChip) }
-                )
+                if (!state.isCompetitionRunning) {
+                    ControlActionButton(
+                        text = "Выдать чипы",
+                        icon = R.drawable.ic_add_24px,
+                        onClick = { onAction(OrientEventControlAction.OpenGetOrienteeringChip) }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
@@ -278,7 +280,9 @@ private fun StartConfirmContent(onConfirm: () -> Unit, onCancel: () -> Unit) {
         Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
         Button(
             onClick = onConfirm,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
         ) {
             Text("Запустить", fontWeight = FontWeight.Bold)
@@ -286,7 +290,9 @@ private fun StartConfirmContent(onConfirm: () -> Unit, onCancel: () -> Unit) {
         Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
         OutlinedButton(
             onClick = onCancel,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
         ) {
             Text("Отмена", fontWeight = FontWeight.Bold)
@@ -316,7 +322,9 @@ private fun StopConfirmContent(onConfirm: () -> Unit, onCancel: () -> Unit) {
         Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
         Button(
             onClick = onConfirm,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
         ) {
@@ -325,7 +333,9 @@ private fun StopConfirmContent(onConfirm: () -> Unit, onCancel: () -> Unit) {
         Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
         OutlinedButton(
             onClick = onCancel,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
         ) {
             Text("Отмена", fontWeight = FontWeight.Bold)

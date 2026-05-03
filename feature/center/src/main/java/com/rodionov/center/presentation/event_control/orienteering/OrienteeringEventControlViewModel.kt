@@ -240,6 +240,19 @@ class OrienteeringEventControlViewModel(
             )
             orienteeringCompetitionInteractor.publishCompetitionToServer(updatedCompetition)
                 .onFailure { handleFailure(it) }
+
+            competitionId?.let { id ->
+                val intervalMs = (competition.startIntervalSeconds ?: 60) * 1000L
+                val participants = orienteeringCompetitionInteractor.getParticipants(id).getOrNull()
+                if (!participants.isNullOrEmpty()) {
+                    val updatedParticipants = participants.map { p ->
+                        val number = p.startNumber.toIntOrNull() ?: return@map p
+                        p.copy(startTime = startTime + number * intervalMs)
+                    }
+                    orienteeringCompetitionInteractor.updateParticipants(updatedParticipants)
+                }
+            }
+
             updateState {
                 copy(
                     competition = updatedCompetition,

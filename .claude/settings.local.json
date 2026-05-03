@@ -50,7 +50,8 @@
       "Read(//tmp/**)",
       "Bash(./gradlew :feature:center:compileDebugKotlin :app:compileDebugKotlin)",
       "Bash(rtk ./gradlew :feature:center:assembleDebug)",
-      "Bash(rtk ./gradlew :feature:center:assembleDebug :app:assembleDebug)"
+      "Bash(rtk ./gradlew :feature:center:assembleDebug :app:assembleDebug)",
+      "Bash(rtk gradle *)"
     ]
   },
   "prefersReducedMotion": true
