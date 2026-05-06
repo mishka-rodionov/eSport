@@ -664,6 +664,32 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
+     * Если регистрация настроена закрываться в момент старта соревнования
+     * (т.е. `registrationEnd == startDate`) и время старта уже наступило, а статус
+     * всё ещё [CompetitionStatus.REGISTRATION_OPEN] — переводит соревнование
+     * в [CompetitionStatus.IN_PROGRESS] и синхронизирует с сервером.
+     *
+     * @param competitionId Идентификатор соревнования.
+     * @return true если статус был автоматически переключён.
+     */
+    suspend fun tryAutoStartFromRegistration(competitionId: Long): Boolean {
+        val competition = localRepository.getCompetition(competitionId).getOrNull() ?: return false
+        val base = competition.competition
+        val regEnd = base.registrationEnd
+        val isAtStartMode = regEnd != null && regEnd == base.startDate
+        val timeReached = System.currentTimeMillis() >= base.startDate
+        if (!isAtStartMode || !timeReached || base.status != CompetitionStatus.REGISTRATION_OPEN) {
+            return false
+        }
+        val started = competition.copy(
+            competition = base.copy(status = CompetitionStatus.IN_PROGRESS)
+        )
+        localRepository.updateCompetition(started)
+        remoteRepository.createCompetition(started)
+        return true
+    }
+
+    /**
      * Проверяет, завершили ли все участники соревнование (имеют терминальный статус результата).
      * Если да — меняет статус соревнования на FINISHED и синхронизирует с сервером.
      *

@@ -3,6 +3,7 @@ package com.rodionov.center.presentation.orientiring_competition_create
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,6 +23,7 @@ import com.example.designsystem.components.TimePickerDialog
 import com.example.designsystem.theme.Dimens
 import com.rodionov.center.data.creator.OrienteeringCreatorAction
 import com.rodionov.center.data.creator.OrienteeringCreatorState
+import com.rodionov.domain.models.orienteering.RegistrationEndMode
 import com.rodionov.resources.R
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
@@ -155,51 +158,20 @@ private fun RegistrationCompetitionFieldContent(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "За сутки до старта",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Switch(
-                    checked = state.registrationEndDayBefore,
-                    onCheckedChange = { onAction(OrienteeringCreatorAction.UpdateRegistrationEndDayBefore(it)) }
-                )
-            }
-            if (!state.registrationEndDayBefore) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        RegistrationDatePicker(
-                            displayDate = state.registrationEnd,
-                            isError = state.errors.isEmptyRegistrationEnd,
-                            onDateSelected = { date ->
-                                onAction(OrienteeringCreatorAction.UpdateRegistrationEndDate(date))
-                            }
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
-                    Box(modifier = Modifier.weight(1f)) {
-                        RegistrationTimePicker(
-                            displayTime = state.registrationEndTimeStr,
-                            isError = state.errors.isEmptyRegistrationEnd,
-                            onTimeSelected = { time ->
-                                onAction(OrienteeringCreatorAction.UpdateRegistrationEndTime(time))
-                            }
-                        )
-                    }
+            RegistrationEndModeOption(
+                label = "В момент старта соревнования",
+                selected = state.registrationEndMode == RegistrationEndMode.AT_COMPETITION_START,
+                onSelect = {
+                    onAction(OrienteeringCreatorAction.UpdateRegistrationEndMode(RegistrationEndMode.AT_COMPETITION_START))
                 }
-                if (state.errors.isEmptyRegistrationEnd) {
-                    Text(
-                        text = "Укажите дату и время окончания регистрации",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(start = Dimens.SIZE_HALF.dp, top = 4.dp)
-                    )
+            )
+            RegistrationEndModeOption(
+                label = "За сутки до старта",
+                selected = state.registrationEndMode == RegistrationEndMode.DAY_BEFORE_START,
+                onSelect = {
+                    onAction(OrienteeringCreatorAction.UpdateRegistrationEndMode(RegistrationEndMode.DAY_BEFORE_START))
                 }
-            }
+            )
 
             if (false) { // на данном этапе отключено
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
@@ -262,6 +234,39 @@ private fun RegistrationCompetitionFieldContent(
                 )
             }
         }
+    }
+}
+
+/**
+ * Строка с радио‑кнопкой для выбора режима окончания регистрации.
+ * Кликабельна по всей ширине: тап по тексту или по самой кнопке.
+ */
+@Composable
+private fun RegistrationEndModeOption(
+    label: String,
+    selected: Boolean,
+    onSelect: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = selected,
+                onClick = onSelect,
+                role = Role.RadioButton
+            )
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null
+        )
+        Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 

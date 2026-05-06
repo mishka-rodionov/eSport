@@ -51,7 +51,13 @@
       "Bash(./gradlew :feature:center:compileDebugKotlin :app:compileDebugKotlin)",
       "Bash(rtk ./gradlew :feature:center:assembleDebug)",
       "Bash(rtk ./gradlew :feature:center:assembleDebug :app:assembleDebug)",
-      "Bash(rtk gradle *)"
+      "Bash(rtk gradle *)",
+      "Bash(whois -h whois.nic.google eventra.app)",
+      "Bash(whois -h whois.nic.io eventra.io)",
+      "Bash(whois -h whois.tcinet.ru eventra.ru)",
+      "Bash(whois -h whois.nic.google recora.app)",
+      "Bash(whois -h whois.nic.io recora.io)",
+      "Bash(whois -h whois.tcinet.ru recora.ru)"
     ]
   },
   "prefersReducedMotion": true

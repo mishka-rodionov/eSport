@@ -66,7 +66,7 @@ data class OrienteeringCreatorState(
     val registrationStartOnCreate: Boolean = false,
     val registrationEnd: Long? = null,
     val registrationEndTimeStr: String = "23:59",
-    val registrationEndDayBefore: Boolean = false,
+    val registrationEndMode: RegistrationEndMode = RegistrationEndMode.AT_COMPETITION_START,
     val maxParticipants: Int? = null,
     
     val isFeeEnabled: Boolean = false,

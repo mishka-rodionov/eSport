@@ -11,6 +11,7 @@ import com.rodionov.data.navigation.Navigation
 import com.rodionov.domain.exception.NetworkException
 import com.rodionov.domain.models.Coordinates
 import com.rodionov.domain.models.NetworkErrorEvent
+import com.rodionov.domain.models.orienteering.RegistrationEndMode
 import com.rodionov.domain.models.user.User
 import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
@@ -178,9 +179,9 @@ class OrienteeringCreatorViewModel(
                 updateState { copy(registrationEndTimeStr = action.time, registrationEnd = combined ?: stateValue.registrationEnd) }
             }
 
-            is OrienteeringCreatorAction.UpdateRegistrationEndDayBefore -> updateState {
+            is OrienteeringCreatorAction.UpdateRegistrationEndMode -> updateState {
                 copy(
-                    registrationEndDayBefore = action.enabled,
+                    registrationEndMode = action.mode,
                     errors = errors.copy(isEmptyRegistrationEnd = false)
                 )
             }
@@ -264,8 +265,13 @@ class OrienteeringCreatorViewModel(
                     registrationStartOnCreate = comp.competition.registrationStart == null,
                     registrationEnd = comp.competition.registrationEnd,
                     registrationEndTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationEnd).ifEmpty { "23:59" },
-                    registrationEndDayBefore = comp.competition.registrationEnd != null &&
-                        comp.competition.registrationEnd == comp.competition.startDate - 24L * 60 * 60 * 1000,
+                    registrationEndMode = if (comp.competition.registrationEnd != null &&
+                        comp.competition.registrationEnd == comp.competition.startDate - 24L * 60 * 60 * 1000
+                    ) {
+                        RegistrationEndMode.DAY_BEFORE_START
+                    } else {
+                        RegistrationEndMode.AT_COMPETITION_START
+                    },
                     maxParticipants = comp.competition.maxParticipants,
                     isFeeEnabled = comp.competition.feeAmount != null,
                     feeAmount = comp.competition.feeAmount,
@@ -342,23 +348,18 @@ class OrienteeringCreatorViewModel(
      */
     fun saveStepTwo() {
         val startEmpty = !stateValue.registrationStartOnCreate && stateValue.registrationStart == null
-        val endEmpty = !stateValue.registrationEndDayBefore && stateValue.registrationEnd == null
-        if (startEmpty || endEmpty) {
+        if (startEmpty) {
             updateState {
-                copy(errors = errors.copy(
-                    isEmptyRegistrationStart = startEmpty,
-                    isEmptyRegistrationEnd = endEmpty
-                ))
+                copy(errors = errors.copy(isEmptyRegistrationStart = startEmpty))
             }
             return
         }
 
         viewModelScope.launch(Dispatchers.IO) {
             val actualRegistrationStart = if (stateValue.registrationStartOnCreate) null else stateValue.registrationStart
-            val actualRegistrationEnd = if (stateValue.registrationEndDayBefore) {
-                stateValue.startDate - 24L * 60 * 60 * 1000
-            } else {
-                stateValue.registrationEnd
+            val actualRegistrationEnd = when (stateValue.registrationEndMode) {
+                RegistrationEndMode.DAY_BEFORE_START -> stateValue.startDate - 24L * 60 * 60 * 1000
+                RegistrationEndMode.AT_COMPETITION_START -> stateValue.startDate
             }
 
             val competition = stateValue.copy(

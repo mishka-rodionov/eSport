@@ -4,6 +4,7 @@ import android.net.Uri
 import com.rodionov.domain.models.orienteering.OrienteeringDirection
 import com.rodionov.domain.models.ParticipantGroup
 import com.rodionov.domain.models.orienteering.PunchingSystem
+import com.rodionov.domain.models.orienteering.RegistrationEndMode
 import com.rodionov.domain.models.orienteering.StartTimeMode
 import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.ui.BaseAction
@@ -41,7 +42,7 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data class UpdateRegistrationStartOnCreate(val enabled: Boolean) : OrienteeringCreatorAction()
     data class UpdateRegistrationEndDate(val date: Long) : OrienteeringCreatorAction()
     data class UpdateRegistrationEndTime(val time: String) : OrienteeringCreatorAction()
-    data class UpdateRegistrationEndDayBefore(val enabled: Boolean) : OrienteeringCreatorAction()
+    data class UpdateRegistrationEndMode(val mode: RegistrationEndMode) : OrienteeringCreatorAction()
 
     // Новые действия для пошагового создания
     data object AddStage : OrienteeringCreatorAction()

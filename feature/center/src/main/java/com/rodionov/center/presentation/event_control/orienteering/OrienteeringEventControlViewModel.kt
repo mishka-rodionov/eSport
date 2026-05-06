@@ -52,6 +52,8 @@ class OrienteeringEventControlViewModel(
                 orienteeringCompetitionInteractor.fetchAndSyncParticipantsFromServer(remoteId, id)
             }
 
+            orienteeringCompetitionInteractor.tryAutoStartFromRegistration(id)
+
             orienteeringCompetitionInteractor.getCompetitionWithDetails(id).onSuccess { details ->
                 val allChipsDistributed = details.groupsWithParticipants.all { group ->
                     group.participants.all { it.isChipGiven }
