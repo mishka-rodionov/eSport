@@ -7,10 +7,6 @@ import kotlinx.coroutines.flow.SharedFlow
  * Управляет переходами между экранами в разных модулях.
  */
 sealed interface Navigation {
-
-    val centerNavigationEffect: SharedFlow<CenterNavigation>
-    val profileNavigationEffect: SharedFlow<ProfileNavigation>
-    val eventsNavigationEffect: SharedFlow<EventsNavigation>
     
     /** Общий поток эффектов навигации для всего приложения (например, BackRoute) */
     val baseNavigationEffect: SharedFlow<BaseNavigation>

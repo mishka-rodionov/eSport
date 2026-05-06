@@ -264,33 +264,29 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
 
                         val isSelectedTab = selectedTab == tab.route
                         LaunchedEffect(navController, isSelectedTab) {
-                            if (isSelectedTab) {
-                                lifecycleOwner.lifecycleScope.launch {
-                                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                                        
-                                        launch {
-                                            viewModel.baseNavigationEffect.collectLatest { route ->
-                                                if (route is BackRoute) {
-                                                    navController.popBackStack()
-                                                }
-                                            }
-                                        }
-
-                                        launch {
-                                            viewModel.collectNavigationEffect(
-                                                navigationHandler = { route ->
-                                                    val navBuilder = route.navOptionsBuilder
-                                                    if (navBuilder != null) {
-                                                        navController.navigate(route, navBuilder)
-                                                    } else {
-                                                        navController.navigate(route = route)
-                                                    }
-                                                    route.navOptionsBuilder = null
-                                                },
-                                                destination = checkNavigation(tab)
-                                            )
+                            if (!isSelectedTab) return@LaunchedEffect
+                            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                                launch {
+                                    viewModel.baseNavigationEffect.collectLatest { route ->
+                                        if (route is BackRoute) {
+                                            navController.popBackStack()
                                         }
                                     }
+                                }
+
+                                launch {
+                                    viewModel.collectNavigationEffect(
+                                        navigationHandler = { route ->
+                                            val navBuilder = route.navOptionsBuilder
+                                            if (navBuilder != null) {
+                                                navController.navigate(route, navBuilder)
+                                            } else {
+                                                navController.navigate(route = route)
+                                            }
+                                            route.navOptionsBuilder = null
+                                        },
+                                        destination = checkNavigation(tab)
+                                    )
                                 }
                             }
                         }

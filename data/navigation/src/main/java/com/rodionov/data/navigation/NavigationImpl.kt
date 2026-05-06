@@ -11,21 +11,18 @@ import kotlinx.coroutines.flow.collectLatest
  */
 class NavigationImpl : Navigation {
 
-    private val _centerNavigationEffect = MutableSharedFlow<CenterNavigation>()
-    override val centerNavigationEffect: SharedFlow<CenterNavigation> =
-        _centerNavigationEffect.asSharedFlow()
-    
-    private val _profileNavigationEffect = MutableSharedFlow<ProfileNavigation>()
-    override val profileNavigationEffect: SharedFlow<ProfileNavigation> =
-        _profileNavigationEffect.asSharedFlow()
-    
-    private val _eventsNavigationEffect = MutableSharedFlow<EventsNavigation>()
-    override val eventsNavigationEffect: SharedFlow<EventsNavigation> =
-        _eventsNavigationEffect.asSharedFlow()
-
     private val _baseNavigationEffect = MutableSharedFlow<BaseNavigation>()
     override val baseNavigationEffect: SharedFlow<BaseNavigation> =
         _baseNavigationEffect.asSharedFlow()
+
+    /**
+     * Общий поток обычных навигационных событий. Слушается активным табом
+     * независимо от типа [destination]: NavController сам выбирает зарегистрированный
+     * в своём графе composable. Это позволяет одному графу (например, профильному)
+     * перехватывать роуты других модулей (например, [EventsNavigation.EventDetailsRoute]),
+     * если соответствующий подграф к нему подключён.
+     */
+    private val _navigationEffect = MutableSharedFlow<BaseNavigation>()
 
     private val _switchTabEffect = MutableSharedFlow<String>()
     override val switchTabEffect: SharedFlow<String> = _switchTabEffect.asSharedFlow()
@@ -36,22 +33,19 @@ class NavigationImpl : Navigation {
         handler: (BaseNavigation) -> Unit,
         destination: BaseNavigation
     ) {
-        when (destination) {
-            is CenterNavigation -> _centerNavigationEffect.collectLatest(handler)
-            is ProfileNavigation -> _profileNavigationEffect.collectLatest(handler)
-            is EventsNavigation -> _eventsNavigationEffect.collectLatest(handler)
-            // Добавляем обработку базового потока, если требуется
-            is BackRoute -> _baseNavigationEffect.collectLatest(handler)
+        if (destination is BackRoute) {
+            _baseNavigationEffect.collectLatest(handler)
+        } else {
+            _navigationEffect.collectLatest(handler)
         }
     }
 
     override suspend fun navigate(destination: BaseNavigation, argument: List<BaseArgument<*>>?) {
         baseArgument = argument
-        when (destination) {
-            is CenterNavigation -> _centerNavigationEffect.emit(destination)
-            is ProfileNavigation -> _profileNavigationEffect.emit(destination)
-            is EventsNavigation -> _eventsNavigationEffect.emit(destination)
-            is BackRoute -> _baseNavigationEffect.emit(destination)
+        if (destination is BackRoute) {
+            _baseNavigationEffect.emit(destination)
+        } else {
+            _navigationEffect.emit(destination)
         }
     }
 
