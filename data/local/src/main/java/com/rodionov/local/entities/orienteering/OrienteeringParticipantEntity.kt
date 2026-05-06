@@ -36,5 +36,9 @@ data class OrienteeringParticipantEntity(
     val comment: String,
     val isChipGiven: Boolean,
     val isSynced: Boolean = false,
-    val remoteId: String? = null    // ID участника на сервере
+    val remoteId: String? = null,   // ID участника на сервере
+    val isDeleted: Boolean = false,
+    val lastModified: Long = System.currentTimeMillis(),
+    val serverUpdatedAt: Long? = null,
+    val syncError: String? = null
 )

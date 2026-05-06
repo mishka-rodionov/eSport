@@ -106,3 +106,55 @@ val MIGRATION_33_34 = object : Migration(33, 34) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_orienteering_results_participantId ON orienteering_results(participantId)")
     }
 }
+
+/**
+ * Миграция с версии 36 на 37.
+ * Доводит все синхронизируемые сущности до общего «sync trait»:
+ * добавляет serverUpdatedAt и syncError всем, isDeleted/lastModified участникам и результатам,
+ * remoteId результатам. Также добавляет индексы по isSynced для быстрой выборки несинхронизированных.
+ *
+ * Поле serverUpdatedAt в Competition (Embedded) и в orienteering_competitions добавляется
+ * без префикса, т.к. Competition.kt не использует prefix в @Embedded.
+ */
+val MIGRATION_36_37 = object : Migration(36, 37) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Competition (@Embedded в orienteering_competitions): serverUpdatedAt
+        db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN serverUpdatedAt INTEGER")
+
+        // participant_groups
+        db.execSQL("ALTER TABLE participant_groups ADD COLUMN serverUpdatedAt INTEGER")
+        db.execSQL("ALTER TABLE participant_groups ADD COLUMN syncError TEXT")
+
+        // distances
+        db.execSQL("ALTER TABLE distances ADD COLUMN serverUpdatedAt INTEGER")
+        db.execSQL("ALTER TABLE distances ADD COLUMN syncError TEXT")
+
+        // organizers
+        db.execSQL("ALTER TABLE organizers ADD COLUMN serverUpdatedAt INTEGER")
+        db.execSQL("ALTER TABLE organizers ADD COLUMN syncError TEXT")
+
+        // stages
+        db.execSQL("ALTER TABLE stages ADD COLUMN serverUpdatedAt INTEGER")
+        db.execSQL("ALTER TABLE stages ADD COLUMN syncError TEXT")
+
+        // orienteering_participants — добавляем sync-поля
+        db.execSQL("ALTER TABLE orienteering_participants ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE orienteering_participants ADD COLUMN lastModified INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE orienteering_participants ADD COLUMN serverUpdatedAt INTEGER")
+        db.execSQL("ALTER TABLE orienteering_participants ADD COLUMN syncError TEXT")
+
+        // orienteering_results — добавляем sync-поля + remoteId
+        db.execSQL("ALTER TABLE orienteering_results ADD COLUMN remoteId TEXT")
+        db.execSQL("ALTER TABLE orienteering_results ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE orienteering_results ADD COLUMN lastModified INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE orienteering_results ADD COLUMN serverUpdatedAt INTEGER")
+        db.execSQL("ALTER TABLE orienteering_results ADD COLUMN syncError TEXT")
+
+        // Индексы под быструю выборку незасинканных
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_competitions_unsynced ON orienteering_competitions(isSynced)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_groups_unsynced ON participant_groups(isSynced)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_distances_unsynced ON distances(isSynced)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_participants_unsynced ON orienteering_participants(isSynced)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_results_unsynced ON orienteering_results(isSynced)")
+    }
+}

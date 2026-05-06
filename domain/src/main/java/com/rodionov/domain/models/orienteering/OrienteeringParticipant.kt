@@ -52,5 +52,9 @@ data class OrienteeringParticipant(
     val comment: String,
     val isChipGiven: Boolean,
     val isSynced: Boolean = false,
-    val remoteId: String? = null    // ID участника на сервере (null = не синхронизирован)
+    val remoteId: String? = null,   // ID участника на сервере (null = не синхронизирован)
+    val isDeleted: Boolean = false,
+    val lastModified: Long = System.currentTimeMillis(),
+    val serverUpdatedAt: Long? = null,
+    val syncError: String? = null
 ): Participant

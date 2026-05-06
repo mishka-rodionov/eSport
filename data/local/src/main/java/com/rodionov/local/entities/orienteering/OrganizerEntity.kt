@@ -43,5 +43,7 @@ data class OrganizerEntity(
     // Поля синхронизации
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
+    val serverUpdatedAt: Long? = null,
+    val syncError: String? = null
 )

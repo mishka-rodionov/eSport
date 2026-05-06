@@ -28,5 +28,7 @@ data class Distance(
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),
     val isDeleted: Boolean = false,
+    val serverUpdatedAt: Long? = null,
+    val syncError: String? = null,
     val controlPoints: List<ControlPoint>
 )

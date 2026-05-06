@@ -33,5 +33,10 @@ data class OrienteeringResult(
     val splits: List<SplitTime>? = null, // Можно хранить как JSON или отдельной таблицей
     val isEditable: Boolean = true,
     val isEdited: Boolean = false,
-    val isSynced: Boolean = false
+    val isSynced: Boolean = false,
+    val remoteId: String? = null,
+    val isDeleted: Boolean = false,
+    val lastModified: Long = System.currentTimeMillis(),
+    val serverUpdatedAt: Long? = null,
+    val syncError: String? = null
 )

@@ -78,7 +78,9 @@ fun ParticipantGroup.toEntity(): ParticipantGroupEntity {
         remoteId = this.remoteId,
         isSynced = this.isSynced,
         lastModified = this.lastModified,
-        isDeleted = this.isDeleted
+        isDeleted = this.isDeleted,
+        serverUpdatedAt = this.serverUpdatedAt,
+        syncError = this.syncError
     )
 }
 
@@ -98,7 +100,9 @@ fun ParticipantGroupEntity.toDomain(): ParticipantGroup {
         remoteId = this.remoteId,
         isSynced = this.isSynced,
         lastModified = this.lastModified,
-        isDeleted = this.isDeleted
+        isDeleted = this.isDeleted,
+        serverUpdatedAt = this.serverUpdatedAt,
+        syncError = this.syncError
     )
 }
 
@@ -121,7 +125,11 @@ fun OrienteeringParticipantEntity.toDomain(): OrienteeringParticipant {
         comment = comment,
         isChipGiven = isChipGiven,
         isSynced = isSynced,
-        remoteId = remoteId
+        remoteId = remoteId,
+        isDeleted = isDeleted,
+        lastModified = lastModified,
+        serverUpdatedAt = serverUpdatedAt,
+        syncError = syncError
     )
 }
 
@@ -144,7 +152,11 @@ fun OrienteeringParticipant.toEntity(): OrienteeringParticipantEntity {
         comment = comment,
         isChipGiven = isChipGiven,
         isSynced = isSynced,
-        remoteId = remoteId
+        remoteId = remoteId,
+        isDeleted = isDeleted,
+        lastModified = lastModified,
+        serverUpdatedAt = serverUpdatedAt,
+        syncError = syncError
     )
 }
 
@@ -166,7 +178,12 @@ fun OrienteeringResult.toEntity(): OrienteeringResultEntity {
         splits = splits,
         isEditable = isEditable,
         isEdited = isEdited,
-        isSynced = isSynced
+        isSynced = isSynced,
+        remoteId = remoteId,
+        isDeleted = isDeleted,
+        lastModified = lastModified,
+        serverUpdatedAt = serverUpdatedAt,
+        syncError = syncError
     )
 }
 
@@ -188,7 +205,12 @@ fun OrienteeringResultEntity.toDomain(): OrienteeringResult {
         splits = splits,
         isEditable = isEditable,
         isEdited = isEdited,
-        isSynced = isSynced
+        isSynced = isSynced,
+        remoteId = remoteId,
+        isDeleted = isDeleted,
+        lastModified = lastModified,
+        serverUpdatedAt = serverUpdatedAt,
+        syncError = syncError
     )
 }
 
@@ -215,6 +237,8 @@ fun Distance.toEntity(): DistanceEntity {
         isSynced = this.isSynced,
         lastModified = this.lastModified,
         isDeleted = this.isDeleted,
+        serverUpdatedAt = this.serverUpdatedAt,
+        syncError = this.syncError,
         controlPoints = this.controlPoints
     )
 }
@@ -235,6 +259,8 @@ fun DistanceEntity.toDomain(): Distance {
         isSynced = this.isSynced,
         lastModified = this.lastModified,
         isDeleted = this.isDeleted,
+        serverUpdatedAt = this.serverUpdatedAt,
+        syncError = this.syncError,
         controlPoints = this.controlPoints.orEmpty()
     )
 }

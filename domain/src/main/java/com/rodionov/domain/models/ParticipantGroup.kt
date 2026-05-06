@@ -15,5 +15,7 @@ data class ParticipantGroup(
     val remoteId: Long? = null,          // ID группы на сервере (null = не синхронизирована)
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
+    val serverUpdatedAt: Long? = null,
+    val syncError: String? = null
 )

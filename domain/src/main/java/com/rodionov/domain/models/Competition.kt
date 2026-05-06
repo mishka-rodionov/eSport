@@ -36,6 +36,7 @@ import com.rodionov.domain.models.orienteering.ResultsStatus
  * @property isDeleted Флаг "мягкого" удаления (запись помечена как удаленная для последующей синхронизации).
  * @property createdAt Время создания записи в локальной базе данных (Unix timestamp в мс).
  * @property syncError Текст последней ошибки синхронизации, если она произошла.
+ * @property serverUpdatedAt Серверный updatedAt последней успешной синхронизации (для conflict detection).
  */
 data class Competition(
     val remoteId: Long? = null,
@@ -66,5 +67,6 @@ data class Competition(
     val lastModified: Long = System.currentTimeMillis(),
     val isDeleted: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
-    val syncError: String? = null
+    val syncError: String? = null,
+    val serverUpdatedAt: Long? = null
 )
