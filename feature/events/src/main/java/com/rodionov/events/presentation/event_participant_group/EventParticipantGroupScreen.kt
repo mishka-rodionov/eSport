@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rodionov.domain.models.Participant
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
+import com.rodionov.domain.models.events.EventStatus
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.events.data.event_participant_group.EventParticipantGroupState
 import com.rodionov.ui.BaseAction
@@ -84,12 +85,14 @@ private fun EventParticipantGroupContent(
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.weight(1f)
             )
-            
-            RegistrationButton(
-                isUserRegistered = state.isUserRegistered,
-                isRegistering = state.isRegistering,
-                onAction = onAction
-            )
+
+            if (state.eventStatus == EventStatus.REGISTRATION) {
+                RegistrationButton(
+                    isUserRegistered = state.isUserRegistered,
+                    isRegistering = state.isRegistering,
+                    onAction = onAction
+                )
+            }
         }
 
         Text(

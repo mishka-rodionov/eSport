@@ -54,6 +54,11 @@ class EventParticipantGroupViewModel(
             loadingRepository.emit(true)
             currentUser = userRepository.retrieveUser().getOrNull()
 
+            repository.getEventDetails(eventId, currentUser?.id)
+                .onSuccess { details ->
+                    updateState { copy(eventStatus = details?.status) }
+                }
+
             repository.getParticipants(eventId, group.groupId)
                 .onSuccess { participants ->
                     val isRegistered = currentUser?.id?.let { userId ->

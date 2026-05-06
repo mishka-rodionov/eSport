@@ -2,6 +2,7 @@ package com.rodionov.events.data.event_participant_group
 
 import com.rodionov.domain.models.Participant
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
+import com.rodionov.domain.models.events.EventStatus
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.ui.BaseState
 
@@ -13,6 +14,7 @@ import com.rodionov.ui.BaseState
  * @property isLoading Флаг загрузки данных.
  * @property isUserRegistered Зарегистрирован ли текущий пользователь в этой группе.
  * @property isRegistering Флаг процесса регистрации/отмены регистрации.
+ * @property eventStatus Текущий статус события. Кнопка регистрации показывается только при [EventStatus.REGISTRATION].
  */
 data class EventParticipantGroupState(
     val eventId: Long? = null,
@@ -20,5 +22,6 @@ data class EventParticipantGroupState(
     val participants: List<OrienteeringParticipant> = emptyList(),
     val isLoading: Boolean = false,
     val isUserRegistered: Boolean = false,
-    val isRegistering: Boolean = false
+    val isRegistering: Boolean = false,
+    val eventStatus: EventStatus? = null
 ) : BaseState

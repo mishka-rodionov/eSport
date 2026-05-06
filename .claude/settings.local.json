@@ -57,7 +57,8 @@
       "Bash(whois -h whois.tcinet.ru eventra.ru)",
       "Bash(whois -h whois.nic.google recora.app)",
       "Bash(whois -h whois.nic.io recora.io)",
-      "Bash(whois -h whois.tcinet.ru recora.ru)"
+      "Bash(whois -h whois.tcinet.ru recora.ru)",
+      "Bash(./gradlew :feature:events:compileDebugKotlin)"
     ]
   },
   "prefersReducedMotion": true
