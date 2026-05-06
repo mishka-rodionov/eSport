@@ -1,5 +1,6 @@
 package com.rodionov.remote.network.retrofit
 
+import com.rodionov.domain.exception.ConflictException
 import com.rodionov.domain.exception.NetworkException
 import com.rodionov.remote.base.BaseModel
 import com.rodionov.remote.base.CommonModel
@@ -80,10 +81,18 @@ class ResultCall<T : BaseModel>(private val request: Call<T>) : Call<Result<T>> 
     }
 
     fun handleErrorResponse(callback: Callback<Result<T>>, call: Call<T>, response: Response<T>) {
+        val error = if (response.code() == HTTP_CONFLICT) {
+            ConflictException(
+                httpCode = response.code(),
+                serverPayload = response.errorBody()?.string()
+            )
+        } else {
+            getError(response)
+        }
         callback.onResponse(
             this@ResultCall,
             Response.success(
-                Result.failure(getError(response))
+                Result.failure(error)
             )
         )
     }
@@ -126,5 +135,9 @@ class ResultCall<T : BaseModel>(private val request: Call<T>) : Call<Result<T>> 
 
     override fun clone(): Call<Result<T>> {
         return ResultCall(request.clone())
+    }
+
+    companion object {
+        private const val HTTP_CONFLICT = 409
     }
 }
