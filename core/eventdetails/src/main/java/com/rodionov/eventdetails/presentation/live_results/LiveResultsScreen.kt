@@ -1,4 +1,4 @@
-package com.rodionov.events.presentation.live_results
+package com.rodionov.eventdetails.presentation.live_results
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -36,8 +36,8 @@ import com.rodionov.domain.models.orienteering.OrienteeringParticipant
 import com.rodionov.domain.models.orienteering.OrienteeringResult
 import com.rodionov.domain.models.orienteering.ParticipantWithResult
 import com.rodionov.domain.models.orienteering.SplitTime
-import com.rodionov.events.presentation.SplitsBottomSheet
-import com.rodionov.events.presentation.formatResultTime
+import com.rodionov.eventdetails.presentation.SplitsBottomSheet
+import com.rodionov.eventdetails.presentation.formatResultTime
 import com.rodionov.utils.orienteering.toSplitTime
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

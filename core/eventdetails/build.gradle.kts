@@ -4,16 +4,14 @@ plugins {
     id("kotlinx-serialization")
     id("kotlin-parcelize")
     alias(libs.plugins.compose.compiler)
-    kotlin("kapt")
 }
 
 android {
-    namespace = "com.rodionov.events"
+    namespace = "com.rodionov.eventdetails"
     compileSdk = 36
 
     defaultConfig {
         minSdk = 26
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -49,18 +47,13 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.kotlinx.serialization.json)
-    
+
     implementation(project(":data:navigation"))
-    implementation(project(":data:local"))
-    implementation(project(":data:remote"))
     implementation(project(":domain"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:resources"))
     implementation(project(":core:ui"))
-    implementation(project(":core:eventdetails"))
     implementation(project(":utils"))
-
-    implementation(libs.kotlinx.serialization.json)
 
     //compose navigation
     implementation(libs.compose.navigation)

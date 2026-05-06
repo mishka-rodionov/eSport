@@ -28,6 +28,11 @@ interface OrienteeringCompetitionRemoteRepository {
 
     suspend fun getCompetitionsByUserid(): Result<List<OrienteeringCompetition>>
 
+    /**
+     * Соревнования, на которые текущий пользователь зарегистрирован как участник.
+     */
+    suspend fun getRegisteredCompetitions(): Result<List<OrienteeringCompetition>>
+
     suspend fun publishDistancesForCompetition(
         remoteCompetitionId: Long,
         localCompetitionId: Long,

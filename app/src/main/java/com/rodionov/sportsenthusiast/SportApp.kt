@@ -7,6 +7,7 @@ import android.content.Context
 import com.rodionov.center.di.centerModule
 import com.rodionov.sportsenthusiast.service.CompetitionForegroundService
 import com.rodionov.data.navigation.di.navigationModule
+import com.rodionov.eventdetails.di.eventDetailsModule
 import com.rodionov.events.di.eventsModule
 import com.rodionov.local.di.databaseModule
 import com.rodionov.local.di.localModule
@@ -43,7 +44,7 @@ class SportApp : Application() {
             modules(authModule, orienteeringModule, eventsDataModule, uploadModule)
 
             // feature modules
-            modules(mainModule, centerModule, eventsModule, profileModule)
+            modules(mainModule, centerModule, eventsModule, eventDetailsModule, profileModule)
         }
 
         createNotificationChannel()

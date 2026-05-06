@@ -1,4 +1,4 @@
-package com.rodionov.events.presentation.event_results
+package com.rodionov.eventdetails.presentation.results
 
 import androidx.lifecycle.viewModelScope
 import com.rodionov.domain.models.ResultStatus

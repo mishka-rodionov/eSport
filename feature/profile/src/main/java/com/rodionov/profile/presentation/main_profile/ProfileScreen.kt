@@ -240,7 +240,7 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
                 ProfileMenuItem(
                     text = "Предстоящие старты",
                     icon = ImageVector.vectorResource(R.drawable.ic_date_range_24px),
-                    onClick = { /* TODO */ }
+                    onClick = { onAction(ProfileAction.ToUserRegistrations) }
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp),

@@ -1,4 +1,4 @@
-package com.rodionov.events.presentation.eventDetails
+package com.rodionov.eventdetails.presentation.details
 
 import androidx.lifecycle.viewModelScope
 import com.rodionov.data.navigation.EventsNavigation
@@ -13,7 +13,7 @@ import com.rodionov.domain.repository.LoadingRepository
 import com.rodionov.domain.repository.NetworkErrorRepository
 import com.rodionov.domain.repository.events.CyclicEventDetailsRepository
 import com.rodionov.domain.repository.user.UserRepository
-import com.rodionov.events.data.details.EventDetailsState
+import com.rodionov.eventdetails.data.details.EventDetailsState
 import com.rodionov.ui.BaseAction
 import com.rodionov.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.launch

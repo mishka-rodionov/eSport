@@ -1,4 +1,4 @@
-package com.rodionov.events.data.details
+package com.rodionov.eventdetails.data.details
 
 import com.rodionov.domain.models.cyclic_event.CyclicEventDetails
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup

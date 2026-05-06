@@ -37,6 +37,7 @@ class ProfileViewModel(
             ProfileAction.ToAuth -> toAuthorization()
             ProfileAction.ToRegister -> toRegistration()
             ProfileAction.ToProfileEditor -> toProfileEditor()
+            ProfileAction.ToUserRegistrations -> openUserRegistrations()
             ProfileAction.Logout -> logout()
         }
     }
@@ -56,6 +57,15 @@ class ProfileViewModel(
     private fun toAuthorization() {
         viewModelScope.launch {
             navigation.navigate(destination = ProfileNavigation.AuthRoute)
+        }
+    }
+
+    /**
+     * Переход на экран «Предстоящие старты» — список соревнований пользователя.
+     */
+    private fun openUserRegistrations() {
+        viewModelScope.launch {
+            navigation.navigate(ProfileNavigation.UserRegistrationsRoute)
         }
     }
 

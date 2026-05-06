@@ -14,6 +14,9 @@ sealed class ProfileAction {
     /** Переход к экрану редактирования профиля. */
     data object ToProfileEditor: ProfileAction()
 
+    /** Переход на экран «Предстоящие старты». */
+    data object ToUserRegistrations: ProfileAction()
+
     /** Выход из аккаунта. */
     data object Logout: ProfileAction()
 

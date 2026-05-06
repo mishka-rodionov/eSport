@@ -1,4 +1,4 @@
-package com.rodionov.events.presentation.event_participant_group
+package com.rodionov.eventdetails.presentation.participant_group
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +28,7 @@ import com.rodionov.domain.models.Participant
 import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.events.EventStatus
 import com.rodionov.domain.models.orienteering.OrienteeringParticipant
-import com.rodionov.events.data.event_participant_group.EventParticipantGroupState
+import com.rodionov.eventdetails.data.participant_group.EventParticipantGroupState
 import com.rodionov.ui.BaseAction
 import org.koin.androidx.compose.koinViewModel
 

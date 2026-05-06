@@ -1,4 +1,4 @@
-package com.rodionov.events.presentation.eventDetails
+package com.rodionov.eventdetails.presentation.details
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.border
@@ -48,7 +48,7 @@ import com.rodionov.domain.models.cyclic_event.EventParticipantGroup
 import com.rodionov.domain.models.events.EventStatus
 import com.rodionov.domain.models.events.EventType
 import com.rodionov.resources.R
-import com.rodionov.events.data.details.EventDetailsState
+import com.rodionov.eventdetails.data.details.EventDetailsState
 import com.rodionov.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 

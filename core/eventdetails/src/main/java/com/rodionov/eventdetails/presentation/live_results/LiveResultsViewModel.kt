@@ -1,4 +1,4 @@
-package com.rodionov.events.presentation.live_results
+package com.rodionov.eventdetails.presentation.live_results
 
 import androidx.lifecycle.viewModelScope
 import com.rodionov.domain.models.ParticipantGroup

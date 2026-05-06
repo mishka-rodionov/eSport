@@ -1,4 +1,4 @@
-package com.rodionov.events.presentation
+package com.rodionov.eventdetails.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
