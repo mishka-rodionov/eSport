@@ -33,31 +33,24 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
-     * Публикует соревнование на сервере.
-     * Вызывается в конце мастера создания соревнования.
-     *
-     * При успехе обновляет локальную запись данными, пришедшими с сервера.
-     * При неудаче — локальные данные остаются нетронутыми.
-     *
-     * @param competition Данные соревнования для публикации.
-     * @return Result с данными опубликованного соревнования или ошибкой.
+     * Сохраняет соревнование локально с пометкой isSynced=false.
+     * Фактическая выгрузка на сервер выполняется фоновым SyncOrchestrator/SyncCenterWorker
+     * при появлении сети.
      */
     suspend fun publishCompetitionToServer(competition: OrienteeringCompetition): Result<OrienteeringCompetition> {
-        return remoteRepository.createCompetition(competition)
-            .onSuccess { serverCompetition ->
-                localRepository.updateCompetition(serverCompetition, markUnsynced = false)
-            }
+        return localRepository.updateCompetition(competition).mapCatching { competition }
     }
 
+    /**
+     * Помечает группы как несинхронизированные. Worker подхватит и выгрузит на сервер.
+     */
     suspend fun publishGroupsToServer(
         remoteCompetitionId: Long,
         groups: List<ParticipantGroup>
     ): Result<Unit> {
-        return remoteRepository.publishGroupsForCompetition(remoteCompetitionId, groups)
-            .mapCatching { updatedGroups ->
-                // Сохраняем remoteId и isSynced для каждой группы локально
-                updatedGroups.forEach { localRepository.updateParticipantGroup(it, markUnsynced = false) }
-            }
+        return runCatching {
+            groups.forEach { localRepository.updateParticipantGroup(it) }
+        }
     }
 
     suspend fun updateCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
@@ -152,20 +145,7 @@ class OrienteeringCompetitionInteractor(
      * @return Сохранённый участник или null в случае ошибки
      */
     suspend fun saveParticipant(participant: OrienteeringParticipant): OrienteeringParticipant? {
-        val saved = localRepository.saveParticipant(participant).getOrNull() ?: return null
-        val group = localRepository.getParticipantGroup(saved.groupId).getOrNull()
-        val competition = localRepository.getCompetition(saved.competitionId).getOrNull()
-        val serverGroupId = group?.remoteId ?: saved.groupId
-        val serverCompetitionId = competition?.competition?.remoteId ?: saved.competitionId
-        remoteRepository.saveParticipant(
-            saved.copy(groupId = serverGroupId, competitionId = serverCompetitionId)
-        ).onSuccess { serverParticipant ->
-            localRepository.updateParticipants(
-                listOf(saved.copy(isSynced = true, remoteId = serverParticipant.remoteId)),
-                markUnsynced = false
-            )
-        }
-        return saved
+        return localRepository.saveParticipant(participant).getOrNull()
     }
 
     /**
@@ -185,10 +165,7 @@ class OrienteeringCompetitionInteractor(
     suspend fun applyConflictResult(existingId: Long, newResult: OrienteeringResult) {
         val updated = newResult.copy(id = existingId)
         localRepository.updateResults(listOf(updated)).onSuccess {
-            val updatedResults = updateResultsAndRanks(updated)
-            val resultWithRank = updatedResults.find { it.participantId == updated.participantId }
-                ?: updated
-            remoteRepository.saveResult(resultWithRank)
+            updateResultsAndRanks(updated)
         }
     }
 
@@ -203,32 +180,9 @@ class OrienteeringCompetitionInteractor(
 
     suspend fun syncParticipantsAfterDraw(participants: List<OrienteeringParticipant>) {
         if (participants.isEmpty()) return
-        val competitionId = participants.first().competitionId
-        val competition = localRepository.getCompetition(competitionId).getOrNull()
-        val serverCompetitionId = competition?.competition?.remoteId ?: competitionId
-
-        val groupRemoteIds = participants
-            .map { it.groupId }
-            .distinct()
-            .mapNotNull { localGroupId ->
-                val remoteId = localRepository.getParticipantGroup(localGroupId).getOrNull()?.remoteId
-                remoteId?.let { localGroupId to it }
-            }
-            .toMap()
-
-        val remoteParticipants = participants.map { p ->
-            p.copy(
-                groupId = groupRemoteIds[p.groupId] ?: p.groupId,
-                competitionId = serverCompetitionId
-            )
-        }
-
-        remoteRepository.saveParticipants(remoteParticipants).onSuccess {
-            localRepository.updateParticipants(
-                participants.map { it.copy(isSynced = true) },
-                markUnsynced = false
-            )
-        }
+        // Локально пометить участников как несинхронизированные.
+        // SyncCenterWorker сам выгрузит их на сервер с актуальными remoteId групп/соревнования.
+        localRepository.updateParticipants(participants)
     }
 
     /**
@@ -267,19 +221,11 @@ class OrienteeringCompetitionInteractor(
      *
      * @param participant Участник для синхронизации
      */
+    /**
+     * Локально помечает участника как несинхронизированного. Worker подхватит и выгрузит на сервер.
+     */
     suspend fun syncParticipantWithServer(participant: OrienteeringParticipant) {
-        val group = localRepository.getParticipantGroup(participant.groupId).getOrNull()
-        val competition = localRepository.getCompetition(participant.competitionId).getOrNull()
-        val serverGroupId = group?.remoteId ?: participant.groupId
-        val serverCompetitionId = competition?.competition?.remoteId ?: participant.competitionId
-        remoteRepository.saveParticipant(
-            participant.copy(groupId = serverGroupId, competitionId = serverCompetitionId)
-        ).onSuccess { serverParticipant ->
-            localRepository.updateParticipants(
-                listOf(participant.copy(isSynced = true, remoteId = serverParticipant.remoteId)),
-                markUnsynced = false
-            )
-        }
+        localRepository.updateParticipants(listOf(participant))
     }
 
     /**
@@ -293,19 +239,14 @@ class OrienteeringCompetitionInteractor(
      * @param competitionId Идентификатор соревнования
      * @param participantGroups Список групп участников для сохранения
      */
+    /**
+     * Сохраняет группы локально. Worker позже выгрузит их на сервер.
+     */
     suspend fun createParticipantsGroupsInfo(
         competitionId: Long,
         participantGroups: List<ParticipantGroup>
     ) {
-        remoteRepository.createParticipantsGroupsForCompetition(
-            competitionId = competitionId,
-            participantGroups = participantGroups
-        ).onSuccess { participants ->
-            localSaveParticipantGroups(participants)
-        }.onFailure {
-            localSaveParticipantGroups(participantGroups)
-        }
-
+        localSaveParticipantGroups(participantGroups)
     }
 
     suspend fun localSaveParticipantGroups(participantGroups: List<ParticipantGroup>) {
@@ -361,15 +302,7 @@ class OrienteeringCompetitionInteractor(
     suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult) {
         localRepository.saveParticipantResult(orienteeringResult).onSuccess { savedId ->
             val savedResult = orienteeringResult.copy(id = savedId as Long)
-            val updatedResults = updateResultsAndRanks(newResults = savedResult)
-            val resultWithRank = updatedResults.find { it.participantId == savedResult.participantId }
-                ?: savedResult
-            remoteRepository.saveResult(resultWithRank).onSuccess {
-                localRepository.updateResults(
-                    listOf(resultWithRank.copy(isSynced = true)),
-                    markUnsynced = false
-                )
-            }
+            updateResultsAndRanks(newResults = savedResult)
         }.onFailure {
             Log.d("LOG_TAG", "saveParticipantResult: ${it.message}")
         }
@@ -610,15 +543,18 @@ class OrienteeringCompetitionInteractor(
      * @param distances Список дистанций для публикации.
      * @return Список дистанций с проставленными remoteId или ошибка.
      */
+    /**
+     * Помечает дистанции как несинхронизированные. Worker выгрузит их на сервер при появлении сети.
+     */
     suspend fun publishDistancesToServer(
         remoteCompetitionId: Long,
         localCompetitionId: Long,
         distances: List<Distance>
     ): Result<List<Distance>> {
-        return remoteRepository.publishDistancesForCompetition(remoteCompetitionId, localCompetitionId, distances)
-            .onSuccess { syncedDistances ->
-                syncedDistances.forEach { localRepository.updateDistance(it, markUnsynced = false) }
-            }
+        return runCatching {
+            distances.forEach { localRepository.updateDistance(it) }
+            distances
+        }
     }
 
     /**
@@ -695,7 +631,6 @@ class OrienteeringCompetitionInteractor(
             competition = base.copy(status = CompetitionStatus.IN_PROGRESS)
         )
         localRepository.updateCompetition(started)
-        remoteRepository.createCompetition(started)
         return true
     }
 
@@ -725,7 +660,6 @@ class OrienteeringCompetitionInteractor(
             competition = competition.competition.copy(status = CompetitionStatus.FINISHED)
         )
         localRepository.updateCompetition(finished)
-        remoteRepository.createCompetition(finished)
         return true
     }
 
