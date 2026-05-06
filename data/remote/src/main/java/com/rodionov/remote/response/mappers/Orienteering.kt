@@ -49,7 +49,8 @@ fun ParticipantGroupResponse.toDomain() : ParticipantGroup {
         maxParticipants = maxParticipants,
         remoteId = groupId,
         isSynced = true,
-        lastModified = System.currentTimeMillis()
+        lastModified = System.currentTimeMillis(),
+        serverUpdatedAt = updatedAt.takeIf { it > 0L }
     )
 }
 
@@ -67,6 +68,7 @@ fun DistanceResponse.toDomain(localCompetitionId: Long): Distance {
         controlsCount = controlsCount,
         description = description,
         isSynced = true,
+        serverUpdatedAt = updatedAt.takeIf { it > 0L },
         controlPoints = controlPoints.map { it.toDomain() }
     )
 }
@@ -101,7 +103,8 @@ fun OrienteeringParticipantResponse.toDomain(): OrienteeringParticipant {
         comment = comment.orEmpty(),
         isChipGiven = isChipGiven ?: false,
         isSynced = true,
-        remoteId = id    // server id сохраняем для последующего upsert
+        remoteId = id,    // server id сохраняем для последующего upsert
+        serverUpdatedAt = updatedAt.takeIf { it > 0L }
     )
 }
 
@@ -123,6 +126,7 @@ fun OrienteeringResultResponse.toDomain(): OrienteeringResult {
         splits = splits?.map { SplitTime(it.controlPoint, it.timestamp) },
         isEditable = isEditable,
         isEdited = isEdited,
-        isSynced = true
+        isSynced = true,
+        serverUpdatedAt = updatedAt.takeIf { it > 0L }
     )
 }

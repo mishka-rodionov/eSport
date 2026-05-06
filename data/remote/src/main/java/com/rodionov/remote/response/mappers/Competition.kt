@@ -46,7 +46,8 @@ fun CompetitionResponse.toDomain(): Competition {
         // Данные получены с сервера, помечаем как синхронизированные
         isSynced = true,
         lastModified = System.currentTimeMillis(),
-        createdAt = System.currentTimeMillis()
+        createdAt = System.currentTimeMillis(),
+        serverUpdatedAt = updatedAt.takeIf { it > 0L }
     )
 }
 

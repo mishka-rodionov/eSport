@@ -36,5 +36,8 @@ data class OrienteeringCompetitionResponse(
     val countdownTimer: Int? = null,
 
     @SerializedName("startTime")
-    val startTime: Long? = null
+    val startTime: Long? = null,
+
+    @SerializedName("updatedAt")
+    val updatedAt: Long = 0L
 )

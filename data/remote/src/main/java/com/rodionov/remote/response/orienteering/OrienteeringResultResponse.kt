@@ -13,7 +13,8 @@ data class OrienteeringResultResponse(
     val penaltyTime: Long,
     val splits: List<SplitTimeResponse>?,
     val isEditable: Boolean,
-    val isEdited: Boolean
+    val isEdited: Boolean,
+    val updatedAt: Long = 0L
 )
 
 data class SplitTimeResponse(

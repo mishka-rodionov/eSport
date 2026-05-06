@@ -49,5 +49,7 @@ data class CompetitionResponse(
     @SerializedName("website")
     val website: String?,
     @SerializedName("resultsStatus")
-    val resultsStatus: String
+    val resultsStatus: String,
+    @SerializedName("updatedAt")
+    val updatedAt: Long = 0L
 )

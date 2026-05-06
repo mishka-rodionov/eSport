@@ -29,5 +29,7 @@ data class DistanceResponse(
     @SerializedName("description")
     val description: String?,
     @SerializedName("controlPoints")
-    val controlPoints: List<ControlPointResponse> = emptyList()
+    val controlPoints: List<ControlPointResponse> = emptyList(),
+    @SerializedName("updatedAt")
+    val updatedAt: Long = 0L
 )
