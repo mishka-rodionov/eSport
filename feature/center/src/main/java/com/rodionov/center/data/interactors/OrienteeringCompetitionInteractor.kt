@@ -45,7 +45,7 @@ class OrienteeringCompetitionInteractor(
     suspend fun publishCompetitionToServer(competition: OrienteeringCompetition): Result<OrienteeringCompetition> {
         return remoteRepository.createCompetition(competition)
             .onSuccess { serverCompetition ->
-                localRepository.updateCompetition(serverCompetition)
+                localRepository.updateCompetition(serverCompetition, markUnsynced = false)
             }
     }
 
@@ -56,7 +56,7 @@ class OrienteeringCompetitionInteractor(
         return remoteRepository.publishGroupsForCompetition(remoteCompetitionId, groups)
             .mapCatching { updatedGroups ->
                 // Сохраняем remoteId и isSynced для каждой группы локально
-                updatedGroups.forEach { localRepository.updateParticipantGroup(it) }
+                updatedGroups.forEach { localRepository.updateParticipantGroup(it, markUnsynced = false) }
             }
     }
 
@@ -127,7 +127,7 @@ class OrienteeringCompetitionInteractor(
 
         remoteResult.onSuccess { competitions ->
             // 2. Если сеть успешна — обновляем локальное хранилище
-            localRepository.saveCompetitions(competitions)
+            localRepository.saveCompetitions(competitions, markUnsynced = false)
             val compet = localRepository.getCompetitionsByUserid(userId).getOrNull()
             Log.d("LOG_TAG", "getCompetitionsByUserId: size = ${compet?.size}")
             return Result.success(compet ?: competitions)
@@ -160,7 +160,10 @@ class OrienteeringCompetitionInteractor(
         remoteRepository.saveParticipant(
             saved.copy(groupId = serverGroupId, competitionId = serverCompetitionId)
         ).onSuccess { serverParticipant ->
-            localRepository.updateParticipants(listOf(saved.copy(isSynced = true, remoteId = serverParticipant.remoteId)))
+            localRepository.updateParticipants(
+                listOf(saved.copy(isSynced = true, remoteId = serverParticipant.remoteId)),
+                markUnsynced = false
+            )
         }
         return saved
     }
@@ -221,7 +224,10 @@ class OrienteeringCompetitionInteractor(
         }
 
         remoteRepository.saveParticipants(remoteParticipants).onSuccess {
-            localRepository.updateParticipants(participants.map { it.copy(isSynced = true) })
+            localRepository.updateParticipants(
+                participants.map { it.copy(isSynced = true) },
+                markUnsynced = false
+            )
         }
     }
 
@@ -270,7 +276,8 @@ class OrienteeringCompetitionInteractor(
             participant.copy(groupId = serverGroupId, competitionId = serverCompetitionId)
         ).onSuccess { serverParticipant ->
             localRepository.updateParticipants(
-                listOf(participant.copy(isSynced = true, remoteId = serverParticipant.remoteId))
+                listOf(participant.copy(isSynced = true, remoteId = serverParticipant.remoteId)),
+                markUnsynced = false
             )
         }
     }
@@ -358,7 +365,10 @@ class OrienteeringCompetitionInteractor(
             val resultWithRank = updatedResults.find { it.participantId == savedResult.participantId }
                 ?: savedResult
             remoteRepository.saveResult(resultWithRank).onSuccess {
-                localRepository.updateResults(listOf(resultWithRank.copy(isSynced = true)))
+                localRepository.updateResults(
+                    listOf(resultWithRank.copy(isSynced = true)),
+                    markUnsynced = false
+                )
             }
         }.onFailure {
             Log.d("LOG_TAG", "saveParticipantResult: ${it.message}")
@@ -518,9 +528,9 @@ class OrienteeringCompetitionInteractor(
         serverDistances.forEach { serverDist ->
             val existing = serverDist.remoteId?.let { existingByRemoteId[it] }
             if (existing != null) {
-                localRepository.updateDistance(serverDist.copy(id = existing.id))
+                localRepository.updateDistance(serverDist.copy(id = existing.id), markUnsynced = false)
             } else {
-                localRepository.saveDistance(serverDist)
+                localRepository.saveDistance(serverDist, markUnsynced = false)
             }
         }
 
@@ -539,7 +549,7 @@ class OrienteeringCompetitionInteractor(
                 distanceId = remoteToLocalDistanceId[group.distanceId] ?: group.distanceId
             )
         }
-        localRepository.updateParticipantsGroups(localCompetitionId, fixedGroups)
+        localRepository.updateParticipantsGroups(localCompetitionId, fixedGroups, markUnsynced = false)
     }
 
     /**
@@ -584,9 +594,9 @@ class OrienteeringCompetitionInteractor(
             )
             if (serverParticipant.id in existingChipGivenById) {
                 // Обновляем без DELETE+INSERT, чтобы не триггерить CASCADE удаление результатов
-                localRepository.updateParticipants(listOf(participantToSave))
+                localRepository.updateParticipants(listOf(participantToSave), markUnsynced = false)
             } else {
-                localRepository.saveParticipant(participantToSave)
+                localRepository.saveParticipant(participantToSave, markUnsynced = false)
             }
         }
     }
@@ -607,7 +617,7 @@ class OrienteeringCompetitionInteractor(
     ): Result<List<Distance>> {
         return remoteRepository.publishDistancesForCompetition(remoteCompetitionId, localCompetitionId, distances)
             .onSuccess { syncedDistances ->
-                syncedDistances.forEach { localRepository.updateDistance(it) }
+                syncedDistances.forEach { localRepository.updateDistance(it, markUnsynced = false) }
             }
     }
 

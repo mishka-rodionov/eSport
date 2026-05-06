@@ -18,14 +18,11 @@ import com.rodionov.local.mappers.toEntity
 
 /**
  * Реализация локального репозитория для работы с соревнованиями по спортивному ориентированию.
- * Обеспечивает взаимодействие с Room DAO для выполнения операций с базой данных.
- * Конвертирует доменные модели в Entity и обратно.
  *
- * @param orienteeringCompetitionDao DAO для работы с соревнованиями
- * @param participantGroupDao DAO для работы с группами участников
- * @param participantDao DAO для работы с участниками
- * @param orienteeringResultDao DAO для работы с результатами
- * @param distanceDao DAO для работы с дистанциями
+ * Все мутирующие методы принимают `markUnsynced: Boolean`. Если true (дефолт) — это вызов из
+ * UI/Interactor, и перед записью в БД проставляются isSynced=false, lastModified=now,
+ * syncError=null. Если false — это запись из SyncWorker или server→local pull, и значения
+ * передаются как есть.
  */
 class OrienteeringCompetitionLocalRepositoryImpl(
     private val orienteeringCompetitionDao: OrienteeringCompetitionDao,
@@ -35,52 +32,52 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     private val distanceDao: DistanceDao
 ) : OrienteeringCompetitionLocalRepository {
 
-    /**
-     * Сохраняет одиночное соревнование в локальную базу данных.
-     *
-     * Алгоритм:
-     * 1. Конвертирует доменную модель в Entity
-     * 2. Выполняет вставку в БД и получает ID записи
-     * 3. Извлекает сохранённую запись по ID
-     * 4. Конвертирует обратно в доменную модель
-     *
-     * @param orienteeringCompetition Доменная модель соревнования для сохранения
-     * @return Result с сохранённой доменной моделью или ошибкой
-     */
-    override suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
+    private fun OrienteeringCompetition.applyUnsynced(): OrienteeringCompetition =
+        copy(
+            competition = competition.copy(
+                isSynced = false,
+                lastModified = System.currentTimeMillis(),
+                syncError = null
+            )
+        )
+
+    private fun ParticipantGroup.applyUnsynced(): ParticipantGroup =
+        copy(isSynced = false, lastModified = System.currentTimeMillis(), syncError = null)
+
+    private fun OrienteeringParticipant.applyUnsynced(): OrienteeringParticipant =
+        copy(isSynced = false, lastModified = System.currentTimeMillis(), syncError = null)
+
+    private fun OrienteeringResult.applyUnsynced(): OrienteeringResult =
+        copy(isSynced = false, lastModified = System.currentTimeMillis(), syncError = null)
+
+    private fun Distance.applyUnsynced(): Distance =
+        copy(isSynced = false, lastModified = System.currentTimeMillis(), syncError = null)
+
+    override suspend fun saveCompetition(
+        orienteeringCompetition: OrienteeringCompetition,
+        markUnsynced: Boolean
+    ): Result<OrienteeringCompetition> {
         return runCatching {
-
-            // Сохраняем в базу
-            val id = orienteeringCompetitionDao.insert(orienteeringCompetition.toEntity())
-
-            // Извлекаем обратно (то, что реально лежит в БД)
+            val toSave = if (markUnsynced) orienteeringCompetition.applyUnsynced() else orienteeringCompetition
+            val id = orienteeringCompetitionDao.insert(toSave.toEntity())
             val savedEntity = orienteeringCompetitionDao.getCompetitionById(id)
                 ?: throw IllegalStateException("Failed to fetch saved competition with id = $id")
-
-            // Возвращаем доменную модель
             savedEntity.toDomain()
         }
     }
 
-    /**
-     * Сохраняет список соревнований в локальную базу данных.
-     *
-     * Алгоритм:
-     * 1. Конвертирует список доменных моделей в Entity
-     * 2. Выполняет массовую вставку и получает список ID
-     * 3. Извлекает все сохранённые записи по ID
-     * 4. Конвертирует обратно в доменные модели
-     *
-     * @param orienteeringCompetition Список доменных моделей соревнований для сохранения
-     * @return Result со списком сохранённых доменных моделей или ошибкой
-     */
-    override suspend fun saveCompetitions(orienteeringCompetition: List<OrienteeringCompetition>): Result<List<OrienteeringCompetition>> {
+    override suspend fun saveCompetitions(
+        orienteeringCompetition: List<OrienteeringCompetition>,
+        markUnsynced: Boolean
+    ): Result<List<OrienteeringCompetition>> {
         return runCatching {
 
             if (orienteeringCompetition.isEmpty()) return@runCatching emptyList()
 
+            val prepared = if (markUnsynced) orienteeringCompetition.map { it.applyUnsynced() } else orienteeringCompetition
+
             // 1. Преобразуем в сущности
-            val entities = orienteeringCompetition.map { it.toEntity() }
+            val entities = prepared.map { it.toEntity() }
 
             // 2. Вставляем (IGNORE — существующие записи не перезаписываются,
             //    чтобы избежать CASCADE DELETE дочерних distances и participant_groups)
@@ -101,30 +98,22 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    override suspend fun updateCompetition(orienteeringCompetition: OrienteeringCompetition): Result<Any> {
+    override suspend fun updateCompetition(
+        orienteeringCompetition: OrienteeringCompetition,
+        markUnsynced: Boolean
+    ): Result<Any> {
         return runCatching {
-            orienteeringCompetitionDao.update(orienteeringCompetition.toEntity())
+            val toSave = if (markUnsynced) orienteeringCompetition.applyUnsynced() else orienteeringCompetition
+            orienteeringCompetitionDao.update(toSave.toEntity())
         }
     }
 
-    /**
-     * Получает соревнование с полной детализацией (включая группы и участников).
-     *
-     * @param competitionId Идентификатор соревнования
-     * @return Result с детальной информацией о соревновании или ошибкой
-     */
     override suspend fun getCompetitionWithDetails(competitionId: Long): Result<OrienteeringCompetitionDetails> {
         return runCatching {
             orienteeringCompetitionDao.getCompetitionWithDetails(competitionId).toDomain()
         }
     }
 
-    /**
-     * Получает список соревнований по идентификатору пользователя.
-     *
-     * @param userId Идентификатор пользователя (организатора)
-     * @return Result со списком соревнований пользователя или ошибкой
-     */
     override suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>> {
         return runCatching {
 
@@ -134,33 +123,26 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    /**
-     * Получает одиночное соревнование по его идентификатору.
-     *
-     * @param competitionId Идентификатор соревнования
-     * @return Result с соревнованием (или null, если не найдено) или ошибкой
-     */
     override suspend fun getCompetition(competitionId: Long): Result<OrienteeringCompetition?> {
         return runCatching {
             orienteeringCompetitionDao.getCompetitionById(competitionId)?.toDomain()
         }
     }
 
-    /**
-     * Сохраняет группы участников для соревнования.
-     *
-     * @param participantGroups Список доменных моделей групп участников
-     * @return Result с результатом операции или ошибкой
-     */
-    override suspend fun saveParticipantsGroups(participantGroups: List<ParticipantGroup>): Result<Any> {
+    override suspend fun saveParticipantsGroups(
+        participantGroups: List<ParticipantGroup>,
+        markUnsynced: Boolean
+    ): Result<Any> {
         return runCatching {
-            participantGroupDao.insertAll(participantGroups.map(ParticipantGroup::toEntity))
+            val prepared = if (markUnsynced) participantGroups.map { it.applyUnsynced() } else participantGroups
+            participantGroupDao.insertAll(prepared.map(ParticipantGroup::toEntity))
         }
     }
 
     override suspend fun updateParticipantsGroups(
         competitionId: Long,
-        participantGroups: List<ParticipantGroup>
+        participantGroups: List<ParticipantGroup>,
+        markUnsynced: Boolean
     ): Result<Any> {
         return runCatching {
             val existingGroups = participantGroupDao.getGroupsForCompetition(competitionId)
@@ -169,19 +151,17 @@ class OrienteeringCompetitionLocalRepositoryImpl(
                 .associateBy { it.remoteId!! }
             val existingByGroupId = existingGroups.associateBy { it.groupId }
 
-            // Удаляем группы, которых нет во входящем списке (сравниваем по remoteId)
             val incomingRemoteIds = participantGroups.mapNotNull { it.remoteId }.toSet()
             existingGroups
                 .filter { it.remoteId != null && it.remoteId !in incomingRemoteIds }
                 .forEach { participantGroupDao.delete(it) }
 
-            participantGroups.forEach { group ->
+            val prepared = if (markUnsynced) participantGroups.map { it.applyUnsynced() } else participantGroups
+            prepared.forEach { group ->
                 val entity = group.toEntity().copy(competitionId = competitionId)
-                // Ищем существующую группу сначала по remoteId, затем по localGroupId
                 val existing = entity.remoteId?.let { existingByRemoteId[it] }
                     ?: existingByGroupId[entity.groupId].takeIf { entity.groupId != 0L }
                 if (existing != null) {
-                    // Обновляем данные, сохраняя локальный groupId без изменений
                     participantGroupDao.updateParticipantGroup(entity.copy(groupId = existing.groupId))
                 } else {
                     participantGroupDao.insert(entity)
@@ -190,51 +170,41 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    override suspend fun updateParticipantGroup(participantGroup: ParticipantGroup): Result<Any> {
+    override suspend fun updateParticipantGroup(
+        participantGroup: ParticipantGroup,
+        markUnsynced: Boolean
+    ): Result<Any> {
         return runCatching {
-            participantGroupDao.updateParticipantGroup(participantGroup.toEntity())
+            val toSave = if (markUnsynced) participantGroup.applyUnsynced() else participantGroup
+            participantGroupDao.updateParticipantGroup(toSave.toEntity())
         }
     }
 
-    /**
-     * Сохраняет одиночного участника соревнования.
-     *
-     * Алгоритм:
-     * 1. Конвертирует доменную модель в Entity
-     * 2. Выполняет вставку и получает ID
-     * 3. Извлекает сохранённого участника по ID
-     * 4. Конвертирует обратно в доменную модель
-     *
-     * @param participant Доменная модель участника
-     * @return Result с сохранённым участником (или null) или ошибкой
-     */
-    override suspend fun saveParticipant(participant: OrienteeringParticipant): Result<OrienteeringParticipant?> {
+    override suspend fun saveParticipant(
+        participant: OrienteeringParticipant,
+        markUnsynced: Boolean
+    ): Result<OrienteeringParticipant?> {
         return runCatching {
-            participantDao.insertParticipant(participant.toEntity())
-            participant
+            val toSave = if (markUnsynced) participant.applyUnsynced() else participant
+            participantDao.insertParticipant(toSave.toEntity())
+            toSave
         }
     }
 
-    /**
-     * Получает список участников соревнования.
-     *
-     * @param competitionId Идентификатор соревнования
-     * @return Result со списком участников или ошибкой
-     */
     override suspend fun getParticipants(competitionId: Long): Result<List<OrienteeringParticipant>> {
         return runCatching {
             participantDao.getAllParticipants(competitionId).map { it.toDomain() }
         }
     }
 
-    /**
-     * Обновляет информацию об участниках.
-     *
-     * @param participants Список доменных моделей участников для обновления
-     * @return Result с результатом операции или ошибкой
-     */
-    override suspend fun updateParticipants(participants: List<OrienteeringParticipant>): Result<Any> {
-        return runCatching { participantDao.updateAll(participants.map { it.toEntity() }) }
+    override suspend fun updateParticipants(
+        participants: List<OrienteeringParticipant>,
+        markUnsynced: Boolean
+    ): Result<Any> {
+        return runCatching {
+            val prepared = if (markUnsynced) participants.map { it.applyUnsynced() } else participants
+            participantDao.updateAll(prepared.map { it.toEntity() })
+        }
     }
 
     override suspend fun deleteParticipant(participantId: String): Result<Unit> {
@@ -251,13 +221,6 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    /**
-     * Получает участника по номеру чипа в рамках конкретного соревнования.
-     *
-     * @param competitionId Идентификатор соревнования
-     * @param chipNumber Номер чипа участника
-     * @return Result с доменной моделью участника или ошибкой
-     */
     override suspend fun getParticipantByChipNumber(
         competitionId: Long,
         chipNumber: Int
@@ -270,27 +233,19 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    /**
-     * Получает группу участников по её идентификатору.
-     *
-     * @param groupId Идентификатор группы
-     * @return Result с доменной моделью группы или ошибкой
-     */
     override suspend fun getParticipantGroup(groupId: Long): Result<ParticipantGroup> {
         return runCatching {
             participantGroupDao.getCertainParticipantGroup(groupId).toDomain()
         }
     }
 
-    /**
-     * Сохраняет результат участника в соревновании.
-     *
-     * @param orienteeringResult Доменная модель результата
-     * @return Result с результатом операции или ошибкой
-     */
-    override suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult): Result<Any> {
+    override suspend fun saveParticipantResult(
+        orienteeringResult: OrienteeringResult,
+        markUnsynced: Boolean
+    ): Result<Any> {
         return runCatching {
-            orienteeringResultDao.insertResult(orienteeringResult.toEntity())
+            val toSave = if (markUnsynced) orienteeringResult.applyUnsynced() else orienteeringResult
+            orienteeringResultDao.insertResult(toSave.toEntity())
         }
     }
 
@@ -300,13 +255,6 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    /**
-     * Получает результаты для конкретной группы в рамках соревнования.
-     *
-     * @param competitionId Идентификатор соревнования
-     * @param groupId Идентификатор группы
-     * @return Result со списком доменных моделей результатов или ошибкой
-     */
     override suspend fun getResultForGroup(
         competitionId: Long,
         groupId: Long
@@ -316,15 +264,13 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    /**
-     * Обновляет список результатов участников.
-     *
-     * @param orienteeringResult Список доменных моделей результатов для обновления
-     * @return Result с результатом операции или ошибкой
-     */
-    override suspend fun updateResults(orienteeringResult: List<OrienteeringResult>): Result<Any> {
+    override suspend fun updateResults(
+        orienteeringResult: List<OrienteeringResult>,
+        markUnsynced: Boolean
+    ): Result<Any> {
         return runCatching {
-            orienteeringResultDao.updateResults(orienteeringResult.map { it.toEntity() })
+            val prepared = if (markUnsynced) orienteeringResult.map { it.applyUnsynced() } else orienteeringResult
+            orienteeringResultDao.updateResults(prepared.map { it.toEntity() })
         }
     }
 
@@ -343,24 +289,13 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    /**
-     * Сохраняет новую дистанцию в локальную базу данных.
-     * 
-     * @param distance Доменная модель дистанции.
-     * @return Result с ID сохраненной записи или ошибкой.
-     */
-    override suspend fun saveDistance(distance: Distance): Result<Long> {
+    override suspend fun saveDistance(distance: Distance, markUnsynced: Boolean): Result<Long> {
         return runCatching {
-            distanceDao.insertDistance(distance.toEntity())
+            val toSave = if (markUnsynced) distance.applyUnsynced() else distance
+            distanceDao.insertDistance(toSave.toEntity())
         }
     }
 
-    /**
-     * Возвращает список всех дистанций для указанного соревнования.
-     * 
-     * @param competitionId Идентификатор соревнования.
-     * @return Result со списком доменных моделей дистанций или ошибкой.
-     */
     override suspend fun getDistanceById(distanceId: Long): Result<Distance?> {
         return runCatching {
             distanceDao.getDistanceById(distanceId)?.toDomain()
@@ -373,14 +308,10 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    /**
-     * Обновляет данные существующей дистанции.
-     * 
-     * @param distance Доменная модель дистанции.
-     */
-    override suspend fun updateDistance(distance: Distance): Result<Any> {
+    override suspend fun updateDistance(distance: Distance, markUnsynced: Boolean): Result<Any> {
         return runCatching {
-            distanceDao.updateDistance(distance.toEntity())
+            val toSave = if (markUnsynced) distance.applyUnsynced() else distance
+            distanceDao.updateDistance(toSave.toEntity())
         }
     }
 }
