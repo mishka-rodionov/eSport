@@ -32,4 +32,10 @@ interface ParticipantGroupDao {
 
     @Query("DELETE FROM participant_groups")
     suspend fun clearAll()
+
+    @Query("SELECT * FROM participant_groups WHERE isSynced = 0 AND isDeleted = 0")
+    suspend fun getUnsynced(): List<ParticipantGroupEntity>
+
+    @Query("SELECT * FROM participant_groups WHERE isSynced = 0 AND isDeleted = 1")
+    suspend fun getMarkedForDeletion(): List<ParticipantGroupEntity>
 }

@@ -61,4 +61,10 @@ interface OrienteeringCompetitionDao {
     @Query("SELECT * FROM orienteering_competitions WHERE mainOrganizerId = :userId")
     suspend fun getCompetitionsByUserId(userId: String): List<OrienteeringCompetitionEntity>
 
+    @Query("SELECT * FROM orienteering_competitions WHERE isSynced = 0 AND isDeleted = 0")
+    suspend fun getUnsynced(): List<OrienteeringCompetitionEntity>
+
+    @Query("SELECT * FROM orienteering_competitions WHERE isSynced = 0 AND isDeleted = 1")
+    suspend fun getMarkedForDeletion(): List<OrienteeringCompetitionEntity>
+
 }

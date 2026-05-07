@@ -314,4 +314,34 @@ class OrienteeringCompetitionLocalRepositoryImpl(
             distanceDao.updateDistance(toSave.toEntity())
         }
     }
+
+    override suspend fun getUnsyncedCompetitions(): List<OrienteeringCompetition> =
+        orienteeringCompetitionDao.getUnsynced().map { it.toDomain() }
+
+    override suspend fun getCompetitionsMarkedForDeletion(): List<OrienteeringCompetition> =
+        orienteeringCompetitionDao.getMarkedForDeletion().map { it.toDomain() }
+
+    override suspend fun getUnsyncedGroups(): List<ParticipantGroup> =
+        participantGroupDao.getUnsynced().map { it.toDomain() }
+
+    override suspend fun getGroupsMarkedForDeletion(): List<ParticipantGroup> =
+        participantGroupDao.getMarkedForDeletion().map { it.toDomain() }
+
+    override suspend fun getUnsyncedDistances(): List<Distance> =
+        distanceDao.getUnsynced().map { it.toDomain() }
+
+    override suspend fun getDistancesMarkedForDeletion(): List<Distance> =
+        distanceDao.getMarkedForDeletion().map { it.toDomain() }
+
+    override suspend fun getUnsyncedParticipants(): List<OrienteeringParticipant> =
+        participantDao.getUnsynced().map { it.toDomain() }
+
+    override suspend fun getParticipantsMarkedForDeletion(): List<OrienteeringParticipant> =
+        participantDao.getMarkedForDeletion().map { it.toDomain() }
+
+    override suspend fun getUnsyncedResults(): List<OrienteeringResult> =
+        orienteeringResultDao.getUnsynced().map { it.toDomain() }
+
+    override suspend fun getResultsMarkedForDeletion(): List<OrienteeringResult> =
+        orienteeringResultDao.getMarkedForDeletion().map { it.toDomain() }
 }

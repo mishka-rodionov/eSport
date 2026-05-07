@@ -52,4 +52,10 @@ interface DistanceDao {
 
     @Query("DELETE FROM distances WHERE competitionId = :competitionId")
     suspend fun deleteDistancesByCompetitionId(competitionId: Long)
+
+    @Query("SELECT * FROM distances WHERE isSynced = 0 AND isDeleted = 0")
+    suspend fun getUnsynced(): List<DistanceEntity>
+
+    @Query("SELECT * FROM distances WHERE isSynced = 0 AND isDeleted = 1")
+    suspend fun getMarkedForDeletion(): List<DistanceEntity>
 }

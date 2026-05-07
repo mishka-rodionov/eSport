@@ -147,4 +147,10 @@ interface OrienteeringResultDao {
     @Query("UPDATE orienteering_results SET isEditable = :isEditable WHERE competitionId = :competitionId")
     suspend fun updateIsEditableForCompetition(competitionId: Long, isEditable: Boolean)
 
+    @Query("SELECT * FROM orienteering_results WHERE isSynced = 0 AND isDeleted = 0")
+    suspend fun getUnsynced(): List<OrienteeringResultEntity>
+
+    @Query("SELECT * FROM orienteering_results WHERE isSynced = 0 AND isDeleted = 1")
+    suspend fun getMarkedForDeletion(): List<OrienteeringResultEntity>
+
 }

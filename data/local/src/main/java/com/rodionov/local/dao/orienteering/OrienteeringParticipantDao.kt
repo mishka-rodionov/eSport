@@ -39,4 +39,10 @@ interface OrienteeringParticipantDao {
 
     @Query("DELETE FROM orienteering_participants WHERE competitionId = :competitionId")
     suspend fun deleteParticipantsByCompetitionId(competitionId: Long)
+
+    @Query("SELECT * FROM orienteering_participants WHERE isSynced = 0 AND isDeleted = 0")
+    suspend fun getUnsynced(): List<OrienteeringParticipantEntity>
+
+    @Query("SELECT * FROM orienteering_participants WHERE isSynced = 0 AND isDeleted = 1")
+    suspend fun getMarkedForDeletion(): List<OrienteeringParticipantEntity>
 }

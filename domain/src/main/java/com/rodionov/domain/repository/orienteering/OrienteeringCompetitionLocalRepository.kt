@@ -74,4 +74,36 @@ interface OrienteeringCompetitionLocalRepository {
      * Обновляет данные существующей дистанции.
      */
     suspend fun updateDistance(distance: Distance, markUnsynced: Boolean = true): Result<Any>
+
+    // ====== Запросы для SyncCenterWorker ======
+
+    /** Соревнования, ожидающие выгрузки на сервер. */
+    suspend fun getUnsyncedCompetitions(): List<OrienteeringCompetition>
+
+    /** Соревнования, помеченные на удаление и ещё не синхронизированные. */
+    suspend fun getCompetitionsMarkedForDeletion(): List<OrienteeringCompetition>
+
+    /** Группы участников, ожидающие выгрузки. */
+    suspend fun getUnsyncedGroups(): List<ParticipantGroup>
+
+    /** Группы, помеченные на удаление. */
+    suspend fun getGroupsMarkedForDeletion(): List<ParticipantGroup>
+
+    /** Дистанции, ожидающие выгрузки. */
+    suspend fun getUnsyncedDistances(): List<Distance>
+
+    /** Дистанции, помеченные на удаление. */
+    suspend fun getDistancesMarkedForDeletion(): List<Distance>
+
+    /** Участники, ожидающие выгрузки. */
+    suspend fun getUnsyncedParticipants(): List<OrienteeringParticipant>
+
+    /** Участники, помеченные на удаление. */
+    suspend fun getParticipantsMarkedForDeletion(): List<OrienteeringParticipant>
+
+    /** Результаты, ожидающие выгрузки. */
+    suspend fun getUnsyncedResults(): List<OrienteeringResult>
+
+    /** Результаты, помеченные на удаление. */
+    suspend fun getResultsMarkedForDeletion(): List<OrienteeringResult>
 }
