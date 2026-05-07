@@ -13,8 +13,10 @@ import com.rodionov.remote.response.orienteering.OrienteeringParticipantResponse
 import com.rodionov.remote.response.orienteering.OrienteeringResultResponse
 import com.rodionov.remote.response.orienteering.ParticipantGroupResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface OrienteeringCompetitionRemoteDataSource {
@@ -57,5 +59,23 @@ interface OrienteeringCompetitionRemoteDataSource {
 
     @GET("event/orienteering/results/competition")
     suspend fun getResultsByCompetition(@Query("competitionId") competitionId: Long): Result<CommonModel<List<OrienteeringResultResponse>>>
+
+    @POST("event/orienteering/save/results")
+    suspend fun saveResults(@Body requests: List<OrienteeringResultRequest>): Result<CommonModel<List<OrienteeringResultResponse>>>
+
+    @DELETE("event/orienteering/competitions/{id}")
+    suspend fun deleteCompetition(@Path("id") id: Long): Result<CommonModel<Any>>
+
+    @DELETE("event/orienteering/participantGroups/{id}")
+    suspend fun deleteParticipantGroup(@Path("id") id: Long): Result<CommonModel<Any>>
+
+    @DELETE("event/orienteering/participants/{id}")
+    suspend fun deleteParticipant(@Path("id") id: String): Result<CommonModel<Any>>
+
+    @DELETE("event/orienteering/results/{id}")
+    suspend fun deleteResult(@Path("id") id: String): Result<CommonModel<Any>>
+
+    @DELETE("event/orienteering/distances/{id}")
+    suspend fun deleteDistance(@Path("id") id: Long): Result<CommonModel<Any>>
 
 }

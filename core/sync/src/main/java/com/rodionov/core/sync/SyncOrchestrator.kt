@@ -15,6 +15,7 @@ import java.io.IOException
  *  3. Groups        (требуют competition.remoteId и distance.remoteId)
  *  4. Participants  (требуют competition.remoteId и group.remoteId)
  *  5. Results       (требуют participant + competition + group)
+ *  6. Deletes       (обратный порядок: results → participants → groups → distances → competitions)
  *
  * Если зависимость не имеет remoteId — запись пропускается в текущем пробеге и обработается
  * в следующем запуске Worker'а (после того как родительская сущность синхронизируется).
@@ -40,6 +41,7 @@ class SyncOrchestrator(
         transientFailure = transientFailure or syncGroups()
         transientFailure = transientFailure or syncParticipants()
         transientFailure = transientFailure or syncResults()
+        transientFailure = transientFailure or syncDeletes()
 
         if (transientFailure) {
             throw IOException("Transient sync error")
@@ -51,8 +53,152 @@ class SyncOrchestrator(
         hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getUnsyncedGroups().isNotEmpty()
         hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getUnsyncedParticipants().isNotEmpty()
         hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getUnsyncedResults().isNotEmpty()
+        hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getCompetitionsMarkedForDeletion().isNotEmpty()
+        hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getDistancesMarkedForDeletion().isNotEmpty()
+        hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getGroupsMarkedForDeletion().isNotEmpty()
+        hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getParticipantsMarkedForDeletion().isNotEmpty()
+        hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getResultsMarkedForDeletion().isNotEmpty()
 
         return if (hasRemainingUnsynced) Outcome.Partial else Outcome.AllDone
+    }
+
+    /**
+     * Удаления в обратном порядке зависимостей. Для каждой записи:
+     *  - если remoteId есть → DELETE на сервере, при успехе физическое удаление локально;
+     *  - если remoteId == null (никогда не синхронизировалась) → сразу удалить локально.
+     */
+    private suspend fun syncDeletes(): Boolean {
+        var transient = false
+        transient = transient or syncResultDeletes()
+        transient = transient or syncParticipantDeletes()
+        transient = transient or syncGroupDeletes()
+        transient = transient or syncDistanceDeletes()
+        transient = transient or syncCompetitionDeletes()
+        return transient
+    }
+
+    private suspend fun syncResultDeletes(): Boolean {
+        val marked = localRepository.getResultsMarkedForDeletion()
+        var transient = false
+        for (result in marked) {
+            val remoteId = result.remoteId
+            if (remoteId == null) {
+                localRepository.purgeResultLocally(result.id)
+                continue
+            }
+            val response = remoteRepository.deleteResultRemotely(remoteId)
+            transient = transient or handleDelete(
+                response = response,
+                entityDescription = "result ${result.id}",
+                onSuccess = { localRepository.purgeResultLocally(result.id) }
+            )
+        }
+        return transient
+    }
+
+    private suspend fun syncParticipantDeletes(): Boolean {
+        val marked = localRepository.getParticipantsMarkedForDeletion()
+        var transient = false
+        for (participant in marked) {
+            // У участника server-id == client-id (UUID); если запись никогда не синхронизировалась,
+            // remoteId всё равно null — просто удаляем локально.
+            if (participant.remoteId == null) {
+                localRepository.deleteParticipant(participant.id)
+                continue
+            }
+            val response = remoteRepository.deleteParticipantRemotely(participant.id)
+            transient = transient or handleDelete(
+                response = response,
+                entityDescription = "participant ${participant.id}",
+                onSuccess = { localRepository.deleteParticipant(participant.id) }
+            )
+        }
+        return transient
+    }
+
+    private suspend fun syncGroupDeletes(): Boolean {
+        val marked = localRepository.getGroupsMarkedForDeletion()
+        var transient = false
+        for (group in marked) {
+            val remoteId = group.remoteId
+            if (remoteId == null) {
+                localRepository.purgeGroupLocally(group.groupId)
+                continue
+            }
+            val response = remoteRepository.deleteGroupRemotely(remoteId)
+            transient = transient or handleDelete(
+                response = response,
+                entityDescription = "group ${group.groupId}",
+                onSuccess = { localRepository.purgeGroupLocally(group.groupId) }
+            )
+        }
+        return transient
+    }
+
+    private suspend fun syncDistanceDeletes(): Boolean {
+        val marked = localRepository.getDistancesMarkedForDeletion()
+        var transient = false
+        for (distance in marked) {
+            val remoteId = distance.remoteId
+            if (remoteId == null) {
+                localRepository.purgeDistanceLocally(distance.id)
+                continue
+            }
+            val response = remoteRepository.deleteDistanceRemotely(remoteId)
+            transient = transient or handleDelete(
+                response = response,
+                entityDescription = "distance ${distance.id}",
+                onSuccess = { localRepository.purgeDistanceLocally(distance.id) }
+            )
+        }
+        return transient
+    }
+
+    private suspend fun syncCompetitionDeletes(): Boolean {
+        val marked = localRepository.getCompetitionsMarkedForDeletion()
+        var transient = false
+        for (competition in marked) {
+            val remoteId = competition.competition.remoteId
+            if (remoteId == null) {
+                localRepository.deleteCompetition(competition.localCompetitionId)
+                continue
+            }
+            val response = remoteRepository.deleteCompetitionRemotely(remoteId)
+            transient = transient or handleDelete(
+                response = response,
+                entityDescription = "competition ${competition.localCompetitionId}",
+                onSuccess = { localRepository.deleteCompetition(competition.localCompetitionId) }
+            )
+        }
+        return transient
+    }
+
+    /**
+     * Упрощённая обработка Result<Unit> для DELETE: на permanent error не помечаем
+     * syncError (нет места — запись будет удалена либо тут же, либо при следующей попытке).
+     * 404 трактуется как success — записи на сервере уже нет, и нам нужно лишь purge локально.
+     */
+    private suspend inline fun handleDelete(
+        response: Result<Unit>,
+        entityDescription: String,
+        crossinline onSuccess: suspend () -> Unit
+    ): Boolean {
+        return when (val error = response.exceptionOrNull()) {
+            null -> {
+                onSuccess()
+                false
+            }
+            is IOException -> {
+                Log.w(TAG, "Transient delete failure for $entityDescription: ${error.message}")
+                true
+            }
+            else -> {
+                // 404/4xx: считаем за «уже удалено» и чистим локалку, чтобы не зацикливаться.
+                Log.w(TAG, "Permanent delete error for $entityDescription: ${error.message} — purging locally")
+                onSuccess()
+                false
+            }
+        }
     }
 
     private suspend fun syncCompetitions(): Boolean {

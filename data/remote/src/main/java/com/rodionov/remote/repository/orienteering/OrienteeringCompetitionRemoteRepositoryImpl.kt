@@ -157,4 +157,19 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
         return orienteeringCompetitionRemoteDataSource.getResultsByCompetition(competitionId)
             .mapCatching { it.result!!.map { r -> r.toDomain() } }
     }
+
+    override suspend fun deleteCompetitionRemotely(remoteCompetitionId: Long): Result<Unit> =
+        orienteeringCompetitionRemoteDataSource.deleteCompetition(remoteCompetitionId).mapCatching { }
+
+    override suspend fun deleteGroupRemotely(remoteGroupId: Long): Result<Unit> =
+        orienteeringCompetitionRemoteDataSource.deleteParticipantGroup(remoteGroupId).mapCatching { }
+
+    override suspend fun deleteDistanceRemotely(remoteDistanceId: Long): Result<Unit> =
+        orienteeringCompetitionRemoteDataSource.deleteDistance(remoteDistanceId).mapCatching { }
+
+    override suspend fun deleteParticipantRemotely(participantId: String): Result<Unit> =
+        orienteeringCompetitionRemoteDataSource.deleteParticipant(participantId).mapCatching { }
+
+    override suspend fun deleteResultRemotely(resultId: String): Result<Unit> =
+        orienteeringCompetitionRemoteDataSource.deleteResult(resultId).mapCatching { }
 }

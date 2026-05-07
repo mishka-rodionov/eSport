@@ -54,4 +54,14 @@ interface OrienteeringCompetitionRemoteRepository {
 
     suspend fun getResultsByCompetition(competitionId: Long): Result<List<OrienteeringResult>>
 
+    /**
+     * Удаление сущностей на сервере (физическое). Используется SyncCenterWorker
+     * после soft-delete на клиенте: запись помечена isDeleted=true,
+     * Worker отправляет DELETE и при успехе физически удаляет локальную запись.
+     */
+    suspend fun deleteCompetitionRemotely(remoteCompetitionId: Long): Result<Unit>
+    suspend fun deleteGroupRemotely(remoteGroupId: Long): Result<Unit>
+    suspend fun deleteDistanceRemotely(remoteDistanceId: Long): Result<Unit>
+    suspend fun deleteParticipantRemotely(participantId: String): Result<Unit>
+    suspend fun deleteResultRemotely(resultId: String): Result<Unit>
 }

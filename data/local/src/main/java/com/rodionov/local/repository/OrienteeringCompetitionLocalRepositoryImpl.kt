@@ -344,4 +344,17 @@ class OrienteeringCompetitionLocalRepositoryImpl(
 
     override suspend fun getResultsMarkedForDeletion(): List<OrienteeringResult> =
         orienteeringResultDao.getMarkedForDeletion().map { it.toDomain() }
+
+    override suspend fun purgeGroupLocally(groupId: Long) {
+        val group = participantGroupDao.getCertainParticipantGroup(groupId)
+        participantGroupDao.delete(group)
+    }
+
+    override suspend fun purgeDistanceLocally(distanceId: Long) {
+        distanceDao.deleteDistance(distanceId)
+    }
+
+    override suspend fun purgeResultLocally(resultId: Long) {
+        orienteeringResultDao.deleteResultById(resultId)
+    }
 }

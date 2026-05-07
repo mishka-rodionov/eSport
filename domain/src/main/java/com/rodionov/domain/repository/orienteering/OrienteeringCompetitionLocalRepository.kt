@@ -106,4 +106,15 @@ interface OrienteeringCompetitionLocalRepository {
 
     /** Результаты, помеченные на удаление. */
     suspend fun getResultsMarkedForDeletion(): List<OrienteeringResult>
+
+    // ====== Physical delete после успешной DELETE-выгрузки ======
+
+    /** Физически удаляет группу из локальной БД (вызывается Worker'ом после успешного DELETE на сервере). */
+    suspend fun purgeGroupLocally(groupId: Long)
+
+    /** Физически удаляет дистанцию из локальной БД. */
+    suspend fun purgeDistanceLocally(distanceId: Long)
+
+    /** Физически удаляет результат из локальной БД. */
+    suspend fun purgeResultLocally(resultId: Long)
 }
