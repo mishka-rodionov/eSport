@@ -79,6 +79,7 @@ dependencies {
     implementation(project(":core:nfchelper"))
     implementation(project(":core:ui"))
     implementation(project(":core:eventdetails"))
+    implementation(project(":core:sync"))
 
     implementation(libs.kotlinx.serialization.json)
 
@@ -95,6 +96,9 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.navigation)
     implementation(libs.koin.compose)
+    implementation(libs.koin.workmanager)
+
+    implementation(libs.androidx.work.runtime.ktx)
 
     implementation(libs.chucker.library)
 }

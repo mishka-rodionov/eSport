@@ -57,6 +57,22 @@
             android:name=".service.CompetitionForegroundService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
+
+        <!--
+            Отключаем автоматический WorkManagerInitializer, чтобы он не запускался
+            до Application.onCreate. WorkManager инициализируется on-demand через
+            Configuration.Provider в SportApp + workManagerFactory() в Koin DSL.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
     </application>
 
 </manifest>
