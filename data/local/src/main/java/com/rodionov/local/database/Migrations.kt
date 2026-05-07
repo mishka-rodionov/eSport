@@ -118,8 +118,14 @@ val MIGRATION_33_34 = object : Migration(33, 34) {
  */
 val MIGRATION_36_37 = object : Migration(36, 37) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // Competition (@Embedded в orienteering_competitions): serverUpdatedAt
+        // Competition (@Embedded в orienteering_competitions): serverUpdatedAt + syncError.
+        // syncError было в data class Competition давно, но миграция для него не существовала —
+        // добиваем ALTER TABLE сейчас. Если поле уже есть (на новых установках через Room
+        // generated schema) — ловим SQLException и продолжаем.
         db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN serverUpdatedAt INTEGER")
+        runCatching {
+            db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN syncError TEXT")
+        }
 
         // participant_groups
         db.execSQL("ALTER TABLE participant_groups ADD COLUMN serverUpdatedAt INTEGER")

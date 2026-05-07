@@ -1,6 +1,7 @@
 package com.rodionov.local.entities.orienteering
 
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -46,7 +47,8 @@ import com.rodionov.local.converters.ResultConverters
     ],
     indices = [
         Index(value = ["competitionId"]),
-        Index(value = ["participantId"])
+        Index(value = ["participantId"]),
+        Index(name = "idx_results_unsynced", value = ["isSynced"])
     ]
 )
 @TypeConverters(ResultConverters::class)
@@ -68,7 +70,9 @@ data class OrienteeringResultEntity(
     val isEdited: Boolean = false,
     val isSynced: Boolean = false,
     val remoteId: String? = null,
+    @ColumnInfo(defaultValue = "0")
     val isDeleted: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
     val lastModified: Long = System.currentTimeMillis(),
     val serverUpdatedAt: Long? = null,
     val syncError: String? = null

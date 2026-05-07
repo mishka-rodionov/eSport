@@ -1,7 +1,9 @@
 package com.rodionov.local.entities.orienteering
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.rodionov.domain.models.Competition
@@ -21,7 +23,10 @@ import com.rodionov.local.converters.CompetitionConverters
  * @property countdownTimer Время отсчета перед стартом (в минутах)
  * @property startTime Фактическое время начала соревнования (timestamp)
  */
-@Entity(tableName = "orienteering_competitions")
+@Entity(
+    tableName = "orienteering_competitions",
+    indices = [Index(name = "idx_competitions_unsynced", value = ["isSynced"])]
+)
 @TypeConverters(CompetitionConverters::class)
 data class OrienteeringCompetitionEntity(
     @PrimaryKey(autoGenerate = true)
@@ -34,5 +39,6 @@ data class OrienteeringCompetitionEntity(
     val countdownTimer: Int? = null,
     val startTime: Long? = null,
     val startIntervalSeconds: Int? = null,
+    @ColumnInfo(defaultValue = "0")
     val isDrawConducted: Boolean = false
 )

@@ -19,7 +19,10 @@ import com.rodionov.local.converters.ControlPointConverters
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("competitionId")]
+    indices = [
+        Index("competitionId"),
+        Index(name = "idx_distances_unsynced", value = ["isSynced"])
+    ]
 )
 @TypeConverters(ControlPointConverters::class)
 data class DistanceEntity(

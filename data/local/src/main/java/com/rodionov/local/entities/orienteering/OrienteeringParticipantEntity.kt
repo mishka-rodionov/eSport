@@ -1,7 +1,9 @@
 package com.rodionov.local.entities.orienteering
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
@@ -19,6 +21,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
+    indices = [Index(name = "idx_participants_unsynced", value = ["isSynced"])]
 )
 data class OrienteeringParticipantEntity(
     @PrimaryKey
@@ -37,7 +40,9 @@ data class OrienteeringParticipantEntity(
     val isChipGiven: Boolean,
     val isSynced: Boolean = false,
     val remoteId: String? = null,   // ID участника на сервере
+    @ColumnInfo(defaultValue = "0")
     val isDeleted: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
     val lastModified: Long = System.currentTimeMillis(),
     val serverUpdatedAt: Long? = null,
     val syncError: String? = null

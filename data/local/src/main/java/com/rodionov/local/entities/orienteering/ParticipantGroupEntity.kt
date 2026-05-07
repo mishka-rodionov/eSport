@@ -2,6 +2,7 @@ package com.rodionov.local.entities.orienteering
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.rodionov.domain.models.Gender
@@ -32,7 +33,8 @@ import com.rodionov.local.converters.UserConverter
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index(name = "idx_groups_unsynced", value = ["isSynced"])]
 )
 @TypeConverters(ControlPointConverters::class, UserConverter::class)
 data class ParticipantGroupEntity(
