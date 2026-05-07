@@ -16,13 +16,14 @@ import com.rodionov.remote.request.orienteering.SplitTimeRequest
 
 fun OrienteeringCompetition.toRequest(): OrienteeringCompetitionRequest {
     return OrienteeringCompetitionRequest(
-        localCompetitionId,
-        competition.toRequest(),
-        direction.name,
-        punchingSystem.name,
-        startTimeMode.name,
-        countdownTimer,
-        startIntervalSeconds
+        competitionId = localCompetitionId,
+        competition = competition.toRequest(),
+        direction = direction.name,
+        punchingSystem = punchingSystem.name,
+        startTimeMode = startTimeMode.name,
+        countdownTimer = countdownTimer,
+        startIntervalSeconds = startIntervalSeconds,
+        serverUpdatedAt = competition.serverUpdatedAt
     )
 }
 
@@ -38,7 +39,8 @@ fun ParticipantGroup.toRequest(): ParticipantGroupRequest {
         minAge = minAge,
         maxAge = maxAge,
         distanceId = distanceId,
-        maxParticipants = maxParticipants
+        maxParticipants = maxParticipants,
+        serverUpdatedAt = serverUpdatedAt
     )
 }
 
@@ -51,7 +53,8 @@ fun Distance.toRequest(remoteCompetitionId: Long): DistanceRequest {
         climbMeters = climbMeters,
         controlsCount = controlsCount,
         description = description,
-        controlPoints = controlPoints.map { it.toRequest() }
+        controlPoints = controlPoints.map { it.toRequest() },
+        serverUpdatedAt = serverUpdatedAt
     )
 }
 
@@ -77,7 +80,8 @@ fun OrienteeringParticipant.toRequest(): OrienteeringParticipantRequest {
         startTime = startTime,
         chipNumber = chipNumber.toLongOrNull() ?: 0L,
         comment = comment.ifEmpty { null },
-        isChipGiven = isChipGiven
+        isChipGiven = isChipGiven,
+        serverUpdatedAt = serverUpdatedAt
     )
 }
 
@@ -95,6 +99,7 @@ fun OrienteeringResult.toRequest(): OrienteeringResultRequest {
         penaltyTime = penaltyTime,
         splits = splits?.map { SplitTimeRequest(it.controlPoint, it.timestamp) },
         isEditable = isEditable,
-        isEdited = isEdited
+        isEdited = isEdited,
+        serverUpdatedAt = serverUpdatedAt
     )
 }

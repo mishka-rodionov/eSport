@@ -49,5 +49,7 @@ data class CompetitionRequest(
     @SerializedName("resultsStatus")
     val resultsStatus: String,
     @SerializedName("imageUrl")
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    @SerializedName("serverUpdatedAt")
+    val serverUpdatedAt: Long? = null
 )

@@ -30,5 +30,7 @@ data class ParticipantGroupRequest(
     @SerializedName("distanceId")
     val distanceId: Long,
     @SerializedName("maxParticipants")
-    val maxParticipants: Int?
+    val maxParticipants: Int?,
+    @SerializedName("serverUpdatedAt")
+    val serverUpdatedAt: Long? = null
 )

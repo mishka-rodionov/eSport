@@ -13,5 +13,6 @@ data class OrienteeringParticipantRequest(
     val startTime: Long,
     val chipNumber: Long,
     val comment: String?,
-    val isChipGiven: Boolean
+    val isChipGiven: Boolean,
+    val serverUpdatedAt: Long? = null
 )

@@ -13,7 +13,8 @@ data class OrienteeringResultRequest(
     val penaltyTime: Long,
     val splits: List<SplitTimeRequest>?,
     val isEditable: Boolean,
-    val isEdited: Boolean
+    val isEdited: Boolean,
+    val serverUpdatedAt: Long? = null
 )
 
 data class SplitTimeRequest(

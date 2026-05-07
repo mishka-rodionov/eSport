@@ -33,5 +33,8 @@ data class OrienteeringCompetitionRequest(
     val countdownTimer: Int? = null,
 
     @SerializedName("startIntervalSeconds")
-    val startIntervalSeconds: Int? = null
+    val startIntervalSeconds: Int? = null,
+
+    @SerializedName("serverUpdatedAt")
+    val serverUpdatedAt: Long? = null
 )
