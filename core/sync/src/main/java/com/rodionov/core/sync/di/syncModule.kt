@@ -1,5 +1,6 @@
 package com.rodionov.core.sync.di
 
+import com.rodionov.core.sync.ConflictResolver
 import com.rodionov.core.sync.NetworkAvailabilityObserver
 import com.rodionov.core.sync.SyncCenterWorker
 import com.rodionov.core.sync.SyncOrchestrator
@@ -8,6 +9,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val syncModule = module {
+    singleOf(::ConflictResolver)
     singleOf(::SyncOrchestrator)
     singleOf(::NetworkAvailabilityObserver)
     workerOf(::SyncCenterWorker)

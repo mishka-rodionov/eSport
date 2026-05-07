@@ -2,11 +2,6 @@ package com.rodionov.core.sync
 
 import android.util.Log
 import com.rodionov.domain.exception.ConflictException
-import com.rodionov.domain.models.orienteering.OrienteeringCompetition
-import com.rodionov.domain.models.orienteering.OrienteeringParticipant
-import com.rodionov.domain.models.orienteering.OrienteeringResult
-import com.rodionov.domain.models.ParticipantGroup
-import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import java.io.IOException
@@ -31,14 +26,14 @@ import java.io.IOException
  */
 class SyncOrchestrator(
     private val localRepository: OrienteeringCompetitionLocalRepository,
-    private val remoteRepository: OrienteeringCompetitionRemoteRepository
+    private val remoteRepository: OrienteeringCompetitionRemoteRepository,
+    private val conflictResolver: ConflictResolver
 ) {
 
     enum class Outcome { AllDone, Partial }
 
     suspend fun syncAll(): Outcome {
         var transientFailure = false
-        var hasRemainingUnsynced = false
 
         transientFailure = transientFailure or syncCompetitions()
         transientFailure = transientFailure or syncDistances()
@@ -50,7 +45,7 @@ class SyncOrchestrator(
             throw IOException("Transient sync error")
         }
 
-        // Повторно проверяем — если что-то осталось из-за readiness, нужен следующий проход
+        var hasRemainingUnsynced = false
         hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getUnsyncedCompetitions().isNotEmpty()
         hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getUnsyncedDistances().isNotEmpty()
         hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getUnsyncedGroups().isNotEmpty()
@@ -60,24 +55,27 @@ class SyncOrchestrator(
         return if (hasRemainingUnsynced) Outcome.Partial else Outcome.AllDone
     }
 
-    /** Возвращает true, если был transient-сбой (требуется retry Worker'а). */
     private suspend fun syncCompetitions(): Boolean {
         val unsynced = localRepository.getUnsyncedCompetitions()
         var transient = false
         for (competition in unsynced) {
             val result = remoteRepository.createCompetition(competition)
             transient = transient or handleResult(
-                result,
+                result = result,
+                entityDescription = "competition ${competition.localCompetitionId}",
                 onSuccess = { server ->
                     localRepository.updateCompetition(server, markUnsynced = false)
                 },
-                entityDescription = "competition ${competition.localCompetitionId}"
-            ) {
-                localRepository.updateCompetition(
-                    competition.copy(competition = competition.competition.copy(syncError = it)),
-                    markUnsynced = false
-                )
-            }
+                onConflict = { payload ->
+                    conflictResolver.applyCompetitionConflict(competition.localCompetitionId, payload)
+                },
+                onPermanentError = { msg ->
+                    localRepository.updateCompetition(
+                        competition.copy(competition = competition.competition.copy(syncError = msg)),
+                        markUnsynced = false
+                    )
+                }
+            )
         }
         return transient
     }
@@ -101,14 +99,21 @@ class SyncOrchestrator(
                 distances = distances
             )
             transient = transient or handleResult(
-                result,
+                result = result,
+                entityDescription = "distances for competition $localCompetitionId",
                 onSuccess = { synced ->
                     synced.forEach { localRepository.updateDistance(it, markUnsynced = false) }
                 },
-                entityDescription = "distances for competition $localCompetitionId"
-            ) { msg ->
-                distances.forEach { localRepository.updateDistance(it.copy(syncError = msg), markUnsynced = false) }
-            }
+                onConflict = { payload ->
+                    // Сервер при batch-конфликте отдаёт одну запись — её и применяем.
+                    distances.firstOrNull()?.let {
+                        conflictResolver.applyDistanceConflict(it.id, localCompetitionId, payload)
+                    }
+                },
+                onPermanentError = { msg ->
+                    distances.forEach { localRepository.updateDistance(it.copy(syncError = msg), markUnsynced = false) }
+                }
+            )
         }
         return transient
     }
@@ -133,14 +138,20 @@ class SyncOrchestrator(
             }
             val result = remoteRepository.publishGroupsForCompetition(remoteCompetitionId, groupsWithRemoteDistance)
             transient = transient or handleResult(
-                result,
+                result = result,
+                entityDescription = "groups for competition $localCompetitionId",
                 onSuccess = { synced ->
                     synced.forEach { localRepository.updateParticipantGroup(it, markUnsynced = false) }
                 },
-                entityDescription = "groups for competition $localCompetitionId"
-            ) { msg ->
-                groups.forEach { localRepository.updateParticipantGroup(it.copy(syncError = msg), markUnsynced = false) }
-            }
+                onConflict = { payload ->
+                    groups.firstOrNull()?.let {
+                        conflictResolver.applyGroupConflict(it.groupId, localCompetitionId, payload)
+                    }
+                },
+                onPermanentError = { msg ->
+                    groups.forEach { localRepository.updateParticipantGroup(it.copy(syncError = msg), markUnsynced = false) }
+                }
+            )
         }
         return transient
     }
@@ -164,7 +175,8 @@ class SyncOrchestrator(
         var transient = false
         val result = remoteRepository.saveParticipants(mapped.map { it.second })
         transient = transient or handleResult(
-            result,
+            result = result,
+            entityDescription = "participants batch",
             onSuccess = {
                 ready.forEach {
                     localRepository.updateParticipants(
@@ -173,15 +185,20 @@ class SyncOrchestrator(
                     )
                 }
             },
-            entityDescription = "participants batch"
-        ) { msg ->
-            ready.forEach {
-                localRepository.updateParticipants(
-                    listOf(it.copy(syncError = msg)),
-                    markUnsynced = false
-                )
+            onConflict = { payload ->
+                ready.firstOrNull()?.let {
+                    conflictResolver.applyParticipantConflict(it.competitionId, it.groupId, payload)
+                }
+            },
+            onPermanentError = { msg ->
+                ready.forEach {
+                    localRepository.updateParticipants(
+                        listOf(it.copy(syncError = msg)),
+                        markUnsynced = false
+                    )
+                }
             }
-        }
+        )
         return transient
     }
 
@@ -202,60 +219,64 @@ class SyncOrchestrator(
             val mapped = result.copy(competitionId = remoteCompetitionId, groupId = remoteGroupId)
             val response = remoteRepository.saveResult(mapped)
             transient = transient or handleResult(
-                response,
+                result = response,
+                entityDescription = "result ${result.id}",
                 onSuccess = { server ->
                     localRepository.updateResults(
                         listOf(result.copy(isSynced = true, syncError = null, serverUpdatedAt = server.serverUpdatedAt)),
                         markUnsynced = false
                     )
                 },
-                entityDescription = "result ${result.id}"
-            ) { msg ->
-                localRepository.updateResults(
-                    listOf(result.copy(syncError = msg)),
-                    markUnsynced = false
-                )
-            }
+                onConflict = { payload ->
+                    conflictResolver.applyResultConflict(result.id, result.competitionId, result.groupId, payload)
+                },
+                onPermanentError = { msg ->
+                    localRepository.updateResults(
+                        listOf(result.copy(syncError = msg)),
+                        markUnsynced = false
+                    )
+                }
+            )
         }
         return transient
     }
 
     /**
-     * Обрабатывает Result<T> единообразно:
-     *  - success → onSuccess(value), без transient
-     *  - ConflictException → onPermanentError("conflict"), без transient (server-wins TODO)
-     *  - IOException → transient=true (Worker сделает retry)
-     *  - другое → onPermanentError(message), без transient
+     * Унифицированная обработка Result<T>:
+     *  - success → [onSuccess]
+     *  - ConflictException → [onConflict] с payload (server-wins применяется в ConflictResolver)
+     *  - IOException → возвращается true (transient, Worker повторит попытку)
+     *  - другое → [onPermanentError] с сообщением
      *
-     * @return true, если ошибка transient (Worker должен повторить попытку).
+     * @return true, если ошибка transient.
      */
-    private inline fun <T> handleResult(
+    private suspend inline fun <T> handleResult(
         result: Result<T>,
-        onSuccess: (T) -> Unit,
         entityDescription: String,
-        onPermanentError: (String) -> Unit
+        crossinline onSuccess: suspend (T) -> Unit,
+        crossinline onConflict: suspend (String?) -> Unit,
+        crossinline onPermanentError: suspend (String) -> Unit
     ): Boolean {
-        return result.fold(
-            onSuccess = {
-                onSuccess(it)
+        return when (val error = result.exceptionOrNull()) {
+            null -> {
+                onSuccess(result.getOrThrow())
                 false
-            },
-            onFailure = { e ->
-                Log.w(TAG, "Sync failed for $entityDescription: ${e.message}")
-                when (e) {
-                    is IOException -> true
-                    is ConflictException -> {
-                        // server-wins: пометим syncError, в следующем pull запись подъедет
-                        onPermanentError("conflict")
-                        false
-                    }
-                    else -> {
-                        onPermanentError(e.message ?: e::class.simpleName.orEmpty())
-                        false
-                    }
-                }
             }
-        )
+            is IOException -> {
+                Log.w(TAG, "Transient sync failure for $entityDescription: ${error.message}")
+                true
+            }
+            is ConflictException -> {
+                Log.i(TAG, "Conflict 409 for $entityDescription, applying server-wins")
+                onConflict(error.serverPayload)
+                false
+            }
+            else -> {
+                Log.w(TAG, "Permanent sync error for $entityDescription: ${error.message}")
+                onPermanentError(error.message ?: error::class.simpleName.orEmpty())
+                false
+            }
+        }
     }
 
     private suspend fun getCompetitionRemoteId(localId: Long): Long? =
