@@ -62,7 +62,9 @@
       "Bash(./gradlew :core:eventdetails:tasks)",
       "Bash(./gradlew :core:eventdetails:compileDebugKotlin)",
       "Bash(./gradlew :app:compileDebugKotlin)",
-      "Bash(./gradlew :feature:profile:compileDebugKotlin)"
+      "Bash(./gradlew :feature:profile:compileDebugKotlin)",
+      "Bash(./gradlew :core:sync:assembleDebug)",
+      "Bash(./gradlew :domain:compileDebugKotlin :core:sync:compileDebugKotlin :feature:center:compileDebugKotlin)"
     ]
   },
   "prefersReducedMotion": true

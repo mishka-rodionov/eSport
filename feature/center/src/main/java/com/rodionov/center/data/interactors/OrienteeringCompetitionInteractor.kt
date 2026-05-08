@@ -13,6 +13,7 @@ import com.rodionov.domain.models.orienteering.CompetitionStatus
 import com.rodionov.domain.models.orienteering.Distance
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
+import com.rodionov.domain.sync.SyncTrigger
 
 /**
  * Интерактор для работы с соревнованиями по спортивному ориентированию.
@@ -21,15 +22,18 @@ import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemote
  *
  * @param localRepository Репозиторий для работы с локальной базой данных
  * @param remoteRepository Репозиторий для работы с удалённым сервером
+ * @param syncTrigger Триггер немедленной «бесшумной» синхронизации после локальной мутации
  */
 class OrienteeringCompetitionInteractor(
     private val localRepository: OrienteeringCompetitionLocalRepository,
-    private val remoteRepository: OrienteeringCompetitionRemoteRepository
+    private val remoteRepository: OrienteeringCompetitionRemoteRepository,
+    private val syncTrigger: SyncTrigger,
 ) {
 
-    suspend fun saveCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
+    private fun touch() = syncTrigger.requestImmediateSync()
 
-        return localRepository.saveCompetition(orienteeringCompetition)
+    suspend fun saveCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
+        return localRepository.saveCompetition(orienteeringCompetition).also { touch() }
     }
 
     /**
@@ -38,7 +42,7 @@ class OrienteeringCompetitionInteractor(
      * при появлении сети.
      */
     suspend fun publishCompetitionToServer(competition: OrienteeringCompetition): Result<OrienteeringCompetition> {
-        return localRepository.updateCompetition(competition).mapCatching { competition }
+        return localRepository.updateCompetition(competition).mapCatching { competition }.also { touch() }
     }
 
     /**
@@ -50,11 +54,11 @@ class OrienteeringCompetitionInteractor(
     ): Result<Unit> {
         return runCatching {
             groups.forEach { localRepository.updateParticipantGroup(it) }
-        }
+        }.also { touch() }
     }
 
     suspend fun updateCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
-        return localRepository.updateCompetition(orienteeringCompetition).mapCatching { orienteeringCompetition }
+        return localRepository.updateCompetition(orienteeringCompetition).mapCatching { orienteeringCompetition }.also { touch() }
     }
 
     suspend fun updateCompetition(
@@ -87,6 +91,7 @@ class OrienteeringCompetitionInteractor(
         }.onFailure {
 
         }
+        touch()
     }
 
     /**
@@ -145,7 +150,7 @@ class OrienteeringCompetitionInteractor(
      * @return Сохранённый участник или null в случае ошибки
      */
     suspend fun saveParticipant(participant: OrienteeringParticipant): OrienteeringParticipant? {
-        return localRepository.saveParticipant(participant).getOrNull()
+        return localRepository.saveParticipant(participant).getOrNull().also { touch() }
     }
 
     /**
@@ -167,6 +172,7 @@ class OrienteeringCompetitionInteractor(
         localRepository.updateResults(listOf(updated)).onSuccess {
             updateResultsAndRanks(updated)
         }
+        touch()
     }
 
     /**
@@ -176,6 +182,7 @@ class OrienteeringCompetitionInteractor(
      */
     suspend fun updateParticipants(participants: List<OrienteeringParticipant>) {
         localRepository.updateParticipants(participants = participants)
+        touch()
     }
 
     suspend fun syncParticipantsAfterDraw(participants: List<OrienteeringParticipant>) {
@@ -183,6 +190,7 @@ class OrienteeringCompetitionInteractor(
         // Локально пометить участников как несинхронизированные.
         // SyncCenterWorker сам выгрузит их на сервер с актуальными remoteId групп/соревнования.
         localRepository.updateParticipants(participants)
+        touch()
     }
 
     /**
@@ -192,7 +200,7 @@ class OrienteeringCompetitionInteractor(
      * @return Result операции удаления.
      */
     suspend fun deleteCompetition(competitionId: Long): Result<Unit> {
-        return localRepository.deleteCompetition(competitionId)
+        return localRepository.deleteCompetition(competitionId).also { touch() }
     }
 
     /**
@@ -202,7 +210,7 @@ class OrienteeringCompetitionInteractor(
      * @return Result операции удаления
      */
     suspend fun deleteParticipant(participantId: String): Result<Unit> {
-        return localRepository.deleteParticipant(participantId)
+        return localRepository.deleteParticipant(participantId).also { touch() }
     }
 
     /**
@@ -212,7 +220,7 @@ class OrienteeringCompetitionInteractor(
      * @return Result операции локального сохранения
      */
     suspend fun updateParticipantLocally(participant: OrienteeringParticipant): Result<Any> {
-        return localRepository.updateParticipants(listOf(participant))
+        return localRepository.updateParticipants(listOf(participant)).also { touch() }
     }
 
     /**
@@ -226,6 +234,7 @@ class OrienteeringCompetitionInteractor(
      */
     suspend fun syncParticipantWithServer(participant: OrienteeringParticipant) {
         localRepository.updateParticipants(listOf(participant))
+        touch()
     }
 
     /**
@@ -251,10 +260,11 @@ class OrienteeringCompetitionInteractor(
 
     suspend fun localSaveParticipantGroups(participantGroups: List<ParticipantGroup>) {
         localRepository.saveParticipantsGroups(participantGroups)
+        touch()
     }
 
     suspend fun updateParticipantGroup(participantGroup: ParticipantGroup): Result<Any> {
-        return localRepository.updateParticipantGroup(participantGroup)
+        return localRepository.updateParticipantGroup(participantGroup).also { touch() }
     }
 
     /**
@@ -306,6 +316,7 @@ class OrienteeringCompetitionInteractor(
         }.onFailure {
             Log.d("LOG_TAG", "saveParticipantResult: ${it.message}")
         }
+        touch()
     }
 
     /**
@@ -409,6 +420,7 @@ class OrienteeringCompetitionInteractor(
 
         // Сохраняем обновленные результаты
         localRepository.updateResults(updatedResults)
+        touch()
 
         return updatedResults
     }
@@ -424,7 +436,7 @@ class OrienteeringCompetitionInteractor(
      * @return Результат операции.
      */
     suspend fun approveResults(competitionId: Long): Result<Any> {
-        return localRepository.updateIsEditableForCompetition(competitionId, false)
+        return localRepository.updateIsEditableForCompetition(competitionId, false).also { touch() }
     }
 
     /**
@@ -436,6 +448,7 @@ class OrienteeringCompetitionInteractor(
         localRepository.updateResults(listOf(orienteeringResult)).onSuccess {
             updateResultsAndRanks(orienteeringResult)
         }
+        touch()
     }
 
     /**
@@ -554,7 +567,7 @@ class OrienteeringCompetitionInteractor(
         return runCatching {
             distances.forEach { localRepository.updateDistance(it) }
             distances
-        }
+        }.also { touch() }
     }
 
     /**
@@ -564,17 +577,17 @@ class OrienteeringCompetitionInteractor(
      * @return Результат операции с ID сохраненной записи.
      */
     suspend fun saveDistance(distance: Distance): Result<Long> {
-        return localRepository.saveDistance(distance)
+        return localRepository.saveDistance(distance).also { touch() }
     }
 
     /**
      * Обновляет существующую дистанцию.
-     * 
+     *
      * @param distance Модель дистанции.
      * @return Результат операции.
      */
     suspend fun updateDistance(distance: Distance): Result<Any> {
-        return localRepository.updateDistance(distance)
+        return localRepository.updateDistance(distance).also { touch() }
     }
 
     suspend fun getDistanceById(distanceId: Long): Result<Distance?> {
@@ -594,6 +607,7 @@ class OrienteeringCompetitionInteractor(
     suspend fun setDrawConducted(competitionId: Long) {
         val competition = localRepository.getCompetition(competitionId).getOrNull() ?: return
         localRepository.updateCompetition(competition.copy(isDrawConducted = true))
+        touch()
     }
 
     /**
@@ -631,6 +645,7 @@ class OrienteeringCompetitionInteractor(
             competition = base.copy(status = CompetitionStatus.IN_PROGRESS)
         )
         localRepository.updateCompetition(started)
+        touch()
         return true
     }
 
@@ -660,6 +675,7 @@ class OrienteeringCompetitionInteractor(
             competition = competition.competition.copy(status = CompetitionStatus.FINISHED)
         )
         localRepository.updateCompetition(finished)
+        touch()
         return true
     }
 
@@ -696,6 +712,7 @@ class OrienteeringCompetitionInteractor(
                 }
             }
         }
+        touch()
     }
 
 }

@@ -4,6 +4,8 @@ import android.util.Log
 import com.rodionov.domain.exception.ConflictException
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.rodionov.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.IOException
 
 /**
@@ -33,7 +35,9 @@ class SyncOrchestrator(
 
     enum class Outcome { AllDone, Partial }
 
-    suspend fun syncAll(): Outcome {
+    private val syncMutex = Mutex()
+
+    suspend fun syncAll(): Outcome = syncMutex.withLock {
         var transientFailure = false
 
         transientFailure = transientFailure or syncCompetitions()
@@ -59,7 +63,7 @@ class SyncOrchestrator(
         hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getParticipantsMarkedForDeletion().isNotEmpty()
         hasRemainingUnsynced = hasRemainingUnsynced or localRepository.getResultsMarkedForDeletion().isNotEmpty()
 
-        return if (hasRemainingUnsynced) Outcome.Partial else Outcome.AllDone
+        if (hasRemainingUnsynced) Outcome.Partial else Outcome.AllDone
     }
 
     /**
