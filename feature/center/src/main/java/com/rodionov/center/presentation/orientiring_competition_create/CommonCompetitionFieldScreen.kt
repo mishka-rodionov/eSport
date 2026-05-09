@@ -141,6 +141,7 @@ private fun CommonCompetitionFieldContent(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.title,
                 label = { Text("Название соревнования") },
+                supportingText = { Text("Так соревнование будет отображаться в списке у участников") },
                 onValueChanged = onTitleChanged,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
@@ -183,6 +184,7 @@ private fun CommonCompetitionFieldContent(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
+            FieldDescription("Дата и время старта первого участника")
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier.weight(1f)) {
@@ -244,6 +246,7 @@ private fun CommonCompetitionFieldContent(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.address,
                 label = { Text("Место проведения (адрес)") },
+                supportingText = { Text("Место сбора и старта участников") },
                 onValueChanged = onAddressChanged,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
@@ -282,18 +285,23 @@ private fun CommonCompetitionFieldContent(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    FieldDescription("Точка старта на карте — поможет участникам построить маршрут")
                 }
             }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
             OrienteeringCompetitionDirection(state = state, userAction = onAction)
+            FieldDescription("Тип ориентирования: в заданном направлении, по выбору или маркированная трасса")
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             PunchingSystemSelector(state = state, userAction = onAction)
+            FieldDescription("Оборудование, которым участники отмечаются на КП")
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             StartTimeModeSelector(state = state, userAction = onAction)
+            FieldDescription("Как назначается стартовое время каждого участника")
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             StartIntervalSelector(state = state, userAction = onAction)
+            FieldDescription("Промежуток между стартами участников при стартах по протоколу")
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
@@ -304,6 +312,7 @@ private fun CommonCompetitionFieldContent(
                     .heightIn(min = 120.dp),
                 text = state.description,
                 label = { Text("Описание соревнования") },
+                supportingText = { Text("Подробности для участников: программа, требования, особенности") },
                 onValueChanged = onDescriptionChanged,
                 singleLine = false,
                 keyboardOptions = KeyboardOptions(
@@ -522,6 +531,20 @@ private fun StartIntervalSelector(
             userAction.invoke(OrienteeringCreatorAction.UpdateStartInterval(it))
         },
         itemToString = { formatIntervalSeconds(it) }
+    )
+}
+
+/**
+ * Короткая подсказка под полем ввода, объясняющая его назначение участнику-организатору.
+ * Используется для компонентов, у которых нет встроенного supportingText.
+ */
+@Composable
+internal fun FieldDescription(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = Dimens.SIZE_HALF.dp, top = 2.dp)
     )
 }
 

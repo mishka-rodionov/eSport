@@ -3,10 +3,12 @@ package com.rodionov.center.presentation.orientiring_competition_create
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -66,6 +68,8 @@ fun ParticipantGroupEditor(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
                     .padding(Dimens.SIZE_BASE.dp)
                     .padding(bottom = 16.dp)
             ) {
@@ -82,6 +86,7 @@ fun ParticipantGroupEditor(
                         .fillMaxWidth()
                         .focusRequester(titleFocus),
                     label = { Text(text = stringResource(R.string.label_participant_group_title)) },
+                    supportingText = { Text("Принятое обозначение группы, например М21, Ж18 или Open") },
                     isError = state.errors.isGroupTitleError,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -98,6 +103,7 @@ fun ParticipantGroupEditor(
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
+                FieldDescription("Дистанция, которую будут проходить участники этой группы")
                 
                 if (state.distances.isEmpty()) {
                     Text(
@@ -131,6 +137,7 @@ fun ParticipantGroupEditor(
                             .weight(1f)
                             .focusRequester(minAgeFocus),
                         label = { Text(text = "Мин. возраст") },
+                        supportingText = { Text("Минимальный возраст участника") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(onNext = { maxAgeFocus.requestFocus() }),
@@ -142,6 +149,7 @@ fun ParticipantGroupEditor(
                             .weight(1f)
                             .focusRequester(maxAgeFocus),
                         label = { Text(text = "Макс. возраст") },
+                        supportingText = { Text("Максимальный возраст участника") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(onNext = { limitFocus.requestFocus() }),
@@ -157,6 +165,7 @@ fun ParticipantGroupEditor(
                         .fillMaxWidth()
                         .focusRequester(limitFocus),
                     label = { Text(text = "Лимит участников") },
+                    supportingText = { Text("Максимум зарегистрированных в группе") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                     text = maxParticipants,

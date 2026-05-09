@@ -119,6 +119,8 @@ private fun RegistrationCompetitionFieldContent(
                     onCheckedChange = { onAction(OrienteeringCreatorAction.UpdateRegistrationStartOnCreate(it)) }
                 )
             }
+            FieldDescription("С какого момента участники смогут подавать заявки")
+
             if (!state.registrationStartOnCreate) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.weight(1f)) {
@@ -158,6 +160,7 @@ private fun RegistrationCompetitionFieldContent(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
+            FieldDescription("Когда приём заявок будет закрыт")
             RegistrationEndModeOption(
                 label = "В момент старта соревнования",
                 selected = state.registrationEndMode == RegistrationEndMode.AT_COMPETITION_START,
@@ -202,6 +205,7 @@ private fun RegistrationCompetitionFieldContent(
                     onCheckedChange = onUpdateFeeEnabled
                 )
             }
+            FieldDescription("Включите, если для участия требуется оплата стартового взноса")
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
@@ -210,6 +214,7 @@ private fun RegistrationCompetitionFieldContent(
                     modifier = Modifier.weight(1f),
                     text = state.feeAmount?.toString() ?: "",
                     label = { Text("Взнос") },
+                    supportingText = { Text("Сумма взноса с одного участника") },
                     enabled = state.isFeeEnabled, // Активно только если включен свитч
                     onValueChanged = onUpdateFeeAmount
                 )
@@ -218,6 +223,7 @@ private fun RegistrationCompetitionFieldContent(
                     modifier = Modifier.weight(0.5f),
                     text = state.feeCurrency,
                     label = { Text("Валюта") },
+                    supportingText = { Text("RUB, USD, EUR…") },
                     enabled = state.isFeeEnabled, // Активно только если включен свитч
                     onValueChanged = { /* viewModel.updateCurrency(it) */ }
                 )

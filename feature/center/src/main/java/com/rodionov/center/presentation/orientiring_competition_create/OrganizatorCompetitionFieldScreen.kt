@@ -147,12 +147,14 @@ private fun OrganizatorCompetitionFieldContent(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
+//            FieldDescription("Карта дистанций, которую увидят участники перед стартом")
             Spacer(modifier = Modifier.height(4.dp))
 
             DSTextInput(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.mapUrl,
                 label = { Text("Ссылка на карту") },
+                supportingText = { Text("Прямая ссылка на файл карты, доступной для скачивания") },
                 onValueChanged = onUpdateMapUrl
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -170,9 +172,13 @@ private fun OrganizatorCompetitionFieldContent(
                 text = state.contactPhone.filter { it.isDigit() }.take(11),
                 label = { Text("Контактный телефон") },
                 isError = state.errors.isEmptyContactPhone,
-                supportingText = if (state.errors.isEmptyContactPhone) {
-                    { Text("Укажите контактный телефон") }
-                } else null,
+                supportingText = {
+                    if (state.errors.isEmptyContactPhone) {
+                        Text("Укажите контактный телефон")
+                    } else {
+                        Text("Номер для оперативной связи участников с организаторами")
+                    }
+                },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 visualTransformation = PhoneNumberVisualTransformation(),
@@ -187,6 +193,7 @@ private fun OrganizatorCompetitionFieldContent(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.contactEmail,
                 label = { Text("Контактный Email") },
+                supportingText = { Text("Адрес почты для вопросов и заявок участников") },
                 onValueChanged = onUpdateContactEmail
             )
 

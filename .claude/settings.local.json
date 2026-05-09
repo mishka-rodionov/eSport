@@ -64,7 +64,8 @@
       "Bash(./gradlew :app:compileDebugKotlin)",
       "Bash(./gradlew :feature:profile:compileDebugKotlin)",
       "Bash(./gradlew :core:sync:assembleDebug)",
-      "Bash(./gradlew :domain:compileDebugKotlin :core:sync:compileDebugKotlin :feature:center:compileDebugKotlin)"
+      "Bash(./gradlew :domain:compileDebugKotlin :core:sync:compileDebugKotlin :feature:center:compileDebugKotlin)",
+      "Bash(/usr/bin/find *)"
     ]
   },
   "prefersReducedMotion": true

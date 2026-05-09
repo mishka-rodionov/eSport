@@ -2,9 +2,11 @@ package com.rodionov.center.presentation.orientiring_competition_create
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -102,6 +104,8 @@ fun DistanceEditor(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
                     .padding(Dimens.SIZE_BASE.dp)
                     .padding(bottom = Dimens.SIZE_BASE.dp)
             ) {
@@ -118,6 +122,7 @@ fun DistanceEditor(
                         .fillMaxWidth()
                         .focusRequester(titleFocus),
                     label = { Text("Название дистанции") },
+                    supportingText = { Text("Под этим именем участники увидят дистанцию при выборе") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
@@ -142,6 +147,7 @@ fun DistanceEditor(
                             .weight(1f)
                             .focusRequester(lengthFocus),
                         label = { Text("Длина (м)") },
+                        supportingText = { Text("Длина по оптимальному маршруту") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
@@ -160,13 +166,14 @@ fun DistanceEditor(
                             .weight(1f)
                             .focusRequester(climbFocus),
                         label = { Text("Набор высоты (м)") },
+                        supportingText = { Text("Суммарный набор высоты") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
                         ),
                         keyboardActions = KeyboardActions(
-                            onNext = { controlsFocus.requestFocus() }
+                            onNext = { pointsFocus.requestFocus() }
                         ),
                         text = climbMeters,
                         onValueChanged = { climbMeters = it }
@@ -176,22 +183,23 @@ fun DistanceEditor(
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
                 // Количество КП
-                DSTextInput(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(controlsFocus),
-                    label = { Text("Количество КП") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { pointsFocus.requestFocus() }
-                    ),
-                    text = controlsCount,
-                    onValueChanged = { controlsCount = it }
-                )
+//                DSTextInput(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .focusRequester(controlsFocus),
+//                    label = { Text("Количество КП") },
+//                    supportingText = { Text("Сколько КП нужно взять для зачёта прохождения") },
+//                    singleLine = true,
+//                    keyboardOptions = KeyboardOptions(
+//                        keyboardType = KeyboardType.Number,
+//                        imeAction = ImeAction.Next
+//                    ),
+//                    keyboardActions = KeyboardActions(
+//                        onNext = { pointsFocus.requestFocus() }
+//                    ),
+//                    text = controlsCount,
+//                    onValueChanged = { controlsCount = it }
+//                )
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
@@ -202,6 +210,7 @@ fun DistanceEditor(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = Dimens.SIZE_QUARTER.dp, bottom = Dimens.SIZE_QUARTER.dp)
                 )
+                FieldDescription("Номера КП в порядке прохождения по дистанции")
 
                 if (controlPointsList.isNotEmpty()) {
                     FlowRow(
@@ -243,6 +252,7 @@ fun DistanceEditor(
                             .focusRequester(pointsFocus),
                         label = { Text("Добавить КП") },
                         placeholder = { Text("31") },
+                        supportingText = { Text("Введите номер КП и нажмите Enter или ✚") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
@@ -272,6 +282,7 @@ fun DistanceEditor(
                         .fillMaxWidth()
                         .focusRequester(descFocus),
                     label = { Text("Описание") },
+                    supportingText = { Text("Дополнительные сведения о дистанции для участников") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
