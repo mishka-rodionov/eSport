@@ -214,7 +214,12 @@ class SyncOrchestrator(
                 result = result,
                 entityDescription = "competition ${competition.localCompetitionId}",
                 onSuccess = { server ->
-                    localRepository.updateCompetition(server, markUnsynced = false)
+                    // Response-mapper кладёт server-side competitionId в localCompetitionId,
+                    // что ломает поиск записи в Room по локальному PK. Сохраняем локальный id
+                    // из исходного запроса, оставляя у вложенного competition серверный remoteId
+                    // (он уже корректно проставлен в CompetitionResponse.toDomain()).
+                    val merged = server.copy(localCompetitionId = competition.localCompetitionId)
+                    localRepository.updateCompetition(merged, markUnsynced = false)
                 },
                 onConflict = { payload ->
                     conflictResolver.applyCompetitionConflict(competition.localCompetitionId, payload)

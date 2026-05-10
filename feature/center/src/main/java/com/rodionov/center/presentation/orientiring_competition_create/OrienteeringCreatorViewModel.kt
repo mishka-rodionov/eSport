@@ -424,11 +424,13 @@ class OrienteeringCreatorViewModel(
     }
 
     /**
-     * Финальное сохранение, публикация на сервере и выход из мастера.
-     * Обновляет локальные данные, затем отправляет соревнование на сервер.
-     * Навигация выполняется вне зависимости от результата серверного запроса —
-     * данные уже сохранены локально.
-     * Выполняет переход на главный экран раздела "Центр" с очисткой навигационного стека.
+     * Финальное сохранение и выход из мастера.
+     * Локально сохраняет соревнование вместе с группами одной операцией; единственный
+     * touch внутри [OrienteeringCompetitionInteractor.localUpdate] триггерит SyncOrchestrator,
+     * который сам выгрузит соревнование, дистанции и группы на сервер с правильным
+     * порядком зависимостей (competition → distances → groups → participants).
+     * Дистанции уже сохранены в БД во время прохождения мастера (через AddDistance/EditDistance).
+     * Навигация выполняется сразу после локального сохранения — UI не ждёт сервер.
      */
     fun finishCreation() {
         updateState { copy(isLoading = true) }
@@ -437,52 +439,7 @@ class OrienteeringCreatorViewModel(
             val competition = stateValue.toOrienteeringCompetition(user?.id)
             val groups = stateValue.participantGroups
 
-            orienteeringCompetitionInteractor.localUpdate(
-                competition,
-                groups
-            )
-
-            // Перезагружаем группы из БД, чтобы получить актуальные локальные ID
-            // (новые группы с groupId=0 получают реальный ID при вставке)
-            val freshGroups = stateValue.competitionId?.let { id ->
-                orienteeringCompetitionInteractor.getCompetitionWithDetails(id)
-                    .getOrNull()?.groupsWithParticipants?.map { it.group }
-            } ?: groups
-
-            orienteeringCompetitionInteractor.publishCompetitionToServer(competition)
-                .onSuccess { serverCompetition ->
-                    serverCompetition.competition.remoteId?.let { remoteId ->
-                        // Загружаем дистанции из локальной БД
-                        val distances = orienteeringCompetitionInteractor
-                            .getDistances(competition.localCompetitionId)
-                            .getOrDefault(emptyList())
-
-                        // Публикуем дистанции на сервер и получаем их с remoteId
-                        val syncedDistances = if (distances.isNotEmpty()) {
-                            orienteeringCompetitionInteractor.publishDistancesToServer(
-                                remoteCompetitionId = remoteId,
-                                localCompetitionId = competition.localCompetitionId,
-                                distances = distances
-                            ).getOrDefault(emptyList())
-                        } else {
-                            emptyList()
-                        }
-
-                        // Перестраиваем группы: заменяем локальный distanceId на серверный remoteId
-                        val groupsWithRemoteDistanceIds = freshGroups.map { group ->
-                            val serverDistanceId = syncedDistances
-                                .find { it.id == group.distanceId }
-                                ?.remoteId
-                            if (serverDistanceId != null) group.copy(distanceId = serverDistanceId) else group
-                        }
-
-                        orienteeringCompetitionInteractor.publishGroupsToServer(remoteId, groupsWithRemoteDistanceIds)
-                    }
-                }
-                .onFailure { error ->
-                    updateState { copy(error = error.message) }
-                    handleFailure(error)
-                }
+            orienteeringCompetitionInteractor.localUpdate(competition, groups)
 
             updateState { copy(isLoading = false) }
             loadingRepository.emit(false)

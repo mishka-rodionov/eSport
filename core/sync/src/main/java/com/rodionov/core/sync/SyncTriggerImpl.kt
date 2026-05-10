@@ -15,9 +15,10 @@ import kotlinx.coroutines.launch
  * Coalescing обеспечивает [Channel.CONFLATED] — серия `trySend` коллапсирует в один сигнал,
  * burst из десятков мутаций (жеребьёвка) даёт максимум один–два пробега `syncAll`.
  *
- * Belt-and-suspenders: на каждом запросе и на любой неудаче также ставится UniqueWork через
- * [SyncBootstrap]. `ExistingWorkPolicy.KEEP` гарантирует идемпотентность, а Worker подхватит
- * незавершённые записи, если процесс умрёт в середине immediate-попытки.
+ * UniqueWork через [SyncBootstrap] ставится только при сбое immediate-попытки
+ * (IOException/Partial) — Worker дотянет данные, когда сеть восстановится либо когда
+ * процесс перезапустится. При успехе immediate-sync POST уже выполнен, и второй проход
+ * Worker'а не нужен.
  */
 class SyncTriggerImpl(
     private val context: Context,
@@ -43,6 +44,5 @@ class SyncTriggerImpl(
 
     override fun requestImmediateSync() {
         requests.trySend(Unit)
-        SyncBootstrap.enqueue(context)
     }
 }

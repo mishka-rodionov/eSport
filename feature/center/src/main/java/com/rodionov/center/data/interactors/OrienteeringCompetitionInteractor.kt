@@ -45,18 +45,6 @@ class OrienteeringCompetitionInteractor(
         return localRepository.updateCompetition(competition).mapCatching { competition }.also { touch() }
     }
 
-    /**
-     * Помечает группы как несинхронизированные. Worker подхватит и выгрузит на сервер.
-     */
-    suspend fun publishGroupsToServer(
-        remoteCompetitionId: Long,
-        groups: List<ParticipantGroup>
-    ): Result<Unit> {
-        return runCatching {
-            groups.forEach { localRepository.updateParticipantGroup(it) }
-        }.also { touch() }
-    }
-
     suspend fun updateCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
         return localRepository.updateCompetition(orienteeringCompetition).mapCatching { orienteeringCompetition }.also { touch() }
     }
@@ -545,29 +533,6 @@ class OrienteeringCompetitionInteractor(
                 localRepository.saveParticipant(participantToSave, markUnsynced = false)
             }
         }
-    }
-
-    /**
-     * Публикует дистанции соревнования на сервер.
-     * После успешной публикации обновляет remoteId и isSynced для каждой дистанции локально.
-     *
-     * @param remoteCompetitionId Серверный ID соревнования.
-     * @param localCompetitionId Локальный ID соревнования в Room.
-     * @param distances Список дистанций для публикации.
-     * @return Список дистанций с проставленными remoteId или ошибка.
-     */
-    /**
-     * Помечает дистанции как несинхронизированные. Worker выгрузит их на сервер при появлении сети.
-     */
-    suspend fun publishDistancesToServer(
-        remoteCompetitionId: Long,
-        localCompetitionId: Long,
-        distances: List<Distance>
-    ): Result<List<Distance>> {
-        return runCatching {
-            distances.forEach { localRepository.updateDistance(it) }
-            distances
-        }.also { touch() }
     }
 
     /**
