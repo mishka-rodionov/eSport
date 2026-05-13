@@ -65,6 +65,10 @@
       "Bash(./gradlew :feature:profile:compileDebugKotlin)",
       "Bash(./gradlew :core:sync:assembleDebug)",
       "Bash(./gradlew :domain:compileDebugKotlin :core:sync:compileDebugKotlin :feature:center:compileDebugKotlin)",
+      "Bash(/usr/bin/find *)",
+      "Bash(./gradlew :core:sync:compileDebugKotlin :feature:center:compileDebugKotlin)",
+      "Bash(./gradlew :core:sync:compileDebugKotlin)",
+      "Bash(/usr/bin/grep *)"
       "Bash(/usr/bin/find *)"
     ]
   },

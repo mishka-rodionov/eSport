@@ -32,8 +32,21 @@ class OrienteeringCompetitionInteractor(
 
     private fun touch() = syncTrigger.requestImmediateSync()
 
-    suspend fun saveCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
-        return localRepository.saveCompetition(orienteeringCompetition).also { touch() }
+    /**
+     * Явно запускает синхронизацию накопленных локальных изменений с сервером.
+     * Используется в мастере создания соревнования, где промежуточные мутации
+     * сохраняются с `silent = true`, а единственная синхронизация выполняется
+     * в конце флоу.
+     */
+    fun commitPendingChanges() {
+        syncTrigger.requestImmediateSync()
+    }
+
+    suspend fun saveCompetitionNew(
+        orienteeringCompetition: OrienteeringCompetition,
+        silent: Boolean = false
+    ): Result<OrienteeringCompetition> {
+        return localRepository.saveCompetition(orienteeringCompetition).also { if (!silent) touch() }
     }
 
     /**
@@ -57,8 +70,12 @@ class OrienteeringCompetitionInteractor(
         }.also { touch() }
     }
 
-    suspend fun updateCompetitionNew(orienteeringCompetition: OrienteeringCompetition): Result<OrienteeringCompetition> {
-        return localRepository.updateCompetition(orienteeringCompetition).mapCatching { orienteeringCompetition }.also { touch() }
+    suspend fun updateCompetitionNew(
+        orienteeringCompetition: OrienteeringCompetition,
+        silent: Boolean = false
+    ): Result<OrienteeringCompetition> {
+        return localRepository.updateCompetition(orienteeringCompetition).mapCatching { orienteeringCompetition }
+            .also { if (!silent) touch() }
     }
 
     suspend fun updateCompetition(
@@ -82,7 +99,8 @@ class OrienteeringCompetitionInteractor(
 
     suspend fun localUpdate(
         orienteeringCompetition: OrienteeringCompetition,
-        participantGroups: List<ParticipantGroup>?
+        participantGroups: List<ParticipantGroup>?,
+        silent: Boolean = false
     ) {
         localRepository.updateCompetition(orienteeringCompetition).onSuccess {
             participantGroups?.let {
@@ -91,7 +109,7 @@ class OrienteeringCompetitionInteractor(
         }.onFailure {
 
         }
-        touch()
+        if (!silent) touch()
     }
 
     /**
@@ -258,13 +276,19 @@ class OrienteeringCompetitionInteractor(
         localSaveParticipantGroups(participantGroups)
     }
 
-    suspend fun localSaveParticipantGroups(participantGroups: List<ParticipantGroup>) {
+    suspend fun localSaveParticipantGroups(
+        participantGroups: List<ParticipantGroup>,
+        silent: Boolean = false
+    ) {
         localRepository.saveParticipantsGroups(participantGroups)
-        touch()
+        if (!silent) touch()
     }
 
-    suspend fun updateParticipantGroup(participantGroup: ParticipantGroup): Result<Any> {
-        return localRepository.updateParticipantGroup(participantGroup).also { touch() }
+    suspend fun updateParticipantGroup(
+        participantGroup: ParticipantGroup,
+        silent: Boolean = false
+    ): Result<Any> {
+        return localRepository.updateParticipantGroup(participantGroup).also { if (!silent) touch() }
     }
 
     /**
@@ -576,8 +600,8 @@ class OrienteeringCompetitionInteractor(
      * @param distance Модель дистанции.
      * @return Результат операции с ID сохраненной записи.
      */
-    suspend fun saveDistance(distance: Distance): Result<Long> {
-        return localRepository.saveDistance(distance).also { touch() }
+    suspend fun saveDistance(distance: Distance, silent: Boolean = false): Result<Long> {
+        return localRepository.saveDistance(distance).also { if (!silent) touch() }
     }
 
     /**
@@ -586,8 +610,8 @@ class OrienteeringCompetitionInteractor(
      * @param distance Модель дистанции.
      * @return Результат операции.
      */
-    suspend fun updateDistance(distance: Distance): Result<Any> {
-        return localRepository.updateDistance(distance).also { touch() }
+    suspend fun updateDistance(distance: Distance, silent: Boolean = false): Result<Any> {
+        return localRepository.updateDistance(distance).also { if (!silent) touch() }
     }
 
     suspend fun getDistanceById(distanceId: Long): Result<Distance?> {
