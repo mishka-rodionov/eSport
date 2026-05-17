@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Competra app icon — monochrome layer for Android 13+ themed icons.
+    The launcher applies a single tint color matching the user's wallpaper.
+    All strokes are solid black; opacity is preserved per layer.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <path
+        android:pathData="M 241,195 A 80,80 0 1 0 241,317"
+        android:strokeColor="#000000"
+        android:strokeWidth="42"
+        android:strokeLineCap="round"/>
+
+    <path
+        android:pathData="M 320,220 A 40,40 0 0 1 320,292"
+        android:strokeColor="#000000"
+        android:strokeWidth="22"
+        android:strokeLineCap="round"
+        android:strokeAlpha="0.7"/>
+
+    <path
+        android:pathData="M 352,195 A 80,80 0 0 1 352,317"
+        android:strokeColor="#000000"
+        android:strokeWidth="22"
+        android:strokeLineCap="round"
+        android:strokeAlpha="0.45"/>
+
+    <path
+        android:pathData="M 384,170 A 120,120 0 0 1 384,342"
+        android:strokeColor="#000000"
+        android:strokeWidth="22"
+        android:strokeLineCap="round"
+        android:strokeAlpha="0.25"/>
+</vector>

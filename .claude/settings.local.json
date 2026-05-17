@@ -68,8 +68,17 @@
       "Bash(/usr/bin/find *)",
       "Bash(./gradlew :core:sync:compileDebugKotlin :feature:center:compileDebugKotlin)",
       "Bash(./gradlew :core:sync:compileDebugKotlin)",
-      "Bash(/usr/bin/grep *)"
-      "Bash(/usr/bin/find *)"
+      "Bash(/usr/bin/grep *)",
+      "Bash(python3 *)",
+      "Bash(set -e)",
+      "Bash([ -d \"$d/com/rodionov/sportsenthusiast\" ])",
+      "Bash(mkdir -p __TRACKED_VAR__/com/competra)",
+      "Bash(git mv *)",
+      "Bash(rmdir __TRACKED_VAR__/com/rodionov)",
+      "Bash(rtk ./gradlew clean :app:compileDebugKotlin)",
+      "Bash(gh --version)",
+      "Bash(git remote *)",
+      "Bash(git ls-remote *)"
     ]
   },
   "prefersReducedMotion": true

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Competra app icon — foreground layer.
+    Design: solid letter "C" + three NFC waves emanating to the right.
+    Use with the adaptive-icon descriptor in mipmap-anydpi-v26/ic_launcher.xml.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <group
+        android:pivotX="256"
+        android:pivotY="256"
+        android:scaleX="0.75"
+        android:scaleY="0.75">
+        <!-- Solid "C" letter -->
+        <path
+            android:pathData="M 241,195 A 80,80 0 1 0 241,317"
+            android:strokeWidth="42"
+            android:strokeLineCap="round">
+            <aapt:attr name="android:strokeColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="0"
+                    android:startY="0"
+                    android:endX="512"
+                    android:endY="512"
+                    android:startColor="#FF9A3D"
+                    android:endColor="#E54B0A"/>
+            </aapt:attr>
+        </path>
+
+        <!-- NFC wave 1 (closest, 70% opacity) -->
+        <path
+            android:pathData="M 320,220 A 40,40 0 0 1 320,292"
+            android:strokeWidth="22"
+            android:strokeLineCap="round"
+            android:strokeAlpha="0.7">
+            <aapt:attr name="android:strokeColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="0"
+                    android:startY="0"
+                    android:endX="512"
+                    android:endY="512"
+                    android:startColor="#FF9A3D"
+                    android:endColor="#E54B0A"/>
+            </aapt:attr>
+        </path>
+
+        <!-- NFC wave 2 (45% opacity) -->
+        <path
+            android:pathData="M 352,195 A 80,80 0 0 1 352,317"
+            android:strokeWidth="22"
+            android:strokeLineCap="round"
+            android:strokeAlpha="0.45">
+            <aapt:attr name="android:strokeColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="0"
+                    android:startY="0"
+                    android:endX="512"
+                    android:endY="512"
+                    android:startColor="#FF9A3D"
+                    android:endColor="#E54B0A"/>
+            </aapt:attr>
+        </path>
+
+        <!-- NFC wave 3 (25% opacity, farthest — gets clipped on circular masks for fade effect) -->
+        <path
+            android:pathData="M 384,170 A 120,120 0 0 1 384,342"
+            android:strokeWidth="22"
+            android:strokeLineCap="round"
+            android:strokeAlpha="0.25">
+            <aapt:attr name="android:strokeColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="0"
+                    android:startY="0"
+                    android:endX="512"
+                    android:endY="512"
+                    android:startColor="#FF9A3D"
+                    android:endColor="#E54B0A"/>
+            </aapt:attr>
+        </path>
+    </group>
+</vector>
