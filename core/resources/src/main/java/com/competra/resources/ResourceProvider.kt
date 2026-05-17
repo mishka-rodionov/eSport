@@ -1,0 +1,15 @@
+package com.competra.resources
+
+import androidx.annotation.StringRes
+
+interface ResourceProvider {
+
+    fun getString(@StringRes id: Int): String
+
+    fun getString(@StringRes id: Int, vararg args: Any): String
+
+    fun coloredHtmlString(s: String?, color: String): String
+
+    fun colorToHexCode(color: Int): String
+
+}

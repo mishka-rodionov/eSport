@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.sportsenthusiast"
+    namespace = "com.competra.app"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.rodionov.sportsenthusiast"
+        applicationId = "com.competra.app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1

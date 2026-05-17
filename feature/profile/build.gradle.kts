@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.profile"
+    namespace = "com.competra.profile"
     compileSdk = 36
 
     defaultConfig {

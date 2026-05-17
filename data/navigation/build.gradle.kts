@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.data"
+    namespace = "com.competra.data"
     compileSdk = 36
 
     defaultConfig {

@@ -1,0 +1,44 @@
+package com.competra.local.entities.orienteering
+
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.competra.domain.models.Competition
+import com.competra.domain.models.orienteering.OrienteeringDirection
+import com.competra.domain.models.orienteering.PunchingSystem
+import com.competra.domain.models.orienteering.StartTimeMode
+import com.competra.local.converters.CompetitionConverters
+
+/**
+ * Сущность соревнования по ориентированию для базы данных Room.
+ * 
+ * @property localCompetitionId Уникальный идентификатор
+ * @property competition Базовая информация о соревновании
+ * @property direction Направление
+ * @property punchingSystem Система отметки
+ * @property startTimeMode Режим начала соревнования
+ * @property countdownTimer Время отсчета перед стартом (в минутах)
+ * @property startTime Фактическое время начала соревнования (timestamp)
+ */
+@Entity(
+    tableName = "orienteering_competitions",
+    indices = [Index(name = "idx_competitions_unsynced", value = ["isSynced"])]
+)
+@TypeConverters(CompetitionConverters::class)
+data class OrienteeringCompetitionEntity(
+    @PrimaryKey(autoGenerate = true)
+    val localCompetitionId: Long = 0,
+    @Embedded
+    val competition: Competition,
+    val direction: OrienteeringDirection,
+    val punchingSystem: PunchingSystem,
+    val startTimeMode: StartTimeMode,
+    val countdownTimer: Int? = null,
+    val startTime: Long? = null,
+    val startIntervalSeconds: Int? = null,
+    @ColumnInfo(defaultValue = "0")
+    val isDrawConducted: Boolean = false
+)

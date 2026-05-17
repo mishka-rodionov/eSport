@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.resources"
+    namespace = "com.competra.resources"
     compileSdk = 36
 
     defaultConfig {

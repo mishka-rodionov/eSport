@@ -21,7 +21,7 @@ dependencyResolutionManagement {
 //    }
 }
 
-rootProject.name = "Sports Enthusiast"
+rootProject.name = "Competra"
 include(":app")
 include(":domain")
 include(":data:navigation")

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.core.sync"
+    namespace = "com.competra.core.sync"
     compileSdk = 36
 
     defaultConfig {

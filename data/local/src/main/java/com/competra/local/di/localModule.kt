@@ -1,0 +1,17 @@
+package com.competra.local.di
+
+import com.competra.domain.repository.auth.TokenRepository
+import com.competra.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
+import com.competra.domain.repository.user.UserRepository
+import com.competra.local.repository.OrienteeringCompetitionLocalRepositoryImpl
+import com.competra.local.repository.auth.TokenRepositoryImpl
+import com.competra.local.repository.user.UserRepositoryImpl
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
+
+val localModule = module {
+    singleOf(::TokenRepositoryImpl) bind TokenRepository::class
+    singleOf(::OrienteeringCompetitionLocalRepositoryImpl) bind OrienteeringCompetitionLocalRepository::class
+    singleOf(::UserRepositoryImpl) bind UserRepository::class
+}

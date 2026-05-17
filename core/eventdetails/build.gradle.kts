@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.eventdetails"
+    namespace = "com.competra.eventdetails"
     compileSdk = 36
 
     defaultConfig {

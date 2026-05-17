@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.remote"
+    namespace = "com.competra.remote"
     compileSdk = 36
 
     defaultConfig {

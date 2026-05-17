@@ -1,0 +1,41 @@
+package com.competra.eventdetails.navigation
+
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.competra.data.navigation.EventParticipantGroupNavType
+import com.competra.data.navigation.EventsNavigation
+import com.competra.domain.models.cyclic_event.EventParticipantGroup
+import com.competra.eventdetails.presentation.details.EventDetailsScreen
+import com.competra.eventdetails.presentation.live_results.LiveResultsScreen
+import com.competra.eventdetails.presentation.participant_group.EventParticipantGroupScreen
+import com.competra.eventdetails.presentation.results.EventResultsScreen
+import kotlin.reflect.typeOf
+
+/**
+ * Подграф деталей события: сам экран деталей, регистрация в группу, результаты и онлайн‑результаты.
+ * Подключается из любого NavHost-а через [NavGraphBuilder.eventDetailsGraph].
+ */
+fun NavGraphBuilder.eventDetailsGraph() {
+    composable<EventsNavigation.EventDetailsRoute> {
+        val route = it.toRoute<EventsNavigation.EventDetailsRoute>()
+        EventDetailsScreen(idEvent = route.eventId)
+    }
+    composable<EventsNavigation.EventParticipantGroupRoute>(
+        typeMap = mapOf(typeOf<EventParticipantGroup>() to EventParticipantGroupNavType)
+    ) {
+        val route = it.toRoute<EventsNavigation.EventParticipantGroupRoute>()
+        EventParticipantGroupScreen(
+            eventId = route.eventId,
+            participantGroup = route.participantGroup
+        )
+    }
+    composable<EventsNavigation.EventResultsRoute> {
+        val route = it.toRoute<EventsNavigation.EventResultsRoute>()
+        EventResultsScreen(eventId = route.eventId)
+    }
+    composable<EventsNavigation.LiveResultsRoute> {
+        val route = it.toRoute<EventsNavigation.LiveResultsRoute>()
+        LiveResultsScreen(eventId = route.eventId)
+    }
+}

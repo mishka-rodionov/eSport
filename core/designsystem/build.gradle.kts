@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.designsystem"
+    namespace = "com.competra.designsystem"
     compileSdk = 36
 
     defaultConfig {

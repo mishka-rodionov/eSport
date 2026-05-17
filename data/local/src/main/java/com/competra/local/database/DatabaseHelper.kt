@@ -1,0 +1,19 @@
+package com.competra.local.database
+
+import android.content.Context
+import androidx.room.Room
+
+private const val DATABASE_NAME = "competra-db"
+
+class DatabaseHelper(private val context: Context) {
+
+    val db: CompetraDatabase by lazy { createDatabase() }
+
+    fun createDatabase() =
+        Room
+            .databaseBuilder(context = context, CompetraDatabase::class.java, DATABASE_NAME)
+            .addMigrations(MIGRATION_27_28, MIGRATION_32_33, MIGRATION_33_34, MIGRATION_34_35, MIGRATION_35_36, MIGRATION_36_37)
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
+
+}

@@ -19,7 +19,7 @@
         android:required="false" />
 
     <application
-        android:name=".SportApp"
+        android:name=".CompetraApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -28,13 +28,13 @@
         android:usesCleartextTraffic="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SportsEnthusiast"
+        android:theme="@style/Theme.Competra"
         tools:targetApi="31">
         <activity
             android:name=".presentation.main.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.SportsEnthusiast">
+            android:theme="@style/Theme.Competra">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -61,7 +61,7 @@
         <!--
             Отключаем автоматический WorkManagerInitializer, чтобы он не запускался
             до Application.onCreate. WorkManager инициализируется on-demand через
-            Configuration.Provider в SportApp + workManagerFactory() в Koin DSL.
+            Configuration.Provider в CompetraApp + workManagerFactory() в Koin DSL.
         -->
         <provider
             android:name="androidx.startup.InitializationProvider"

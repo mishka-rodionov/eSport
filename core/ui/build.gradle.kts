@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.ui"
+    namespace = "com.competra.ui"
     compileSdk = 36
 
     defaultConfig {

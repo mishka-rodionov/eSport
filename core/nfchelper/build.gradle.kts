@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rodionov.nfchelper"
+    namespace = "com.competra.nfchelper"
     compileSdk = 36
 
     defaultConfig {
