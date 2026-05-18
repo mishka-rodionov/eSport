@@ -239,7 +239,8 @@ fun Distance.toEntity(): DistanceEntity {
         isDeleted = this.isDeleted,
         serverUpdatedAt = this.serverUpdatedAt,
         syncError = this.syncError,
-        controlPoints = this.controlPoints
+        controlPoints = this.controlPoints,
+        finishControlPoint = this.finishControlPoint
     )
 }
 
@@ -261,6 +262,7 @@ fun DistanceEntity.toDomain(): Distance {
         isDeleted = this.isDeleted,
         serverUpdatedAt = this.serverUpdatedAt,
         syncError = this.syncError,
-        controlPoints = this.controlPoints.orEmpty()
+        controlPoints = this.controlPoints.orEmpty(),
+        finishControlPoint = this.finishControlPoint
     )
 }

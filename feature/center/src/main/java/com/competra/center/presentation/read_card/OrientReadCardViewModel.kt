@@ -10,6 +10,7 @@ import com.competra.data.navigation.getArguments
 import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.ControlPoint
+import com.competra.domain.models.orienteering.ControlPointRole
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ReadChipData
@@ -78,7 +79,13 @@ class OrientReadCardViewModel(
             ?: return emptyList()
         val distance = orienteeringCompetitionInteractor.getDistanceById(group.distanceId).getOrNull()
             ?: return emptyList()
-        return distance.controlPoints
+        val base = distance.controlPoints
+        val finishNumber = distance.finishControlPoint
+        return if (finishNumber != null) {
+            base + ControlPoint(number = finishNumber, role = ControlPointRole.FINISH)
+        } else {
+            base
+        }
     }
 
     suspend fun computeParticipantResult(

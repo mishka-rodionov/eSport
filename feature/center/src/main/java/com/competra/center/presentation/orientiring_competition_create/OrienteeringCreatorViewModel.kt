@@ -69,7 +69,7 @@ class OrienteeringCreatorViewModel(
                 if (action.index == -1) {
                     updatedDistances.add(action.distance)
                     viewModelScope.launch {
-                        orienteeringCompetitionInteractor.saveDistance(action.distance)
+                        orienteeringCompetitionInteractor.saveDistance(action.distance, silent = true)
                             .onFailure { error ->
                                 Log.e("OrienteeringCreatorVM", "saveDistance failed", error)
                                 handleFailure(error)
@@ -78,7 +78,7 @@ class OrienteeringCreatorViewModel(
                 } else {
                     updatedDistances[action.index] = action.distance
                     viewModelScope.launch {
-                        orienteeringCompetitionInteractor.updateDistance(action.distance)
+                        orienteeringCompetitionInteractor.updateDistance(action.distance, silent = true)
                             .onFailure { error ->
                                 Log.e("OrienteeringCreatorVM", "updateDistance failed", error)
                                 handleFailure(error)
@@ -122,7 +122,10 @@ class OrienteeringCreatorViewModel(
                     val updatedGroups = stateValue.participantGroups.toMutableList().apply { add(action.participantGroup) }
                     updateState { copy(participantGroups = updatedGroups, isShowGroupCreateDialog = false) }
                     viewModelScope.launch {
-                        orienteeringCompetitionInteractor.localSaveParticipantGroups(participantGroups = listOf(action.participantGroup))
+                        orienteeringCompetitionInteractor.localSaveParticipantGroups(
+                            participantGroups = listOf(action.participantGroup),
+                            silent = true
+                        )
                         // Перезагружаем группы из БД, чтобы получить реальный groupId
                         // вместо 0L, который приходит из диалога для новых групп.
                         // Без этого updateParticipantsGroups в finishCreation вставит группу повторно.
@@ -138,7 +141,7 @@ class OrienteeringCreatorViewModel(
                     val updatedGroups = stateValue.participantGroups.toMutableList().apply { set(action.index, action.participantGroup) }
                     updateState { copy(participantGroups = updatedGroups, isShowGroupCreateDialog = false) }
                     viewModelScope.launch {
-                        orienteeringCompetitionInteractor.updateParticipantGroup(action.participantGroup)
+                        orienteeringCompetitionInteractor.updateParticipantGroup(action.participantGroup, silent = true)
                     }
                 }
             }
@@ -318,14 +321,20 @@ class OrienteeringCreatorViewModel(
             val competition = stateValue.toOrienteeringCompetition(user?.id)
             val result = if (stateValue.competitionId == null) {
                 // Создание нового
-                orienteeringCompetitionInteractor.saveCompetitionNew(competition)
+                orienteeringCompetitionInteractor.saveCompetitionNew(competition, silent = true)
             } else {
                 // Обновление существующего
-                orienteeringCompetitionInteractor.updateCompetitionNew(competition)
+                orienteeringCompetitionInteractor.updateCompetitionNew(competition, silent = true)
             }
             result.onSuccess {
                 val id = it.localCompetitionId
-                updateState { copy(competitionId = id) }
+                val remoteId = it.competition.remoteId
+                updateState {
+                    copy(
+                        competitionId = id,
+                        remoteCompetitionId = remoteId ?: remoteCompetitionId
+                    )
+                }
                 viewModelScope.launch(Dispatchers.Main) {
                     navigation.navigate(
                         CenterNavigation.RegistrationCompetitionFieldRoute(
@@ -369,7 +378,8 @@ class OrienteeringCreatorViewModel(
 
             orienteeringCompetitionInteractor.localUpdate(
                 competition,
-                stateValue.participantGroups
+                stateValue.participantGroups,
+                silent = true
             )
 
             viewModelScope.launch(Dispatchers.Main) {
@@ -396,7 +406,8 @@ class OrienteeringCreatorViewModel(
             val competition = stateValue.toOrienteeringCompetition(user?.id)
             orienteeringCompetitionInteractor.localUpdate(
                 competition,
-                stateValue.participantGroups
+                stateValue.participantGroups,
+                silent = true
             )
 
             viewModelScope.launch(Dispatchers.Main) {

@@ -15,6 +15,10 @@ package com.competra.domain.models.orienteering
  * @property lastModified Время последнего изменения.
  * @property isDeleted Флаг пометки на удаление.
  * @property controlPoints Список контрольных пунктов на дистанции.
+ * @property finishControlPoint Номер финишного контрольного пункта. Отметка этого КП в чипе используется как
+ *                              время финиша участника. Для электронных систем отметки (SPORTIDUINO, SPORTIDENT,
+ *                              SFR) поле обязательно к заполнению в UI; для бумажных/механических систем
+ *                              может быть `null`.
  */
 data class Distance(
     val id: Long = 0,
@@ -30,5 +34,6 @@ data class Distance(
     val isDeleted: Boolean = false,
     val serverUpdatedAt: Long? = null,
     val syncError: String? = null,
-    val controlPoints: List<ControlPoint>
+    val controlPoints: List<ControlPoint>,
+    val finishControlPoint: Int? = null
 )

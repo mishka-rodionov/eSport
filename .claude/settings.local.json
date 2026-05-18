@@ -78,7 +78,10 @@
       "Bash(rtk ./gradlew clean :app:compileDebugKotlin)",
       "Bash(gh --version)",
       "Bash(git remote *)",
-      "Bash(git ls-remote *)"
+      "Bash(git ls-remote *)",
+      "Bash(rtk ./gradlew assembleDebug)",
+      "Read(//Users/rodionov/backend_projects/eSport/**)",
+      "Bash(rtk ./gradlew compileKotlin)"
     ]
   },
   "prefersReducedMotion": true

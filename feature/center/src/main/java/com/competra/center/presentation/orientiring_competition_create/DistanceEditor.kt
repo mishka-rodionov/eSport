@@ -37,6 +37,7 @@ import com.competra.center.data.creator.OrienteeringCreatorAction
 import com.competra.center.data.creator.OrienteeringCreatorState
 import com.competra.domain.models.orienteering.ControlPoint
 import com.competra.domain.models.orienteering.Distance
+import com.competra.domain.models.orienteering.PunchingSystem
 import com.competra.resources.R
 
 /**
@@ -70,14 +71,26 @@ fun DistanceEditor(
         mutableStateOf<List<Int>>(initialDistance?.controlPoints?.map { it.number }.orEmpty())
     }
     var currentInput by remember { mutableStateOf("") }
+    var finishCpInput by remember {
+        mutableStateOf(initialDistance?.finishControlPoint?.toString() ?: "")
+    }
+    var showFinishCpError by remember { mutableStateOf(false) }
     var description by remember { mutableStateOf(initialDistance?.description ?: "") }
-    
+
+    // Финишное КП обязательно для электронных систем отметки.
+    val isFinishCpRequired = state.punchingSystem in setOf(
+        PunchingSystem.SPORTIDUINO,
+        PunchingSystem.SPORTIDENT,
+        PunchingSystem.SFR
+    )
+
     // Создаем реквизиторы фокуса для каждого поля
     val titleFocus = remember { FocusRequester() }
     val lengthFocus = remember { FocusRequester() }
     val climbFocus = remember { FocusRequester() }
     val controlsFocus = remember { FocusRequester() }
     val pointsFocus = remember { FocusRequester() }
+    val finishCpFocus = remember { FocusRequester() }
     val descFocus = remember { FocusRequester() }
     
     LaunchedEffect(controlPointsList) {
@@ -276,6 +289,41 @@ fun DistanceEditor(
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
+                // Финишное КП
+                DSTextInput(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(finishCpFocus),
+                    label = {
+                        Text(
+                            if (isFinishCpRequired) "Финишное КП *" else "Финишное КП"
+                        )
+                    },
+                    supportingText = {
+                        val errorText = "Для систем SPORTIDUINO/SPORTIDENT/SFR необходимо указать финишное КП"
+                        val hintText = "Номер КП на финише — по нему рассчитывается финишное время"
+                        Text(if (showFinishCpError) errorText else hintText)
+                    },
+                    isError = showFinishCpError,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { descFocus.requestFocus() }
+                    ),
+                    text = finishCpInput,
+                    onValueChanged = { newValue ->
+                        finishCpInput = newValue.filter { it.isDigit() }
+                        if (showFinishCpError && finishCpInput.toIntOrNull() != null) {
+                            showFinishCpError = false
+                        }
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
                 // Описание
                 DSTextInput(
                     modifier = Modifier
@@ -311,6 +359,13 @@ fun DistanceEditor(
                         .height(56.dp),
                     shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
                     onClick = {
+                        val finishCp = finishCpInput.toIntOrNull()
+                        if (isFinishCpRequired && finishCp == null) {
+                            showFinishCpError = true
+                            finishCpFocus.requestFocus()
+                            return@Button
+                        }
+
                         // Сбрасываем фокус и скрываем клавиатуру при нажатии кнопки сохранения
                         focusManager.clearFocus()
                         keyboardController?.hide()
@@ -327,7 +382,8 @@ fun DistanceEditor(
                                     climbMeters = climbMeters.toIntOrNull() ?: 0,
                                     controlsCount = controlsCount.toIntOrNull() ?: 0,
                                     description = description,
-                                    controlPoints = points
+                                    controlPoints = points,
+                                    finishControlPoint = finishCp
                                 ),
                                 index = state.editDistanceIndex
                             )

@@ -69,7 +69,8 @@ fun DistanceResponse.toDomain(localCompetitionId: Long): Distance {
         description = description,
         isSynced = true,
         serverUpdatedAt = updatedAt.takeIf { it > 0L },
-        controlPoints = controlPoints.map { it.toDomain() }
+        controlPoints = controlPoints.map { it.toDomain() },
+        finishControlPoint = finishControlPoint
     )
 }
 

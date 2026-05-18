@@ -103,8 +103,29 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         markUnsynced: Boolean
     ): Result<Any> {
         return runCatching {
-            val toSave = if (markUnsynced) orienteeringCompetition.applyUnsynced() else orienteeringCompetition
-            orienteeringCompetitionDao.update(toSave.toEntity())
+            // Защита от затирания sync-метаданных: если из UI пришла модель без remoteId/serverUpdatedAt
+            // (которая собрана из in-memory state мастера создания), но в БД они уже проставлены
+            // SyncWorker'ом — сохраняем их. Иначе соревнование снова станет «несинхронизированным с
+            // remoteId=null» и SyncWorker создаст дубликат на сервере.
+            val merged = if (markUnsynced) {
+                val existing = orienteeringCompetitionDao
+                    .getCompetitionById(orienteeringCompetition.localCompetitionId)
+                    ?.toDomain()
+                val preservedRemoteId =
+                    orienteeringCompetition.competition.remoteId ?: existing?.competition?.remoteId
+                val preservedServerUpdatedAt =
+                    orienteeringCompetition.competition.serverUpdatedAt
+                        ?: existing?.competition?.serverUpdatedAt
+                orienteeringCompetition.copy(
+                    competition = orienteeringCompetition.competition.copy(
+                        remoteId = preservedRemoteId,
+                        serverUpdatedAt = preservedServerUpdatedAt
+                    )
+                ).applyUnsynced()
+            } else {
+                orienteeringCompetition
+            }
+            orienteeringCompetitionDao.update(merged.toEntity())
         }
     }
 
@@ -175,8 +196,18 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         markUnsynced: Boolean
     ): Result<Any> {
         return runCatching {
-            val toSave = if (markUnsynced) participantGroup.applyUnsynced() else participantGroup
-            participantGroupDao.updateParticipantGroup(toSave.toEntity())
+            val merged = if (markUnsynced) {
+                val existing = if (participantGroup.groupId != 0L) {
+                    participantGroupDao.getCertainParticipantGroup(participantGroup.groupId).toDomain()
+                } else null
+                participantGroup.copy(
+                    remoteId = participantGroup.remoteId ?: existing?.remoteId,
+                    serverUpdatedAt = participantGroup.serverUpdatedAt ?: existing?.serverUpdatedAt
+                ).applyUnsynced()
+            } else {
+                participantGroup
+            }
+            participantGroupDao.updateParticipantGroup(merged.toEntity())
         }
     }
 
@@ -310,8 +341,16 @@ class OrienteeringCompetitionLocalRepositoryImpl(
 
     override suspend fun updateDistance(distance: Distance, markUnsynced: Boolean): Result<Any> {
         return runCatching {
-            val toSave = if (markUnsynced) distance.applyUnsynced() else distance
-            distanceDao.updateDistance(toSave.toEntity())
+            val merged = if (markUnsynced) {
+                val existing = distanceDao.getDistanceById(distance.id)?.toDomain()
+                distance.copy(
+                    remoteId = distance.remoteId ?: existing?.remoteId,
+                    serverUpdatedAt = distance.serverUpdatedAt ?: existing?.serverUpdatedAt
+                ).applyUnsynced()
+            } else {
+                distance
+            }
+            distanceDao.updateDistance(merged.toEntity())
         }
     }
 

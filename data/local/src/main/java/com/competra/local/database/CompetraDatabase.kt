@@ -22,7 +22,7 @@ import com.competra.local.entities.orienteering.ParticipantGroupEntity
 import com.competra.local.entities.orienteering.StageEntity
 import com.competra.local.entities.user.UserEntity
 
-private const val DB_VERSION = 37
+private const val DB_VERSION = 38
 
 /**
  * Основной класс базы данных приложения (Room).

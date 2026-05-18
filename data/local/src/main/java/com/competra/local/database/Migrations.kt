@@ -164,3 +164,9 @@ val MIGRATION_36_37 = object : Migration(36, 37) {
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_results_unsynced ON orienteering_results(isSynced)")
     }
 }
+
+val MIGRATION_37_38 = object : Migration(37, 38) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE distances ADD COLUMN finishControlPoint INTEGER")
+    }
+}
