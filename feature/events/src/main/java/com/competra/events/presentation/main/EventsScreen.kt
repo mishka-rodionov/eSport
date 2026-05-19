@@ -73,13 +73,20 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
             onResetFilter = { viewModel.onAction(EventsAction.ResetFilter) }
         )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp), // Отступ между карточками 8 dp
-            contentPadding = PaddingValues(Dimens.SIZE_TWO.dp)
-        ) {
-            itemsIndexed(state.events) { _, item ->
-                EventItem(item, userAction = viewModel::onAction)
+        if (state.events.isEmpty() && !state.isLoading) {
+            EventsEmptyState(
+                isFilterActive = !state.appliedFilter.isEmpty,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp), // Отступ между карточками 8 dp
+                contentPadding = PaddingValues(Dimens.SIZE_TWO.dp)
+            ) {
+                itemsIndexed(state.events) { _, item ->
+                    EventItem(item, userAction = viewModel::onAction)
+                }
             }
         }
     }
@@ -89,6 +96,50 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
             initialFilter = state.appliedFilter,
             onApply = { viewModel.onAction(EventsAction.ApplyFilter(it)) },
             onDismiss = { viewModel.onAction(EventsAction.CloseFilterDialog) }
+        )
+    }
+}
+
+@Composable
+private fun EventsEmptyState(
+    isFilterActive: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val titleRes = if (isFilterActive) {
+        R.string.events_empty_filter_title
+    } else {
+        R.string.events_empty_title
+    }
+    val subtitleRes = if (isFilterActive) {
+        R.string.events_empty_filter_subtitle
+    } else {
+        R.string.events_empty_subtitle
+    }
+
+    Column(
+        modifier = modifier.padding(Dimens.SIZE_DOUBLE.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_info_24px),
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_TWO.dp))
+        Text(
+            text = stringResource(id = titleRes),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_SINGLE.dp))
+        Text(
+            text = stringResource(id = subtitleRes),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
     }
 }

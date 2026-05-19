@@ -81,4 +81,10 @@
     <string name="filter_open">Открыть фильтры</string>
     <string name="filter_reset">Сбросить фильтры</string>
     <string name="filter_clear_date">Очистить дату</string>
+
+    <!-- Events Empty State -->
+    <string name="events_empty_title">Соревнований пока нет</string>
+    <string name="events_empty_subtitle">Здесь появятся ближайшие события</string>
+    <string name="events_empty_filter_title">Ничего не найдено</string>
+    <string name="events_empty_filter_subtitle">По выбранным фильтрам соревнований нет. Попробуйте изменить параметры или сбросить фильтр.</string>
 </resources>
