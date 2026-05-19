@@ -11,6 +11,7 @@ import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.Distance
+import com.competra.domain.models.orienteering.StartTimeMode
 import com.competra.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.competra.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import com.competra.domain.sync.SyncTrigger
@@ -653,6 +654,12 @@ class OrienteeringCompetitionInteractor(
      * всё ещё [CompetitionStatus.REGISTRATION_OPEN] — переводит соревнование
      * в [CompetitionStatus.IN_PROGRESS] и синхронизирует с сервером.
      *
+     * Работает только для [StartTimeMode.STRICT]. Для [StartTimeMode.USER_SET] и
+     * [StartTimeMode.BY_START_STATION] время старта в форме создания — лишь информация,
+     * фактический старт инициирует организатор (USER_SET — ручной запуск таймера,
+     * BY_START_STATION — отметка на стартовой станции), поэтому автоматически менять
+     * статус по `startDate` нельзя.
+     *
      * @param competitionId Идентификатор соревнования.
      * @return true если статус был автоматически переключён.
      */
@@ -662,7 +669,10 @@ class OrienteeringCompetitionInteractor(
         val regEnd = base.registrationEnd
         val isAtStartMode = regEnd != null && regEnd == base.startDate
         val timeReached = System.currentTimeMillis() >= base.startDate
-        if (!isAtStartMode || !timeReached || base.status != CompetitionStatus.REGISTRATION_OPEN) {
+        val isStrictMode = competition.startTimeMode == StartTimeMode.STRICT
+        if (!isStrictMode || !isAtStartMode || !timeReached ||
+            base.status != CompetitionStatus.REGISTRATION_OPEN
+        ) {
             return false
         }
         val started = competition.copy(
