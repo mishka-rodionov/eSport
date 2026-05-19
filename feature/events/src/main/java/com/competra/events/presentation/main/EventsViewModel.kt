@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.competra.data.navigation.EventsNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.domain.exception.NetworkException
-import com.competra.domain.models.KindOfSport
 import com.competra.domain.models.NetworkErrorEvent
+import com.competra.domain.models.events.EventsFilter
 import com.competra.domain.repository.LoadingRepository
 import com.competra.domain.repository.NetworkErrorRepository
 import com.competra.domain.repository.events.EventsRepository
@@ -15,7 +15,6 @@ import com.competra.events.data.main.EventsState
 import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
@@ -40,13 +39,28 @@ class EventsViewModel(
                     )
                 }
             }
+            is EventsAction.OpenFilterDialog -> {
+                updateState { copy(isFilterDialogOpen = true) }
+            }
+            is EventsAction.CloseFilterDialog -> {
+                updateState { copy(isFilterDialogOpen = false) }
+            }
+            is EventsAction.ApplyFilter -> {
+                updateState { copy(appliedFilter = action.filter, isFilterDialogOpen = false) }
+                getEvents(action.filter)
+            }
+            is EventsAction.ResetFilter -> {
+                val cleared = EventsFilter()
+                updateState { copy(appliedFilter = cleared) }
+                getEvents(cleared)
+            }
         }
     }
 
-    fun getEvents(kindOfSports: List<KindOfSport> = emptyList()) {
+    fun getEvents(filter: EventsFilter = stateValue.appliedFilter) {
         viewModelScope.launch(Dispatchers.IO) {
             loadingRepository.emit(true)
-            eventsRepository.getEvents(kindOfSport = kindOfSports).onSuccess { events ->
+            eventsRepository.getEvents(filter = filter).onSuccess { events ->
                 events?.also { list ->
                     updateState { copy(events = list.sortedByDescending { it.startDate }) }
                 }

@@ -62,4 +62,23 @@
     <!-- Content Descriptions -->
     <string name="content_description_edit_group">Редактировать группу</string>
     <string name="content_description_delete_group">Удалить группу</string>
+
+    <!-- Events Filter -->
+    <string name="filter_title">Фильтры</string>
+    <string name="filter_apply">Применить</string>
+    <string name="filter_section_date">Дата</string>
+    <string name="filter_date_from">Дата от</string>
+    <string name="filter_date_to">Дата до</string>
+    <string name="filter_date_not_set">Не выбрано</string>
+    <string name="filter_section_sport">Вид спорта</string>
+    <string name="filter_sport_orienteering">Спортивное ориентирование</string>
+    <string name="filter_sport_cross_country_ski">Лыжные гонки</string>
+    <string name="filter_sport_trail_running">Трейлраннинг</string>
+    <string name="filter_section_status">Статус</string>
+    <string name="filter_status_registration_open">С открытой регистрацией</string>
+    <string name="filter_status_in_progress">Идут сейчас</string>
+    <string name="filter_status_finished">Завершённые</string>
+    <string name="filter_open">Открыть фильтры</string>
+    <string name="filter_reset">Сбросить фильтры</string>
+    <string name="filter_clear_date">Очистить дату</string>
 </resources>

@@ -81,7 +81,11 @@
       "Bash(git ls-remote *)",
       "Bash(rtk ./gradlew assembleDebug)",
       "Read(//Users/rodionov/backend_projects/eSport/**)",
-      "Bash(rtk ./gradlew compileKotlin)"
+      "Bash(rtk ./gradlew compileKotlin)",
+      "Read(//Users/rodionov/backend_projects/**)",
+      "Bash(/usr/bin/git log *)",
+      "Bash(/usr/bin/git show *)",
+      "Bash(/usr/bin/git ls-tree *)"
     ]
   },
   "prefersReducedMotion": true

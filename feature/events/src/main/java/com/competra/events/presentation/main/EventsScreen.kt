@@ -49,7 +49,10 @@ import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.ResultsStatus
 import com.competra.resources.R
 import com.competra.events.data.main.EventsAction
+import com.competra.events.presentation.filter.EventsFilterBottomSheet
 import com.competra.utils.DateTimeFormat
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.res.stringResource
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -63,13 +66,61 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
         viewModel.getEvents()
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp), // Отступ между карточками 8 dp
-        contentPadding = PaddingValues(Dimens.SIZE_TWO.dp)
+    Column(modifier = Modifier.fillMaxSize()) {
+        EventsFilterBar(
+            isFilterActive = !state.appliedFilter.isEmpty,
+            onOpenFilter = { viewModel.onAction(EventsAction.OpenFilterDialog) },
+            onResetFilter = { viewModel.onAction(EventsAction.ResetFilter) }
+        )
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp), // Отступ между карточками 8 dp
+            contentPadding = PaddingValues(Dimens.SIZE_TWO.dp)
+        ) {
+            itemsIndexed(state.events) { _, item ->
+                EventItem(item, userAction = viewModel::onAction)
+            }
+        }
+    }
+
+    if (state.isFilterDialogOpen) {
+        EventsFilterBottomSheet(
+            initialFilter = state.appliedFilter,
+            onApply = { viewModel.onAction(EventsAction.ApplyFilter(it)) },
+            onDismiss = { viewModel.onAction(EventsAction.CloseFilterDialog) }
+        )
+    }
+}
+
+@Composable
+private fun EventsFilterBar(
+    isFilterActive: Boolean,
+    onOpenFilter: () -> Unit,
+    onResetFilter: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Dimens.SIZE_TWO.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        itemsIndexed(state.events) { _, item ->
-            EventItem(item, userAction = viewModel::onAction)
+        if (isFilterActive) {
+            IconButton(onClick = onResetFilter) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.filter_off),
+                    contentDescription = stringResource(R.string.filter_reset),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        IconButton(onClick = onOpenFilter) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.filter),
+                contentDescription = stringResource(R.string.filter_open),
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
