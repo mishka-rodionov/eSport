@@ -4,12 +4,14 @@ import com.competra.domain.models.auth.Token
 import com.competra.domain.models.user.User
 import com.competra.domain.repository.auth.AuthRepository
 import com.competra.domain.repository.auth.TokenRepository
+import com.competra.domain.repository.fcm.FcmTokenRegistry
 import com.competra.domain.repository.user.UserRepository
 
 class AuthInteractor(
     private val authRepository: AuthRepository,
     private val tokenRepository: TokenRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val fcmTokenRegistry: FcmTokenRegistry,
 ) {
 
     suspend fun authorize(email: String, code: String): Result<Any> {
@@ -29,10 +31,12 @@ class AuthInteractor(
             tokenRepository.saveTokens(accessToken, refreshToken)
         }
         userRepository.saveUser(user)
+        runCatching { fcmTokenRegistry.refresh() }
     }
 
     suspend fun logout(): Result<Unit> {
         return runCatching {
+            runCatching { fcmTokenRegistry.unregisterCurrent() }
             tokenRepository.clear()
             userRepository.clearUser()
         }

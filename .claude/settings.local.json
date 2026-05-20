@@ -86,7 +86,8 @@
       "Bash(/usr/bin/git log *)",
       "Bash(/usr/bin/git show *)",
       "Bash(/usr/bin/git ls-tree *)",
-      "Bash(rtk ./gradlew :app:assembleDebug)"
+      "Bash(rtk ./gradlew :app:assembleDebug)",
+      "Bash(find /Users/rodionov/backend_projects/eSport/.env* -type f)"
     ]
   },
   "prefersReducedMotion": true

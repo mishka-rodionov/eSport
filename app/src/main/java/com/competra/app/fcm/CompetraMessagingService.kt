@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.competra.app.R
 import com.competra.app.presentation.main.MainActivity
+import com.competra.domain.repository.fcm.FcmTokenRegistry
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.inject

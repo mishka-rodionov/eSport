@@ -18,6 +18,7 @@ import com.competra.local.di.localModule
 import com.competra.nfchelper.di.nfcModule
 import com.competra.profile.di.profileModule
 import com.competra.remote.di.authModule
+import com.competra.remote.di.deviceModule
 import com.competra.remote.di.eventsDataModule
 import com.competra.remote.di.orienteeringModule
 import com.competra.remote.di.retrofitModule
@@ -62,7 +63,7 @@ class CompetraApp : Application(), Configuration.Provider {
             )
 
             // data modules
-            modules(authModule, orienteeringModule, eventsDataModule, uploadModule)
+            modules(authModule, orienteeringModule, eventsDataModule, uploadModule, deviceModule)
 
             // feature modules
             modules(mainModule, centerModule, eventsModule, eventDetailsModule, profileModule)
