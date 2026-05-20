@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "317746041503",
+    "project_id": "competra-d471a",
+    "storage_bucket": "competra-d471a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317746041503:android:e28ee85ac71986daf448aa",
+        "android_client_info": {
+          "package_name": "com.competra"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4SjEMio_apw1vJswDl5nlLpMTq8e3ji4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317746041503:android:34b2a30659f26966f448aa",
+        "android_client_info": {
+          "package_name": "com.competra.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4SjEMio_apw1vJswDl5nlLpMTq8e3ji4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

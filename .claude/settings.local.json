@@ -85,7 +85,8 @@
       "Read(//Users/rodionov/backend_projects/**)",
       "Bash(/usr/bin/git log *)",
       "Bash(/usr/bin/git show *)",
-      "Bash(/usr/bin/git ls-tree *)"
+      "Bash(/usr/bin/git ls-tree *)",
+      "Bash(rtk ./gradlew :app:assembleDebug)"
     ]
   },
   "prefersReducedMotion": true

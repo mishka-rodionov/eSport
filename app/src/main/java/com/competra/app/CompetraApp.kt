@@ -23,7 +23,11 @@ import com.competra.remote.di.orienteeringModule
 import com.competra.remote.di.retrofitModule
 import com.competra.remote.di.uploadModule
 import com.competra.resources.di.resourceModule
+import com.competra.app.di.firebaseModule
 import com.competra.app.di.mainModule
+import com.competra.app.fcm.CompetraMessagingService
+import com.competra.resources.R as ResR
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.koin.workManagerFactory
@@ -62,9 +66,15 @@ class CompetraApp : Application(), Configuration.Provider {
 
             // feature modules
             modules(mainModule, centerModule, eventsModule, eventDetailsModule, profileModule)
+
+            // firebase
+            modules(firebaseModule)
         }
 
+        FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = true
+
         createNotificationChannel()
+        createPushNotificationChannel()
 
         // Подписываемся на появление сети — каждое появление триггерит SyncCenterWorker.
         networkObserver.start { SyncBootstrap.enqueue(this) }
@@ -81,6 +91,16 @@ class CompetraApp : Application(), Configuration.Provider {
             "Соревнование",
             NotificationManager.IMPORTANCE_LOW
         ).apply { description = "Информация о текущем соревновании" }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun createPushNotificationChannel() {
+        val channel = NotificationChannel(
+            CompetraMessagingService.PUSH_CHANNEL_ID,
+            getString(ResR.string.notif_channel_push_name),
+            NotificationManager.IMPORTANCE_DEFAULT,
+        ).apply { description = getString(ResR.string.notif_channel_push_desc) }
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }

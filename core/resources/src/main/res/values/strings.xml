@@ -87,4 +87,8 @@
     <string name="events_empty_subtitle">Здесь появятся ближайшие события</string>
     <string name="events_empty_filter_title">Ничего не найдено</string>
     <string name="events_empty_filter_subtitle">По выбранным фильтрам соревнований нет. Попробуйте изменить параметры или сбросить фильтр.</string>
+
+    <!-- Push Notifications -->
+    <string name="notif_channel_push_name">Уведомления</string>
+    <string name="notif_channel_push_desc">Push-уведомления о событиях и соревнованиях</string>
 </resources>
