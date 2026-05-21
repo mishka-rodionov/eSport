@@ -1,5 +1,6 @@
 package com.competra.app.di
 
+
 import com.competra.app.fcm.FcmTokenRegistryImpl
 import com.competra.app.fcm.FcmTokenWorker
 import com.competra.domain.repository.fcm.FcmTokenRegistry
@@ -12,6 +13,6 @@ import org.koin.dsl.module
 val firebaseModule = module {
     single { FirebaseCrashlytics.getInstance() }
     single { FirebaseMessaging.getInstance() }
-    single<FcmTokenRegistry> { FcmTokenRegistryImpl(androidContext(), get()) }
+    single<FcmTokenRegistry> { FcmTokenRegistryImpl(androidContext(), get(), get()) }
     workerOf(::FcmTokenWorker)
 }

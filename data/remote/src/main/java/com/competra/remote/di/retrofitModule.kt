@@ -41,9 +41,11 @@ fun retrofit(
         .collector(collector)
         .build()
     builder.addInterceptor(interceptor)
-    builder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+    // AuthInterceptor должен идти ДО HttpLoggingInterceptor, иначе в логе не видно
+    // подставленный Authorization-заголовок (logger срабатывает раньше auth-интерсептора).
     val okClient = builder
         .addInterceptor(AuthInterceptor(tokenRepository = tokenRepository))
+        .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
         .authenticator(TokenAuthenticator(tokenRepository = tokenRepository))
 //        .addInterceptor(MockInterceptor())
         .retryOnConnectionFailure(true)
