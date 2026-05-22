@@ -5,6 +5,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.work.Configuration
+import com.competra.analytics.di.analyticsCoreModule
+import com.competra.analytics.initAppMetrica
 import com.competra.center.di.centerModule
 import com.competra.core.sync.NetworkAvailabilityObserver
 import com.competra.core.sync.SyncBootstrap
@@ -24,6 +26,7 @@ import com.competra.remote.di.orienteeringModule
 import com.competra.remote.di.retrofitModule
 import com.competra.remote.di.uploadModule
 import com.competra.resources.di.resourceModule
+import com.competra.app.BuildConfig
 import com.competra.app.di.firebaseModule
 import com.competra.app.di.mainModule
 import com.competra.app.fcm.CompetraMessagingService
@@ -70,9 +73,13 @@ class CompetraApp : Application(), Configuration.Provider {
 
             // firebase
             modules(firebaseModule)
+
+            // analytics
+            modules(analyticsCoreModule)
         }
 
         FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = true
+        initAppMetrica(this, BuildConfig.APPMETRICA_API_KEY)
 
         createNotificationChannel()
         createPushNotificationChannel()

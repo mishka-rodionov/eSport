@@ -3,6 +3,8 @@ package com.competra.center.presentation.orientiring_competition_create
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.center.data.creator.OrienteeringCreatorAction
 import com.competra.center.data.creator.OrienteeringCreatorState
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
@@ -37,7 +39,8 @@ class OrienteeringCreatorViewModel(
     private val networkErrorRepository: NetworkErrorRepository,
     private val uploadRepository: UploadRepository,
     private val context: Context,
-    private val loadingRepository: LoadingRepository
+    private val loadingRepository: LoadingRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
     var user: User? = null
@@ -316,10 +319,12 @@ class OrienteeringCreatorViewModel(
      * Сохраняет данные первого шага (Общая информация) и переходит ко второму.
      */
     fun saveStepOne() {
+        val isNew = stateValue.competitionId == null
+        if (isNew) analytics.trackEvent(AnalyticsEvent.CreateCompetitionStarted(KIND_ORIENTEERING))
         viewModelScope.launch(Dispatchers.IO) {
             loadingRepository.emit(true)
             val competition = stateValue.toOrienteeringCompetition(user?.id)
-            val result = if (stateValue.competitionId == null) {
+            val result = if (isNew) {
                 // Создание нового
                 orienteeringCompetitionInteractor.saveCompetitionNew(competition, silent = true)
             } else {
@@ -335,6 +340,9 @@ class OrienteeringCreatorViewModel(
                         remoteCompetitionId = remoteId ?: remoteCompetitionId
                     )
                 }
+                analytics.trackEvent(
+                    AnalyticsEvent.CreateCompetitionStepCompleted(AnalyticsEvent.CreateCompetitionStep.COMMON)
+                )
                 viewModelScope.launch(Dispatchers.Main) {
                     navigation.navigate(
                         CenterNavigation.RegistrationCompetitionFieldRoute(
@@ -382,6 +390,9 @@ class OrienteeringCreatorViewModel(
                 silent = true
             )
 
+            analytics.trackEvent(
+                AnalyticsEvent.CreateCompetitionStepCompleted(AnalyticsEvent.CreateCompetitionStep.REGISTRATION)
+            )
             viewModelScope.launch(Dispatchers.Main) {
                 navigation.navigate(
                     CenterNavigation.OrganizatorCompetitionFieldRoute(
@@ -410,6 +421,9 @@ class OrienteeringCreatorViewModel(
                 silent = true
             )
 
+            analytics.trackEvent(
+                AnalyticsEvent.CreateCompetitionStepCompleted(AnalyticsEvent.CreateCompetitionStep.ORGANIZATOR)
+            )
             viewModelScope.launch(Dispatchers.Main) {
                 navigation.navigate(
                     CenterNavigation.CreateDistanceRoute(
@@ -425,6 +439,9 @@ class OrienteeringCreatorViewModel(
      */
     fun saveStepFour() {
         // Логика сохранения дистанций
+        analytics.trackEvent(
+            AnalyticsEvent.CreateCompetitionStepCompleted(AnalyticsEvent.CreateCompetitionStep.DISTANCE)
+        )
         viewModelScope.launch(Dispatchers.Main) {
             navigation.navigate(
                 CenterNavigation.CreateParticipantGroupRoute(
@@ -460,8 +477,17 @@ class OrienteeringCreatorViewModel(
                     .getOrNull()?.groupsWithParticipants?.map { it.group }
             } ?: groups
 
+            analytics.trackEvent(
+                AnalyticsEvent.CreateCompetitionStepCompleted(AnalyticsEvent.CreateCompetitionStep.GROUPS)
+            )
             orienteeringCompetitionInteractor.publishCompetitionToServer(competition)
                 .onSuccess { serverCompetition ->
+                    analytics.trackEvent(
+                        AnalyticsEvent.CreateCompetitionFinished(
+                            competitionId = serverCompetition.competition.remoteId ?: competition.localCompetitionId,
+                            kindOfSport = KIND_ORIENTEERING,
+                        )
+                    )
                     serverCompetition.competition.remoteId?.let { remoteId ->
                         // Загружаем дистанции из локальной БД
                         val distances = orienteeringCompetitionInteractor
@@ -587,4 +613,8 @@ class OrienteeringCreatorViewModel(
     fun updateContactPhone(phone: String) = updateState { copy(contactPhone = phone, errors = errors.copy(isEmptyContactPhone = false)) }
     fun updateContactEmail(email: String) = updateState { copy(contactEmail = email) }
     fun updateWebsite(site: String) = updateState { copy(website = site) }
+
+    private companion object {
+        const val KIND_ORIENTEERING = "orienteering"
+    }
 }

@@ -1,6 +1,8 @@
 package com.competra.eventdetails.presentation.details
 
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.EventsNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.PendingRegistrationRepository
@@ -34,7 +36,8 @@ class EventDetailsViewModel(
     private val navigation: Navigation,
     private val pendingRegistrationRepository: PendingRegistrationRepository,
     private val networkErrorRepository: NetworkErrorRepository,
-    private val loadingRepository: LoadingRepository
+    private val loadingRepository: LoadingRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<EventDetailsState>(
     EventDetailsState(eventDetails = null)
 ) {
@@ -88,8 +91,12 @@ class EventDetailsViewModel(
 
     private fun showRegistrationDialog() {
         viewModelScope.launch {
+            val eventId = stateValue.eventDetails?.eventId
+            if (eventId != null) {
+                analytics.trackEvent(AnalyticsEvent.EventRegisterClicked(eventId))
+            }
             if (!userRepository.isAuthorized()) {
-                val eventId = stateValue.eventDetails?.eventId ?: return@launch
+                if (eventId == null) return@launch
                 pendingRegistrationRepository.set(eventId)
                 navigation.switchTab(TabRoutes.PROFILE)
                 return@launch
@@ -184,6 +191,7 @@ class EventDetailsViewModel(
 
     private fun navigateToLiveResults() {
         val eventId = stateValue.eventDetails?.eventId ?: return
+        analytics.trackEvent(AnalyticsEvent.EventLiveResultsOpened(eventId))
         viewModelScope.launch {
             navigation.navigate(EventsNavigation.LiveResultsRoute(eventId = eventId))
         }

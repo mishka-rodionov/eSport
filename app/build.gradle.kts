@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,6 +9,16 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
     kotlin("kapt")
 }
+
+// Ключи AppMetrica читаются из local.properties (не коммитятся).
+// В CI или у разработчика без ключей значение будет пустым — приложение
+// тогда не активирует SDK (см. CompetraApp.onCreate()).
+val appMetricaProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(f.inputStream())
+}
+val appMetricaKeyDebug: String = appMetricaProps.getProperty("APPMETRICA_API_KEY_DEBUG", "")
+val appMetricaKeyRelease: String = appMetricaProps.getProperty("APPMETRICA_API_KEY_RELEASE", "")
 
 android {
     namespace = "com.competra.app"
@@ -31,6 +43,7 @@ android {
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
                 mappingFileUploadEnabled = false
             }
+            buildConfigField("String", "APPMETRICA_API_KEY", "\"$appMetricaKeyDebug\"")
         }
         release {
             isMinifyEnabled = true
@@ -39,6 +52,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "APPMETRICA_API_KEY", "\"$appMetricaKeyRelease\"")
         }
     }
     compileOptions {
@@ -90,6 +104,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:eventdetails"))
     implementation(project(":core:sync"))
+    implementation(project(":core:analytics"))
 
     implementation(libs.kotlinx.serialization.json)
 

@@ -2,6 +2,8 @@ package com.competra.center.presentation.read_card
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
 import com.competra.center.data.read_card.CheckResult
 import com.competra.center.data.read_card.OrientReadCardState
@@ -28,7 +30,8 @@ class OrientReadCardViewModel(
     private val sportiduinoHelper: SportiduinoHelper,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
     private val resultConflictRepository: ResultConflictRepository,
-    navigation: Navigation
+    navigation: Navigation,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<OrientReadCardState>(OrientReadCardState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
@@ -53,6 +56,11 @@ class OrientReadCardViewModel(
 
     fun handleChipData(chipData: ReadChipData) {
         if (stateValue.isCompetitionFinished) return
+        val cardType = when (chipData) {
+            is ReadChipData.RawResult -> AnalyticsEvent.NfcCardType.PARTICIPANT
+            is ReadChipData.MasterChipData -> AnalyticsEvent.NfcCardType.MASTER
+        }
+        analytics.trackEvent(AnalyticsEvent.NfcChipReadAttempted(cardType))
         when (chipData) {
             is ReadChipData.RawResult -> {
                 competitionId?.let {
@@ -61,16 +69,21 @@ class OrientReadCardViewModel(
                             competitionId = competitionId,
                             chipNumber = chipData.chipNumber
                         ).onSuccess { participant ->
+                            analytics.trackEvent(AnalyticsEvent.NfcChipReadSuccess)
                             computeParticipantResult(
                                 participant = participant,
                                 rawResult = chipData
                             )
+                        }.onFailure {
+                            analytics.trackEvent(AnalyticsEvent.NfcChipReadFailed("participant_not_found"))
                         }
                     }
                 }
             }
 
-            is ReadChipData.MasterChipData -> {}
+            is ReadChipData.MasterChipData -> {
+                analytics.trackEvent(AnalyticsEvent.NfcChipReadSuccess)
+            }
         }
     }
 

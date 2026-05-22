@@ -1,6 +1,8 @@
 package com.competra.profile.presentation.auth
 
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.ProfileNavigation
 import com.competra.domain.exception.NetworkException
@@ -16,13 +18,17 @@ import kotlinx.coroutines.launch
 class AuthViewModel(
     private val navigation: Navigation,
     private val authRepository: AuthRepository,
-    private val networkErrorRepository: NetworkErrorRepository
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<BaseState>(object : BaseState{}) {
 
     override fun onAction(action: BaseAction) {
 
         when (action) {
             is AuthAction.AuthClicked -> {
+                analytics.trackEvent(
+                    AnalyticsEvent.AuthLoginRequested(action.email.substringAfter('@', ""))
+                )
                 viewModelScope.launch {
                     authRepository.login(action.email).onSuccess {
                         navigation.navigate(destination = ProfileNavigation.AuthCodeRoute(action.email))

@@ -88,7 +88,8 @@
       "Bash(/usr/bin/git ls-tree *)",
       "Bash(rtk ./gradlew :app:assembleDebug)",
       "Bash(find /Users/rodionov/backend_projects/eSport/.env* -type f)",
-      "Bash(rtk ./gradlew :data:remote:compileDebugKotlin)"
+      "Bash(rtk ./gradlew :data:remote:compileDebugKotlin)",
+      "Bash(rtk ./gradlew :core:analytics:assembleDebug)"
     ]
   },
   "prefersReducedMotion": true

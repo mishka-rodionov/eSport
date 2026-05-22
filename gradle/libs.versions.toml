@@ -60,6 +60,9 @@ googleServices = "4.4.4"
 firebaseBom = "34.1.0"
 firebaseCrashlyticsPlugin = "3.0.7"
 
+#AppMetrica
+appmetrica = "7.13.0"
+
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-ui-ui = { module = "androidx.compose.ui:ui" }
@@ -110,6 +113,9 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+
+#AppMetrica
+appmetrica-analytics = { module = "io.appmetrica.analytics:analytics", version.ref = "appmetrica" }
 
 #Lifecycle
 lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycle-extensions" }

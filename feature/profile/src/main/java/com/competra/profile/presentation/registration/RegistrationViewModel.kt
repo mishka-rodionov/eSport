@@ -1,6 +1,8 @@
 package com.competra.profile.presentation.registration
 
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.ProfileNavigation
 import com.competra.domain.exception.NetworkException
@@ -17,7 +19,8 @@ import kotlinx.coroutines.launch
 class RegistrationViewModel(
     private val navigation: Navigation,
     private val authInteractor: AuthInteractor,
-    private val networkErrorRepository: NetworkErrorRepository
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<RegistrationState>(RegistrationState()) {
 
     override fun onAction(action: BaseAction) {
@@ -31,6 +34,7 @@ class RegistrationViewModel(
     }
 
     fun registerUser() {
+        analytics.trackEvent(AnalyticsEvent.RegistrationSubmitted)
         viewModelScope.launch {
             with(state.value) {
                 authInteractor.register(
@@ -39,6 +43,7 @@ class RegistrationViewModel(
                     bdate = bdate,
                     email = email
                 ).onSuccess {
+                    analytics.trackEvent(AnalyticsEvent.RegistrationSuccess)
                     navigation.navigate(destination = ProfileNavigation.AuthCodeRoute(email))
                 }.onFailure {
                     handleFailure(it)

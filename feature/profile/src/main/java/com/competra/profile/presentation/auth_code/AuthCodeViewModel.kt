@@ -1,6 +1,8 @@
 package com.competra.profile.presentation.auth_code
 
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.PendingRegistrationRepository
 import com.competra.data.navigation.ProfileNavigation
@@ -20,7 +22,8 @@ class AuthCodeViewModel(
     private val authInteractor: AuthInteractor,
     private val navigation: Navigation,
     private val pendingRegistrationRepository: PendingRegistrationRepository,
-    private val networkErrorRepository: NetworkErrorRepository
+    private val networkErrorRepository: NetworkErrorRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     private var email = ""
@@ -37,16 +40,28 @@ class AuthCodeViewModel(
     }
 
     fun sendAuthCode(code: String) {
+        analytics.trackEvent(AnalyticsEvent.AuthCodeSubmitted)
         viewModelScope.launch(Dispatchers.IO) {
             authInteractor.authorize(email = email, code = code).onSuccess {
+                analytics.trackEvent(AnalyticsEvent.AuthLoginSuccess)
                 if (pendingRegistrationRepository.pending.value != null) {
                     navigation.switchTab(TabRoutes.EVENTS)
                 } else {
                     navigation.navigate(ProfileNavigation.MainProfileRoute)
                 }
             }.onFailure {
+                analytics.trackEvent(AnalyticsEvent.AuthLoginFailed(it.toAuthFailureReason()))
                 handleFailure(it)
             }
+        }
+    }
+
+    private fun Throwable.toAuthFailureReason(): AnalyticsEvent.AuthFailureReason {
+        val networkCode = (this as? NetworkException)?.code ?: return AnalyticsEvent.AuthFailureReason.UNKNOWN
+        return when {
+            networkCode in 400..499 -> AnalyticsEvent.AuthFailureReason.INVALID_CODE
+            networkCode in 500..599 -> AnalyticsEvent.AuthFailureReason.SERVER
+            else -> AnalyticsEvent.AuthFailureReason.NETWORK
         }
     }
 

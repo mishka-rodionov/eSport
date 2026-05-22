@@ -2,6 +2,8 @@ package com.competra.events.presentation.main
 
 import android.os.Parcelable
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.EventsNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.domain.exception.NetworkException
@@ -22,7 +24,8 @@ class EventsViewModel(
     private val navigation: Navigation,
     private val eventsRepository: EventsRepository,
     private val networkErrorRepository: NetworkErrorRepository,
-    private val loadingRepository: LoadingRepository
+    private val loadingRepository: LoadingRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<EventsState>(EventsState()) {
 
     override fun onAction(action: BaseAction) {
@@ -33,6 +36,12 @@ class EventsViewModel(
         when (action) {
             is EventsAction.EventClick -> {
                 val id = action.eventId ?: return
+                analytics.trackEvent(
+                    AnalyticsEvent.EventOpened(
+                        eventId = id,
+                        source = AnalyticsEvent.EventSource.LIST,
+                    )
+                )
                 viewModelScope.launch {
                     navigation.navigate(
                         EventsNavigation.EventDetailsRoute(eventId = id)
@@ -46,6 +55,7 @@ class EventsViewModel(
                 updateState { copy(isFilterDialogOpen = false) }
             }
             is EventsAction.ApplyFilter -> {
+                analytics.trackEvent(AnalyticsEvent.EventFilterApplied(action.filter.toAnalyticsParams()))
                 updateState { copy(appliedFilter = action.filter, isFilterDialogOpen = false) }
                 getEvents(action.filter)
             }
@@ -72,6 +82,13 @@ class EventsViewModel(
             }
         }
     }
+
+    private fun EventsFilter.toAnalyticsParams(): Map<String, Any?> = mapOf(
+        "kinds_count" to kindOfSports.size,
+        "statuses_count" to statuses.size,
+        "has_date_from" to (dateFrom != null),
+        "has_date_to" to (dateTo != null),
+    )
 
     private fun handleFailure(throwable: Throwable) {
         viewModelScope.launch {

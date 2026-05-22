@@ -58,6 +58,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass
+import com.competra.analytics.AnalyticsTracker
+import com.competra.analytics.TrackNavScreens
 import com.competra.center.navigation.centerGraph
 import com.competra.data.navigation.BackRoute
 import com.competra.data.navigation.BaseNavigation
@@ -73,6 +75,7 @@ import com.competra.ui.CompetitionServiceCommand
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.compose.koinInject
 
 /**
  * Главная Activity приложения.
@@ -261,6 +264,8 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
                 AnimatedVisibility(visible = isSelected, enter = fadeIn(), exit = fadeOut()) {
                     saveableStateHolder.SaveableStateProvider(tab.route) {
                         val navController = rememberNavController()
+                        val analyticsTracker = koinInject<AnalyticsTracker>()
+                        TrackNavScreens(navController, analyticsTracker)
 
                         val isSelectedTab = selectedTab == tab.route
                         LaunchedEffect(navController, isSelectedTab) {

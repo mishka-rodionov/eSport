@@ -3,6 +3,8 @@ package com.competra.profile.presentation.profile_editor
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.domain.exception.NetworkException
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.models.user.User
@@ -30,7 +32,8 @@ class ProfileEditorViewModel(
     private val networkErrorRepository: NetworkErrorRepository,
     private val uploadRepository: UploadRepository,
     private val context: Context,
-    private val loadingRepository: LoadingRepository
+    private val loadingRepository: LoadingRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<ProfileEditorState>(ProfileEditorState()) {
 
     init {
@@ -101,6 +104,7 @@ class ProfileEditorViewModel(
 
             userRepository.saveUser(userToSave)
                 .onSuccess {
+                    analytics.trackEvent(AnalyticsEvent.ProfileEditSaved)
                     updateState { copy(isSaving = false) }
                     // TODO: Навигация назад или показ сообщения об успехе
                 }

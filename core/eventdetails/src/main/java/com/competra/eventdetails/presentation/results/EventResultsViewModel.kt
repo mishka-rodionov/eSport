@@ -1,6 +1,8 @@
 package com.competra.eventdetails.presentation.results
 
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.competra.domain.models.orienteering.ParticipantWithResult
@@ -24,7 +26,8 @@ sealed interface EventResultsAction : BaseAction {
 }
 
 class EventResultsViewModel(
-    private val remoteRepository: OrienteeringCompetitionRemoteRepository
+    private val remoteRepository: OrienteeringCompetitionRemoteRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<EventResultsState>(EventResultsState()) {
 
     override fun onAction(action: BaseAction) {
@@ -35,6 +38,7 @@ class EventResultsViewModel(
     }
 
     fun loadResults(eventId: Long) {
+        analytics.trackEvent(AnalyticsEvent.ResultsViewed(eventId))
         viewModelScope.launch(Dispatchers.IO) {
             updateState { copy(isLoading = true) }
 

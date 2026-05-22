@@ -58,6 +58,7 @@ dependencies {
     implementation(project(":core:resources"))
     implementation(project(":core:ui"))
     implementation(project(":core:eventdetails"))
+    implementation(project(":core:analytics"))
     implementation(project(":utils"))
 
     implementation(libs.kotlinx.serialization.json)

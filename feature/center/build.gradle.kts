@@ -55,6 +55,7 @@ dependencies {
     implementation(project(":core:resources"))
     implementation(project(":core:nfchelper"))
     implementation(project(":core:ui"))
+    implementation(project(":core:analytics"))
     implementation(project(":utils"))
 
     //compose navigation

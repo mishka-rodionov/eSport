@@ -1,6 +1,8 @@
 package com.competra.center.presentation.draw
 
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.center.data.draw.DrawAction
 import com.competra.center.data.draw.DrawState
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
@@ -24,7 +26,8 @@ private const val MIN_VALID_TIMESTAMP_MS = 946_684_800_000L
 class DrawViewModel(
     private val interactor: OrienteeringCompetitionInteractor,
     private val navigation: Navigation,
-    private val loadingRepository: LoadingRepository
+    private val loadingRepository: LoadingRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<DrawState>(DrawState()) {
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
@@ -60,6 +63,7 @@ class DrawViewModel(
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
                 interactor.setDrawConducted(compId)
+                analytics.trackEvent(AnalyticsEvent.ParticipantDrawn(sortedParticipants.size))
                 updateState { copy(participants = sortedParticipants) }
             } finally {
                 loadingRepository.emit(false)
@@ -92,6 +96,7 @@ class DrawViewModel(
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
                 interactor.setDrawConducted(compId)
+                analytics.trackEvent(AnalyticsEvent.ParticipantDrawn(sortedParticipants.size))
                 updateState { copy(participants = sortedParticipants) }
             } finally {
                 loadingRepository.emit(false)

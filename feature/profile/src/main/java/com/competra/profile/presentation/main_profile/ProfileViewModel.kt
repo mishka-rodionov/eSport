@@ -1,6 +1,8 @@
 package com.competra.profile.presentation.main_profile
 
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.ProfileNavigation
 import com.competra.domain.repository.user.UserRepository
@@ -22,7 +24,8 @@ import kotlinx.coroutines.launch
 class ProfileViewModel(
     private val navigation: Navigation,
     private val userRepository: UserRepository,
-    private val authInteractor: AuthInteractor
+    private val authInteractor: AuthInteractor,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<ProfileState>(ProfileState()) {
 
     override fun onAction(action: BaseAction) {
@@ -73,6 +76,7 @@ class ProfileViewModel(
      * Переход на экран редактирования профиля.
      */
     private fun toProfileEditor() {
+        analytics.trackEvent(AnalyticsEvent.ProfileEditStarted)
         viewModelScope.launch {
             navigation.navigate(ProfileNavigation.ProfileEditorRoute)
         }
@@ -84,6 +88,8 @@ class ProfileViewModel(
     private fun logout() {
         viewModelScope.launch {
             authInteractor.logout()
+            analytics.trackEvent(AnalyticsEvent.Logout)
+            analytics.setUserId(null)
             updateState { copy(user = null) }
         }
     }
@@ -94,6 +100,7 @@ class ProfileViewModel(
     fun getCurrentUser() {
         viewModelScope.launch {
             userRepository.retrieveUser().onSuccess { user ->
+                analytics.setUserId(user.id)
                 updateState {
                     copy(user = user)
                 }
