@@ -94,5 +94,17 @@ The app uses NFC to read/write participant chips for orienteering competitions. 
 - `minSdk 26` / `targetSdk 34` / `compileSdk 36`
 - Physical NFC device required for NFC features; emulator cannot emulate NFC hardware
 
+## Workflows и skills
+
+Дополнительная документация для Claude лежит в `docs/workflows/` (императивные процессы — «когда X, делай Y») и `docs/skills/` (справочники / конвенции). Сами файлы в контекст автоматически НЕ загружаются — читай нужный по Read, когда сработал триггер ниже.
+
+### Триггеры
+
+- **Создаёшь новый экран** (новый `*Screen.kt` или новая запись в navigation-graph) → прочитай `docs/workflows/analytics.md` ДО написания кода.
+- **Добавляешь новое пользовательское действие или фичу** (новый `Action`, новая кнопка, новый бизнес-сценарий) → прочитай `docs/workflows/analytics.md` и спроси пользователя про аналитику ДО написания кода.
+- **Пишешь имя нового аналитического события или экрана** → сверься с `docs/skills/analytics-events.md`.
+
+Индексы доступных файлов: [`docs/workflows/README.md`](docs/workflows/README.md), [`docs/skills/README.md`](docs/skills/README.md).
+
 ## Commands
 - Always use rtk for commands (rtk grep, rtk find, rtk git, and etc.)
