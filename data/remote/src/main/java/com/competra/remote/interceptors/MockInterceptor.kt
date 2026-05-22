@@ -137,7 +137,8 @@ class MockInterceptor : Interceptor {
                     contactPhone = "+78452000000",
                     contactEmail = "info@mock.ru",
                     website = null,
-                    resultsStatus = "NOT_PUBLISHED"
+                    resultsStatus = "NOT_PUBLISHED",
+                    timeZoneId = zoneId.id
                 ),
                 direction = OrienteeringDirection.FORWARD.name,
                 punchingSystem = PunchingSystem.SPORTIDUINO,
@@ -172,7 +173,8 @@ class MockInterceptor : Interceptor {
                     contactPhone = null,
                     contactEmail = null,
                     website = null,
-                    resultsStatus = "NOT_PUBLISHED"
+                    resultsStatus = "NOT_PUBLISHED",
+                    timeZoneId = zoneId.id
                 )
             )
         )
@@ -240,7 +242,8 @@ class MockInterceptor : Interceptor {
                 contactPhone = competitionRequest?.competition?.contactPhone,
                 contactEmail = competitionRequest?.competition?.contactEmail,
                 website = competitionRequest?.competition?.website,
-                resultsStatus = competitionRequest?.competition?.resultsStatus ?: "NOT_PUBLISHED"
+                resultsStatus = competitionRequest?.competition?.resultsStatus ?: "NOT_PUBLISHED",
+                timeZoneId = competitionRequest?.competition?.timeZoneId ?: java.time.ZoneId.systemDefault().id
             )
         )
 

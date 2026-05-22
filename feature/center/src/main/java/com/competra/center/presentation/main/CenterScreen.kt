@@ -416,7 +416,8 @@ private fun CenterScreenAuthPreview() {
                         mainOrganizerId = "123",
                         coordinates = Coordinates(latitude = 0.0, longitude = 0.0),
                         status = CompetitionStatus.DRAFT,
-                        resultsStatus = ResultsStatus.NOT_PUBLISHED
+                        resultsStatus = ResultsStatus.NOT_PUBLISHED,
+                        timeZoneId = "Europe/Moscow"
                     ),
                     direction = OrienteeringDirection.FORWARD,
                     punchingSystem = PunchingSystem.PUNCH,

@@ -31,6 +31,7 @@ fun Competition.toRequest(): CompetitionRequest {
         contactEmail = contactEmail,
         website = website,
         resultsStatus = resultsStatus.name,
+        timeZoneId = timeZoneId,
         imageUrl = imageUrl,
         serverUpdatedAt = serverUpdatedAt
     )

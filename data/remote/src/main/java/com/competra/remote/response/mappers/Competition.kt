@@ -43,6 +43,7 @@ fun CompetitionResponse.toDomain(): Competition {
         } catch (e: Exception) {
             ResultsStatus.NOT_PUBLISHED
         },
+        timeZoneId = timeZoneId ?: "UTC",
         // Данные получены с сервера, помечаем как синхронизированные
         isSynced = true,
         lastModified = System.currentTimeMillis(),

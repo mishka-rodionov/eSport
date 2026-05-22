@@ -121,11 +121,15 @@ private fun RegistrationCompetitionFieldContent(
             }
             FieldDescription("С какого момента участники смогут подавать заявки")
 
+            val competitionZone = remember(state.timeZoneId) {
+                runCatching { ZoneId.of(state.timeZoneId) }.getOrDefault(ZoneId.systemDefault())
+            }
             if (!state.registrationStartOnCreate) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.weight(1f)) {
                         RegistrationDatePicker(
                             displayDate = state.registrationStart,
+                            zoneId = competitionZone,
                             isError = state.errors.isEmptyRegistrationStart,
                             onDateSelected = { date ->
                                 onAction(OrienteeringCreatorAction.UpdateRegistrationStartDate(date))
@@ -283,6 +287,7 @@ private fun RegistrationEndModeOption(
 @Composable
 private fun RegistrationDatePicker(
     displayDate: Long?,
+    zoneId: ZoneId,
     isError: Boolean = false,
     onDateSelected: (Long) -> Unit
 ) {
@@ -290,12 +295,12 @@ private fun RegistrationDatePicker(
     val calendar = remember { Calendar.getInstance() }
     val focusManager = LocalFocusManager.current
 
-    val datePickerDialog = remember {
+    val datePickerDialog = remember(zoneId) {
         DatePickerDialog(
             context,
             { _, year, month, dayOfMonth ->
                 val dateMillis = LocalDate.of(year, month + 1, dayOfMonth)
-                    .atStartOfDay(ZoneId.systemDefault())
+                    .atStartOfDay(zoneId)
                     .toInstant()
                     .toEpochMilli()
                 onDateSelected(dateMillis)
@@ -314,7 +319,7 @@ private fun RegistrationDatePicker(
             .fillMaxWidth()
             .onFocusChanged { if (it.isFocused) datePickerDialog.show() },
         label = { Text("Дата") },
-        text = DateTimeFormat.transformLongToDisplayDate(displayDate),
+        text = DateTimeFormat.transformLongToDisplayDate(displayDate, zoneId),
         readOnly = true,
         isError = isError,
         trailingIcon = {

@@ -640,7 +640,8 @@ fun OrienteeringEventControlScreenPreview() {
                         startDate = System.currentTimeMillis(),
                         kindOfSport = KindOfSport.Orienteering,
                         status = CompetitionStatus.DRAFT,
-                        resultsStatus = ResultsStatus.NOT_PUBLISHED
+                        resultsStatus = ResultsStatus.NOT_PUBLISHED,
+                        timeZoneId = "Europe/Moscow"
                     ),
                     direction = OrienteeringDirection.FORWARD,
                     punchingSystem = PunchingSystem.PUNCH,

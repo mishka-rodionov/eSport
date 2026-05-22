@@ -25,6 +25,11 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data object Apply: OrienteeringCreatorAction()
     data class UpdateCompetitionDate(val competitionDate: Long): OrienteeringCreatorAction()
     data class UpdateCompetitionTime(val competitionTime: String): OrienteeringCreatorAction()
+    /**
+     * Смена часового пояса соревнования. Локальное «отображаемое» время (HH:mm в полях формы)
+     * остаётся неизменным — пересчитываются epoch-таймстампы под новый пояс.
+     */
+    data class UpdateTimeZone(val zoneId: String): OrienteeringCreatorAction()
     data object ShowGroupCreateDialog: OrienteeringCreatorAction()
     data object HideGroupCreateDialog: OrienteeringCreatorAction()
     data class EditGroupDialog(val index: Int): OrienteeringCreatorAction()

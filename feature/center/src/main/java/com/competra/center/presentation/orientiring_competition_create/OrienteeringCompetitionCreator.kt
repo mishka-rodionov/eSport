@@ -31,12 +31,15 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
     val calendar = remember { Calendar.getInstance() }
     val focusManager = LocalFocusManager.current
 
-    val datePickerDialog = remember {
+    val zoneId = remember(state.timeZoneId) {
+        runCatching { ZoneId.of(state.timeZoneId) }.getOrDefault(ZoneId.systemDefault())
+    }
+    val datePickerDialog = remember(zoneId) {
         DatePickerDialog(
             context,
             { _, year, month, dayOfMonth ->
                 val dateMillis = LocalDate.of(year, month + 1, dayOfMonth)
-                    .atStartOfDay(ZoneId.systemDefault())
+                    .atStartOfDay(zoneId)
                     .toInstant()
                     .toEpochMilli()
                 userAction.invoke(OrienteeringCreatorAction.UpdateCompetitionDate(dateMillis))
@@ -55,7 +58,7 @@ fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreator
             .fillMaxWidth()
             .onFocusChanged { if (it.isFocused) datePickerDialog.show() },
         label = { Text(text = stringResource(R.string.label_date)) },
-        text = DateTimeFormat.transformLongToDisplayDate(state.startDate),
+        text = DateTimeFormat.transformLongToDisplayDate(state.startDate, zoneId),
         readOnly = true,
         trailingIcon = {
             Icon(

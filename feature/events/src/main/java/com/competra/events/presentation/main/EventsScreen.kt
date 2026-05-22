@@ -253,8 +253,12 @@ fun EventItem(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
+                    val eventZone = runCatching { java.time.ZoneId.of(event.timeZoneId) }
+                        .getOrDefault(java.time.ZoneId.systemDefault())
                     Text(
-                        text = DateTimeFormat.transformLongToDisplayDate(event.startDate),
+                        text = DateTimeFormat.transformLongToDisplayDate(event.startDate, eventZone) +
+                            " " + DateTimeFormat.transformLongToTime(event.startDate, eventZone) +
+                            " (" + event.timeZoneId + ")",
                         style = MaterialTheme.typography.bodySmall
                     )
                     
@@ -320,9 +324,10 @@ fun EventItemPreview() {
         mainOrganizerId = "125",
         coordinates = Coordinates(0.0, 0.0),
         status = CompetitionStatus.DRAFT,
-        resultsStatus = ResultsStatus.NOT_PUBLISHED
+        resultsStatus = ResultsStatus.NOT_PUBLISHED,
+        timeZoneId = "Europe/Moscow"
     )
-    
+
     MaterialTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             EventItem(

@@ -5,7 +5,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -195,6 +198,11 @@ private fun CommonCompetitionFieldContent(
                     TimePicker(state = state, userAction = onAction)
                 }
             }
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            TimeZonePicker(
+                selectedZoneId = state.timeZoneId,
+                onSelect = { onAction(OrienteeringCreatorAction.UpdateTimeZone(it)) }
+            )
 
             // Дополнительные этапы (многодневки) пока отключено
 //            if (state.stages.isNotEmpty()) {
@@ -587,5 +595,90 @@ private fun CommonCompetitionFieldFilledPreview() {
             onBack = {},
             onNext = {}
         )
+    }
+}
+
+/**
+ * Компонент выбора часового пояса соревнования.
+ *
+ * Использует системный список IANA-зон, по умолчанию подсвечивает текущий выбор.
+ * Реализация — bottom sheet с поиском, чтобы не загромождать форму.
+ */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun TimeZonePicker(
+    selectedZoneId: String,
+    onSelect: (String) -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+    var showSheet by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
+    val allZones = remember { java.time.ZoneId.getAvailableZoneIds().sorted() }
+    val filtered = remember(query, allZones) {
+        if (query.isBlank()) allZones else allZones.filter { it.contains(query, ignoreCase = true) }
+    }
+    val displayLabel = remember(selectedZoneId) {
+        runCatching {
+            val zone = java.time.ZoneId.of(selectedZoneId)
+            val offset = zone.rules.getOffset(java.time.Instant.now())
+            "$selectedZoneId (UTC${offset.id.takeIf { it != "Z" } ?: "+00:00"})"
+        }.getOrDefault(selectedZoneId)
+    }
+
+    DSTextInput(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { if (it.isFocused) { showSheet = true; focusManager.clearFocus() } },
+        label = { Text(text = "Часовой пояс") },
+        text = displayLabel,
+        readOnly = true,
+        trailingIcon = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_build_24px),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    )
+
+    if (showSheet) {
+        ModalBottomSheet(onDismissRequest = { showSheet = false }) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.SIZE_BASE.dp)
+            ) {
+                DSTextInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(text = "Поиск") },
+                    text = query,
+                    onValueChanged = { query = it }
+                )
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp)
+                ) {
+                    items(filtered) { zone ->
+                        Text(
+                            text = zone,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(Dimens.SIZE_HALF.dp))
+                                .background(
+                                    if (zone == selectedZoneId) MaterialTheme.colorScheme.primaryContainer
+                                    else MaterialTheme.colorScheme.surface
+                                )
+                                .clickable {
+                                    onSelect(zone)
+                                    showSheet = false
+                                }
+                                .padding(Dimens.SIZE_HALF.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }

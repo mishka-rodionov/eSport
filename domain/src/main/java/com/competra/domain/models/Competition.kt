@@ -31,6 +31,9 @@ import com.competra.domain.models.orienteering.ResultsStatus
  * @property contactEmail Контактный адрес электронной почты организаторов.
  * @property website Официальный сайт или страница соревнований.
  * @property resultsStatus Статус публикации результатов (Предварительные, Официальные и т.д.).
+ * @property timeZoneId IANA-идентификатор часового пояса соревнования (например, "Europe/Moscow").
+ * Все Long-таймстампы (`startDate`, `registrationStart`, `registrationEnd`) хранятся в UTC,
+ * а этот пояс используется для отображения и интерпретации введённых пользователем «дата + время».
  * @property isSynced Флаг успешной синхронизации локальной записи с сервером.
  * @property lastModified Время последнего изменения записи (Unix timestamp в мс).
  * @property isDeleted Флаг "мягкого" удаления (запись помечена как удаленная для последующей синхронизации).
@@ -62,6 +65,7 @@ data class Competition(
     val contactEmail: String? = null,
     val website: String? = null,
     val resultsStatus: ResultsStatus,            // PRELIMINARY, OFFICIAL, NOT_PUBLISHED
+    val timeZoneId: String,
     // Поля синхронизации
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),

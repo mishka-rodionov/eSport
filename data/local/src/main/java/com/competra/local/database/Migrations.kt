@@ -170,3 +170,15 @@ val MIGRATION_37_38 = object : Migration(37, 38) {
         db.execSQL("ALTER TABLE distances ADD COLUMN finishControlPoint INTEGER")
     }
 }
+
+/**
+ * Миграция с версии 38 на 39.
+ * Добавляет колонку timeZoneId для соревнований — IANA-идентификатор часового пояса
+ * (например, "Europe/Moscow"). Для существующих записей дефолт 'UTC', чтобы
+ * текущая интерпретация (как-было до фичи) не менялась.
+ */
+val MIGRATION_38_39 = object : Migration(38, 39) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN timeZoneId TEXT NOT NULL DEFAULT 'UTC'")
+    }
+}

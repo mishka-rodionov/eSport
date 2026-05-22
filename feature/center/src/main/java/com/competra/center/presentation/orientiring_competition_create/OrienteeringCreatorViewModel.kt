@@ -25,6 +25,9 @@ import com.competra.ui.viewmodel.BaseViewModel
 import com.competra.utils.DateTimeFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /**
  * ViewModel для управления процессом пошагового создания соревнования.
@@ -154,17 +157,19 @@ class OrienteeringCreatorViewModel(
             }
 
             is OrienteeringCreatorAction.UpdateCompetitionTime -> {
-                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.startDate, action.competitionTime)
+                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.startDate, action.competitionTime, competitionZone())
                 updateState { copy(startTimeStr = action.competitionTime, startDate = combined ?: stateValue.startDate) }
             }
 
+            is OrienteeringCreatorAction.UpdateTimeZone -> handleTimeZoneChange(action.zoneId)
+
             is OrienteeringCreatorAction.UpdateRegistrationStartDate -> {
-                val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationStartTimeStr) ?: action.date
+                val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationStartTimeStr, competitionZone()) ?: action.date
                 updateState { copy(registrationStart = combined, errors = errors.copy(isEmptyRegistrationStart = false)) }
             }
 
             is OrienteeringCreatorAction.UpdateRegistrationStartTime -> {
-                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationStart, action.time)
+                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationStart, action.time, competitionZone())
                 updateState { copy(registrationStartTimeStr = action.time, registrationStart = combined ?: stateValue.registrationStart) }
             }
 
@@ -176,12 +181,12 @@ class OrienteeringCreatorViewModel(
             }
 
             is OrienteeringCreatorAction.UpdateRegistrationEndDate -> {
-                val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationEndTimeStr) ?: action.date
+                val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationEndTimeStr, competitionZone()) ?: action.date
                 updateState { copy(registrationEnd = combined, errors = errors.copy(isEmptyRegistrationEnd = false)) }
             }
 
             is OrienteeringCreatorAction.UpdateRegistrationEndTime -> {
-                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationEnd, action.time)
+                val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationEnd, action.time, competitionZone())
                 updateState { copy(registrationEndTimeStr = action.time, registrationEnd = combined ?: stateValue.registrationEnd) }
             }
 
@@ -252,14 +257,17 @@ class OrienteeringCreatorViewModel(
             val comp =
                 orienteeringCompetitionInteractor.getCompetition(competitionId) ?: return@launch
 
+            val loadedZone = runCatching { ZoneId.of(comp.competition.timeZoneId) }
+                .getOrDefault(ZoneId.systemDefault())
             updateState {
                 copy(
                     competitionId = competitionId,
                     remoteCompetitionId = comp.competition.remoteId,
                     title = comp.competition.title,
                     imageUrl = comp.competition.imageUrl,
+                    timeZoneId = comp.competition.timeZoneId,
                     startDate = comp.competition.startDate,
-                    startTimeStr = DateTimeFormat.transformLongToTime(comp.competition.startDate),
+                    startTimeStr = DateTimeFormat.transformLongToTime(comp.competition.startDate, loadedZone),
                     endDate = comp.competition.endDate,
                     kindOfSport = comp.competition.kindOfSport,
                     description = comp.competition.description ?: "",
@@ -267,10 +275,10 @@ class OrienteeringCreatorViewModel(
                     coordinates = if (isCoordinatesSetByUser) coordinates
                                  else comp.competition.coordinates ?: coordinates,
                     registrationStart = comp.competition.registrationStart,
-                    registrationStartTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationStart).ifEmpty { "10:00" },
+                    registrationStartTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationStart, loadedZone).ifEmpty { "10:00" },
                     registrationStartOnCreate = comp.competition.registrationStart == null,
                     registrationEnd = comp.competition.registrationEnd,
-                    registrationEndTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationEnd).ifEmpty { "23:59" },
+                    registrationEndTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationEnd, loadedZone).ifEmpty { "23:59" },
                     registrationEndMode = if (comp.competition.registrationEnd != null &&
                         comp.competition.registrationEnd == comp.competition.startDate - 24L * 60 * 60 * 1000
                     ) {
@@ -589,8 +597,40 @@ class OrienteeringCreatorViewModel(
     }
     
     fun updateStartDate(date: Long) {
-        val updatedTimestamp = DateTimeFormat.updateTimeInTimestamp(date, stateValue.startTimeStr) ?: date
+        val updatedTimestamp = DateTimeFormat.updateTimeInTimestamp(date, stateValue.startTimeStr, competitionZone()) ?: date
         updateState { copy(startDate = updatedTimestamp) }
+    }
+
+    private fun competitionZone(): ZoneId =
+        runCatching { ZoneId.of(stateValue.timeZoneId) }.getOrDefault(ZoneId.systemDefault())
+
+    /**
+     * Меняет часовой пояс соревнования и пересчитывает все timestamp'ы так,
+     * чтобы локально-отображаемое время (HH:mm, выбранная дата) осталось тем же.
+     * Поведение: пользователь видит «10:00 1 июня» — после смены на NSK тот же «10:00 1 июня»
+     * по новосибирскому времени.
+     */
+    private fun handleTimeZoneChange(newZoneIdRaw: String) {
+        val newZone = runCatching { ZoneId.of(newZoneIdRaw) }.getOrNull() ?: return
+        val oldZone = competitionZone()
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        fun recompute(ts: Long?, timeStr: String): Long? {
+            if (ts == null || ts == 0L) return ts
+            val localDate = java.time.Instant.ofEpochMilli(ts).atZone(oldZone).toLocalDate()
+            val localTime = runCatching { LocalTime.parse(timeStr, timeFormatter) }
+                .getOrNull() ?: java.time.Instant.ofEpochMilli(ts).atZone(oldZone).toLocalTime()
+            return localDate.atTime(localTime).atZone(newZone).toInstant().toEpochMilli()
+        }
+
+        updateState {
+            copy(
+                timeZoneId = newZoneIdRaw,
+                startDate = recompute(startDate, startTimeStr) ?: startDate,
+                registrationStart = recompute(registrationStart, registrationStartTimeStr),
+                registrationEnd = recompute(registrationEnd, registrationEndTimeStr)
+            )
+        }
     }
 
     fun updateEndDate(date: Long?) = updateState { copy(endDate = date) }

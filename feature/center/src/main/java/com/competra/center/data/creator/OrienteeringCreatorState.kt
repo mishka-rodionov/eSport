@@ -8,6 +8,7 @@ import com.competra.domain.models.ParticipantGroup
 import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.ResultsStatus
 import com.competra.ui.BaseState
+import java.time.ZoneId
 
 /**
  * Состояние процесса создания соревнования.
@@ -53,6 +54,8 @@ data class OrienteeringCreatorState(
     val title: String = "",
     val startDate: Long = System.currentTimeMillis(),
     val startTimeStr: String = "10:00",
+    /** IANA-идентификатор часового пояса соревнования. По умолчанию — зона устройства. */
+    val timeZoneId: String = ZoneId.systemDefault().id,
     val endDate: Long? = null,
     val kindOfSport: KindOfSport = KindOfSport.Orienteering,
     val description: String = "",
@@ -125,7 +128,8 @@ data class OrienteeringCreatorState(
                 contactPhone = contactPhone,
                 contactEmail = contactEmail,
                 website = website,
-                resultsStatus = ResultsStatus.NOT_PUBLISHED
+                resultsStatus = ResultsStatus.NOT_PUBLISHED,
+                timeZoneId = timeZoneId
             ),
             direction = competitionDirection,
             punchingSystem = punchingSystem,
