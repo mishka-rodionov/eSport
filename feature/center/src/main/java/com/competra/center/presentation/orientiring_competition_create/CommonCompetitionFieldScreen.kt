@@ -613,17 +613,12 @@ private fun TimeZonePicker(
     val focusManager = LocalFocusManager.current
     var showSheet by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
+    val now = remember { java.time.Instant.now() }
     val allZones = remember { java.time.ZoneId.getAvailableZoneIds().sorted() }
     val filtered = remember(query, allZones) {
         if (query.isBlank()) allZones else allZones.filter { it.contains(query, ignoreCase = true) }
     }
-    val displayLabel = remember(selectedZoneId) {
-        runCatching {
-            val zone = java.time.ZoneId.of(selectedZoneId)
-            val offset = zone.rules.getOffset(java.time.Instant.now())
-            "$selectedZoneId (UTC${offset.id.takeIf { it != "Z" } ?: "+00:00"})"
-        }.getOrDefault(selectedZoneId)
-    }
+    val displayLabel = remember(selectedZoneId) { zoneLabel(selectedZoneId, now) }
 
     DSTextInput(
         modifier = Modifier
@@ -643,6 +638,14 @@ private fun TimeZonePicker(
     )
 
     if (showSheet) {
+        val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+        // Прокручиваем к выбранной зоне при открытии листа или сбросе поиска,
+        // чтобы пользователь сразу видел текущий выбор и соседние зоны.
+        LaunchedEffect(showSheet, query, selectedZoneId, filtered) {
+            val idx = filtered.indexOf(selectedZoneId)
+            if (idx >= 0) listState.scrollToItem(idx)
+        }
+
         ModalBottomSheet(onDismissRequest = { showSheet = false }) {
             Column(modifier = Modifier
                 .fillMaxWidth()
@@ -656,13 +659,14 @@ private fun TimeZonePicker(
                 )
                 Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 400.dp)
                 ) {
                     items(filtered) { zone ->
                         Text(
-                            text = zone,
+                            text = zoneLabel(zone, now),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(Dimens.SIZE_HALF.dp))
@@ -682,3 +686,13 @@ private fun TimeZonePicker(
         }
     }
 }
+
+/**
+ * Возвращает читаемую подпись зоны вида `Europe/Saratov (UTC+04:00)`.
+ * Для зоны UTC (offset `Z`) подставляет `+00:00`, чтобы формат был единообразным.
+ */
+private fun zoneLabel(zoneId: String, instant: java.time.Instant): String = runCatching {
+    val offset = java.time.ZoneId.of(zoneId).rules.getOffset(instant)
+    val offsetStr = offset.id.takeIf { it != "Z" } ?: "+00:00"
+    "$zoneId (UTC$offsetStr)"
+}.getOrDefault(zoneId)
