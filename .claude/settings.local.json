@@ -89,7 +89,10 @@
       "Bash(rtk ./gradlew :app:assembleDebug)",
       "Bash(find /Users/rodionov/backend_projects/eSport/.env* -type f)",
       "Bash(rtk ./gradlew :data:remote:compileDebugKotlin)",
-      "Bash(rtk ./gradlew :core:analytics:assembleDebug)"
+      "Bash(rtk ./gradlew :core:analytics:assembleDebug)",
+      "Bash(bash -n /Users/rodionov/backend_projects/eSport/scripts/_db_common.sh)",
+      "Bash(bash -n /Users/rodionov/backend_projects/eSport/scripts/delete_all_competitions.sh)",
+      "Bash(bash -n /Users/rodionov/backend_projects/eSport/scripts/delete_competition.sh)"
     ]
   },
   "prefersReducedMotion": true
