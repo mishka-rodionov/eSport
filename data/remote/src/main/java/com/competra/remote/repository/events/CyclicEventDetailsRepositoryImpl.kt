@@ -39,7 +39,12 @@ class CyclicEventDetailsRepositoryImpl(
                                 title = group.title,
                                 description = null,
                                 maxParticipant = group.maxParticipants ?: 0,
-                                registeredParticipant = group.registeredCount
+                                registeredParticipant = group.registeredCount,
+                                distanceName = group.distanceName,
+                                distanceLengthMeters = group.distanceLengthMeters,
+                                distanceClimbMeters = group.distanceClimbMeters,
+                                distanceControlsCount = group.distanceControlsCount,
+                                distanceDescription = group.distanceDescription
                             )
                         },
                         status = mapStatus(dto.status),

@@ -374,7 +374,9 @@ private fun ParticipantGroupItem(
     group: EventParticipantGroup,
     onClick: () -> Unit
 ) {
-    Row(
+    val distanceSummary = buildDistanceSummary(group)
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .border(
@@ -383,19 +385,49 @@ private fun ParticipantGroupItem(
                 shape = RoundedCornerShape(8.dp)
             )
             .clickable { onClick() }
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(12.dp)
     ) {
-        Text(
-            text = group.title,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Text(
-            text = "Участников: ${group.registeredParticipant}/${group.maxParticipant}",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = group.title,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Участников: ${group.registeredParticipant}/${group.maxParticipant}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (distanceSummary != null) {
+            Text(
+                text = distanceSummary,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+private fun buildDistanceSummary(group: EventParticipantGroup): String? {
+    val parts = listOfNotNull(
+        group.distanceName,
+        group.distanceLengthMeters?.let { formatMeters(it) }
+    )
+    return parts.takeIf { it.isNotEmpty() }?.joinToString(" • ")
+}
+
+private fun formatMeters(meters: Int): String {
+    return if (meters >= 1000) {
+        val km = meters / 1000.0
+        val formatted = if (km == km.toLong().toDouble()) "${km.toLong()} км" else "${"%.1f".format(km)} км"
+        formatted
+    } else {
+        "$meters м"
     }
 }
 

@@ -3,8 +3,10 @@ package com.competra.eventdetails.presentation.participant_group
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -95,6 +97,8 @@ private fun EventParticipantGroupContent(
             }
         }
 
+        DistanceInfoBlock(group = participantGroup)
+
         Text(
             text = "Участники (${state.participants.size})",
             style = MaterialTheme.typography.titleMedium,
@@ -112,6 +116,53 @@ private fun EventParticipantGroupContent(
                 ParticipantItem(participant = participant)
             }
         }
+    }
+}
+
+/**
+ * Блок с информацией о дистанции группы. Не отображается, если данных нет.
+ */
+@Composable
+private fun DistanceInfoBlock(group: EventParticipantGroup) {
+    val hasDistanceInfo = group.distanceName != null
+        || group.distanceLengthMeters != null
+        || group.distanceClimbMeters != null
+        || group.distanceControlsCount != null
+
+    if (!hasDistanceInfo) return
+
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        val stats = listOfNotNull(
+            group.distanceName,
+            group.distanceLengthMeters?.let { formatMeters(it) },
+            group.distanceClimbMeters?.let { "набор $it м" },
+            group.distanceControlsCount?.let { "КП: $it" }
+        )
+        if (stats.isNotEmpty()) {
+            Text(
+                text = stats.joinToString(" • "),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        val description = group.distanceDescription
+        if (!description.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+private fun formatMeters(meters: Int): String {
+    return if (meters >= 1000) {
+        val km = meters / 1000.0
+        if (km == km.toLong().toDouble()) "${km.toLong()} км" else "${"%.1f".format(km)} км"
+    } else {
+        "$meters м"
     }
 }
 

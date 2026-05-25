@@ -6,7 +6,12 @@ data class ParticipantGroupDetailResponse(
     @SerializedName("groupId") val groupId: String,
     @SerializedName("title") val title: String,
     @SerializedName("maxParticipants") val maxParticipants: Int?,
-    @SerializedName("registeredCount") val registeredCount: Int
+    @SerializedName("registeredCount") val registeredCount: Int,
+    @SerializedName("distanceName") val distanceName: String? = null,
+    @SerializedName("distanceLengthMeters") val distanceLengthMeters: Int? = null,
+    @SerializedName("distanceClimbMeters") val distanceClimbMeters: Int? = null,
+    @SerializedName("distanceControlsCount") val distanceControlsCount: Int? = null,
+    @SerializedName("distanceDescription") val distanceDescription: String? = null
 )
 
 data class CompetitionDetailResponse(
