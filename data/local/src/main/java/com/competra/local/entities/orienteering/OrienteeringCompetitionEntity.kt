@@ -40,5 +40,10 @@ data class OrienteeringCompetitionEntity(
     val startTime: Long? = null,
     val startIntervalSeconds: Int? = null,
     @ColumnInfo(defaultValue = "0")
-    val isDrawConducted: Boolean = false
+    val isDrawConducted: Boolean = false,
+    // Хранит orient.updatedAt (таблица OrienteeringCompetitions), а НЕ comp.updatedAt.
+    // Сервер при conflict-check сравнивает именно с orient.updatedAt: comp.updatedAt
+    // обновляется автоматически планировщиком статусов и не отражает изменений ориентирования.
+    @ColumnInfo(name = "orient_server_updated_at")
+    val serverUpdatedAt: Long? = null
 )

@@ -327,12 +327,11 @@ class SyncOrchestrator(
         transient = transient or handleResult(
             result = result,
             entityDescription = "participants batch",
-            onSuccess = {
-                ready.forEach {
-                    localRepository.updateParticipants(
-                        listOf(it.copy(isSynced = true, syncError = null)),
-                        markUnsynced = false
-                    )
+            onSuccess = { serverParticipants ->
+                ready.zip(serverParticipants) { local, server ->
+                    local.copy(isSynced = true, syncError = null, serverUpdatedAt = server.serverUpdatedAt)
+                }.forEach {
+                    localRepository.updateParticipants(listOf(it), markUnsynced = false)
                 }
             },
             onConflict = { payload ->

@@ -182,3 +182,9 @@ val MIGRATION_38_39 = object : Migration(38, 39) {
         db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN timeZoneId TEXT NOT NULL DEFAULT 'UTC'")
     }
 }
+
+val MIGRATION_39_40 = object : Migration(39, 40) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN orient_server_updated_at INTEGER")
+    }
+}

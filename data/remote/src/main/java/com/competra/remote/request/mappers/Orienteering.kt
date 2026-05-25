@@ -23,7 +23,7 @@ fun OrienteeringCompetition.toRequest(): OrienteeringCompetitionRequest {
         startTimeMode = startTimeMode.name,
         countdownTimer = countdownTimer,
         startIntervalSeconds = startIntervalSeconds,
-        serverUpdatedAt = competition.serverUpdatedAt
+        serverUpdatedAt = serverUpdatedAt
     )
 }
 

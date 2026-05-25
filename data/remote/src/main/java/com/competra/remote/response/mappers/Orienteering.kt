@@ -22,7 +22,14 @@ import com.competra.remote.response.orienteering.ParticipantGroupResponse
  */
 fun OrienteeringCompetitionResponse.toDomain(): OrienteeringCompetition {
     return OrienteeringCompetition(
-        competitionId, competition.toDomain(), OrienteeringDirection.valueOf(direction), punchingSystem, startTimeMode
+        localCompetitionId = competitionId,
+        competition = competition.toDomain(),
+        direction = OrienteeringDirection.valueOf(direction),
+        punchingSystem = punchingSystem,
+        startTimeMode = startTimeMode,
+        countdownTimer = countdownTimer,
+        startTime = startTime,
+        serverUpdatedAt = updatedAt.takeIf { it > 0L }
     )
 }
 

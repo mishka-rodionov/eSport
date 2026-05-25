@@ -25,5 +25,6 @@ data class OrienteeringCompetition(
     val countdownTimer: Int? = null,
     val startTime: Long? = null,
     val startIntervalSeconds: Int? = null,
-    val isDrawConducted: Boolean = false
+    val isDrawConducted: Boolean = false,
+    val serverUpdatedAt: Long? = null
 )

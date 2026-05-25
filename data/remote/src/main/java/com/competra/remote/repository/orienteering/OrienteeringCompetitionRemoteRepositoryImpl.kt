@@ -58,7 +58,8 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
                 localGroup.copy(
                     remoteId = serverGroup.groupId,
                     isSynced = true,
-                    lastModified = System.currentTimeMillis()
+                    lastModified = System.currentTimeMillis(),
+                    serverUpdatedAt = serverGroup.updatedAt.takeIf { it > 0L }
                 )
             }
         }
@@ -75,7 +76,11 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
                 // Сопоставляем локальные дистанции с серверными по порядку (zip),
                 // сохраняя локальный id и проставляя remoteId из ответа
                 distances.zip(response.result!!) { localDist, serverDist ->
-                    localDist.copy(remoteId = serverDist.id, isSynced = true)
+                    localDist.copy(
+                        remoteId = serverDist.id,
+                        isSynced = true,
+                        serverUpdatedAt = serverDist.updatedAt.takeIf { it > 0L }
+                    )
                 }
             }
     }
