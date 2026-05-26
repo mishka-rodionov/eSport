@@ -73,7 +73,7 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass, navController:
         )
     }
     composable<CenterNavigation.OrientReadCardRoute> { OrientReadCardScreen() }
-    composable<CenterNavigation.ParticipantList> { ParticipantListScreen() }
+    composable<CenterNavigation.ParticipantList> { ParticipantListScreen(onSave = { navController.popBackStack() }) }
     composable<CenterNavigation.DrawParticipants> { DrawParticipantsScreen() }
     composable<CenterNavigation.ParticipantResults> { OrienteeringCompetitionResultsScreen() }
     composable<CenterNavigation.GetOrienteeringChipRoute> { backStackEntry ->

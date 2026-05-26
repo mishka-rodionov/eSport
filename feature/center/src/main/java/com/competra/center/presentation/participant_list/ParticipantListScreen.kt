@@ -46,6 +46,7 @@ import java.util.Calendar
  */
 @Composable
 fun ParticipantListScreen(
+    onSave: () -> Unit = {},
     viewModel: ParticipantListViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -59,7 +60,7 @@ fun ParticipantListScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        ParticipantListContent(userAction = userAction, state = state)
+        ParticipantListContent(userAction = userAction, state = state, onSave = onSave)
     }
 
     if (state.isShowParticipantCreateDialog) {
@@ -84,7 +85,8 @@ fun ParticipantListScreen(
 @Composable
 fun ParticipantListContent(
     userAction: (BaseAction) -> Unit,
-    state: ParticipantListState
+    state: ParticipantListState,
+    onSave: () -> Unit = {}
 ) {
     val pagerState = rememberPagerState { state.participantGroupWithParticipants.size }
     val scope = rememberCoroutineScope()
@@ -151,6 +153,32 @@ fun ParticipantListContent(
                             }
                         )
                     }
+                }
+            }
+
+            FloatingActionButton(
+                onClick = onSave,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(Dimens.SIZE_BASE.dp),
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.onSecondary,
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_check_24px),
+                        contentDescription = "Save"
+                    )
+                    Text(
+                        text = "Сохранить",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
