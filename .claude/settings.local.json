@@ -95,7 +95,9 @@
       "Bash(bash -n /Users/rodionov/backend_projects/eSport/scripts/delete_competition.sh)",
       "Bash(xargs ls -lh)",
       "Bash(rtk ./gradlew :domain:compileDebugKotlin :data:remote:compileDebugKotlin :core:eventdetails:compileDebugKotlin)",
-      "Bash(rtk gh *)"
+      "Bash(rtk gh *)",
+      "Bash(xargs ls -l)",
+      "Bash(./gradlew :feature:center:compileDebugKotlin --info)"
     ]
   },
   "prefersReducedMotion": true

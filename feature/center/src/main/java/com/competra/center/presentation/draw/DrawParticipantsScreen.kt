@@ -1,129 +1,313 @@
 package com.competra.center.presentation.draw
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.competra.designsystem.theme.Dimens
 import com.competra.center.data.draw.DrawAction
-import com.competra.center.presentation.participant_list.ParticipantList
+import com.competra.center.presentation.participant_list.ParticipantCard
+import com.competra.designsystem.theme.Dimens
 import com.competra.resources.R
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 /**
  * Экран для жеребьевки участников соревнования.
- * Позволяет просмотреть текущий список и запустить процесс автоматического распределения стартовых номеров.
  */
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
     val userAction = remember { viewModel::onAction }
+    val scope = rememberCoroutineScope()
+
+    val participantsByGroup = remember(state.participants) {
+        state.participants
+            .groupBy { it.groupId }
+            .entries
+            .sortedBy { it.value.firstOrNull()?.groupName ?: "" }
+            .map { (_, participants) ->
+                participants.first().groupName to
+                    participants.sortedBy { it.startNumber.toIntOrNull() ?: Int.MAX_VALUE }
+            }
+    }
+
+    val pagerState = rememberPagerState { participantsByGroup.size }
+    var cardsVisible by remember { mutableStateOf(true) }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.y < -10f) cardsVisible = false
+                return Offset.Zero
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                if (available.y > 0f) cardsVisible = true
+                return Offset.Zero
+            }
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Заголовок и описание
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Dimens.SIZE_BASE.dp)
-            ) {
-                Text(
-                    text = "Жеребьёвка",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                
-                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-                
-                Text(
-                    text = "Нажмите на кнопку старта, чтобы автоматически распределить стартовые номера между участниками.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        Column(
+            Modifier
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection)
+        ) {
+            AnimatedVisibility(visible = cardsVisible) {
+                Column(Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Жеребьёвка",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(Dimens.SIZE_BASE.dp)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max)
+                            .padding(horizontal = Dimens.SIZE_BASE.dp)
+                            .padding(bottom = Dimens.SIZE_BASE.dp),
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
+                    ) {
+                        DrawModeCard(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            icon = ImageVector.vectorResource(R.drawable.ic_shuffle_24px),
+                            title = "Общая жеребьёвка",
+                            description = "Группы чередуются, старты не пересекаются",
+                            accentColor = MaterialTheme.colorScheme.primary,
+                            onClick = { userAction.invoke(DrawAction.StartDrawOperation) }
+                        )
+                        DrawModeCard(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            icon = ImageVector.vectorResource(R.drawable.ic_groups_24px),
+                            title = "По группам",
+                            description = "Каждая группа перемешивается независимо",
+                            accentColor = MaterialTheme.colorScheme.secondary,
+                            onClick = { userAction.invoke(DrawAction.StartGroupDrawOperation) }
+                        )
+                    }
+                }
             }
 
-            Box(modifier = Modifier.weight(1f)) {
-                if (state.participants.isEmpty()) {
-                    EmptyDrawView()
-                } else {
-                    ParticipantList(
-                        participants = state.participants,
-                        onEditClick = {}, // На этом экране только просмотр/жеребьевка
-                        onDeleteClick = {}
-                    )
+            if (state.participants.isNotEmpty()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.background,
+                    shadowElevation = if (cardsVisible) 0.dp else 4.dp
+                ) {
+                    Column {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp)
+                        )
+                        Text(
+                            text = "Результаты жеребьёвки",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(
+                                start = Dimens.SIZE_BASE.dp,
+                                end = Dimens.SIZE_BASE.dp,
+                                top = Dimens.SIZE_HALF.dp,
+                                bottom = Dimens.SIZE_HALF.dp
+                            )
+                        )
+                        if (participantsByGroup.size > 1) {
+                            SecondaryScrollableTabRow(
+                                selectedTabIndex = pagerState.currentPage,
+                                edgePadding = 16.dp,
+                                containerColor = MaterialTheme.colorScheme.background,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                divider = {}
+                            ) {
+                                participantsByGroup.forEachIndexed { index, (groupName, _) ->
+                                    Tab(
+                                        selected = pagerState.currentPage == index,
+                                        onClick = {
+                                            scope.launch { pagerState.animateScrollToPage(index) }
+                                        },
+                                        text = {
+                                            Text(
+                                                text = groupName,
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = if (pagerState.currentPage == index)
+                                                    FontWeight.Bold else FontWeight.Normal
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
-                // Кнопки запуска жеребьевки
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(Dimens.SIZE_BASE.dp),
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
-                ) {
-                    ExtendedFloatingActionButton(
-                        onClick = { userAction.invoke(DrawAction.StartGroupDrawOperation) },
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary,
-                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-                        icon = {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
-                                contentDescription = null
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.weight(1f)
+                ) { page ->
+                    val participants = participantsByGroup[page].second
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = Dimens.SIZE_BASE.dp,
+                            end = Dimens.SIZE_BASE.dp,
+                            top = Dimens.SIZE_HALF.dp,
+                            bottom = Dimens.SIZE_BASE.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
+                    ) {
+                        itemsIndexed(
+                            items = participants,
+                            key = { _, p -> p.id }
+                        ) { index, participant ->
+                            ParticipantCard(
+                                participant = participant,
+                                displayIndex = index + 1,
+                                onEditClick = {},
+                                onDeleteClick = {}
                             )
-                        },
-                        text = {
-                            Text(text = "Жеребьёвка по группам", fontWeight = FontWeight.Bold)
                         }
-                    )
-                    ExtendedFloatingActionButton(
-                        onClick = { userAction.invoke(DrawAction.StartDrawOperation) },
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-                        icon = {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
-                                contentDescription = null
-                            )
-                        },
-                        text = {
-                            Text(text = "Провести жеребьёвку", fontWeight = FontWeight.Bold)
-                        }
-                    )
+                    }
+                }
+            } else {
+                Box(Modifier.weight(1f)) {
+                    EmptyDrawView()
                 }
             }
         }
     }
 }
 
+@Composable
+private fun DrawModeCard(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    accentColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val cornerRadius = Dimens.SIZE_BASE.dp
+    Card(
+        modifier = modifier.dashedBorder(1.5.dp, accentColor.copy(alpha = 0.4f), cornerRadius),
+        shape = RoundedCornerShape(cornerRadius),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Dimens.SIZE_BASE.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = accentColor,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(Dimens.SIZE_HALF.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = accentColor),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp)
+            ) {
+                Text(text = "Начать", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+private fun Modifier.dashedBorder(
+    strokeWidth: Dp,
+    color: Color,
+    cornerRadius: Dp
+): Modifier = this.drawWithContent {
+    drawContent()
+    val strokePx = strokeWidth.toPx()
+    val stroke = Stroke(
+        width = strokePx,
+        pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 8f), 0f)
+    )
+    val inset = strokePx / 2f
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(inset, inset),
+        size = Size(size.width - strokePx, size.height - strokePx),
+        cornerRadius = CornerRadius(cornerRadius.toPx()),
+        style = stroke
+    )
+}
+
 /**
- * Вид при отсутствии участников для жеребьевки.
+ * Вид при отсутствии участников для жеребевки.
  */
 @Composable
 private fun EmptyDrawView() {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(Dimens.SIZE_DOUBLE.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_location_on_24px),
             contentDescription = null,
@@ -132,7 +316,7 @@ private fun EmptyDrawView() {
         )
         Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
         Text(
-            text = "Нет участников для проведения жеребьёвки.\nСначала добавьте их в список участников.",
+            text = "Жеребьёвка ещё не проводилась.\nВыберите режим и нажмите «Начать».",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

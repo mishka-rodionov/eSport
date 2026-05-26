@@ -209,7 +209,7 @@ private fun OrienteeringEventControlScreenContent(
                 SectionHeader(title = "Разделы")
 
                 NavigationRow(
-                    text = "Список участников",
+                    text = "Стартовый протокол",
                     onClick = { onAction(OrientEventControlAction.OpenParticipantLists) }
                 )
 
