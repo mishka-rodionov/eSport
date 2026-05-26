@@ -7,9 +7,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.competra.center.data.read_card.OrientReadCardAction
+import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
@@ -38,9 +38,11 @@ import org.koin.compose.viewmodel.koinViewModel
  *
  * @param viewModel ViewModel для управления состоянием экрана.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -54,7 +56,24 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
             ReadCardContent(
                 participant = state.participant!!,
                 result = state.participantResult,
-                rawSplits = state.rawSplits
+                rawSplits = state.rawSplits,
+                onEditSplit = { index -> viewModel.onAction(OrientReadCardAction.EditSplitClicked(index)) }
+            )
+        }
+
+        val editingIndex = state.editingSplitIndex
+        val rawSplits = state.rawSplits
+        if (editingIndex != null && rawSplits != null && editingIndex in rawSplits.indices) {
+            EditSplitBottomSheet(
+                split = rawSplits[editingIndex],
+                sheetState = sheetState,
+                onDismiss = { viewModel.onAction(OrientReadCardAction.DismissEditSplit) },
+                onSave = { newTimestamp ->
+                    viewModel.onAction(OrientReadCardAction.SaveSplitEdit(editingIndex, newTimestamp))
+                },
+                onDelete = {
+                    viewModel.onAction(OrientReadCardAction.DeleteSplit(editingIndex))
+                }
             )
         }
     }
@@ -102,7 +121,8 @@ private fun CompetitionFinishedView() {
 private fun ReadCardContent(
     participant: OrienteeringParticipant,
     result: OrienteeringResult?,
-    rawSplits: List<SplitTime>? = null
+    rawSplits: List<SplitTime>? = null,
+    onEditSplit: (index: Int) -> Unit = {}
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -145,7 +165,7 @@ private fun ReadCardContent(
                 }
 
                 item {
-                    SplitsCard(participant, displaySplits, validCpNumbers)
+                    SplitsCard(participant, displaySplits, validCpNumbers, onEditSplit = onEditSplit)
                 }
             }
         }
@@ -266,7 +286,8 @@ internal fun RaceSummaryCard(participant: OrienteeringParticipant, result: Orien
 internal fun SplitsCard(
     participant: OrienteeringParticipant,
     splits: List<SplitTime>,
-    validCpNumbers: Set<Int> = emptySet()
+    validCpNumbers: Set<Int> = emptySet(),
+    onEditSplit: ((index: Int) -> Unit)? = null
 ) {
     // Для расчёта сплита учитываем только предыдущую валидную отметку
     val validSplitsSorted = splits.filter { it.controlPoint in validCpNumbers }
@@ -346,6 +367,20 @@ internal fun SplitsCard(
                         textAlign = TextAlign.End,
                         color = if (!isValid) Color(0xFF9E8000) else MaterialTheme.colorScheme.onSurface
                     )
+
+                    if (onEditSplit != null) {
+                        IconButton(
+                            onClick = { onEditSplit(index) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.edit),
+                                contentDescription = "Редактировать КП ${item.controlPoint}",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                 }
 
                 if (index < splits.size - 1) {
@@ -399,5 +434,82 @@ private fun EmptyReadCardView() {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+/**
+ * Нижний лист для редактирования отметки на конкретном КП.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditSplitBottomSheet(
+    split: SplitTime,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onSave: (newTimestamp: Long) -> Unit,
+    onDelete: () -> Unit
+) {
+    var timeStr by remember(split) {
+        mutableStateOf(DateTimeFormat.transformLongToTime(split.timestamp))
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.SIZE_BASE.dp)
+                .padding(bottom = 32.dp)
+        ) {
+            Text(
+                text = "Редактировать КП ${split.controlPoint}",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            DSTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                text = timeStr,
+                onValueChanged = { timeStr = it },
+                label = { Text("Время отметки (HH:mm:ss)") }
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            Button(
+                onClick = {
+                    val newTimestamp = DateTimeFormat.updateTimeInTimestamp(split.timestamp, timeStr)
+                    if (newTimestamp != null) onSave(newTimestamp)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+            ) {
+                Text("Сохранить изменения", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+            OutlinedButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
+                    brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
+                )
+            ) {
+                Text("Удалить отметку", fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }

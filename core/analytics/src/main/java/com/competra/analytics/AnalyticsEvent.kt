@@ -125,6 +125,12 @@ sealed class AnalyticsEvent(
     class ResultsViewed(eventId: Long) :
         AnalyticsEvent("results_viewed", mapOf("event_id" to eventId))
 
+    /** Время отметки на КП отредактировано вручную при считывании чипа. */
+    data object SplitEditSaved : AnalyticsEvent("split_edit_saved")
+
+    /** Отметка на КП удалена вручную при считывании чипа. */
+    data object SplitDeleted : AnalyticsEvent("split_deleted")
+
     // endregion
 
     // region Profile

@@ -9,5 +9,6 @@ data class OrientReadCardState(
     val participant: OrienteeringParticipant? = null,
     val participantResult: OrienteeringResult? = null,
     val rawSplits: List<SplitTime>? = null,
-    val isCompetitionFinished: Boolean = false
+    val isCompetitionFinished: Boolean = false,
+    val editingSplitIndex: Int? = null
 ) : BaseState

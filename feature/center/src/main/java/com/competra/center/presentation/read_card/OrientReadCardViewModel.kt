@@ -20,6 +20,7 @@ import com.competra.domain.models.orienteering.ResultConflictEvent
 import com.competra.domain.models.orienteering.SplitTime
 import com.competra.domain.repository.ResultConflictRepository
 import com.competra.nfchelper.SportiduinoHelper
+import com.competra.center.data.read_card.OrientReadCardAction
 import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
 import com.competra.utils.constants.EventsConstants
@@ -37,7 +38,60 @@ class OrientReadCardViewModel(
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
 
     override fun onAction(action: BaseAction) {
+        if (action !is OrientReadCardAction) return
+        when (action) {
+            is OrientReadCardAction.EditSplitClicked -> {
+                updateState { copy(editingSplitIndex = action.index) }
+            }
+            is OrientReadCardAction.DismissEditSplit -> {
+                updateState { copy(editingSplitIndex = null) }
+            }
+            is OrientReadCardAction.SaveSplitEdit -> {
+                analytics.trackEvent(AnalyticsEvent.SplitEditSaved)
+                val updated = stateValue.rawSplits?.toMutableList() ?: return
+                updated[action.index] = updated[action.index].copy(timestamp = action.newTimestamp)
+                updateState { copy(rawSplits = updated) }
+                viewModelScope.launch(Dispatchers.IO) { recalculateAndSaveResult() }
+            }
+            is OrientReadCardAction.DeleteSplit -> {
+                analytics.trackEvent(AnalyticsEvent.SplitDeleted)
+                val updated = stateValue.rawSplits?.toMutableList() ?: return
+                updated.removeAt(action.index)
+                updateState { copy(rawSplits = updated) }
+                viewModelScope.launch(Dispatchers.IO) { recalculateAndSaveResult() }
+            }
+        }
+    }
 
+    private suspend fun recalculateAndSaveResult() {
+        val participant = stateValue.participant ?: return
+        val rawSplits = stateValue.rawSplits ?: return
+        if (rawSplits.isEmpty()) return
+        val expected = getExpectedControlPoints(participant.groupId)
+        val checkResult = checkControlPointOrderPro(expected, rawSplits)
+        val lastValidPunch = checkResult.validSplits.lastOrNull() ?: rawSplits.last()
+        val finishTime = lastValidPunch.timestamp
+        val totalTime = (finishTime - participant.startTime) / 1000L
+        val newResult = OrienteeringResult(
+            competitionId = participant.competitionId,
+            participantId = participant.id,
+            groupId = participant.groupId,
+            startTime = participant.startTime,
+            finishTime = finishTime,
+            totalTime = totalTime,
+            rank = -1,
+            status = checkResult.status,
+            penaltyTime = 0,
+            splits = checkResult.validSplits,
+            isEdited = true
+        )
+        updateState { copy(participantResult = newResult, editingSplitIndex = null) }
+        val existing = orienteeringCompetitionInteractor.getResultByParticipantId(participant.id)
+        if (existing != null) {
+            orienteeringCompetitionInteractor.applyConflictResult(existing.id, newResult)
+        } else {
+            orienteeringCompetitionInteractor.saveParticipantResult(newResult)
+        }
     }
 
     init {
