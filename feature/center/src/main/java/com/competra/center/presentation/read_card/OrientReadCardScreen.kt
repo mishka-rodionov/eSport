@@ -17,11 +17,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.competra.center.data.read_card.OrientReadCardAction
 import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.theme.Dimens
+import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.SplitTime
@@ -436,6 +438,115 @@ private fun EmptyReadCardView() {
         )
     }
 }
+
+// region Previews
+
+private val previewParticipant = OrienteeringParticipant(
+    id = "1",
+    userId = "user_1",
+    firstName = "Иван",
+    lastName = "Петров",
+    groupId = 1L,
+    groupName = "М21",
+    competitionId = 1L,
+    commandName = "СК Компас",
+    startNumber = "101",
+    startTime = 1700000000000L,
+    chipNumber = "500123",
+    comment = "",
+    isChipGiven = true
+)
+
+private val previewSplits = listOf(
+    SplitTime(controlPoint = 31, timestamp = 1700000120000L),
+    SplitTime(controlPoint = 32, timestamp = 1700000300000L),
+    SplitTime(controlPoint = 33, timestamp = 1700000510000L),
+    SplitTime(controlPoint = 34, timestamp = 1700000780000L),
+    SplitTime(controlPoint = 99, timestamp = 1700000960000L),
+)
+
+private val previewResult = OrienteeringResult(
+    id = 1L,
+    competitionId = 1L,
+    groupId = 1L,
+    participantId = "1",
+    startTime = 1700000000000L,
+    finishTime = 1700000960000L,
+    totalTime = 960L,
+    rank = 3,
+    status = ResultStatus.FINISHED,
+    splits = previewSplits
+)
+
+@Preview(name = "Ожидание чипа", showBackground = true)
+@Composable
+private fun EmptyReadCardPreview() {
+    MaterialTheme {
+        EmptyReadCardView()
+    }
+}
+
+@Preview(name = "Соревнование завершено", showBackground = true)
+@Composable
+private fun CompetitionFinishedPreview() {
+    MaterialTheme {
+        CompetitionFinishedView()
+    }
+}
+
+@Preview(name = "Результат участника", showBackground = true)
+@Composable
+private fun ReadCardContentPreview() {
+    MaterialTheme {
+        ReadCardContent(
+            participant = previewParticipant,
+            result = previewResult,
+            rawSplits = previewSplits
+        )
+    }
+}
+
+@Preview(name = "Результат без сплитов", showBackground = true)
+@Composable
+private fun ReadCardContentNoSplitsPreview() {
+    MaterialTheme {
+        ReadCardContent(
+            participant = previewParticipant,
+            result = previewResult.copy(splits = emptyList()),
+            rawSplits = emptyList()
+        )
+    }
+}
+
+@Preview(name = "Карточка участника", showBackground = true)
+@Composable
+private fun ParticipantInfoCardPreview() {
+    MaterialTheme {
+        ParticipantInfoCard(participant = previewParticipant)
+    }
+}
+
+@Preview(name = "Карточка итогового времени", showBackground = true)
+@Composable
+private fun RaceSummaryCardPreview() {
+    MaterialTheme {
+        RaceSummaryCard(participant = previewParticipant, result = previewResult)
+    }
+}
+
+@Preview(name = "Сплиты", showBackground = true)
+@Composable
+private fun SplitsCardPreview() {
+    MaterialTheme {
+        SplitsCard(
+            participant = previewParticipant,
+            splits = previewSplits,
+            validCpNumbers = setOf(31, 32, 33, 34, 99)
+        )
+    }
+}
+
+// endregion
 
 /**
  * Нижний лист для редактирования отметки на конкретном КП.
