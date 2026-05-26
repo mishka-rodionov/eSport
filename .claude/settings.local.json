@@ -97,7 +97,8 @@
       "Bash(rtk ./gradlew :domain:compileDebugKotlin :data:remote:compileDebugKotlin :core:eventdetails:compileDebugKotlin)",
       "Bash(rtk gh *)",
       "Bash(xargs ls -l)",
-      "Bash(./gradlew :feature:center:compileDebugKotlin --info)"
+      "Bash(./gradlew :feature:center:compileDebugKotlin --info)",
+      "Bash(xargs -0 ls -ld)"
     ]
   },
   "prefersReducedMotion": true

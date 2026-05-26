@@ -24,6 +24,7 @@ import com.competra.designsystem.theme.Dimens
 import com.competra.center.data.get_chip.GetOrienteeringChipAction
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.resources.R
+import com.competra.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -207,7 +208,7 @@ private fun ParticipantChipCard(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Старт: ${participant.startTime}",
+                    text = "Старт: ${DateTimeFormat.transformLongToTime(participant.startTime)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

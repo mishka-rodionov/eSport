@@ -15,6 +15,8 @@ import com.competra.ui.BaseState
  * @property isTimerRunning Флаг, запущен ли таймер отсчета.
  * @property isCompetitionRunning Флаг, запущено ли соревнование (foreground service активен).
  * @property allChipsDistributed Флаг, выданы ли чипы всем участникам.
+ * @property isDrawConducted Флаг, проведена ли жеребьёвка. Вычисляется из данных участников как fallback,
+ *   поскольку [OrienteeringCompetition.isDrawConducted] может быть сброшен при синхронизации с сервером.
  * @property isShowStartConfirmDialog Флаг отображения диалога подтверждения старта.
  * @property isShowStopConfirmDialog Флаг отображения диалога подтверждения завершения.
  */
@@ -29,6 +31,7 @@ data class OrienteeringEventControlState(
     val countdownTimerInput: String = "",
     val allChipsDistributed: Boolean = true,
     val allParticipantsFinished: Boolean = false,
+    val isDrawConducted: Boolean = false,
     val isFinished: Boolean = false,
     val isShowStartConfirmDialog: Boolean = false,
     val isShowStopConfirmDialog: Boolean = false

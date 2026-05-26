@@ -62,12 +62,19 @@ class OrienteeringEventControlViewModel(
                 val isRunning = competition.competition.status == CompetitionStatus.IN_PROGRESS
                 val allParticipantsFinished = isRunning &&
                         orienteeringCompetitionInteractor.areAllParticipantsFinished(id)
+                // Считаем жеребьёвку проведённой если competition.isDrawConducted == true
+                // ИЛИ хотя бы один участник уже имеет стартовый номер (fallback при сбросе флага сервером).
+                val isDrawConducted = competition.isDrawConducted ||
+                    details.groupsWithParticipants.any { group ->
+                        group.participants.any { it.startNumber.isNotEmpty() }
+                    }
                 applyCompetitionState(
                     title = competition.competition.title,
                     competition = competition,
                     groups = details.groupsWithParticipants.map { it.group },
                     allChipsDistributed = allChipsDistributed,
-                    allParticipantsFinished = allParticipantsFinished
+                    allParticipantsFinished = allParticipantsFinished,
+                    isDrawConducted = isDrawConducted
                 )
             }.onFailure {
                 orienteeringCompetitionInteractor.getCompetition(id)?.let { competition ->
@@ -90,7 +97,8 @@ class OrienteeringEventControlViewModel(
         competition: com.competra.domain.models.orienteering.OrienteeringCompetition,
         groups: List<com.competra.domain.models.ParticipantGroup> = emptyList(),
         allChipsDistributed: Boolean = true,
-        allParticipantsFinished: Boolean = false
+        allParticipantsFinished: Boolean = false,
+        isDrawConducted: Boolean = false
     ) {
         val startTime = competition.startTime
         val now = System.currentTimeMillis()
@@ -118,6 +126,7 @@ class OrienteeringEventControlViewModel(
                 countdownTimerInput = competition.countdownTimer?.toString() ?: "",
                 allChipsDistributed = allChipsDistributed,
                 allParticipantsFinished = allParticipantsFinished,
+                isDrawConducted = isDrawConducted,
                 isFinished = isFinished
             )
         }
