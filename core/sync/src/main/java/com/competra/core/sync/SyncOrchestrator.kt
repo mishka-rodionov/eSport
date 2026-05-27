@@ -291,7 +291,11 @@ class SyncOrchestrator(
                 result = result,
                 entityDescription = "groups for competition $localCompetitionId",
                 onSuccess = { synced ->
-                    synced.forEach { localRepository.updateParticipantGroup(it, markUnsynced = false) }
+                    // Восстанавливаем локальный distanceId: сервер возвращает remote distanceId,
+                    // но в локальной БД должна храниться ссылка на локальный ID дистанции.
+                    synced.zip(groups) { syncedGroup, originalGroup ->
+                        syncedGroup.copy(distanceId = originalGroup.distanceId)
+                    }.forEach { localRepository.updateParticipantGroup(it, markUnsynced = false) }
                 },
                 onConflict = { payload ->
                     groups.firstOrNull()?.let {
