@@ -61,13 +61,16 @@ class CompetitionForegroundService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val newCompetitionId = intent?.getLongExtra(EXTRA_COMPETITION_ID, -1L) ?: -1L
-        val newStartTimeMs = intent?.getLongExtra(EXTRA_START_TIME_MS, System.currentTimeMillis())
-            ?: System.currentTimeMillis()
+        val newStartTimeMs = intent?.getLongExtra(EXTRA_START_TIME_MS, 0L) ?: 0L
 
-        // Обновляем параметры (может быть переданы повторно при изменении startTime)
-        competitionId = newCompetitionId
-        startTimeMs = newStartTimeMs
-        startTimeRepository.set(newStartTimeMs)
+        // Обновляем поля только при наличии валидных значений в Intent.
+        // Если Intent == null (edge-case при START_REDELIVER_INTENT), не загрязняем
+        // startTimeRepository некорректным System.currentTimeMillis().
+        if (newCompetitionId != -1L) competitionId = newCompetitionId
+        if (newStartTimeMs > 0L) {
+            startTimeMs = newStartTimeMs
+            startTimeRepository.set(startTimeMs)
+        }
 
         startForeground(NOTIFICATION_ID, buildNotification(""))
         subscribeToNfcEvents()
@@ -76,7 +79,7 @@ class CompetitionForegroundService : Service() {
             launchParticipantMonitoring()
         }
 
-        return START_STICKY
+        return START_REDELIVER_INTENT
     }
 
     // ───────────────────────────────────────────────────────── NFC ──

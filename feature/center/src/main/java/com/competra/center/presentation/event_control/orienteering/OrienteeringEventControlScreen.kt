@@ -589,14 +589,14 @@ private fun ControlGridItem(
 }
 
 /**
- * Баннер секундомера соревнования — показывает прошедшее время в формате ЧЧ:ММ:СС.мс.
+ * Баннер секундомера соревнования — показывает прошедшее время в формате ЧЧ:ММ:СС.сс.
  */
 @Composable
 private fun StopwatchBanner(elapsedMillis: Long) {
     val hours = elapsedMillis / 3_600_000L
     val minutes = (elapsedMillis % 3_600_000L) / 60_000L
     val seconds = (elapsedMillis % 60_000L) / 1_000L
-    val millis = elapsedMillis % 1_000L
+    val hundredths = (elapsedMillis % 1_000L) / 10
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -605,7 +605,7 @@ private fun StopwatchBanner(elapsedMillis: Long) {
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
     ) {
         Text(
-            text = "%02d:%02d:%02d.%03d".format(hours, minutes, seconds, millis),
+            text = "%02d:%02d:%02d.%02d".format(hours, minutes, seconds, hundredths),
             style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
