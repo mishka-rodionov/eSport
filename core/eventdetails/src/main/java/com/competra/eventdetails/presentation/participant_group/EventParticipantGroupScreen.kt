@@ -24,14 +24,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.competra.domain.models.Participant
 import com.competra.domain.models.cyclic_event.EventParticipantGroup
 import com.competra.domain.models.events.EventStatus
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.eventdetails.data.participant_group.EventParticipantGroupState
 import com.competra.ui.BaseAction
+import com.competra.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -105,15 +107,21 @@ private fun EventParticipantGroupContent(
             modifier = Modifier.padding(vertical = 16.dp)
         )
 
+        StartProtocolHeader()
+
         HorizontalDivider()
 
-        // Список участников
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(state.participants) { participant ->
-                ParticipantItem(participant = participant)
+        // Список участников (отсортирован по стартовому времени, затем по стартовому номеру)
+        val sorted = state.participants.sortedWith(
+            compareBy({ if (it.startTime > 0L) 0 else 1 }, { it.startTime }, { it.startNumber })
+        )
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(sorted) { participant ->
+                StartProtocolRow(participant = participant)
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                )
             }
         }
     }
@@ -216,27 +224,82 @@ private fun RegistrationButton(
 }
 
 /**
- * Айтем участника в списке.
+ * Шапка таблицы стартового протокола.
+ */
+@Composable
+private fun StartProtocolHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "№",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(0.12f)
+        )
+        Text(
+            text = "Участник",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(0.55f)
+        )
+        Text(
+            text = "Старт",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(0.33f),
+            textAlign = TextAlign.End
+        )
+    }
+}
+
+/**
+ * Строка стартового протокола для одного участника.
  * @param participant Данные участника.
  */
 @Composable
-private fun ParticipantItem(participant: Participant) {
-    Column(
+private fun StartProtocolRow(participant: OrienteeringParticipant) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(horizontal = 4.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = (participant as? OrienteeringParticipant)?.let { "${it.firstName} ${it.lastName}" }
-                ?: "ID: ${participant.id}",
-            style = MaterialTheme.typography.bodyLarge
+            text = participant.startNumber.ifBlank { "—" },
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(0.12f)
         )
+        Column(modifier = Modifier.weight(0.55f)) {
+            Text(
+                text = "${participant.lastName} ${participant.firstName}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            if (participant.commandName.isNotBlank()) {
+                Text(
+                    text = participant.commandName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         Text(
-            text = "User: ${participant.userId}",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            text = formatStartTime(participant.startTime),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(0.33f),
+            textAlign = TextAlign.End
         )
     }
+}
+
+private fun formatStartTime(timestamp: Long): String {
+    if (timestamp <= 0L) return "—"
+    return DateTimeFormat.transformLongToTime(timestamp)
 }
 
 @Preview(showBackground = true)
@@ -250,19 +313,34 @@ private fun EventParticipantGroupScreenPreview() {
                     title = "М21",
                     description = "Мужчины 21 год и старше",
                     maxParticipant = 100,
-                    registeredParticipant = 3
+                    registeredParticipant = 4,
+                    distanceName = "Длинная",
+                    distanceLengthMeters = 7500,
+                    distanceClimbMeters = 280,
+                    distanceControlsCount = 12
                 ),
                 state = EventParticipantGroupState(
+                    eventStatus = EventStatus.REGISTRATION,
                     participants = listOf(
                         OrienteeringParticipant(
                             id = "id1", userId = "u1", firstName = "Иван", lastName = "Иванов",
-                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "Клуб 1",
-                            startNumber = "1", startTime = 0L, chipNumber = "111", comment = "", isChipGiven = true
+                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "СК Компас",
+                            startNumber = "101", startTime = 1700000000000L, chipNumber = "111", comment = "", isChipGiven = true
                         ),
                         OrienteeringParticipant(
-                            id = "id2", userId = "u2", firstName = "Петр", lastName = "Петров",
-                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "Клуб 2",
-                            startNumber = "2", startTime = 0L, chipNumber = "222", comment = "", isChipGiven = true
+                            id = "id2", userId = "u2", firstName = "Пётр", lastName = "Петров",
+                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "СК Буссоль",
+                            startNumber = "102", startTime = 1700000120000L, chipNumber = "222", comment = "", isChipGiven = true
+                        ),
+                        OrienteeringParticipant(
+                            id = "id3", userId = "u3", firstName = "Сидор", lastName = "Сидоров",
+                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "",
+                            startNumber = "103", startTime = 1700000240000L, chipNumber = "333", comment = "", isChipGiven = false
+                        ),
+                        OrienteeringParticipant(
+                            id = "id4", userId = "u4", firstName = "Алексей", lastName = "Алексеев",
+                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "СК Азимут",
+                            startNumber = "", startTime = 0L, chipNumber = "", comment = "", isChipGiven = false
                         )
                     )
                 ),
