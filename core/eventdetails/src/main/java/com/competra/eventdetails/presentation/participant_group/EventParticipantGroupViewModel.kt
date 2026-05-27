@@ -56,7 +56,12 @@ class EventParticipantGroupViewModel(
 
             repository.getEventDetails(eventId, currentUser?.id)
                 .onSuccess { details ->
-                    updateState { copy(eventStatus = details?.status) }
+                    updateState {
+                        copy(
+                            eventStatus = details?.status,
+                            isUserRegisteredInEvent = details?.isUserRegistered ?: false
+                        )
+                    }
                 }
 
             repository.getParticipants(eventId, group.groupId)
@@ -111,7 +116,7 @@ class EventParticipantGroupViewModel(
                 lastName = user.lastName
             )
                 .onSuccess {
-                    updateState { copy(isRegistering = false, isUserRegistered = true) }
+                    updateState { copy(isRegistering = false, isUserRegistered = true, isUserRegisteredInEvent = true) }
                 }
                 .onFailure {
                     updateState { copy(isRegistering = false) }
@@ -129,7 +134,7 @@ class EventParticipantGroupViewModel(
             updateState { copy(isRegistering = true) }
             repository.cancelRegistration(eventId)
                 .onSuccess {
-                    updateState { copy(isRegistering = false, isUserRegistered = false) }
+                    updateState { copy(isRegistering = false, isUserRegistered = false, isUserRegisteredInEvent = false) }
                 }
                 .onFailure {
                     updateState { copy(isRegistering = false) }

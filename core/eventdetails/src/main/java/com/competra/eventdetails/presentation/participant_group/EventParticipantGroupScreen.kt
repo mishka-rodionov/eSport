@@ -90,7 +90,10 @@ private fun EventParticipantGroupContent(
                 modifier = Modifier.weight(1f)
             )
 
-            if (state.eventStatus == EventStatus.REGISTRATION) {
+            // Кнопка скрыта, если пользователь уже зарегистрирован в другой группе этого события
+            val showRegistrationButton = state.eventStatus == EventStatus.REGISTRATION
+                && (!state.isUserRegisteredInEvent || state.isUserRegistered)
+            if (showRegistrationButton) {
                 RegistrationButton(
                     isUserRegistered = state.isUserRegistered,
                     isRegistering = state.isRegistering,

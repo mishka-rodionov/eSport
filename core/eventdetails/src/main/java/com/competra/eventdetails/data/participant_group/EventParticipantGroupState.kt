@@ -12,7 +12,8 @@ import com.competra.ui.BaseState
  * @property participantGroup Данные о группе участников.
  * @property participants Список участников группы.
  * @property isLoading Флаг загрузки данных.
- * @property isUserRegistered Зарегистрирован ли текущий пользователь в этой группе.
+ * @property isUserRegistered Зарегистрирован ли текущий пользователь в **этой** группе.
+ * @property isUserRegisteredInEvent Зарегистрирован ли пользователь хоть в какой-либо группе данного события.
  * @property isRegistering Флаг процесса регистрации/отмены регистрации.
  * @property eventStatus Текущий статус события. Кнопка регистрации показывается только при [EventStatus.REGISTRATION].
  */
@@ -22,6 +23,7 @@ data class EventParticipantGroupState(
     val participants: List<OrienteeringParticipant> = emptyList(),
     val isLoading: Boolean = false,
     val isUserRegistered: Boolean = false,
+    val isUserRegisteredInEvent: Boolean = false,
     val isRegistering: Boolean = false,
     val eventStatus: EventStatus? = null
 ) : BaseState
