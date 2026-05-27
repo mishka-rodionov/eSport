@@ -247,6 +247,7 @@ class OrienteeringCreatorViewModel(
      */
     fun initialize(competitionId: Long?) {
         if (competitionId == null) return
+        if (stateValue.competitionId == competitionId) return
 
         viewModelScope.launch {
             if (user == null) {
@@ -303,10 +304,17 @@ class OrienteeringCreatorViewModel(
                 )
             }
             
-            // Синхронизируем дистанции и группы с сервером (если соревнование опубликовано)
+            // Синхронизируем дистанции и группы с сервером только при первом входе в визард.
+            // Если локальные дистанции уже есть — пользователь мог внести правки на предыдущем
+            // шаге (saved silent=true без отправки на сервер). Повторный sync перезаписал бы их
+            // серверными данными, уничтожив несохранённые изменения.
             val remoteId = comp.competition.remoteId
             if (remoteId != null) {
-                orienteeringCompetitionInteractor.fetchAndSyncFromServer(remoteId, competitionId)
+                val hasLocalDistances = orienteeringCompetitionInteractor
+                    .getDistances(competitionId).getOrNull().orEmpty().isNotEmpty()
+                if (!hasLocalDistances) {
+                    orienteeringCompetitionInteractor.fetchAndSyncFromServer(remoteId, competitionId)
+                }
             }
 
             // Загрузка дистанций из локальной БД (уже актуальных после синхронизации)
