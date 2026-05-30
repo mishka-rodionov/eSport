@@ -88,9 +88,13 @@ fun ParticipantListContent(
     state: ParticipantListState,
     onSave: () -> Unit = {}
 ) {
-    val pagerState = rememberPagerState { state.participantGroupWithParticipants.size }
+    val hasAllTab = state.participantGroupWithParticipants.size > 1
+    val allTabIndex = 0
+    val pageCount = state.participantGroupWithParticipants.size + if (hasAllTab) 1 else 0
+    val pagerState = rememberPagerState { pageCount }
     val scope = rememberCoroutineScope()
-    
+    val isOnAllTab = hasAllTab && pagerState.currentPage == allTabIndex
+
     Column(modifier = Modifier.fillMaxSize()) {
         if (state.participantGroupWithParticipants.isNotEmpty()) {
             SecondaryScrollableTabRow(
@@ -99,7 +103,7 @@ fun ParticipantListContent(
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.primary,
                 divider = {},
-                indicator = { 
+                indicator = {
 //                    if (pagerState.currentPage < tabPositions.size) {
 //                        TabRowDefaults.SecondaryIndicator(
 //                            Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
@@ -108,15 +112,29 @@ fun ParticipantListContent(
 //                    }
                 }
             ) {
-                state.participantGroupWithParticipants.forEachIndexed { index, group ->
+                if (hasAllTab) {
                     Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                        selected = isOnAllTab,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(allTabIndex) } },
+                        text = {
+                            Text(
+                                text = "Все",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = if (isOnAllTab) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    )
+                }
+                state.participantGroupWithParticipants.forEachIndexed { index, group ->
+                    val pageIndex = if (hasAllTab) index + 1 else index
+                    Tab(
+                        selected = pagerState.currentPage == pageIndex,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(pageIndex) } },
                         text = {
                             Text(
                                 text = group.group.title,
                                 style = MaterialTheme.typography.titleSmall,
-                                fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (pagerState.currentPage == pageIndex) FontWeight.Bold else FontWeight.Normal
                             )
                         }
                     )
@@ -132,26 +150,58 @@ fun ParticipantListContent(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
-                    val participants = state.participantGroupWithParticipants[page].participants
-                        .sortedWith(
-                            compareBy(
-                                { if (isValidTimestamp(it.startTime)) it.startTime else Long.MAX_VALUE },
-                                { it.startNumber.toIntOrNull() ?: Int.MAX_VALUE }
+                    if (hasAllTab && page == 0) {
+                        val allParticipants = state.participantGroupWithParticipants
+                            .flatMap { it.participants }
+                            .sortedWith(
+                                compareBy(
+                                    { if (isValidTimestamp(it.startTime)) it.startTime else Long.MAX_VALUE },
+                                    { it.startNumber.toIntOrNull() ?: Int.MAX_VALUE }
+                                )
                             )
-                        )
-
-                    if (participants.isEmpty()) {
-                        EmptyParticipantsView(message = "В этой группе пока нет участников")
+                        if (allParticipants.isEmpty()) {
+                            EmptyParticipantsView(message = "Нет участников")
+                        } else {
+                            ParticipantList(
+                                participants = allParticipants,
+                                showGroupName = true,
+                                onEditClick = { participant ->
+                                    val groupIndex = state.participantGroupWithParticipants
+                                        .indexOfFirst { it.group.groupId == participant.groupId }
+                                    if (groupIndex >= 0) {
+                                        userAction.invoke(
+                                            ParticipantListAction.ShowEditParticipantDialog(groupIndex, participant)
+                                        )
+                                    }
+                                },
+                                onDeleteClick = { participant ->
+                                    userAction.invoke(ParticipantListAction.ShowDeleteParticipantDialog(participant))
+                                }
+                            )
+                        }
                     } else {
-                        ParticipantList(
-                            participants = participants,
-                            onEditClick = { participant ->
-                                userAction.invoke(ParticipantListAction.ShowEditParticipantDialog(page, participant))
-                            },
-                            onDeleteClick = { participant ->
-                                userAction.invoke(ParticipantListAction.ShowDeleteParticipantDialog(participant))
-                            }
-                        )
+                        val groupIndex = if (hasAllTab) page - 1 else page
+                        val participants = state.participantGroupWithParticipants[groupIndex].participants
+                            .sortedWith(
+                                compareBy(
+                                    { if (isValidTimestamp(it.startTime)) it.startTime else Long.MAX_VALUE },
+                                    { it.startNumber.toIntOrNull() ?: Int.MAX_VALUE }
+                                )
+                            )
+
+                        if (participants.isEmpty()) {
+                            EmptyParticipantsView(message = "В этой группе пока нет участников")
+                        } else {
+                            ParticipantList(
+                                participants = participants,
+                                onEditClick = { participant ->
+                                    userAction.invoke(ParticipantListAction.ShowEditParticipantDialog(groupIndex, participant))
+                                },
+                                onDeleteClick = { participant ->
+                                    userAction.invoke(ParticipantListAction.ShowDeleteParticipantDialog(participant))
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -182,11 +232,12 @@ fun ParticipantListContent(
                 }
             }
 
-            if (state.competition?.isDrawConducted != true) {
+            if (state.competition?.isDrawConducted != true && !isOnAllTab) {
                 FloatingActionButton(
                     onClick = {
                         if (state.participantGroupWithParticipants.isNotEmpty()) {
-                            userAction.invoke(ParticipantListAction.ShowCreateParticipantDialog(pagerState.currentPage))
+                            val groupIndex = if (hasAllTab) pagerState.currentPage - 1 else pagerState.currentPage
+                            userAction.invoke(ParticipantListAction.ShowCreateParticipantDialog(groupIndex))
                         }
                     },
                     modifier = Modifier
@@ -464,6 +515,7 @@ fun DeleteParticipantDialog(
 @Composable
 fun ParticipantList(
     participants: List<OrienteeringParticipant>,
+    showGroupName: Boolean = false,
     onEditClick: (OrienteeringParticipant) -> Unit,
     onDeleteClick: (OrienteeringParticipant) -> Unit
 ) {
@@ -476,6 +528,7 @@ fun ParticipantList(
             ParticipantCard(
                 participant = participant,
                 displayIndex = index + 1,
+                showGroupName = showGroupName,
                 onEditClick = { onEditClick(participant) },
                 onDeleteClick = { onDeleteClick(participant) }
             )
@@ -487,6 +540,7 @@ fun ParticipantList(
 fun ParticipantCard(
     participant: OrienteeringParticipant,
     displayIndex: Int,
+    showGroupName: Boolean = false,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -527,6 +581,13 @@ fun ParticipantCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
+                if (showGroupName && participant.groupName.isNotEmpty()) {
+                    Text(
+                        text = participant.groupName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 if (participant.commandName.isNotEmpty()) {
                     Text(
                         text = participant.commandName,
