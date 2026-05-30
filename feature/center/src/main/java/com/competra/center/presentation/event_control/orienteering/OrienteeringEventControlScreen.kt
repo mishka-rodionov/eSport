@@ -523,7 +523,9 @@ fun OrienteeringEventControlContent(
             }
             ControlGridItem(Modifier.weight(1f), "Очистить", Color(0xFF4CAF50), R.drawable.edit) {}
             ControlGridItem(Modifier.weight(1f), "Проверить", Color(0xFFFFC107), R.drawable.edit) {}
-            ControlGridItem(Modifier.weight(1f), "Записать", Color(0xFFF44336), R.drawable.edit) {}
+            ControlGridItem(Modifier.weight(1f), "Записать", Color(0xFFF44336), R.drawable.edit) {
+                userAction(OrientEventControlAction.OpenWriteChip)
+            }
         }
     } else {
         Column {
@@ -535,7 +537,9 @@ fun OrienteeringEventControlContent(
             }
             Row(modifier = Modifier.fillMaxWidth()) {
                 ControlGridItem(Modifier.weight(1f), "Проверить", Color(0xFFFFC107), R.drawable.edit) {}
-                ControlGridItem(Modifier.weight(1f), "Записать", Color(0xFFF44336), R.drawable.edit) {}
+                ControlGridItem(Modifier.weight(1f), "Записать", Color(0xFFF44336), R.drawable.edit) {
+                    userAction(OrientEventControlAction.OpenWriteChip)
+                }
             }
         }
     }

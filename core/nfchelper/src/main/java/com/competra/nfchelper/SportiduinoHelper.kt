@@ -25,9 +25,13 @@ interface SportiduinoHelper {
 
     suspend fun subscribeToReadCard(handler: (ReadChipData) -> Unit)
 
-    suspend fun subscribeToWriteCard()
+    suspend fun subscribeToWriteCard(handler: (WriteChipResult) -> Unit)
 
-    suspend fun subscribeToStationSetting()
+    suspend fun subscribeToStationSetting(handler: (WriteChipResult) -> Unit)
+
+    fun prepareWriteCard(cardNumber: Int, fastPunch: Boolean)
+
+    fun prepareStationSetting(type: com.competra.nfchelper.nfccard.CardType, data: Array<ByteArray>)
 
     suspend fun onNewTagDetected(tag: Tag)
 

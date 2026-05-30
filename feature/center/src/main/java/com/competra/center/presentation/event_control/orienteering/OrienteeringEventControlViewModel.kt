@@ -189,6 +189,10 @@ class OrienteeringEventControlViewModel(
                 }
             }
 
+            OrientEventControlAction.OpenWriteChip -> viewModelScope.launch {
+                navigation.navigate(destination = CenterNavigation.WriteChipRoute)
+            }
+
             OrientEventControlAction.ShowStartConfirmDialog ->
                 updateState { copy(isShowStartConfirmDialog = true) }
 

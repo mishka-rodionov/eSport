@@ -11,6 +11,9 @@ import com.competra.nfchelper.nfccard.Card
 import com.competra.nfchelper.nfccard.CardAdapter
 import com.competra.nfchelper.nfccard.CardMifareClassic
 import com.competra.nfchelper.nfccard.CardMifareUltralight
+import com.competra.nfchelper.nfccard.CardType
+import com.competra.nfchelper.nfccard.MasterCard
+import com.competra.nfchelper.nfccard.ParticipantCard
 import com.competra.nfchelper.nfccard.ReadWriteCardException
 import com.competra.resources.ResourceProvider
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,10 +44,17 @@ class SportiduinoHelperImpl(
     }
 
     private val _readCardFlow = MutableSharedFlow<ReadChipData>()
+    private val _writeCardFlow = MutableSharedFlow<WriteChipResult>()
+    private val _stationSettingFlow = MutableSharedFlow<WriteChipResult>()
     private val _nfcErrorFlow = MutableSharedFlow<String>()
     override val nfcErrorFlow: SharedFlow<String> = _nfcErrorFlow.asSharedFlow()
 
     override var nfcMode: SportiduinoNfcMode = SportiduinoNfcMode.READ_CARD
+
+    var pendingCardNumber: Int = 0
+    var pendingFastPunch: Boolean = false
+    var pendingMasterCardType: CardType? = null
+    var pendingMasterData: Array<ByteArray> = emptyArray()
 
     override fun setNfcAdapter(nfcAdapter: NfcAdapter) {
         this.nfcAdapter = nfcAdapter
@@ -77,8 +87,8 @@ class SportiduinoHelperImpl(
     override suspend fun onNewTagDetected(tag: Tag) {
         when (nfcMode) {
             SportiduinoNfcMode.READ_CARD -> readCard(tag)
-            SportiduinoNfcMode.WRITE_CARD -> {}
-            SportiduinoNfcMode.STATION_SETTING -> {}
+            SportiduinoNfcMode.WRITE_CARD -> writeCard(tag)
+            SportiduinoNfcMode.STATION_SETTING -> stationSetting(tag)
         }
     }
 
@@ -87,12 +97,65 @@ class SportiduinoHelperImpl(
         _readCardFlow.collect { handler.invoke(it) }
     }
 
-    override suspend fun subscribeToWriteCard() {
+    override suspend fun subscribeToWriteCard(handler: (WriteChipResult) -> Unit) {
+        nfcMode = SportiduinoNfcMode.WRITE_CARD
+        _writeCardFlow.collect { handler.invoke(it) }
+    }
+
+    override suspend fun subscribeToStationSetting(handler: (WriteChipResult) -> Unit) {
+        nfcMode = SportiduinoNfcMode.STATION_SETTING
+        _stationSettingFlow.collect { handler.invoke(it) }
+    }
+
+    override fun prepareWriteCard(cardNumber: Int, fastPunch: Boolean) {
+        pendingCardNumber = cardNumber
+        pendingFastPunch = fastPunch
         nfcMode = SportiduinoNfcMode.WRITE_CARD
     }
 
-    override suspend fun subscribeToStationSetting() {
+    override fun prepareStationSetting(type: com.competra.nfchelper.nfccard.CardType, data: Array<ByteArray>) {
+        pendingMasterCardType = type
+        pendingMasterData = data
         nfcMode = SportiduinoNfcMode.STATION_SETTING
+    }
+
+    private suspend fun writeCard(tag: Tag) {
+        val adapter = resolveAdapter(tag) ?: return
+        try {
+            adapter.connect()
+            val card = ParticipantCard(adapter, pendingCardNumber, pendingFastPunch, resourceProvider)
+            card.write()
+            val msg = if (pendingCardNumber > 0) "Чип #$pendingCardNumber записан" else "Чип очищен"
+            _writeCardFlow.emit(WriteChipResult.Success(msg))
+        } catch (e: ReadWriteCardException) {
+            _writeCardFlow.emit(WriteChipResult.Error(e.message ?: "Ошибка записи"))
+        } finally {
+            adapter.close()
+        }
+    }
+
+    private suspend fun stationSetting(tag: Tag) {
+        val type = pendingMasterCardType ?: return
+        val adapter = resolveAdapter(tag) ?: return
+        try {
+            adapter.connect()
+            val card = MasterCard(adapter, type, Password.defaultPassword(), resourceProvider)
+            card.dataForWriting = pendingMasterData
+            card.write()
+            _stationSettingFlow.emit(WriteChipResult.Success("Карта управления записана"))
+        } catch (e: ReadWriteCardException) {
+            _stationSettingFlow.emit(WriteChipResult.Error(e.message ?: "Ошибка записи"))
+        } finally {
+            adapter.close()
+        }
+    }
+
+    private fun resolveAdapter(tag: Tag): CardAdapter? {
+        tag.techList.forEach { tech ->
+            if (tech == MifareClassic::class.java.name) return CardMifareClassic(MifareClassic.get(tag))
+            if (tech == MifareUltralight::class.java.name) return CardMifareUltralight(MifareUltralight.get(tag))
+        }
+        return null
     }
 
     private suspend fun readCard(tag: Tag) {

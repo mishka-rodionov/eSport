@@ -11,6 +11,7 @@ import androidx.window.core.layout.WindowSizeClass
 import com.competra.center.presentation.draw.DrawParticipantsScreen
 import com.competra.center.presentation.event_control.orienteering.OrienteeringEventControlScreen
 import com.competra.center.presentation.get_chip.GetOrienteeringChipScreen
+import com.competra.center.presentation.write_chip.WriteChipScreen
 import com.competra.center.presentation.main.CenterScreen
 import com.competra.center.presentation.kind_of_sport.KindOfSportScreen
 import com.competra.center.presentation.map.MapPickerScreen
@@ -80,6 +81,8 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass, navController:
         val route: CenterNavigation.GetOrienteeringChipRoute = backStackEntry.toRoute()
         GetOrienteeringChipScreen(competitionId = route.competitionId)
     }
+
+    composable<CenterNavigation.WriteChipRoute> { WriteChipScreen() }
 
     composable<CenterNavigation.ParticipantSplitsRoute> { backStackEntry ->
         val route: CenterNavigation.ParticipantSplitsRoute = backStackEntry.toRoute()
