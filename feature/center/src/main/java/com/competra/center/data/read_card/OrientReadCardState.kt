@@ -10,5 +10,9 @@ data class OrientReadCardState(
     val participantResult: OrienteeringResult? = null,
     val rawSplits: List<SplitTime>? = null,
     val isCompetitionFinished: Boolean = false,
-    val editingSplitIndex: Int? = null
+    val editingSplitIndex: Int? = null,
+    val groupRank: Int? = null,
+    val groupTotalFinished: Int = 0,
+    /** Порядковый список номеров КП дистанции участника (из настроек дистанции). */
+    val expectedCpNumbers: List<Int> = emptyList()
 ) : BaseState

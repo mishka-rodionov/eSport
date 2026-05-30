@@ -92,6 +92,17 @@ class OrientReadCardViewModel(
         } else {
             orienteeringCompetitionInteractor.saveParticipantResult(newResult)
         }
+        refreshGroupRank(participant)
+    }
+
+    private suspend fun refreshGroupRank(participant: OrienteeringParticipant) {
+        val cid = competitionId ?: return
+        val updatedResult = orienteeringCompetitionInteractor.getResultByParticipantId(participant.id)
+        val groupRank = updatedResult?.rank?.takeIf { it > 0 }
+        val groupsData = orienteeringCompetitionInteractor.getResultsByGroups(cid).getOrNull()
+        val groupParticipants = groupsData?.firstOrNull { it.group.groupId == participant.groupId }?.participants
+        val totalFinished = groupParticipants?.count { it.result?.status == ResultStatus.FINISHED } ?: 0
+        updateState { copy(groupRank = groupRank, groupTotalFinished = totalFinished) }
     }
 
     init {
@@ -164,6 +175,7 @@ class OrientReadCardViewModel(
         if (splits.isEmpty()) return
         val expected = getExpectedControlPoints(participant.groupId)
         Log.d("LOG_TAG", "computeParticipantResult: $expected")
+        val expectedCpNumbers = expected.map { it.number }
         val result = checkControlPointOrderPro(
             expected = expected,
             actual = splits
@@ -176,7 +188,8 @@ class OrientReadCardViewModel(
             finishTime = finishTime,
             totalTime = totalTime,
             result = result,
-            rawSplits = splits
+            rawSplits = splits,
+            expectedCpNumbers = expectedCpNumbers
         )
     }
 
@@ -185,7 +198,8 @@ class OrientReadCardViewModel(
         finishTime: Long,
         totalTime: Long,
         result: CheckResult,
-        rawSplits: List<SplitTime>
+        rawSplits: List<SplitTime>,
+        expectedCpNumbers: List<Int> = emptyList()
     ) {
         val newResult = OrienteeringResult(
             competitionId = participant.competitionId,
@@ -200,7 +214,14 @@ class OrientReadCardViewModel(
             splits = result.validSplits
         )
 
-        updateState { copy(participant = participant, participantResult = newResult, rawSplits = rawSplits) }
+        updateState {
+            copy(
+                participant = participant,
+                participantResult = newResult,
+                rawSplits = rawSplits,
+                expectedCpNumbers = expectedCpNumbers
+            )
+        }
 
         val existing = orienteeringCompetitionInteractor.getResultByParticipantId(participant.id)
 
@@ -218,6 +239,7 @@ class OrientReadCardViewModel(
             )
         } else {
             orienteeringCompetitionInteractor.saveParticipantResult(newResult)
+            refreshGroupRank(participant)
         }
     }
 

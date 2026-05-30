@@ -59,6 +59,9 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
                 participant = state.participant!!,
                 result = state.participantResult,
                 rawSplits = state.rawSplits,
+                groupRank = state.groupRank,
+                groupTotalFinished = state.groupTotalFinished,
+                expectedCpOrder = state.expectedCpNumbers,
                 onEditSplit = { index -> viewModel.onAction(OrientReadCardAction.EditSplitClicked(index)) }
             )
         }
@@ -124,6 +127,9 @@ private fun ReadCardContent(
     participant: OrienteeringParticipant,
     result: OrienteeringResult?,
     rawSplits: List<SplitTime>? = null,
+    groupRank: Int? = null,
+    groupTotalFinished: Int = 0,
+    expectedCpOrder: List<Int> = emptyList(),
     onEditSplit: (index: Int) -> Unit = {}
 ) {
     LazyColumn(
@@ -149,13 +155,12 @@ private fun ReadCardContent(
         // Карточка итогового времени
         if (result != null) {
             item {
-                RaceSummaryCard(participant, result)
+                RaceSummaryCard(participant, result, groupRank, groupTotalFinished)
             }
 
             // Секция сплитов
             val displaySplits = rawSplits ?: result.splits
             if (!displaySplits.isNullOrEmpty()) {
-                val validCpNumbers = result.splits?.map { it.controlPoint }?.toSet() ?: emptySet()
                 item {
                     Text(
                         text = "Сплиты по пунктам",
@@ -167,7 +172,7 @@ private fun ReadCardContent(
                 }
 
                 item {
-                    SplitsCard(participant, displaySplits, validCpNumbers, onEditSplit = onEditSplit)
+                    SplitsCard(participant, displaySplits, expectedCpOrder, onEditSplit = onEditSplit)
                 }
             }
         }
@@ -237,7 +242,12 @@ internal fun ParticipantInfoCard(participant: OrienteeringParticipant) {
  * Карточка с общим временем гонки.
  */
 @Composable
-internal fun RaceSummaryCard(participant: OrienteeringParticipant, result: OrienteeringResult) {
+internal fun RaceSummaryCard(
+    participant: OrienteeringParticipant,
+    result: OrienteeringResult,
+    groupRank: Int? = null,
+    groupTotalFinished: Int = 0
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
@@ -248,16 +258,16 @@ internal fun RaceSummaryCard(participant: OrienteeringParticipant, result: Orien
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                InfoColumn(label = "Старт", value = DateTimeFormat.transformLongToDisplayDate(participant.startTime)) // Предполагается формат времени
-                InfoColumn(label = "Финиш", value = DateTimeFormat.transformLongToDisplayDate(result.finishTime))
+                InfoColumn(label = "Старт", value = DateTimeFormat.transformLongToTime(participant.startTime))
+                InfoColumn(label = "Финиш", value = DateTimeFormat.transformLongToTime(result.finishTime))
             }
-            
+
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = Dimens.SIZE_BASE.dp),
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f)
             )
-            
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -274,25 +284,92 @@ internal fun RaceSummaryCard(participant: OrienteeringParticipant, result: Orien
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+
+            if (groupRank != null) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = Dimens.SIZE_BASE.dp),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f)
+                )
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "МЕСТО В ГРУППЕ",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = if (groupTotalFinished > 0) "$groupRank из $groupTotalFinished" else "$groupRank",
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         }
     }
+}
+
+private sealed class SplitDisplayItem {
+    data class Actual(val split: SplitTime, val chipIndex: Int, val isExtra: Boolean) : SplitDisplayItem()
+    data class Missed(val cpNumber: Int) : SplitDisplayItem()
+}
+
+private fun buildSplitDisplayItems(
+    rawSplits: List<SplitTime>,
+    expectedCpOrder: List<Int>
+): List<SplitDisplayItem> {
+    if (expectedCpOrder.isEmpty()) {
+        return rawSplits.mapIndexed { i, s -> SplitDisplayItem.Actual(s, i, isExtra = false) }
+    }
+    val expectedSet = expectedCpOrder.toSet()
+    val shownIndices = mutableSetOf<Int>()
+    val items = mutableListOf<SplitDisplayItem>()
+
+    for (expectedCp in expectedCpOrder) {
+        val visitedIdx = rawSplits.indices.firstOrNull {
+            it !in shownIndices && rawSplits[it].controlPoint == expectedCp
+        }
+        if (visitedIdx != null) {
+            // Лишние КП (не из дистанции), встретившиеся до текущего ожидаемого
+            rawSplits.indices
+                .filter { it < visitedIdx && it !in shownIndices && rawSplits[it].controlPoint !in expectedSet }
+                .forEach { i ->
+                    items.add(SplitDisplayItem.Actual(rawSplits[i], i, isExtra = true))
+                    shownIndices.add(i)
+                }
+            items.add(SplitDisplayItem.Actual(rawSplits[visitedIdx], visitedIdx, isExtra = false))
+            shownIndices.add(visitedIdx)
+        } else {
+            items.add(SplitDisplayItem.Missed(expectedCp))
+        }
+    }
+    // Оставшиеся лишние КП в конце чипа
+    rawSplits.indices
+        .filter { it !in shownIndices && rawSplits[it].controlPoint !in expectedSet }
+        .forEach { i -> items.add(SplitDisplayItem.Actual(rawSplits[i], i, isExtra = true)) }
+
+    return items
 }
 
 /**
  * Карточка со списком сплитов.
  *
- * @param splits Все отметки с чипа (сырые).
- * @param validCpNumbers Номера КП, входящих в маршрут дистанции. Остальные выделяются жёлтым.
+ * - Жёлтый фон: КП из чипа, которого нет в дистанции участника.
+ * - Красный фон: КП дистанции, которого нет в чипе (пропущен).
  */
 @Composable
 internal fun SplitsCard(
     participant: OrienteeringParticipant,
     splits: List<SplitTime>,
-    validCpNumbers: Set<Int> = emptySet(),
+    expectedCpOrder: List<Int> = emptyList(),
     onEditSplit: ((index: Int) -> Unit)? = null
 ) {
-    // Для расчёта сплита учитываем только предыдущую валидную отметку
-    val validSplitsSorted = splits.filter { it.controlPoint in validCpNumbers }
+    val displayItems = remember(splits, expectedCpOrder) {
+        buildSplitDisplayItems(splits, expectedCpOrder)
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -301,7 +378,6 @@ internal fun SplitsCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(vertical = 8.dp)) {
-            // Заголовок таблицы
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -315,77 +391,100 @@ internal fun SplitsCard(
 
             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-            splits.forEachIndexed { index, item ->
-                val isValid = validCpNumbers.isEmpty() || item.controlPoint in validCpNumbers
-
-                // Сплит — разница с предыдущей отметкой (любой, включая невалидные)
-                val splitTime = if (index == 0) {
-                    (item.timestamp - participant.startTime).toSplitTime()
-                } else {
-                    (item.timestamp - splits[index - 1].timestamp).toSplitTime()
+            displayItems.forEachIndexed { displayIndex, item ->
+                // Предыдущий timestamp для расчёта сплита (ближайший Actual до текущего)
+                val prevTimestamp = run {
+                    for (i in displayIndex - 1 downTo 0) {
+                        val prev = displayItems[i]
+                        if (prev is SplitDisplayItem.Actual) return@run prev.split.timestamp
+                    }
+                    participant.startTime
                 }
 
-                // Накопленное время от старта — только для валидных КП
-                val totalTimeAtCP = if (isValid) {
-                    (item.timestamp - participant.startTime).toSplitTime()
-                } else {
-                    "—"
-                }
+                when (item) {
+                    is SplitDisplayItem.Actual -> {
+                        val splitTimeStr = (item.split.timestamp - prevTimestamp).toSplitTime()
+                        val totalTimeStr = if (!item.isExtra) {
+                            (item.split.timestamp - participant.startTime).toSplitTime()
+                        } else "—"
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            if (!isValid) Color(0xFFFFEB3B).copy(alpha = 0.25f)
-                            else Color.Transparent
-                        )
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Номер КП
-                    Text(
-                        text = item.controlPoint.toString(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f),
-                        color = if (!isValid) Color(0xFF9E8000) else MaterialTheme.colorScheme.onSurface
-                    )
-
-                    // Сплит (время на перегоне)
-                    Text(
-                        text = if (isValid) splitTime else "—",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center,
-                        color = if (!isValid) Color(0xFF9E8000) else MaterialTheme.colorScheme.secondary
-                    )
-
-                    // Общее время на этом КП
-                    Text(
-                        text = totalTimeAtCP,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.End,
-                        color = if (!isValid) Color(0xFF9E8000) else MaterialTheme.colorScheme.onSurface
-                    )
-
-                    if (onEditSplit != null) {
-                        IconButton(
-                            onClick = { onEditSplit(index) },
-                            modifier = Modifier.size(32.dp)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    if (item.isExtra) Color(0xFFFFEB3B).copy(alpha = 0.25f)
+                                    else Color.Transparent
+                                )
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.edit),
-                                contentDescription = "Редактировать КП ${item.controlPoint}",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(16.dp)
+                            val textColor = if (item.isExtra) Color(0xFF9E8000) else MaterialTheme.colorScheme.onSurface
+                            Text(
+                                text = item.split.controlPoint.toString(),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.weight(1f),
+                                color = textColor
+                            )
+                            Text(
+                                text = splitTimeStr,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.Center,
+                                color = if (item.isExtra) Color(0xFF9E8000) else MaterialTheme.colorScheme.secondary
+                            )
+                            Text(
+                                text = totalTimeStr,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.End,
+                                color = textColor
+                            )
+                            if (onEditSplit != null) {
+                                IconButton(
+                                    onClick = { onEditSplit(item.chipIndex) },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.edit),
+                                        contentDescription = "Редактировать КП ${item.split.controlPoint}",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    is SplitDisplayItem.Missed -> {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = item.cpNumber.toString(),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                text = "ПРОПУЩЕН",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(2f),
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
                 }
 
-                if (index < splits.size - 1) {
+                if (displayIndex < displayItems.size - 1) {
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         thickness = 0.5.dp,
@@ -530,7 +629,7 @@ private fun ParticipantInfoCardPreview() {
 @Composable
 private fun RaceSummaryCardPreview() {
     MaterialTheme {
-        RaceSummaryCard(participant = previewParticipant, result = previewResult)
+        RaceSummaryCard(participant = previewParticipant, result = previewResult, groupRank = 2, groupTotalFinished = 5)
     }
 }
 
@@ -541,7 +640,25 @@ private fun SplitsCardPreview() {
         SplitsCard(
             participant = previewParticipant,
             splits = previewSplits,
-            validCpNumbers = setOf(31, 32, 33, 34, 99)
+            expectedCpOrder = listOf(31, 32, 33, 34, 99)
+        )
+    }
+}
+
+@Preview(name = "Сплиты — лишний КП + пропуск", showBackground = true)
+@Composable
+private fun SplitsCardDsqPreview() {
+    MaterialTheme {
+        SplitsCard(
+            participant = previewParticipant,
+            splits = listOf(
+                SplitTime(controlPoint = 31, timestamp = 1700000120000L),
+                SplitTime(controlPoint = 55, timestamp = 1700000200000L), // лишний
+                SplitTime(controlPoint = 33, timestamp = 1700000510000L), // 32 пропущен
+                SplitTime(controlPoint = 34, timestamp = 1700000780000L),
+                SplitTime(controlPoint = 99, timestamp = 1700000960000L),
+            ),
+            expectedCpOrder = listOf(31, 32, 33, 34, 99)
         )
     }
 }

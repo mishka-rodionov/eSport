@@ -32,10 +32,12 @@ import com.competra.center.data.participant_list.ParticipantListAction
 import com.competra.center.data.participant_list.ParticipantListState
 import com.competra.domain.models.Gender
 import com.competra.domain.models.ParticipantGroup
+import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.ParticipantGroupParticipants
 import com.competra.resources.R
 import com.competra.ui.BaseAction
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
@@ -94,6 +96,17 @@ fun ParticipantListContent(
     val pagerState = rememberPagerState { pageCount }
     val scope = rememberCoroutineScope()
     val isOnAllTab = hasAllTab && pagerState.currentPage == allTabIndex
+
+    val isCompetitionRunning = state.competition?.competition?.status == CompetitionStatus.IN_PROGRESS
+    var currentTimeMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(isCompetitionRunning) {
+        if (isCompetitionRunning) {
+            while (true) {
+                delay(500)
+                currentTimeMs = System.currentTimeMillis()
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         if (state.participantGroupWithParticipants.isNotEmpty()) {
@@ -165,6 +178,8 @@ fun ParticipantListContent(
                             ParticipantList(
                                 participants = allParticipants,
                                 showGroupName = true,
+                                currentTimeMs = currentTimeMs,
+                                isCompetitionRunning = isCompetitionRunning,
                                 onEditClick = { participant ->
                                     val groupIndex = state.participantGroupWithParticipants
                                         .indexOfFirst { it.group.groupId == participant.groupId }
@@ -194,6 +209,8 @@ fun ParticipantListContent(
                         } else {
                             ParticipantList(
                                 participants = participants,
+                                currentTimeMs = currentTimeMs,
+                                isCompetitionRunning = isCompetitionRunning,
                                 onEditClick = { participant ->
                                     userAction.invoke(ParticipantListAction.ShowEditParticipantDialog(groupIndex, participant))
                                 },
@@ -516,6 +533,8 @@ fun DeleteParticipantDialog(
 fun ParticipantList(
     participants: List<OrienteeringParticipant>,
     showGroupName: Boolean = false,
+    currentTimeMs: Long = 0L,
+    isCompetitionRunning: Boolean = false,
     onEditClick: (OrienteeringParticipant) -> Unit,
     onDeleteClick: (OrienteeringParticipant) -> Unit
 ) {
@@ -529,6 +548,8 @@ fun ParticipantList(
                 participant = participant,
                 displayIndex = index + 1,
                 showGroupName = showGroupName,
+                currentTimeMs = currentTimeMs,
+                isCompetitionRunning = isCompetitionRunning,
                 onEditClick = { onEditClick(participant) },
                 onDeleteClick = { onDeleteClick(participant) }
             )
@@ -541,15 +562,29 @@ fun ParticipantCard(
     participant: OrienteeringParticipant,
     displayIndex: Int,
     showGroupName: Boolean = false,
+    currentTimeMs: Long = 0L,
+    isCompetitionRunning: Boolean = false,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val startTimeText = if (isValidTimestamp(participant.startTime)) formatStartTime(participant.startTime) else "—"
+    val hasValidStart = isValidTimestamp(participant.startTime)
+    val startTimeText = if (hasValidStart) formatStartTime(participant.startTime) else "—"
+    val hasStarted = hasValidStart && isCompetitionRunning && participant.startTime <= currentTimeMs
+    val secondsLeft = if (hasValidStart && isCompetitionRunning && !hasStarted)
+        ((participant.startTime - currentTimeMs + 999) / 1000).toInt().coerceIn(0, 5)
+    else -1
+    val isCountingDown = secondsLeft in 0..5
+
+    val cardColor = when {
+        hasStarted -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.35f)
+        isCountingDown -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f)
+        else -> MaterialTheme.colorScheme.surface
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = cardColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
@@ -595,11 +630,25 @@ fun ParticipantCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Text(
-                    text = "Старт: $startTimeText",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                when {
+                    isCountingDown -> Text(
+                        text = "${secondsLeft}с",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    hasStarted -> Text(
+                        text = "✓ $startTimeText",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                    else -> Text(
+                        text = "Старт: $startTimeText",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             IconButton(

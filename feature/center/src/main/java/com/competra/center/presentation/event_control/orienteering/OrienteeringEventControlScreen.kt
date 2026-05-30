@@ -158,8 +158,8 @@ private fun OrienteeringEventControlScreenContent(
                 )
             }
 
-            // 4. Результаты — только после завершения
-            if (state.isFinished) {
+            // 4. Результаты — после завершения или во время соревнования (текущие финишные результаты)
+            if (state.isFinished || state.isCompetitionRunning) {
                 NavigationRow(
                     text = "Результаты",
                     onClick = { onAction(OrientEventControlAction.OpenResults) }
