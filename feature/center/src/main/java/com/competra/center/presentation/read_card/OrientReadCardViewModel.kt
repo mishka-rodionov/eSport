@@ -60,6 +60,16 @@ class OrientReadCardViewModel(
                 updateState { copy(rawSplits = updated) }
                 viewModelScope.launch(Dispatchers.IO) { recalculateAndSaveResult() }
             }
+            is OrientReadCardAction.CreditMissedCp -> {
+                val updated = stateValue.rawSplits?.toMutableList() ?: return
+                updated.add(SplitTime(controlPoint = action.cpNumber, timestamp = action.prevTimestamp))
+                updated.sortBy { it.timestamp }
+                updateState { copy(rawSplits = updated) }
+                viewModelScope.launch(Dispatchers.IO) { recalculatePending() }
+            }
+            is OrientReadCardAction.SaveResult -> {
+                viewModelScope.launch(Dispatchers.IO) { saveResultFromPending() }
+            }
         }
     }
 
@@ -214,6 +224,20 @@ class OrientReadCardViewModel(
             splits = result.validSplits
         )
 
+        if (newResult.status == ResultStatus.DSQ) {
+            // DSQ: показываем результат организатору и ждём явного сохранения
+            updateState {
+                copy(
+                    participant = participant,
+                    participantResult = newResult,
+                    rawSplits = rawSplits,
+                    expectedCpNumbers = expectedCpNumbers,
+                    isPendingSave = true,
+                )
+            }
+            return
+        }
+
         updateState {
             copy(
                 participant = participant,
@@ -241,6 +265,55 @@ class OrientReadCardViewModel(
             orienteeringCompetitionInteractor.saveParticipantResult(newResult)
             refreshGroupRank(participant)
         }
+    }
+
+    /** Пересчитывает результат после «Засчитать» без записи в БД. */
+    private suspend fun recalculatePending() {
+        val participant = stateValue.participant ?: return
+        val rawSplits = stateValue.rawSplits ?: return
+        if (rawSplits.isEmpty()) return
+        val expected = getExpectedControlPoints(participant.groupId)
+        val checkResult = checkControlPointOrderPro(expected, rawSplits)
+        val lastValidPunch = checkResult.validSplits.lastOrNull() ?: rawSplits.last()
+        val finishTime = lastValidPunch.timestamp
+        val totalTime = (finishTime - participant.startTime) / 1000L
+        val newResult = OrienteeringResult(
+            competitionId = participant.competitionId,
+            participantId = participant.id,
+            groupId = participant.groupId,
+            startTime = participant.startTime,
+            finishTime = finishTime,
+            totalTime = totalTime,
+            rank = -1,
+            status = checkResult.status,
+            penaltyTime = 0,
+            splits = checkResult.validSplits,
+            isEdited = true,
+        )
+        updateState { copy(participantResult = newResult) }
+    }
+
+    /** Явное сохранение результата организатором (вызывается по кнопке «Сохранить результат»). */
+    private suspend fun saveResultFromPending() {
+        val participant = stateValue.participant ?: return
+        val newResult = stateValue.participantResult ?: return
+        val existing = orienteeringCompetitionInteractor.getResultByParticipantId(participant.id)
+        if (existing != null) {
+            resultConflictRepository.emit(
+                ResultConflictEvent(
+                    participantName = "${participant.lastName} ${participant.firstName}",
+                    existingResult = existing,
+                    newResult = newResult,
+                    onApply = {
+                        orienteeringCompetitionInteractor.applyConflictResult(existing.id, newResult)
+                    }
+                )
+            )
+        } else {
+            orienteeringCompetitionInteractor.saveParticipantResult(newResult)
+            refreshGroupRank(participant)
+        }
+        updateState { copy(isPendingSave = false) }
     }
 
     fun checkControlPointOrderPro(

@@ -62,7 +62,12 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
                 groupRank = state.groupRank,
                 groupTotalFinished = state.groupTotalFinished,
                 expectedCpOrder = state.expectedCpNumbers,
-                onEditSplit = { index -> viewModel.onAction(OrientReadCardAction.EditSplitClicked(index)) }
+                isPendingSave = state.isPendingSave,
+                onEditSplit = { index -> viewModel.onAction(OrientReadCardAction.EditSplitClicked(index)) },
+                onCreditCp = { cpNumber, prevTimestamp ->
+                    viewModel.onAction(OrientReadCardAction.CreditMissedCp(cpNumber, prevTimestamp))
+                },
+                onSaveResult = { viewModel.onAction(OrientReadCardAction.SaveResult) }
             )
         }
 
@@ -130,7 +135,10 @@ private fun ReadCardContent(
     groupRank: Int? = null,
     groupTotalFinished: Int = 0,
     expectedCpOrder: List<Int> = emptyList(),
-    onEditSplit: (index: Int) -> Unit = {}
+    isPendingSave: Boolean = false,
+    onEditSplit: (index: Int) -> Unit = {},
+    onCreditCp: (cpNumber: Int, prevTimestamp: Long) -> Unit = { _, _ -> },
+    onSaveResult: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -172,7 +180,27 @@ private fun ReadCardContent(
                 }
 
                 item {
-                    SplitsCard(participant, displaySplits, expectedCpOrder, onEditSplit = onEditSplit)
+                    SplitsCard(
+                        participant = participant,
+                        splits = displaySplits,
+                        expectedCpOrder = expectedCpOrder,
+                        onEditSplit = onEditSplit,
+                        onCreditCp = if (isPendingSave) onCreditCp else null,
+                    )
+                }
+            }
+        }
+
+        if (isPendingSave) {
+            item {
+                Button(
+                    onClick = onSaveResult,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+                ) {
+                    Text("Сохранить результат", fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -365,7 +393,8 @@ internal fun SplitsCard(
     participant: OrienteeringParticipant,
     splits: List<SplitTime>,
     expectedCpOrder: List<Int> = emptyList(),
-    onEditSplit: ((index: Int) -> Unit)? = null
+    onEditSplit: ((index: Int) -> Unit)? = null,
+    onCreditCp: ((cpNumber: Int, prevTimestamp: Long) -> Unit)? = null,
 ) {
     val displayItems = remember(splits, expectedCpOrder) {
         buildSplitDisplayItems(splits, expectedCpOrder)
@@ -461,7 +490,7 @@ internal fun SplitsCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                                .padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -480,6 +509,19 @@ internal fun SplitsCard(
                                 color = MaterialTheme.colorScheme.error,
                                 fontWeight = FontWeight.Bold
                             )
+                            if (onCreditCp != null) {
+                                TextButton(
+                                    onClick = { onCreditCp(item.cpNumber, prevTimestamp) }
+                                ) {
+                                    Text(
+                                        text = "Засчитать",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
+                            } else {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                 }

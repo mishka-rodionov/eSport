@@ -14,5 +14,7 @@ data class OrientReadCardState(
     val groupRank: Int? = null,
     val groupTotalFinished: Int = 0,
     /** Порядковый список номеров КП дистанции участника (из настроек дистанции). */
-    val expectedCpNumbers: List<Int> = emptyList()
+    val expectedCpNumbers: List<Int> = emptyList(),
+    /** true — DSQ-результат показан организатору, ожидает явного сохранения. */
+    val isPendingSave: Boolean = false,
 ) : BaseState
