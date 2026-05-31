@@ -7,12 +7,17 @@ import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.getArguments
 import com.competra.domain.models.ResultStatus
+import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
+import com.competra.utils.DateTimeFormat
 import com.competra.utils.constants.EventsConstants
+import com.competra.utils.orienteering.toRaceTime
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -29,6 +34,9 @@ class OrienteeringCompetitionResultsViewModel(
 
     val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
 
+    private val _exportCsvEvent = MutableSharedFlow<Pair<String, String>>()
+    val exportCsvEvent: SharedFlow<Pair<String, String>> = _exportCsvEvent
+
     init {
         loadResults()
     }
@@ -39,6 +47,7 @@ class OrienteeringCompetitionResultsViewModel(
     private fun loadResults() {
         competitionId?.let {
             viewModelScope.launch(Dispatchers.IO) {
+                val competition = orienteeringCompetitionInteractor.getCompetition(it)
                 val results = orienteeringCompetitionInteractor.getResultsByGroups(it).getOrNull() ?: emptyList()
                 val sortedResults = results.map { group ->
                     group.copy(
@@ -52,7 +61,13 @@ class OrienteeringCompetitionResultsViewModel(
                 }
                 val isApproved = sortedResults.isNotEmpty() &&
                     sortedResults.all { group -> group.participants.all { it.result?.isEditable == false } }
-                updateState { copy(groupsWithParticipantsAndResults = sortedResults, isApproved = isApproved) }
+                updateState {
+                    copy(
+                        groupsWithParticipantsAndResults = sortedResults,
+                        isApproved = isApproved,
+                        competitionTitle = competition?.competition?.title ?: "",
+                    )
+                }
             }
         }
     }
@@ -72,6 +87,7 @@ class OrienteeringCompetitionResultsViewModel(
             is OrienteeringResultsAction.UpdateResult -> updateParticipantResult(action.participantWithResult, action.startTime, action.finishTime)
             is OrienteeringResultsAction.ApproveResults -> approveResults()
             is OrienteeringResultsAction.OpenSplits -> openSplits(action.participantId)
+            is OrienteeringResultsAction.ExportResults -> exportResults()
         }
     }
 
@@ -116,6 +132,65 @@ class OrienteeringCompetitionResultsViewModel(
         }
     }
 
+    private fun exportResults() {
+        val groups = stateValue.groupsWithParticipantsAndResults
+        if (groups.isEmpty()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val title = stateValue.competitionTitle
+            val csv = buildCsvContent(title, groups)
+            val fileName = buildSafeFileName(title)
+            _exportCsvEvent.emit(fileName to csv)
+        }
+    }
+
+    private fun buildSafeFileName(title: String): String {
+        val safe = title.replace(Regex("[^а-яА-ЯёЁa-zA-Z0-9_\\- ]"), "").trim().take(40)
+        return if (safe.isNotEmpty()) "results_$safe.csv" else "results.csv"
+    }
+
+    private fun buildCsvContent(title: String, groups: List<GroupWithParticipantsAndResults>): String {
+        val sb = StringBuilder("﻿") // UTF-8 BOM для корректного открытия в Excel
+        if (title.isNotEmpty()) {
+            sb.appendLine("Соревнование: $title")
+            sb.appendLine()
+        }
+        groups.forEach { group ->
+            val cpOrder = group.participants
+                .mapNotNull { it.result?.splits }
+                .maxByOrNull { it.size }
+                ?.map { it.controlPoint }
+                ?: emptyList()
+
+            sb.appendLine("Группа: ${group.group.title}")
+            val splitHeaders = cpOrder.joinToString(";") { "КП$it" }
+            val headerSuffix = if (cpOrder.isNotEmpty()) ";$splitHeaders" else ""
+            sb.appendLine("Место;Фамилия;Имя;Команда;Старт;Финиш;Результат;Статус$headerSuffix")
+
+            group.participants.forEach { pw ->
+                val rank = pw.result?.rank?.toString() ?: ""
+                val start = DateTimeFormat.transformLongToTime(pw.result?.startTime) ?: ""
+                val finish = DateTimeFormat.transformLongToTime(pw.result?.finishTime) ?: ""
+                val total = pw.result?.totalTime?.toRaceTime() ?: ""
+                val status = when (pw.result?.status) {
+                    ResultStatus.FINISHED -> "Финиш"
+                    ResultStatus.DSQ      -> "Снят"
+                    ResultStatus.DNS      -> "Не стартовал"
+                    ResultStatus.DNF      -> "Сошёл"
+                    else                  -> ""
+                }
+                val splitsMap = pw.result?.splits?.associateBy { it.controlPoint } ?: emptyMap()
+                val startTs = pw.result?.startTime ?: 0L
+                val splitValues = cpOrder.joinToString(";") { cp ->
+                    splitsMap[cp]?.let { ((it.timestamp - startTs) / 1000L).toRaceTime() } ?: ""
+                }
+                val row = "$rank;${pw.participant.lastName};${pw.participant.firstName};${pw.participant.commandName};$start;$finish;$total;$status"
+                sb.appendLine(if (cpOrder.isNotEmpty()) "$row;$splitValues" else row)
+            }
+            sb.appendLine()
+        }
+        return sb.toString()
+    }
+
     /**
      * Действия на экране результатов.
      */
@@ -129,5 +204,7 @@ class OrienteeringCompetitionResultsViewModel(
         object ApproveResults : OrienteeringResultsAction()
 
         data class OpenSplits(val participantId: String) : OrienteeringResultsAction()
+
+        data object ExportResults : OrienteeringResultsAction()
     }
 }

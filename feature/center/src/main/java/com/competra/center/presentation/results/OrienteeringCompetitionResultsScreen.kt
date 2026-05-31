@@ -12,12 +12,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ShareCompat
+import androidx.core.content.FileProvider
 import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.components.clickRipple
 import com.competra.designsystem.theme.Dimens
@@ -25,7 +28,9 @@ import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.resources.R
 import com.competra.utils.DateTimeFormat
 import com.competra.utils.orienteering.toRaceTime
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import java.io.File
 
 /**
  * Основной экран результатов соревнований.
@@ -39,6 +44,21 @@ fun OrienteeringCompetitionResultsScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedParticipant by remember { mutableStateOf<ParticipantWithResult?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.exportCsvEvent.collectLatest { (fileName, csv) ->
+            val file = File(context.cacheDir, fileName)
+            file.writeText(csv, Charsets.UTF_8)
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            val intent = ShareCompat.IntentBuilder(context)
+                .setType("text/csv")
+                .addStream(uri)
+                .setChooserTitle("Экспорт результатов")
+                .createChooserIntent()
+            context.startActivity(intent)
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -46,22 +66,39 @@ fun OrienteeringCompetitionResultsScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Заголовок экрана
-            Column(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(Dimens.SIZE_BASE.dp)
+                    .padding(Dimens.SIZE_BASE.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "Результаты",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = "Проверьте и утвердите итоговые протоколы",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Результаты",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = "Проверьте и утвердите итоговые протоколы",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (state.groupsWithParticipantsAndResults.isNotEmpty()) {
+                    IconButton(
+                        onClick = {
+                            viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ExportResults)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_share_24px),
+                            contentDescription = "Экспорт результатов",
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
             }
 
             LazyColumn(
