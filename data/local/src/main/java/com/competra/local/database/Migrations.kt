@@ -188,3 +188,9 @@ val MIGRATION_39_40 = object : Migration(39, 40) {
         db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN orient_server_updated_at INTEGER")
     }
 }
+
+val MIGRATION_40_41 = object : Migration(40, 41) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN resultsUrl TEXT")
+    }
+}

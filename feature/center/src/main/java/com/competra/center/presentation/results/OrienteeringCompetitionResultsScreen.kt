@@ -45,6 +45,7 @@ fun OrienteeringCompetitionResultsScreen(
     var selectedParticipant by remember { mutableStateOf<ParticipantWithResult?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
+    var showExportMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.exportCsvEvent.collectLatest { (fileName, csv) ->
@@ -58,6 +59,55 @@ fun OrienteeringCompetitionResultsScreen(
                 .createChooserIntent()
             context.startActivity(intent)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.exportPdfEvent.collectLatest { (fileName, bytes) ->
+            val file = File(context.cacheDir, fileName)
+            file.writeBytes(bytes)
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            val intent = ShareCompat.IntentBuilder(context)
+                .setType("application/pdf")
+                .addStream(uri)
+                .setChooserTitle("Экспорт результатов")
+                .createChooserIntent()
+            context.startActivity(intent)
+        }
+    }
+
+    // Диалог с опубликованной ссылкой
+    val publishedUrl = state.publishedHtmlUrl
+    if (publishedUrl != null) {
+        val clipboardManager = context.getSystemService(android.content.ClipboardManager::class.java)
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.DismissPublishedUrl)
+            },
+            title = { Text("Результаты опубликованы") },
+            text = {
+                Text(
+                    text = publishedUrl,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val clip = android.content.ClipData.newPlainText("URL результатов", publishedUrl)
+                    clipboardManager?.setPrimaryClip(clip)
+                    viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.DismissPublishedUrl)
+                }) { Text("Скопировать") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    val sendIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(android.content.Intent.EXTRA_TEXT, publishedUrl)
+                    }
+                    context.startActivity(android.content.Intent.createChooser(sendIntent, "Поделиться ссылкой"))
+                }) { Text("Поделиться") }
+            }
+        )
     }
 
     Surface(
@@ -87,16 +137,49 @@ fun OrienteeringCompetitionResultsScreen(
                     )
                 }
                 if (state.groupsWithParticipantsAndResults.isNotEmpty()) {
-                    IconButton(
-                        onClick = {
-                            viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ExportResults)
+                    Box {
+                        if (state.isPublishingHtml) {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .padding(4.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            IconButton(onClick = { showExportMenu = true }) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_share_24px),
+                                    contentDescription = "Экспорт результатов",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
                         }
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_share_24px),
-                            contentDescription = "Экспорт результатов",
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
+                        DropdownMenu(
+                            expanded = showExportMenu,
+                            onDismissRequest = { showExportMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Экспорт в CSV") },
+                                onClick = {
+                                    showExportMenu = false
+                                    viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ExportCsv)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Экспорт в PDF") },
+                                onClick = {
+                                    showExportMenu = false
+                                    viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ExportPdf)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Опубликовать результаты") },
+                                onClick = {
+                                    showExportMenu = false
+                                    viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.PublishHtml)
+                                }
+                            )
+                        }
                     }
                 }
             }

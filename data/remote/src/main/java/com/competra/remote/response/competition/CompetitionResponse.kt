@@ -42,6 +42,8 @@ data class CompetitionResponse(
     val regulationUrl: String?,
     @SerializedName("mapUrl")
     val mapUrl: String?,
+    @SerializedName("resultsUrl")
+    val resultsUrl: String? = null,
     @SerializedName("contactPhone")
     val contactPhone: String?,
     @SerializedName("contactEmail")

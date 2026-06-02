@@ -35,6 +35,7 @@ fun CompetitionResponse.toDomain(): Competition {
         imageUrl = imageUrl,
         regulationUrl = regulationUrl,
         mapUrl = mapUrl,
+        resultsUrl = resultsUrl,
         contactPhone = contactPhone,
         contactEmail = contactEmail,
         website = website,

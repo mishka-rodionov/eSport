@@ -27,6 +27,7 @@ fun Competition.toRequest(): CompetitionRequest {
         feeCurrency = feeCurrency,
         regulationUrl = regulationUrl,
         mapUrl = mapUrl,
+        resultsUrl = resultsUrl,
         contactPhone = contactPhone,
         contactEmail = contactEmail,
         website = website,

@@ -61,6 +61,7 @@ data class Competition(
     val imageUrl: String? = null,
     val regulationUrl: String? = null,
     val mapUrl: String? = null,
+    val resultsUrl: String? = null,
     val contactPhone: String? = null,
     val contactEmail: String? = null,
     val website: String? = null,
