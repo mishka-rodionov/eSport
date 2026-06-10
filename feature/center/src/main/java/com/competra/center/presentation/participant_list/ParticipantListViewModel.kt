@@ -40,11 +40,23 @@ class ParticipantListViewModel(
             is ParticipantListAction.CreateNewParticipant -> {
                 val groupData = stateValue.participantGroupWithParticipants.getOrNull(action.group) ?: return
                 val group = groupData.group
-                val existingParticipants = groupData.participants
-                val nextStartNumber = (existingParticipants.mapNotNull { it.startNumber.toIntOrNull() }.maxOrNull() ?: 0) + 1
                 val intervalMs = ((stateValue.competition?.startIntervalSeconds) ?: 60) * 1000L
-                val baseTime = stateValue.competition?.startTime ?: 0L
-                val startTime = if (baseTime > 0L) baseTime + (nextStartNumber - 1) * intervalMs else 0L
+                val isDrawConducted = stateValue.competition?.isDrawConducted == true
+
+                val (nextStartNumber, startTime) = if (isDrawConducted) {
+                    val allParticipants = stateValue.participantGroupWithParticipants.flatMap { it.participants }
+                    val maxNumber = allParticipants.mapNotNull { it.startNumber.toIntOrNull() }.maxOrNull() ?: 0
+                    val latestStartTime = allParticipants.filter { it.startTime > 0L }.maxOfOrNull { it.startTime } ?: 0L
+                    val st = if (latestStartTime > 0L) latestStartTime + intervalMs else 0L
+                    (maxNumber + 1) to st
+                } else {
+                    val existingParticipants = groupData.participants
+                    val nextNum = (existingParticipants.mapNotNull { it.startNumber.toIntOrNull() }.maxOrNull() ?: 0) + 1
+                    val baseTime = stateValue.competition?.startTime ?: 0L
+                    val st = if (baseTime > 0L) baseTime + (nextNum - 1) * intervalMs else 0L
+                    nextNum to st
+                }
+
                 val participant = OrienteeringParticipant(
                     id = UUID.randomUUID().toString(),
                     userId = "",

@@ -249,7 +249,7 @@ fun ParticipantListContent(
                 }
             }
 
-            if (state.competition?.isDrawConducted != true && !isOnAllTab) {
+            if (!isOnAllTab) {
                 FloatingActionButton(
                     onClick = {
                         if (state.participantGroupWithParticipants.isNotEmpty()) {
