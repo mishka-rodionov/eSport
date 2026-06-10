@@ -141,7 +141,7 @@ class DrawViewModel(
             .forEach { groupParticipants ->
                 groupParticipants.shuffled().forEachIndexed { indexInGroup, participant ->
                     val number = globalNumber.toString()
-                    val startTime = competitionStartTime + (indexInGroup + 1) * intervalMs
+                    val startTime = competitionStartTime + indexInGroup * intervalMs
                     result.add(
                         participant.copy(
                             startNumber = number,
@@ -201,7 +201,7 @@ class DrawViewModel(
         // Присваиваем стартовые номера и времена по глобальной позиции
         return mixedResult.mapIndexed { index, participant ->
             val number = (index + 1).toString()
-            val startTime = competitionStartTime + (index + 1) * intervalMs
+            val startTime = competitionStartTime + index * intervalMs
             participant.copy(
                 startNumber = number,
                 startTime = startTime,
