@@ -221,7 +221,7 @@ class OrientReadCardViewModel(
             rank = -1,
             status = result.status,
             penaltyTime = 0,
-            splits = result.validSplits
+            splits = if (result.status == ResultStatus.DSQ) rawSplits else result.validSplits
         )
 
         if (newResult.status == ResultStatus.DSQ) {
@@ -287,7 +287,7 @@ class OrientReadCardViewModel(
             rank = -1,
             status = checkResult.status,
             penaltyTime = 0,
-            splits = checkResult.validSplits,
+            splits = if (checkResult.status == ResultStatus.DSQ) rawSplits else checkResult.validSplits,
             isEdited = true,
         )
         updateState { copy(participantResult = newResult) }
