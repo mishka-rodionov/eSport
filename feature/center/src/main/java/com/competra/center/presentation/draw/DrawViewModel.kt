@@ -36,6 +36,7 @@ class DrawViewModel(
         when (action) {
             DrawAction.StartDrawOperation -> startDrawOperation()
             DrawAction.StartGroupDrawOperation -> startGroupDrawOperation()
+            DrawAction.StartDistanceDrawOperation -> startDistanceDrawOperation()
         }
     }
 
@@ -105,6 +106,43 @@ class DrawViewModel(
     }
 
     /**
+     * Жеребьевка по дистанциям: участники с одинаковой дистанцией не стартуют
+     * в одну и ту же минуту. На каждом стартовом слоте — не более одного участника
+     * из каждой различной дистанции. Стартовые номера уникальны глобально.
+     */
+    private fun startDistanceDrawOperation() {
+        val compId = competitionId ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            loadingRepository.emit(true)
+            try {
+                val competition = interactor.getCompetition(compId) ?: return@launch
+                val participants = interactor.getParticipants(competitionId = compId).getOrNull()
+                    ?: return@launch
+                val details = interactor.getCompetitionWithDetails(compId).getOrNull()
+                    ?: return@launch
+                val groupDistanceMap: Map<Long, Long> = details.groupsWithParticipants
+                    .associate { it.group.groupId to it.group.distanceId }
+                val competitionStartTime = resolveStartTime(competition)
+                val intervalMs = (competition.startIntervalSeconds?.toLong() ?: 60L) * 1000L
+                val sortedParticipants = drawParticipantsByDistance(
+                    participants = participants,
+                    groupDistanceMap = groupDistanceMap,
+                    punchingSystem = competition.punchingSystem,
+                    competitionStartTime = competitionStartTime,
+                    intervalMs = intervalMs
+                )
+                interactor.updateParticipants(sortedParticipants)
+                interactor.syncParticipantsAfterDraw(sortedParticipants)
+                interactor.setDrawConducted(compId)
+                analytics.trackEvent(AnalyticsEvent.ParticipantDrawn(sortedParticipants.size))
+                updateState { copy(participants = sortedParticipants) }
+            } finally {
+                loadingRepository.emit(false)
+            }
+        }
+    }
+
+    /**
      * Определяет базовое время старта соревнования для жеребьевки.
      *
      * Приоритет:
@@ -152,6 +190,55 @@ class DrawViewModel(
                     globalNumber++
                 }
             }
+
+        return result
+    }
+
+    /**
+     * Жеребьевка по дистанциям: каждый стартовый слот содержит не более одного участника
+     * из каждой различной дистанции. Участники внутри дистанции перемешиваются случайно.
+     * Все участники одного слота получают одинаковый [competitionStartTime] + slotIndex * intervalMs.
+     * Стартовые номера назначаются глобально.
+     */
+    private fun drawParticipantsByDistance(
+        participants: List<OrienteeringParticipant>,
+        groupDistanceMap: Map<Long, Long>,
+        punchingSystem: PunchingSystem?,
+        competitionStartTime: Long,
+        intervalMs: Long
+    ): List<OrienteeringParticipant> {
+        if (participants.isEmpty()) return emptyList()
+
+        val queues: MutableMap<Long, ArrayDeque<OrienteeringParticipant>> = participants
+            .groupBy { groupDistanceMap[it.groupId] ?: it.groupId }
+            .mapValues { (_, ps) -> ArrayDeque(ps.shuffled()) }
+            .toMutableMap()
+
+        val result = mutableListOf<OrienteeringParticipant>()
+        var slotIndex = 0
+        var globalNumber = 1
+
+        while (queues.isNotEmpty()) {
+            val slotStartTime = competitionStartTime + slotIndex * intervalMs
+            val exhaustedKeys = mutableListOf<Long>()
+
+            queues.forEach { (distanceId, queue) ->
+                val participant = queue.removeFirst()
+                val number = globalNumber.toString()
+                result.add(
+                    participant.copy(
+                        startNumber = number,
+                        startTime = slotStartTime,
+                        chipNumber = if (punchingSystem == PunchingSystem.SPORTIDUINO) number else participant.chipNumber
+                    )
+                )
+                globalNumber++
+                if (queue.isEmpty()) exhaustedKeys.add(distanceId)
+            }
+
+            exhaustedKeys.forEach { queues.remove(it) }
+            slotIndex++
+        }
 
         return result
     }

@@ -101,7 +101,7 @@ fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
                             .fillMaxWidth()
                             .height(IntrinsicSize.Max)
                             .padding(horizontal = Dimens.SIZE_BASE.dp)
-                            .padding(bottom = Dimens.SIZE_BASE.dp),
+                            .padding(bottom = Dimens.SIZE_HALF.dp),
                         horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
                     ) {
                         DrawModeCard(
@@ -125,6 +125,17 @@ fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
                             onClick = { userAction.invoke(DrawAction.StartGroupDrawOperation) }
                         )
                     }
+                    DrawModeCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dimens.SIZE_BASE.dp)
+                            .padding(bottom = Dimens.SIZE_BASE.dp),
+                        icon = ImageVector.vectorResource(R.drawable.map_24dp),
+                        title = "По дистанциям",
+                        description = "Участники с одинаковой дистанцией не стартуют вместе",
+                        accentColor = MaterialTheme.colorScheme.tertiary,
+                        onClick = { userAction.invoke(DrawAction.StartDistanceDrawOperation) }
+                    )
                 }
             }
 
