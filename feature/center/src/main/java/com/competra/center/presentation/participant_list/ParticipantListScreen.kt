@@ -37,9 +37,11 @@ import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.ParticipantGroupParticipants
 import com.competra.resources.R
 import com.competra.ui.BaseAction
+import com.competra.ui.CompetitionStartTimeRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import java.util.Calendar
 
 /**
@@ -108,7 +110,33 @@ fun ParticipantListContent(
         }
     }
 
+    val startTimeRepository: CompetitionStartTimeRepository = koinInject()
+    val repoStartTimeMs by startTimeRepository.startTimeMs.collectAsState()
+    val effectiveStartTime = repoStartTimeMs.takeIf { it > 0L }
+        ?: state.competition?.startTime?.takeIf { it > 0L }
+        ?: 0L
+    var stopwatchMillis by remember { mutableLongStateOf(0L) }
+    LaunchedEffect(isCompetitionRunning, effectiveStartTime) {
+        if (isCompetitionRunning && effectiveStartTime > 0L) {
+            while (true) {
+                stopwatchMillis = (System.currentTimeMillis() - effectiveStartTime).coerceAtLeast(0L)
+                delay(16)
+            }
+        } else {
+            stopwatchMillis = 0L
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
+        if (isCompetitionRunning && effectiveStartTime > 0L) {
+            StopwatchBanner(
+                elapsedMillis = stopwatchMillis,
+                modifier = Modifier.padding(
+                    horizontal = Dimens.SIZE_BASE.dp,
+                    vertical = Dimens.SIZE_HALF.dp
+                )
+            )
+        }
         if (state.participantGroupWithParticipants.isNotEmpty()) {
             SecondaryScrollableTabRow(
                 selectedTabIndex = pagerState.currentPage,
@@ -757,6 +785,35 @@ private fun parseTimeInput(timeStr: String, baseDateMs: Long): Long? {
     calendar.set(Calendar.SECOND, seconds)
     calendar.set(Calendar.MILLISECOND, 0)
     return calendar.timeInMillis
+}
+
+/**
+ * Баннер секундомера — показывает прошедшее время соревнования в формате ЧЧ:ММ:СС.сс.
+ */
+@Composable
+private fun StopwatchBanner(elapsedMillis: Long, modifier: Modifier = Modifier) {
+    val hours = elapsedMillis / 3_600_000L
+    val minutes = (elapsedMillis % 3_600_000L) / 60_000L
+    val seconds = (elapsedMillis % 60_000L) / 1_000L
+    val hundredths = (elapsedMillis % 1_000L) / 10
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+        ),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+    ) {
+        Text(
+            text = "%02d:%02d:%02d.%02d".format(hours, minutes, seconds, hundredths),
+            style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = Dimens.SIZE_HALF.dp),
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Preview(showBackground = true)
