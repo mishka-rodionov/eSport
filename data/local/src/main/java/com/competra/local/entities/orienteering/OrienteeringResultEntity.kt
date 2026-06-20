@@ -34,7 +34,7 @@ import com.competra.local.converters.ResultConverters
     foreignKeys = [
         ForeignKey(
             entity = OrienteeringCompetitionEntity::class,
-            parentColumns = ["localCompetitionId"],
+            parentColumns = ["competitionId"],
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         ),
@@ -55,7 +55,7 @@ import com.competra.local.converters.ResultConverters
 data class OrienteeringResultEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val competitionId: Long,
+    val competitionId: String,
     val groupId: Long,
     val participantId: String,
     val startTime: Long? = null,

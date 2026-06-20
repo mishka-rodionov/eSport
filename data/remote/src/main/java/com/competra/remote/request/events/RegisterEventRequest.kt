@@ -12,7 +12,7 @@ import com.google.gson.annotations.SerializedName
  */
 data class RegisterEventRequest(
     @SerializedName("competitionId")
-    val competitionId: Long,
+    val competitionId: String,
     @SerializedName("groupId")
     val groupId: String,
     @SerializedName("firstName")

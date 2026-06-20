@@ -37,7 +37,7 @@ class OrienteeringCompetitionResultsViewModel(
     private val uploadRepository: UploadRepository
 ): BaseViewModel<OrienteeringCompetitionResultsState>(OrienteeringCompetitionResultsState()) {
 
-    val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
+    val competitionId: String? = navigation.getArguments<String>(EventsConstants.EVENT_ID.name)
 
     private val _exportCsvEvent = MutableSharedFlow<Pair<String, String>>()
     val exportCsvEvent: SharedFlow<Pair<String, String>> = _exportCsvEvent

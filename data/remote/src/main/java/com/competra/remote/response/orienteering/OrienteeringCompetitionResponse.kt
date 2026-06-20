@@ -18,7 +18,7 @@ import com.competra.remote.response.competition.CompetitionResponse
  */
 data class OrienteeringCompetitionResponse(
     @SerializedName("competitionId")
-    val competitionId: Long,
+    val competitionId: String,
 
     @SerializedName("competition")
     val competition: CompetitionResponse,

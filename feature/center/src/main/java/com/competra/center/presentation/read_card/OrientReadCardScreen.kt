@@ -589,7 +589,7 @@ private val previewParticipant = OrienteeringParticipant(
     lastName = "Петров",
     groupId = 1L,
     groupName = "М21",
-    competitionId = 1L,
+    competitionId = "1",
     commandName = "СК Компас",
     startNumber = "101",
     startTime = 1700000000000L,
@@ -608,7 +608,7 @@ private val previewSplits = listOf(
 
 private val previewResult = OrienteeringResult(
     id = 1L,
-    competitionId = 1L,
+    competitionId = "1",
     groupId = 1L,
     participantId = "1",
     startTime = 1700000000000L,

@@ -47,12 +47,12 @@ interface OrienteeringResultDao {
     suspend fun updateResult(result: OrienteeringResultEntity)
 
     @Query("SELECT * FROM orienteering_results WHERE competitionId = :competitionId")
-    suspend fun getResultsForCompetitionDirect(competitionId: Long): List<OrienteeringResultEntity>
+    suspend fun getResultsForCompetitionDirect(competitionId: String): List<OrienteeringResultEntity>
 
 
     @Query("SELECT * FROM orienteering_results WHERE competitionId = :competitionId AND groupId = :groupId")
     suspend fun getResultsForCompetitionGroupDirect(
-        competitionId: Long,
+        competitionId: String,
         groupId: Long
     ): List<OrienteeringResultEntity>
 
@@ -68,7 +68,7 @@ interface OrienteeringResultDao {
      * @param participantRanks Карта соответствия: ID участника -> занятое место
      */
     @Transaction
-    suspend fun updateRanks(competitionId: Long, participantRanks: Map<String, Int>) {
+    suspend fun updateRanks(competitionId: String, participantRanks: Map<String, Int>) {
         val results = getResultsForCompetitionDirect(competitionId)
         val resultsByParticipant = results.associateBy { it.participantId }
 
@@ -99,7 +99,7 @@ interface OrienteeringResultDao {
      * @return Flow со списком результатов
      */
     @Query("SELECT * FROM orienteering_results WHERE competitionId = :competitionId")
-    fun getResultsForCompetition(competitionId: Long): Flow<List<OrienteeringResultEntity>>
+    fun getResultsForCompetition(competitionId: String): Flow<List<OrienteeringResultEntity>>
 
     /**
      * Получает результат конкретного участника в соревновании.
@@ -124,7 +124,7 @@ interface OrienteeringResultDao {
      * @param competitionId Идентификатор соревнования
      */
     @Query("DELETE FROM orienteering_results WHERE competitionId = :competitionId")
-    suspend fun deleteResultsByCompetitionId(competitionId: Long)
+    suspend fun deleteResultsByCompetitionId(competitionId: String)
 
     @Transaction
     @Query("SELECT * FROM participant_groups")
@@ -135,7 +135,7 @@ interface OrienteeringResultDao {
         "SELECT * FROM participant_groups WHERE competitionId = :competitionId"
     )
     suspend fun getProtocolByCompetition(
-        competitionId: Long
+        competitionId: String
     ): List<GroupWithParticipantsAndResultsEntity>
 
     /**
@@ -145,7 +145,7 @@ interface OrienteeringResultDao {
      * @param isEditable Новое значение флага
      */
     @Query("UPDATE orienteering_results SET isEditable = :isEditable WHERE competitionId = :competitionId")
-    suspend fun updateIsEditableForCompetition(competitionId: Long, isEditable: Boolean)
+    suspend fun updateIsEditableForCompetition(competitionId: String, isEditable: Boolean)
 
     @Query("SELECT * FROM orienteering_results WHERE isSynced = 0 AND isDeleted = 0")
     suspend fun getUnsynced(): List<OrienteeringResultEntity>

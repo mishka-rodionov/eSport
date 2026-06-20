@@ -77,7 +77,7 @@ private class PhoneNumberVisualTransformation : VisualTransformation {
  */
 @Composable
 fun OrganizatorCompetitionFieldScreen(
-    competitionId: Long,
+    competitionId: String,
     viewModel: OrienteeringCreatorViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()

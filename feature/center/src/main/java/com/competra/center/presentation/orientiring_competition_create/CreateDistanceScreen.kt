@@ -29,7 +29,7 @@ import org.koin.androidx.compose.koinViewModel
  */
 @Composable
 fun CreateDistanceScreen(
-    competitionId: Long,
+    competitionId: String,
     viewModel: OrienteeringCreatorViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -166,7 +166,7 @@ private fun CreateDistanceFilledPreview() {
                 distances = listOf(
                     Distance(
                         remoteId = 1,
-                        competitionId = 1,
+                        competitionId = "1",
                         name = "Длинная",
                         lengthMeters = 5000,
                         climbMeters = 150,
@@ -175,7 +175,7 @@ private fun CreateDistanceFilledPreview() {
                     ),
                     Distance(
                         remoteId = 2,
-                        competitionId = 1,
+                        competitionId = "1",
                         name = "Короткая",
                         lengthMeters = 2000,
                         climbMeters = 40,

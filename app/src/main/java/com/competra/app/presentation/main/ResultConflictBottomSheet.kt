@@ -238,7 +238,7 @@ private fun Long.formatRaceTime(): String {
 private fun ResultConflictBottomSheetPreview() {
     val existing = OrienteeringResult(
         id = 1,
-        competitionId = 1,
+        competitionId = "1",
         groupId = 1,
         participantId = "id1",
         status = ResultStatus.FINISHED,

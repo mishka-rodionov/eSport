@@ -37,7 +37,7 @@ class OrienteeringEventControlViewModel(
     private val loadingRepository: LoadingRepository
 ) : BaseViewModel<OrienteeringEventControlState>(OrienteeringEventControlState()) {
 
-    val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
+    val competitionId: String? = navigation.getArguments<String>(EventsConstants.EVENT_ID.name)
     private var timerJob: Job? = null
     private var stopwatchJob: Job? = null
 
@@ -45,11 +45,11 @@ class OrienteeringEventControlViewModel(
         val id = competitionId ?: return
         viewModelScope.launch {
             loadingRepository.emit(true)
-            val remoteId = orienteeringCompetitionInteractor.getCompetition(id)
-                ?.competition?.remoteId
-            if (remoteId != null) {
-                orienteeringCompetitionInteractor.fetchAndSyncFromServer(remoteId, id)
-                orienteeringCompetitionInteractor.fetchAndSyncParticipantsFromServer(remoteId, id)
+            val serverConfirmed = orienteeringCompetitionInteractor.getCompetition(id)
+                ?.serverUpdatedAt != null
+            if (serverConfirmed) {
+                orienteeringCompetitionInteractor.fetchAndSyncFromServer(id)
+                orienteeringCompetitionInteractor.fetchAndSyncParticipantsFromServer(id)
             }
 
             orienteeringCompetitionInteractor.tryAutoStartFromRegistration(id)

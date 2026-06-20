@@ -71,11 +71,11 @@ class CenterViewModel(
                 updateState { copy(deletingCompetition = null) }
                 viewModelScope.launch(Dispatchers.IO) {
                     loadingRepository.emit(true)
-                    orienteeringCompetitionInteractor.deleteCompetition(effect.competition.localCompetitionId)
+                    orienteeringCompetitionInteractor.deleteCompetition(effect.competition.competitionId)
                         .onSuccess {
                             updateState {
                                 copy(controlledEvents = controlledEvents.filter {
-                                    it.localCompetitionId != effect.competition.localCompetitionId
+                                    it.competitionId != effect.competition.competitionId
                                 })
                             }
                         }

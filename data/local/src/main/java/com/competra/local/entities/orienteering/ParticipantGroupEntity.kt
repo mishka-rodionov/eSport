@@ -29,7 +29,7 @@ import com.competra.local.converters.UserConverter
     foreignKeys = [
         ForeignKey(
             entity = OrienteeringCompetitionEntity::class,
-            parentColumns = ["localCompetitionId"],
+            parentColumns = ["competitionId"],
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         )
@@ -40,7 +40,7 @@ import com.competra.local.converters.UserConverter
 data class ParticipantGroupEntity(
     @PrimaryKey(autoGenerate = true)
     val groupId: Long = 0,
-    val competitionId: Long,
+    val competitionId: String,
     val title: String,
     val gender: Gender?,                   // MALE, FEMALE, MIXED, null – не задано
     val minAge: Int? = null,

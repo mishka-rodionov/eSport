@@ -13,17 +13,17 @@ import java.io.IOException
  *
  * Pipeline (родители → дети):
  *  1. Competitions
- *  2. Distances     (требуют competition.remoteId)
- *  3. Groups        (требуют competition.remoteId и distance.remoteId)
- *  4. Participants  (требуют competition.remoteId и group.remoteId)
- *  5. Results       (требуют participant + competition + group)
+ *  2. Distances     (требуют, чтобы соревнование уже было на сервере)
+ *  3. Groups        (требуют соревнование на сервере и distance.remoteId)
+ *  4. Participants  (требуют соревнование на сервере и group.remoteId)
+ *  5. Results       (требуют участника + соревнование + группу)
  *  6. Deletes       (обратный порядок: results → participants → groups → distances → competitions)
  *
- * Если зависимость не имеет remoteId — запись пропускается в текущем пробеге и обработается
- * в следующем запуске Worker'а (после того как родительская сущность синхронизируется).
- *
- * Возвращает [Outcome.AllDone], если все isSynced=false записи выгружены, или
- * [Outcome.Partial], если осталось хоть что-то невыгруженное (Worker сделает retry).
+ * Идентификатор соревнования — единый клиентский UUID (competitionId), он одинаков локально и
+ * на сервере, поэтому перевод local↔remote для соревнования больше не нужен. Готовность дочерних
+ * к выгрузке определяется тем, подтвердил ли сервер существование соревнования
+ * ([isCompetitionSynced]). Distances и groups сохраняют собственный Long remoteId, поэтому для
+ * них перевод local→remote остаётся.
  *
  * @throws IOException пробрасывается transient-ошибка для перезапуска Worker'а через backoff.
  */
@@ -68,8 +68,8 @@ class SyncOrchestrator(
 
     /**
      * Удаления в обратном порядке зависимостей. Для каждой записи:
-     *  - если remoteId есть → DELETE на сервере, при успехе физическое удаление локально;
-     *  - если remoteId == null (никогда не синхронизировалась) → сразу удалить локально.
+     *  - если запись была на сервере → DELETE на сервере, при успехе физическое удаление локально;
+     *  - если никогда не синхронизировалась → сразу удалить локально.
      */
     private suspend fun syncDeletes(): Boolean {
         var transient = false
@@ -162,16 +162,17 @@ class SyncOrchestrator(
         val marked = localRepository.getCompetitionsMarkedForDeletion()
         var transient = false
         for (competition in marked) {
-            val remoteId = competition.competition.remoteId
-            if (remoteId == null) {
-                localRepository.deleteCompetition(competition.localCompetitionId)
+            val competitionId = competition.competitionId
+            // serverUpdatedAt == null → соревнование никогда не подтверждалось сервером, удаляем локально.
+            if (competition.serverUpdatedAt == null) {
+                localRepository.deleteCompetition(competitionId)
                 continue
             }
-            val response = remoteRepository.deleteCompetitionRemotely(remoteId)
+            val response = remoteRepository.deleteCompetitionRemotely(competitionId)
             transient = transient or handleDelete(
                 response = response,
-                entityDescription = "competition ${competition.localCompetitionId}",
-                onSuccess = { localRepository.deleteCompetition(competition.localCompetitionId) }
+                entityDescription = "competition $competitionId",
+                onSuccess = { localRepository.deleteCompetition(competitionId) }
             )
         }
         return transient
@@ -212,12 +213,12 @@ class SyncOrchestrator(
             val result = remoteRepository.createCompetition(competition)
             transient = transient or handleResult(
                 result = result,
-                entityDescription = "competition ${competition.localCompetitionId}",
+                entityDescription = "competition ${competition.competitionId}",
                 onSuccess = { server ->
                     localRepository.updateCompetition(server, markUnsynced = false)
                 },
                 onConflict = { payload ->
-                    conflictResolver.applyCompetitionConflict(competition.localCompetitionId, payload)
+                    conflictResolver.applyCompetitionConflict(competition.competitionId, payload)
                 },
                 onPermanentError = { msg ->
                     localRepository.updateCompetition(
@@ -234,30 +235,26 @@ class SyncOrchestrator(
         val unsynced = localRepository.getUnsyncedDistances()
         if (unsynced.isEmpty()) return false
 
-        val ready = unsynced.filter { dist ->
-            getCompetitionRemoteId(dist.competitionId) != null
-        }
+        val ready = unsynced.filter { dist -> isCompetitionSynced(dist.competitionId) }
         if (ready.isEmpty()) return false
 
         val byCompetition = ready.groupBy { it.competitionId }
         var transient = false
-        for ((localCompetitionId, distances) in byCompetition) {
-            val remoteCompetitionId = getCompetitionRemoteId(localCompetitionId) ?: continue
+        for ((competitionId, distances) in byCompetition) {
             val result = remoteRepository.publishDistancesForCompetition(
-                remoteCompetitionId = remoteCompetitionId,
-                localCompetitionId = localCompetitionId,
+                competitionId = competitionId,
                 distances = distances
             )
             transient = transient or handleResult(
                 result = result,
-                entityDescription = "distances for competition $localCompetitionId",
+                entityDescription = "distances for competition $competitionId",
                 onSuccess = { synced ->
                     synced.forEach { localRepository.updateDistance(it, markUnsynced = false) }
                 },
                 onConflict = { payload ->
                     // Сервер при batch-конфликте отдаёт одну запись — её и применяем.
                     distances.firstOrNull()?.let {
-                        conflictResolver.applyDistanceConflict(it.id, localCompetitionId, payload)
+                        conflictResolver.applyDistanceConflict(it.id, competitionId, payload)
                     }
                 },
                 onPermanentError = { msg ->
@@ -273,23 +270,22 @@ class SyncOrchestrator(
         if (unsynced.isEmpty()) return false
 
         val ready = unsynced.filter { group ->
-            getCompetitionRemoteId(group.competitionId) != null &&
+            isCompetitionSynced(group.competitionId) &&
                 getDistanceRemoteId(group.distanceId) != null
         }
         if (ready.isEmpty()) return false
 
         val byCompetition = ready.groupBy { it.competitionId }
         var transient = false
-        for ((localCompetitionId, groups) in byCompetition) {
-            val remoteCompetitionId = getCompetitionRemoteId(localCompetitionId) ?: continue
+        for ((competitionId, groups) in byCompetition) {
             val groupsWithRemoteDistance = groups.map { g ->
                 val remoteDistance = getDistanceRemoteId(g.distanceId) ?: return@map g
                 g.copy(distanceId = remoteDistance)
             }
-            val result = remoteRepository.publishGroupsForCompetition(remoteCompetitionId, groupsWithRemoteDistance)
+            val result = remoteRepository.publishGroupsForCompetition(competitionId, groupsWithRemoteDistance)
             transient = transient or handleResult(
                 result = result,
-                entityDescription = "groups for competition $localCompetitionId",
+                entityDescription = "groups for competition $competitionId",
                 onSuccess = { synced ->
                     // Восстанавливаем локальный distanceId: сервер возвращает remote distanceId,
                     // но в локальной БД должна храниться ссылка на локальный ID дистанции.
@@ -299,7 +295,7 @@ class SyncOrchestrator(
                 },
                 onConflict = { payload ->
                     groups.firstOrNull()?.let {
-                        conflictResolver.applyGroupConflict(it.groupId, localCompetitionId, payload)
+                        conflictResolver.applyGroupConflict(it.groupId, competitionId, payload)
                     }
                 },
                 onPermanentError = { msg ->
@@ -315,15 +311,15 @@ class SyncOrchestrator(
         if (unsynced.isEmpty()) return false
 
         val ready = unsynced.filter { p ->
-            getCompetitionRemoteId(p.competitionId) != null &&
+            isCompetitionSynced(p.competitionId) &&
                 getGroupRemoteId(p.groupId) != null
         }
         if (ready.isEmpty()) return false
 
+        // competitionId уже глобальный UUID — переводим только groupId (local→remote).
         val mapped = ready.mapNotNull { p ->
-            val remoteCompetitionId = getCompetitionRemoteId(p.competitionId) ?: return@mapNotNull null
             val remoteGroupId = getGroupRemoteId(p.groupId) ?: return@mapNotNull null
-            p to p.copy(competitionId = remoteCompetitionId, groupId = remoteGroupId)
+            p to p.copy(groupId = remoteGroupId)
         }
 
         var transient = false
@@ -360,16 +356,16 @@ class SyncOrchestrator(
         if (unsynced.isEmpty()) return false
 
         val ready = unsynced.filter { r ->
-            getCompetitionRemoteId(r.competitionId) != null &&
+            isCompetitionSynced(r.competitionId) &&
                 getGroupRemoteId(r.groupId) != null
         }
         if (ready.isEmpty()) return false
 
         var transient = false
         for (result in ready) {
-            val remoteCompetitionId = getCompetitionRemoteId(result.competitionId) ?: continue
             val remoteGroupId = getGroupRemoteId(result.groupId) ?: continue
-            val mapped = result.copy(competitionId = remoteCompetitionId, groupId = remoteGroupId)
+            // competitionId уже глобальный UUID — переводим только groupId.
+            val mapped = result.copy(groupId = remoteGroupId)
             val response = remoteRepository.saveResult(mapped)
             transient = transient or handleResult(
                 result = response,
@@ -432,8 +428,9 @@ class SyncOrchestrator(
         }
     }
 
-    private suspend fun getCompetitionRemoteId(localId: Long): Long? =
-        localRepository.getCompetition(localId).getOrNull()?.competition?.remoteId
+    /** Соревнование считается выгруженным, если сервер хоть раз подтвердил его (serverUpdatedAt != null). */
+    private suspend fun isCompetitionSynced(competitionId: String): Boolean =
+        localRepository.getCompetition(competitionId).getOrNull()?.serverUpdatedAt != null
 
     private suspend fun getDistanceRemoteId(localId: Long): Long? =
         localRepository.getDistanceById(localId).getOrNull()?.remoteId

@@ -4,8 +4,8 @@ import com.competra.domain.models.Competition
 
 /**
  * Представляет модель соревнований по спортивному ориентированию
- * 
- * @property localCompetitionId Уникальный идентификатор соревнования
+ *
+ * @property competitionId Глобально-уникальный клиентский UUID соревнования (единый id на всех платформах)
  * @property competition Базовая информация о соревновании
  * @property direction Направление (заданный порядок, по выбору и т.д.)
  * @property punchingSystem Система отметки
@@ -17,7 +17,7 @@ import com.competra.domain.models.Competition
  * @property startTime Фактическое время старта соревнования (timestamp)
  */
 data class OrienteeringCompetition(
-    val localCompetitionId: Long,
+    val competitionId: String,
     val competition: Competition,
     val direction: OrienteeringDirection,
     val punchingSystem: PunchingSystem,

@@ -10,7 +10,6 @@ import com.competra.remote.request.competition.CoordinatesRequest
  */
 fun Competition.toRequest(): CompetitionRequest {
     return CompetitionRequest(
-        remoteId = remoteId,
         title = title,
         startDate = startDate,
         endDate = endDate,

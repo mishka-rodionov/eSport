@@ -25,15 +25,15 @@ sealed class CenterNavigation: BaseNavigation {
     
     // Новые маршруты для пошагового создания соревнования
     @Serializable
-    data class CommonCompetitionFieldRoute(val competitionId: Long? = null): CenterNavigation()
+    data class CommonCompetitionFieldRoute(val competitionId: String? = null): CenterNavigation()
     @Serializable
-    data class RegistrationCompetitionFieldRoute(val competitionId: Long): CenterNavigation()
+    data class RegistrationCompetitionFieldRoute(val competitionId: String): CenterNavigation()
     @Serializable
-    data class OrganizatorCompetitionFieldRoute(val competitionId: Long): CenterNavigation()
+    data class OrganizatorCompetitionFieldRoute(val competitionId: String): CenterNavigation()
     @Serializable
-    data class CreateDistanceRoute(val competitionId: Long): CenterNavigation()
+    data class CreateDistanceRoute(val competitionId: String): CenterNavigation()
     @Serializable
-    data class CreateParticipantGroupRoute(val competitionId: Long): CenterNavigation()
+    data class CreateParticipantGroupRoute(val competitionId: String): CenterNavigation()
 
     @Serializable
     data object OrienteeringEventControlRoute: CenterNavigation()
@@ -46,13 +46,13 @@ sealed class CenterNavigation: BaseNavigation {
     @Serializable
     data object ParticipantResults: CenterNavigation()
     @Serializable
-    data class GetOrienteeringChipRoute(val competitionId: Long): CenterNavigation()
+    data class GetOrienteeringChipRoute(val competitionId: String): CenterNavigation()
 
     @Serializable
     data object WriteChipRoute : CenterNavigation()
 
     @Serializable
-    data class ParticipantSplitsRoute(val participantId: String, val competitionId: Long): CenterNavigation()
+    data class ParticipantSplitsRoute(val participantId: String, val competitionId: String): CenterNavigation()
 
     @Serializable
     data class MapPickerRoute(val initLatE6: Long = 0L, val initLonE6: Long = 0L): CenterNavigation()

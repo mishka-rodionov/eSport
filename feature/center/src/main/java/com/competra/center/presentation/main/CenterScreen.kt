@@ -148,7 +148,7 @@ private fun ControlledEventsList(state: CenterState, userAction: (CenterEffects)
         contentPadding = PaddingValues(bottom = Dimens.SIZE_BASE.dp)
     ) {
         itemsIndexed(state.controlledEvents) { _, item ->
-            EventControlCard(item.competition, item.localCompetitionId, item, userAction)
+            EventControlCard(item.competition, item.competitionId, item, userAction)
         }
     }
 }
@@ -159,7 +159,7 @@ private fun ControlledEventsList(state: CenterState, userAction: (CenterEffects)
 @Composable
 private fun EventControlCard(
     competition: Competition,
-    eventId: Long,
+    eventId: String,
     orienteeringCompetition: OrienteeringCompetition,
     userAction: (CenterEffects) -> Unit
 ) {
@@ -404,9 +404,8 @@ private fun CenterScreenAuthPreview() {
             isAuthed = true,
             controlledEvents = listOf(
                 OrienteeringCompetition(
-                    localCompetitionId = 1L,
+                    competitionId = "1",
                     competition = Competition(
-                        remoteId = null,
                         title = "Чемпионат города по ориентированию",
                         startDate = System.currentTimeMillis(),
                         endDate = System.currentTimeMillis() + 86400000L,

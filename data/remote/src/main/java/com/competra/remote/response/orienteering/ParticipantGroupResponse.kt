@@ -18,7 +18,7 @@ data class ParticipantGroupResponse(
     @SerializedName("groupId")
     val groupId: Long,
     @SerializedName("competitionId")
-    val competitionId: Long,
+    val competitionId: String,
     @SerializedName("title")
     val title: String,
     @SerializedName("gender")

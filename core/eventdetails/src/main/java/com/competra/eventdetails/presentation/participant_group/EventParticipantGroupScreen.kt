@@ -44,7 +44,7 @@ import org.koin.androidx.compose.koinViewModel
  */
 @Composable
 fun EventParticipantGroupScreen(
-    eventId: Long,
+    eventId: String,
     participantGroup: EventParticipantGroup,
     viewModel: EventParticipantGroupViewModel = koinViewModel()
 ) {
@@ -327,22 +327,22 @@ private fun EventParticipantGroupScreenPreview() {
                     participants = listOf(
                         OrienteeringParticipant(
                             id = "id1", userId = "u1", firstName = "Иван", lastName = "Иванов",
-                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "СК Компас",
+                            groupId = 1, groupName = "М21", competitionId = "1", commandName = "СК Компас",
                             startNumber = "101", startTime = 1700000000000L, chipNumber = "111", comment = "", isChipGiven = true
                         ),
                         OrienteeringParticipant(
                             id = "id2", userId = "u2", firstName = "Пётр", lastName = "Петров",
-                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "СК Буссоль",
+                            groupId = 1, groupName = "М21", competitionId = "1", commandName = "СК Буссоль",
                             startNumber = "102", startTime = 1700000120000L, chipNumber = "222", comment = "", isChipGiven = true
                         ),
                         OrienteeringParticipant(
                             id = "id3", userId = "u3", firstName = "Сидор", lastName = "Сидоров",
-                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "",
+                            groupId = 1, groupName = "М21", competitionId = "1", commandName = "",
                             startNumber = "103", startTime = 1700000240000L, chipNumber = "333", comment = "", isChipGiven = false
                         ),
                         OrienteeringParticipant(
                             id = "id4", userId = "u4", firstName = "Алексей", lastName = "Алексеев",
-                            groupId = 1, groupName = "М21", competitionId = 1, commandName = "СК Азимут",
+                            groupId = 1, groupName = "М21", competitionId = "1", commandName = "СК Азимут",
                             startNumber = "", startTime = 0L, chipNumber = "", comment = "", isChipGiven = false
                         )
                     )

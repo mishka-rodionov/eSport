@@ -4,7 +4,7 @@ import com.competra.domain.models.events.EventStatus
 import com.competra.domain.models.events.EventType
 
 data class CyclicEventDetails(
-    val eventId: Long,
+    val eventId: String,
     val organizationId: String,
     val title: String,
     val description: String,

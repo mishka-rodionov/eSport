@@ -195,7 +195,7 @@ fun EventItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickRipple {
-                userAction.invoke(EventsAction.EventClick(event.remoteId))
+                userAction.invoke(EventsAction.EventClick(event.id))
             },
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp), // Скругление карточки 16 dp
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -314,7 +314,6 @@ fun EventItem(
 @Composable
 fun EventItemPreview() {
     val mockEvent = Competition(
-        remoteId = null,
         title = "Чемпионат по спортивному ориентированию \"Осенний лес 2024\"",
         startDate = System.currentTimeMillis(),
         endDate = System.currentTimeMillis() + 86400000L,

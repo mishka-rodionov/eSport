@@ -14,7 +14,7 @@ import com.competra.local.converters.ControlPointConverters
     foreignKeys = [
         ForeignKey(
             entity = OrienteeringCompetitionEntity::class,
-            parentColumns = ["localCompetitionId"],
+            parentColumns = ["competitionId"],
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         )
@@ -29,7 +29,7 @@ data class DistanceEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val remoteId: Long? = null,
-    val competitionId: Long,
+    val competitionId: String,
     val name: String? = null,               // например, "Длинная дистанция"
     val lengthMeters: Int,                  // длина в метрах
     val climbMeters: Int,                   // набор высоты

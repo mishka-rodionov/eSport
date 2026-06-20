@@ -44,7 +44,7 @@ class LiveResultsViewModel(
         }
     }
 
-    fun startPolling(eventId: Long) {
+    fun startPolling(eventId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
                 loadResults(eventId)
@@ -53,7 +53,7 @@ class LiveResultsViewModel(
         }
     }
 
-    private suspend fun loadResults(eventId: Long) {
+    private suspend fun loadResults(eventId: String) {
         val groupsDeferred = viewModelScope.async(Dispatchers.IO) {
             remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList()
         }

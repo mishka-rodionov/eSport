@@ -7,7 +7,7 @@ data class OrienteeringParticipantRequest(
     val lastName: String,
     val groupId: Long,
     val groupName: String,
-    val competitionId: Long,
+    val competitionId: String,
     val commandName: String?,
     val startNumber: Int,
     val startTime: Long,

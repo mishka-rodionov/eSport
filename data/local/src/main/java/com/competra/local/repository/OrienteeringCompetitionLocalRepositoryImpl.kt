@@ -59,9 +59,9 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     ): Result<OrienteeringCompetition> {
         return runCatching {
             val toSave = if (markUnsynced) orienteeringCompetition.applyUnsynced() else orienteeringCompetition
-            val id = orienteeringCompetitionDao.insert(toSave.toEntity())
-            val savedEntity = orienteeringCompetitionDao.getCompetitionById(id)
-                ?: throw IllegalStateException("Failed to fetch saved competition with id = $id")
+            orienteeringCompetitionDao.insert(toSave.toEntity())
+            val savedEntity = orienteeringCompetitionDao.getCompetitionById(toSave.competitionId)
+                ?: throw IllegalStateException("Failed to fetch saved competition with id = ${toSave.competitionId}")
             savedEntity.toDomain()
         }
     }
@@ -76,25 +76,12 @@ class OrienteeringCompetitionLocalRepositoryImpl(
 
             val prepared = if (markUnsynced) orienteeringCompetition.map { it.applyUnsynced() } else orienteeringCompetition
 
-            // 1. Преобразуем в сущности
-            val entities = prepared.map { it.toEntity() }
-
-            // 2. Вставляем (IGNORE — существующие записи не перезаписываются,
+            // 1. Вставляем (IGNORE — существующие записи не перезаписываются,
             //    чтобы избежать CASCADE DELETE дочерних distances и participant_groups)
-            val ids = orienteeringCompetitionDao.insertAll(entities)
+            orienteeringCompetitionDao.insertAll(prepared.map { it.toEntity() })
 
-            // 3. Извлекаем только реально вставленные записи (id == -1 означает IGNORE)
-            val savedEntities = ids.mapIndexedNotNull { index, id ->
-                if (id == -1L) {
-                    // Запись уже существует — берём оригинальный entity, чтобы вернуть его в domain
-                    entities[index]
-                } else {
-                    orienteeringCompetitionDao.getCompetitionById(id)
-                }
-            }
-
-            // 4. В domain
-            savedEntities.map { it.toDomain() }
+            // 2. Возвращаем актуальные сохранённые записи по их UUID
+            prepared.mapNotNull { orienteeringCompetitionDao.getCompetitionById(it.competitionId)?.toDomain() }
         }
     }
 
@@ -103,22 +90,20 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         markUnsynced: Boolean
     ): Result<Any> {
         return runCatching {
-            // Защита от затирания sync-метаданных: если из UI пришла модель без remoteId/serverUpdatedAt
-            // (которая собрана из in-memory state мастера создания), но в БД они уже проставлены
-            // SyncWorker'ом — сохраняем их. Иначе соревнование снова станет «несинхронизированным с
-            // remoteId=null» и SyncWorker создаст дубликат на сервере.
+            // Защита от затирания sync-метаданных: если из UI пришла модель без serverUpdatedAt
+            // (собрана из in-memory state мастера создания), но в БД оно уже проставлено
+            // SyncWorker'ом — сохраняем его, чтобы conflict-detection на сервере не ломался.
+            // Идентичность (competitionId) клиент знает с момента создания, переводить local↔remote
+            // больше не нужно.
             val merged = if (markUnsynced) {
                 val existing = orienteeringCompetitionDao
-                    .getCompetitionById(orienteeringCompetition.localCompetitionId)
+                    .getCompetitionById(orienteeringCompetition.competitionId)
                     ?.toDomain()
-                val preservedRemoteId =
-                    orienteeringCompetition.competition.remoteId ?: existing?.competition?.remoteId
                 val preservedServerUpdatedAt =
                     orienteeringCompetition.competition.serverUpdatedAt
                         ?: existing?.competition?.serverUpdatedAt
                 orienteeringCompetition.copy(
                     competition = orienteeringCompetition.competition.copy(
-                        remoteId = preservedRemoteId,
                         serverUpdatedAt = preservedServerUpdatedAt
                     )
                 ).applyUnsynced()
@@ -129,7 +114,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    override suspend fun getCompetitionWithDetails(competitionId: Long): Result<OrienteeringCompetitionDetails> {
+    override suspend fun getCompetitionWithDetails(competitionId: String): Result<OrienteeringCompetitionDetails> {
         return runCatching {
             orienteeringCompetitionDao.getCompetitionWithDetails(competitionId).toDomain()
         }
@@ -144,7 +129,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    override suspend fun getCompetition(competitionId: Long): Result<OrienteeringCompetition?> {
+    override suspend fun getCompetition(competitionId: String): Result<OrienteeringCompetition?> {
         return runCatching {
             orienteeringCompetitionDao.getCompetitionById(competitionId)?.toDomain()
         }
@@ -161,7 +146,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     }
 
     override suspend fun updateParticipantsGroups(
-        competitionId: Long,
+        competitionId: String,
         participantGroups: List<ParticipantGroup>,
         markUnsynced: Boolean
     ): Result<Any> {
@@ -222,7 +207,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    override suspend fun getParticipants(competitionId: Long): Result<List<OrienteeringParticipant>> {
+    override suspend fun getParticipants(competitionId: String): Result<List<OrienteeringParticipant>> {
         return runCatching {
             participantDao.getAllParticipants(competitionId).map { it.toDomain() }
         }
@@ -242,7 +227,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         return runCatching { participantDao.deleteParticipantById(participantId) }
     }
 
-    override suspend fun deleteCompetition(competitionId: Long): Result<Unit> {
+    override suspend fun deleteCompetition(competitionId: String): Result<Unit> {
         return runCatching {
             orienteeringResultDao.deleteResultsByCompetitionId(competitionId)
             participantDao.deleteParticipantsByCompetitionId(competitionId)
@@ -253,7 +238,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     }
 
     override suspend fun getParticipantByChipNumber(
-        competitionId: Long,
+        competitionId: String,
         chipNumber: Int
     ): Result<OrienteeringParticipant> {
         return runCatching {
@@ -287,7 +272,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
     }
 
     override suspend fun getResultForGroup(
-        competitionId: Long,
+        competitionId: String,
         groupId: Long
     ): Result<List<OrienteeringResult>> {
         return runCatching {
@@ -305,14 +290,14 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    override suspend fun getResultByGroups(competitionId: Long): Result<List<GroupWithParticipantsAndResults>> {
+    override suspend fun getResultByGroups(competitionId: String): Result<List<GroupWithParticipantsAndResults>> {
         return runCatching {
             orienteeringResultDao.getProtocolByCompetition(competitionId).map { it.toDomain() }
         }
     }
 
     override suspend fun updateIsEditableForCompetition(
-        competitionId: Long,
+        competitionId: String,
         isEditable: Boolean
     ): Result<Any> {
         return runCatching {
@@ -333,7 +318,7 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
-    override suspend fun getDistances(competitionId: Long): Result<List<Distance>> {
+    override suspend fun getDistances(competitionId: String): Result<List<Distance>> {
         return runCatching {
             distanceDao.getDistancesForCompetition(competitionId).map { it.toDomain() }
         }

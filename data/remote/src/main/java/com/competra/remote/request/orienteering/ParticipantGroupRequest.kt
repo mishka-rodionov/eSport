@@ -18,7 +18,7 @@ data class ParticipantGroupRequest(
     @SerializedName("groupId")
     val groupId: Long? = null,
     @SerializedName("competitionId")
-    val competitionId: Long,
+    val competitionId: String,
     @SerializedName("title")
     val title: String,
     @SerializedName("gender")

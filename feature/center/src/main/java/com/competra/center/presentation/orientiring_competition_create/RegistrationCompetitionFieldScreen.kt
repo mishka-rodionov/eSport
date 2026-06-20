@@ -39,7 +39,7 @@ import java.util.Calendar
  */
 @Composable
 fun RegistrationCompetitionFieldScreen(
-    competitionId: Long,
+    competitionId: String,
     viewModel: OrienteeringCreatorViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()

@@ -45,7 +45,7 @@ import org.koin.androidx.compose.koinViewModel
  */
 @Composable
 fun EventResultsScreen(
-    eventId: Long,
+    eventId: String,
     viewModel: EventResultsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -198,7 +198,7 @@ private fun EventResultsPreview() {
                 lastName = "Иванов",
                 groupId = 1,
                 groupName = "М21",
-                competitionId = 1,
+                competitionId = "1",
                 commandName = "Команда А",
                 startNumber = "101",
                 startTime = 0L,
@@ -208,7 +208,7 @@ private fun EventResultsPreview() {
             ),
             result = OrienteeringResult(
                 id = 1,
-                competitionId = 1,
+                competitionId = "1",
                 groupId = 1,
                 participantId = "id1",
                 totalTime = 1800L,
@@ -224,7 +224,7 @@ private fun EventResultsPreview() {
                 lastName = "Петров",
                 groupId = 1,
                 groupName = "М21",
-                competitionId = 1,
+                competitionId = "1",
                 commandName = "Команда Б",
                 startNumber = "102",
                 startTime = 0L,
@@ -234,7 +234,7 @@ private fun EventResultsPreview() {
             ),
             result = OrienteeringResult(
                 id = 2,
-                competitionId = 1,
+                competitionId = "1",
                 groupId = 1,
                 participantId = "id2",
                 totalTime = 1950L,

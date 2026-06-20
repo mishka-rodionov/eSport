@@ -39,7 +39,7 @@ class CompetitionForegroundService : Service() {
     private val interactor: OrienteeringCompetitionInteractor by inject()
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var competitionId: Long = -1L
+    private var competitionId: String? = null
     private var startTimeMs: Long = 0L
 
     /** Текст уведомления о последнем финишировавшем (из NFC-скана). */
@@ -60,13 +60,13 @@ class CompetitionForegroundService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val newCompetitionId = intent?.getLongExtra(EXTRA_COMPETITION_ID, -1L) ?: -1L
+        val newCompetitionId = intent?.getStringExtra(EXTRA_COMPETITION_ID)
         val newStartTimeMs = intent?.getLongExtra(EXTRA_START_TIME_MS, 0L) ?: 0L
 
         // Обновляем поля только при наличии валидных значений в Intent.
         // Если Intent == null (edge-case при START_REDELIVER_INTENT), не загрязняем
         // startTimeRepository некорректным System.currentTimeMillis().
-        if (newCompetitionId != -1L) competitionId = newCompetitionId
+        if (!newCompetitionId.isNullOrEmpty()) competitionId = newCompetitionId
         if (newStartTimeMs > 0L) {
             startTimeMs = newStartTimeMs
             startTimeRepository.set(startTimeMs)
@@ -75,7 +75,7 @@ class CompetitionForegroundService : Service() {
         startForeground(NOTIFICATION_ID, buildNotification(""))
         subscribeToNfcEvents()
 
-        if (competitionId != -1L) {
+        if (!competitionId.isNullOrEmpty()) {
             launchParticipantMonitoring()
         }
 
@@ -102,9 +102,9 @@ class CompetitionForegroundService : Service() {
     private suspend fun handleChipData(chipData: ReadChipData) {
         when (chipData) {
             is ReadChipData.RawResult -> {
-                if (competitionId == -1L) return
+                val id = competitionId ?: return
                 interactor.getParticipantByChipNumber(
-                    competitionId = competitionId,
+                    competitionId = id,
                     chipNumber = chipData.chipNumber
                 ).onSuccess { participant ->
                     val name = "${participant.lastName} ${participant.firstName}"
@@ -129,8 +129,9 @@ class CompetitionForegroundService : Service() {
     // ─────────────────────────────────────── Monitoring participants ──
 
     private fun launchParticipantMonitoring() {
+        val id = competitionId ?: return
         serviceScope.launch {
-            val participants = interactor.getParticipants(competitionId)
+            val participants = interactor.getParticipants(id)
                 .getOrNull()
                 .orEmpty()
                 .filter { it.startTime > 0 }
@@ -272,7 +273,7 @@ class CompetitionForegroundService : Service() {
         const val EXTRA_COMPETITION_ID = "competition_id"
         const val EXTRA_START_TIME_MS = "start_time_ms"
 
-        fun startIntent(context: Context, competitionId: Long, startTimeMs: Long): Intent =
+        fun startIntent(context: Context, competitionId: String, startTimeMs: Long): Intent =
             Intent(context, CompetitionForegroundService::class.java).apply {
                 putExtra(EXTRA_COMPETITION_ID, competitionId)
                 putExtra(EXTRA_START_TIME_MS, startTimeMs)

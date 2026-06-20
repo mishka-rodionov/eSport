@@ -13,7 +13,7 @@ import com.competra.remote.response.competition.CoordinatesResponse
  */
 fun CompetitionResponse.toDomain(): Competition {
     return Competition(
-        remoteId = remoteId,
+        id = id,
         title = title,
         startDate = startDate,
         endDate = endDate,

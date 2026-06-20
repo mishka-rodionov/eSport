@@ -37,7 +37,7 @@ class EventResultsViewModel(
         }
     }
 
-    fun loadResults(eventId: Long) {
+    fun loadResults(eventId: String) {
         analytics.trackEvent(AnalyticsEvent.ResultsViewed(eventId))
         viewModelScope.launch(Dispatchers.IO) {
             updateState { copy(isLoading = true) }

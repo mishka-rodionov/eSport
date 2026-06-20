@@ -16,7 +16,7 @@ import com.competra.local.entities.orienteering.DistanceEntity
  */
 fun OrienteeringCompetition.toEntity(): OrienteeringCompetitionEntity {
     return OrienteeringCompetitionEntity(
-        localCompetitionId = this.localCompetitionId, // Используем тот же ID
+        competitionId = this.competitionId, // Единый клиентский UUID
         competition = this.competition, // Встраиваемый объект копируется напрямую
         direction = this.direction,     // Enum копируется напрямую (Room обработает через TypeConverter)
         punchingSystem = this.punchingSystem,
@@ -44,7 +44,7 @@ fun List<OrienteeringCompetition>.toEntityList(): List<OrienteeringCompetitionEn
  */
 fun OrienteeringCompetitionEntity.toDomain(): OrienteeringCompetition {
     return OrienteeringCompetition(
-        localCompetitionId = this.localCompetitionId, // Используем тот же ID
+        competitionId = this.competitionId, // Единый клиентский UUID
         competition = this.competition, // Встраиваемый объект копируется напрямую
         direction = this.direction,     // Enum копируется напрямую
         punchingSystem = this.punchingSystem,

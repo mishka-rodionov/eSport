@@ -827,7 +827,7 @@ fun ParticipantListScreenPreview() {
                     ParticipantGroupParticipants(
                         group = ParticipantGroup(
                             groupId = 1L,
-                            competitionId = 1L,
+                            competitionId = "1",
                             title = "M21",
                             gender = Gender.MALE,
                             minAge = 21,
@@ -845,7 +845,7 @@ fun ParticipantListScreenPreview() {
                                 lastName = "Иванов",
                                 groupId = 1,
                                 groupName = "M21",
-                                competitionId = 1,
+                                competitionId = "1",
                                 commandName = "Зенит",
                                 startNumber = "1",
                                 startTime = 10L,

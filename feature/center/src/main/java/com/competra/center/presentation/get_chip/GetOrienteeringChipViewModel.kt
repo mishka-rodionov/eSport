@@ -21,13 +21,13 @@ class GetOrienteeringChipViewModel(
     private val navigation: Navigation
 ) : BaseViewModel<GetOrienteeringChipState>(GetOrienteeringChipState()) {
 
-    private var competitionId: Long? = null
+    private var competitionId: String? = null
 
     /**
      * Загружает группы участников для указанного соревнования.
      * @param competitionId ID соревнования.
      */
-    fun loadParticipants(competitionId: Long) {
+    fun loadParticipants(competitionId: String) {
         this.competitionId = competitionId
         updateState { copy(isLoading = true) }
         viewModelScope.launch {

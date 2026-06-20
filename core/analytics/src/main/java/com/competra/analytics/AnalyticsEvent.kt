@@ -46,7 +46,7 @@ sealed class AnalyticsEvent(
     enum class EventSource { LIST, PUSH, DEEPLINK }
 
     /** Открыта карточка соревнования. */
-    class EventOpened(eventId: Long, source: EventSource) : AnalyticsEvent(
+    class EventOpened(eventId: String, source: EventSource) : AnalyticsEvent(
         "event_opened",
         mapOf("event_id" to eventId, "source" to source.name.lowercase()),
     )
@@ -56,11 +56,11 @@ sealed class AnalyticsEvent(
         AnalyticsEvent("event_filter_applied", filters)
 
     /** Нажата кнопка «зарегистрироваться» в карточке соревнования. */
-    class EventRegisterClicked(eventId: Long) :
+    class EventRegisterClicked(eventId: String) :
         AnalyticsEvent("event_register_clicked", mapOf("event_id" to eventId))
 
     /** Открыт экран live-результатов. */
-    class EventLiveResultsOpened(eventId: Long) :
+    class EventLiveResultsOpened(eventId: String) :
         AnalyticsEvent("event_live_results_opened", mapOf("event_id" to eventId))
 
     // endregion
@@ -80,7 +80,7 @@ sealed class AnalyticsEvent(
     )
 
     /** Мастер создания соревнования прошёл до конца. */
-    class CreateCompetitionFinished(competitionId: Long, kindOfSport: String) : AnalyticsEvent(
+    class CreateCompetitionFinished(competitionId: String, kindOfSport: String) : AnalyticsEvent(
         "create_competition_finished",
         mapOf("competition_id" to competitionId, "kind_of_sport" to kindOfSport),
     )
@@ -122,7 +122,7 @@ sealed class AnalyticsEvent(
     // region Results
 
     /** Просмотр результатов соревнования. */
-    class ResultsViewed(eventId: Long) :
+    class ResultsViewed(eventId: String) :
         AnalyticsEvent("results_viewed", mapOf("event_id" to eventId))
 
     /** Время отметки на КП отредактировано вручную при считывании чипа. */

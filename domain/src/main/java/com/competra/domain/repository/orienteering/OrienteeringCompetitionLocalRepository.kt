@@ -22,30 +22,30 @@ interface OrienteeringCompetitionLocalRepository {
     suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition, markUnsynced: Boolean = true): Result<OrienteeringCompetition>
     suspend fun saveCompetitions(orienteeringCompetition: List<OrienteeringCompetition>, markUnsynced: Boolean = true): Result<List<OrienteeringCompetition>>
     suspend fun updateCompetition(orienteeringCompetition: OrienteeringCompetition, markUnsynced: Boolean = true): Result<Any>
-    suspend fun getCompetition(competitionId: Long): Result<OrienteeringCompetition?>
+    suspend fun getCompetition(competitionId: String): Result<OrienteeringCompetition?>
 
     suspend fun saveParticipantsGroups(participantGroups: List<ParticipantGroup>, markUnsynced: Boolean = true): Result<Any>
-    suspend fun updateParticipantsGroups(competitionId: Long, participantGroups: List<ParticipantGroup>, markUnsynced: Boolean = true): Result<Any>
+    suspend fun updateParticipantsGroups(competitionId: String, participantGroups: List<ParticipantGroup>, markUnsynced: Boolean = true): Result<Any>
     suspend fun updateParticipantGroup(participantGroup: ParticipantGroup, markUnsynced: Boolean = true): Result<Any>
-    suspend fun getCompetitionWithDetails(competitionId: Long): Result<OrienteeringCompetitionDetails>
+    suspend fun getCompetitionWithDetails(competitionId: String): Result<OrienteeringCompetitionDetails>
     suspend fun getCompetitionsByUserid(userId: String): Result<List<OrienteeringCompetition>>
 
-    suspend fun deleteCompetition(competitionId: Long): Result<Unit>
+    suspend fun deleteCompetition(competitionId: String): Result<Unit>
 
     suspend fun saveParticipant(participant: OrienteeringParticipant, markUnsynced: Boolean = true): Result<OrienteeringParticipant?>
 
-    suspend fun getParticipants(competitionId: Long): Result<List<OrienteeringParticipant>>
+    suspend fun getParticipants(competitionId: String): Result<List<OrienteeringParticipant>>
     suspend fun updateParticipants(participants: List<OrienteeringParticipant>, markUnsynced: Boolean = true) : Result<Any>
     suspend fun deleteParticipant(participantId: String): Result<Unit>
 
-    suspend fun getParticipantByChipNumber(competitionId: Long, chipNumber: Int) : Result<OrienteeringParticipant>
+    suspend fun getParticipantByChipNumber(competitionId: String, chipNumber: Int) : Result<OrienteeringParticipant>
     suspend fun getParticipantGroup(groupId: Long) : Result<ParticipantGroup>
     suspend fun saveParticipantResult(orienteeringResult: OrienteeringResult, markUnsynced: Boolean = true): Result<Any>
     suspend fun getResultByParticipant(participantId: String): Result<OrienteeringResult?>
-    suspend fun getResultForGroup(competitionId: Long, groupId: Long): Result<List<OrienteeringResult>>
+    suspend fun getResultForGroup(competitionId: String, groupId: Long): Result<List<OrienteeringResult>>
     suspend fun updateResults(orienteeringResult: List<OrienteeringResult>, markUnsynced: Boolean = true): Result<Any>
 
-    suspend fun getResultByGroups(competitionId: Long): Result<List<GroupWithParticipantsAndResults>>
+    suspend fun getResultByGroups(competitionId: String): Result<List<GroupWithParticipantsAndResults>>
 
     /**
      * Обновляет флаг возможности редактирования для всех результатов соревнования.
@@ -53,7 +53,7 @@ interface OrienteeringCompetitionLocalRepository {
      * @param competitionId Идентификатор соревнования.
      * @param isEditable Значение флага.
      */
-    suspend fun updateIsEditableForCompetition(competitionId: Long, isEditable: Boolean): Result<Any>
+    suspend fun updateIsEditableForCompetition(competitionId: String, isEditable: Boolean): Result<Any>
 
     /**
      * Сохраняет новую дистанцию для соревнования.
@@ -68,7 +68,7 @@ interface OrienteeringCompetitionLocalRepository {
     /**
      * Получает список дистанций соревнования.
      */
-    suspend fun getDistances(competitionId: Long): Result<List<Distance>>
+    suspend fun getDistances(competitionId: String): Result<List<Distance>>
 
     /**
      * Обновляет данные существующей дистанции.

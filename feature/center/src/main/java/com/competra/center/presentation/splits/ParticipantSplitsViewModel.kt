@@ -17,7 +17,7 @@ class ParticipantSplitsViewModel(
 
     override fun onAction(action: BaseAction) {}
 
-    fun load(participantId: String, competitionId: Long) {
+    fun load(participantId: String, competitionId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val participant = interactor.getParticipants(competitionId)
                 .getOrNull()

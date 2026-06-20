@@ -37,7 +37,7 @@ interface DistanceDao {
      * @return Список сущностей дистанций.
      */
     @Query("SELECT * FROM distances WHERE competitionId = :competitionId")
-    suspend fun getDistancesForCompetition(competitionId: Long): List<DistanceEntity>
+    suspend fun getDistancesForCompetition(competitionId: String): List<DistanceEntity>
 
     /**
      * Удаляет дистанцию по её идентификатору.
@@ -51,7 +51,7 @@ interface DistanceDao {
     suspend fun deleteDistance(id: Long)
 
     @Query("DELETE FROM distances WHERE competitionId = :competitionId")
-    suspend fun deleteDistancesByCompetitionId(competitionId: Long)
+    suspend fun deleteDistancesByCompetitionId(competitionId: String)
 
     @Query("SELECT * FROM distances WHERE isSynced = 0 AND isDeleted = 0")
     suspend fun getUnsynced(): List<DistanceEntity>

@@ -27,7 +27,7 @@ class ParticipantListViewModel(
     private val loadingRepository: LoadingRepository
 ): BaseViewModel<ParticipantListState>(ParticipantListState()) {
 
-    val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
+    val competitionId: String? = navigation.getArguments<String>(EventsConstants.EVENT_ID.name)
 
     override fun onAction(action: BaseAction) {
         when(action) {

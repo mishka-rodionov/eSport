@@ -53,7 +53,7 @@ class UserRegistrationsViewModel(
         }
     }
 
-    private fun openEventDetails(eventId: Long) {
+    private fun openEventDetails(eventId: String) {
         viewModelScope.launch {
             navigation.navigate(EventsNavigation.EventDetailsRoute(eventId = eventId))
         }

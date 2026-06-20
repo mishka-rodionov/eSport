@@ -24,7 +24,7 @@ import org.koin.androidx.compose.koinViewModel
  */
 @Composable
 fun CreateParticipantGroupScreen(
-    competitionId: Long,
+    competitionId: String,
     viewModel: OrienteeringCreatorViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -143,10 +143,10 @@ private fun CreateParticipantGroupFilledPreview() {
             state = OrienteeringCreatorState(
                 participantGroups = listOf(
                     ParticipantGroup(
-                        groupId = 1, competitionId = 1, title = "М21", distanceId = 1, minAge = 21,
+                        groupId = 1, competitionId = "1", title = "М21", distanceId = 1, minAge = 21,
                         gender = Gender.MALE,
                     ),
-                    ParticipantGroup(groupId = 2, competitionId = 1, title = "Ж18", distanceId = 2, minAge = 16, maxAge = 18, gender = Gender.FEMALE)
+                    ParticipantGroup(groupId = 2, competitionId = "1", title = "Ж18", distanceId = 2, minAge = 16, maxAge = 18, gender = Gender.FEMALE)
                 )
             ),
             onBack = {},

@@ -184,7 +184,7 @@ fun ParticipantGroupEditor(
                             OrienteeringCreatorAction.CreateParticipantGroup(
                                 participantGroup = ParticipantGroup(
                                     groupId = initialGroup?.groupId ?: 0L,
-                                    competitionId = state.competitionId ?: 0L,
+                                    competitionId = state.competitionId.orEmpty(),
                                     title = groupTitle,
                                     gender = selectedGender,
                                     minAge = minAge.toIntOrNull(),

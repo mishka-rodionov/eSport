@@ -63,7 +63,7 @@ class OrienteeringCompetitionInteractor(
      * Помечает группы как несинхронизированные. Worker подхватит и выгрузит на сервер.
      */
     suspend fun publishGroupsToServer(
-        remoteCompetitionId: Long,
+        competitionId: String,
         groups: List<ParticipantGroup>
     ): Result<Unit> {
         return runCatching {
@@ -83,7 +83,7 @@ class OrienteeringCompetitionInteractor(
         orienteeringCompetition: OrienteeringCompetition,
         participantGroups: List<ParticipantGroup>? = null
     ): OrienteeringCreatorAction {
-        val competitionId = orienteeringCompetition.localCompetitionId
+        val competitionId = orienteeringCompetition.competitionId
 
         // 1. Пытаемся обновить на сервере
 //        remoteRepository.updateCompetition(orienteeringCompetition).onSuccess {
@@ -105,7 +105,7 @@ class OrienteeringCompetitionInteractor(
     ) {
         localRepository.updateCompetition(orienteeringCompetition).onSuccess {
             participantGroups?.let {
-                localRepository.updateParticipantsGroups(orienteeringCompetition.localCompetitionId, participantGroups)
+                localRepository.updateParticipantsGroups(orienteeringCompetition.competitionId, participantGroups)
             }
         }.onFailure {
 
@@ -119,11 +119,11 @@ class OrienteeringCompetitionInteractor(
      * @param competitionId Идентификатор соревнования
      * @return Данные соревнования или null, если соревнование не найдено
      */
-    suspend fun getCompetition(competitionId: Long): OrienteeringCompetition? {
+    suspend fun getCompetition(competitionId: String): OrienteeringCompetition? {
         return localRepository.getCompetition(competitionId).getOrNull()
     }
 
-    suspend fun getCompetitionWithDetails(competitionId: Long): Result<OrienteeringCompetitionDetails> {
+    suspend fun getCompetitionWithDetails(competitionId: String): Result<OrienteeringCompetitionDetails> {
         return localRepository.getCompetitionWithDetails(competitionId)
     }
 
@@ -218,7 +218,7 @@ class OrienteeringCompetitionInteractor(
      * @param competitionId Идентификатор соревнования.
      * @return Result операции удаления.
      */
-    suspend fun deleteCompetition(competitionId: Long): Result<Unit> {
+    suspend fun deleteCompetition(competitionId: String): Result<Unit> {
         return localRepository.deleteCompetition(competitionId).also { touch() }
     }
 
@@ -271,7 +271,7 @@ class OrienteeringCompetitionInteractor(
      * Сохраняет группы локально. Worker позже выгрузит их на сервер.
      */
     suspend fun createParticipantsGroupsInfo(
-        competitionId: Long,
+        competitionId: String,
         participantGroups: List<ParticipantGroup>
     ) {
         localSaveParticipantGroups(participantGroups)
@@ -298,7 +298,7 @@ class OrienteeringCompetitionInteractor(
      * @param competitionId Идентификатор соревнования
      * @return Result со списком участников или ошибкой
      */
-    suspend fun getParticipants(competitionId: Long): Result<List<OrienteeringParticipant>> {
+    suspend fun getParticipants(competitionId: String): Result<List<OrienteeringParticipant>> {
         return localRepository.getParticipants(competitionId = competitionId)
     }
 
@@ -310,7 +310,7 @@ class OrienteeringCompetitionInteractor(
      * @return Result с данными участника или ошибкой
      */
     suspend fun getParticipantByChipNumber(
-        competitionId: Long,
+        competitionId: String,
         chipNumber: Int
     ): Result<OrienteeringParticipant> {
         return localRepository.getParticipantByChipNumber(
@@ -450,7 +450,7 @@ class OrienteeringCompetitionInteractor(
         return updatedResults
     }
 
-    suspend fun getResultsByGroups(competitionId: Long): Result<List<GroupWithParticipantsAndResults>> {
+    suspend fun getResultsByGroups(competitionId: String): Result<List<GroupWithParticipantsAndResults>> {
         return localRepository.getResultByGroups(competitionId)
     }
 
@@ -460,7 +460,7 @@ class OrienteeringCompetitionInteractor(
      * @param competitionId Идентификатор соревнования.
      * @return Результат операции.
      */
-    suspend fun approveResults(competitionId: Long): Result<Any> {
+    suspend fun approveResults(competitionId: String): Result<Any> {
         return localRepository.updateIsEditableForCompetition(competitionId, false).also { touch() }
     }
 
@@ -487,12 +487,12 @@ class OrienteeringCompetitionInteractor(
      * @param remoteCompetitionId Серверный ID соревнования.
      * @param localCompetitionId Локальный ID соревнования в Room.
      */
-    suspend fun fetchAndSyncFromServer(remoteCompetitionId: Long, localCompetitionId: Long) {
+    suspend fun fetchAndSyncFromServer(competitionId: String) {
         val serverDistances = remoteRepository
-            .getDistancesForCompetition(remoteCompetitionId, localCompetitionId)
+            .getDistancesForCompetition(competitionId)
             .getOrNull() ?: return
 
-        val existingByRemoteId = localRepository.getDistances(localCompetitionId)
+        val existingByRemoteId = localRepository.getDistances(competitionId)
             .getOrNull().orEmpty()
             .associateBy { it.remoteId }
 
@@ -505,22 +505,22 @@ class OrienteeringCompetitionInteractor(
             }
         }
 
-        val remoteToLocalDistanceId = localRepository.getDistances(localCompetitionId)
+        val remoteToLocalDistanceId = localRepository.getDistances(competitionId)
             .getOrNull().orEmpty()
             .filter { it.remoteId != null }
             .associate { it.remoteId!! to it.id }
 
         val serverGroups = remoteRepository
-            .getCompetitionParticipantsGroups(remoteCompetitionId)
+            .getCompetitionParticipantsGroups(competitionId)
             .getOrNull() ?: return
 
         val fixedGroups = serverGroups.map { group ->
             group.copy(
-                competitionId = localCompetitionId,
+                competitionId = competitionId,
                 distanceId = remoteToLocalDistanceId[group.distanceId] ?: group.distanceId
             )
         }
-        localRepository.updateParticipantsGroups(localCompetitionId, fixedGroups, markUnsynced = false)
+        localRepository.updateParticipantsGroups(competitionId, fixedGroups, markUnsynced = false)
     }
 
     /**
@@ -536,13 +536,13 @@ class OrienteeringCompetitionInteractor(
      * @param remoteCompetitionId Серверный ID соревнования.
      * @param localCompetitionId Локальный ID соревнования в Room.
      */
-    suspend fun fetchAndSyncParticipantsFromServer(remoteCompetitionId: Long, localCompetitionId: Long) {
+    suspend fun fetchAndSyncParticipantsFromServer(competitionId: String) {
         val serverParticipants = remoteRepository
-            .getParticipantsForCompetition(remoteCompetitionId)
+            .getParticipantsForCompetition(competitionId)
             .getOrNull() ?: return
 
         // Карта serverGroupId → localGroupId для корректной привязки участника к группе
-        val remoteToLocalGroupId = localRepository.getCompetitionWithDetails(localCompetitionId)
+        val remoteToLocalGroupId = localRepository.getCompetitionWithDetails(competitionId)
             .getOrNull()
             ?.groupsWithParticipants
             ?.map { it.group }
@@ -551,7 +551,7 @@ class OrienteeringCompetitionInteractor(
             ?: emptyMap()
 
         // Сохраняем локальные isChipGiven — сервер не является источником истины для этого поля
-        val existingChipGivenById = localRepository.getParticipants(localCompetitionId)
+        val existingChipGivenById = localRepository.getParticipants(competitionId)
             .getOrNull().orEmpty()
             .associate { it.id to it.isChipGiven }
 
@@ -559,7 +559,7 @@ class OrienteeringCompetitionInteractor(
             val localGroupId = remoteToLocalGroupId[serverParticipant.groupId] ?: serverParticipant.groupId
             val preservedIsChipGiven = existingChipGivenById[serverParticipant.id] ?: serverParticipant.isChipGiven
             val participantToSave = serverParticipant.copy(
-                competitionId = localCompetitionId,
+                competitionId = competitionId,
                 groupId = localGroupId,
                 isChipGiven = preservedIsChipGiven
             )
@@ -585,8 +585,7 @@ class OrienteeringCompetitionInteractor(
      * Помечает дистанции как несинхронизированные. Worker выгрузит их на сервер при появлении сети.
      */
     suspend fun publishDistancesToServer(
-        remoteCompetitionId: Long,
-        localCompetitionId: Long,
+        competitionId: String,
         distances: List<Distance>
     ): Result<List<Distance>> {
         return runCatching {
@@ -622,14 +621,14 @@ class OrienteeringCompetitionInteractor(
     /**
      * Получает список дистанций соревнования.
      */
-    suspend fun getDistances(competitionId: Long): Result<List<Distance>> {
+    suspend fun getDistances(competitionId: String): Result<List<Distance>> {
         return localRepository.getDistances(competitionId)
     }
 
     /**
      * Помечает соревнование как «жеребьёвка проведена» и сохраняет в локальной БД.
      */
-    suspend fun setDrawConducted(competitionId: Long) {
+    suspend fun setDrawConducted(competitionId: String) {
         val competition = localRepository.getCompetition(competitionId).getOrNull() ?: return
         localRepository.updateCompetition(competition.copy(isDrawConducted = true))
         touch()
@@ -639,7 +638,7 @@ class OrienteeringCompetitionInteractor(
      * Возвращает true, если все участники соревнования имеют терминальный статус результата.
      * Не изменяет никакие данные.
      */
-    suspend fun areAllParticipantsFinished(competitionId: Long): Boolean {
+    suspend fun areAllParticipantsFinished(competitionId: String): Boolean {
         val participants = localRepository.getParticipants(competitionId).getOrNull() ?: return false
         if (participants.isEmpty()) return false
         val terminalStatuses = setOf(ResultStatus.FINISHED, ResultStatus.DSQ, ResultStatus.DNS, ResultStatus.DNF)
@@ -663,7 +662,7 @@ class OrienteeringCompetitionInteractor(
      * @param competitionId Идентификатор соревнования.
      * @return true если статус был автоматически переключён.
      */
-    suspend fun tryAutoStartFromRegistration(competitionId: Long): Boolean {
+    suspend fun tryAutoStartFromRegistration(competitionId: String): Boolean {
         val competition = localRepository.getCompetition(competitionId).getOrNull() ?: return false
         val base = competition.competition
         val regEnd = base.registrationEnd
@@ -690,7 +689,7 @@ class OrienteeringCompetitionInteractor(
      * @param competitionId Идентификатор соревнования.
      * @return true если автоматически перевёл соревнование в FINISHED.
      */
-    suspend fun tryAutoFinish(competitionId: Long): Boolean {
+    suspend fun tryAutoFinish(competitionId: String): Boolean {
         val participants = localRepository.getParticipants(competitionId).getOrNull() ?: return false
         if (participants.isEmpty()) return false
 
@@ -719,7 +718,7 @@ class OrienteeringCompetitionInteractor(
      *
      * Вызывается при завершении соревнования.
      */
-    suspend fun markNonFinishedAsDNF(competitionId: Long) {
+    suspend fun markNonFinishedAsDNF(competitionId: String) {
         val participants = localRepository.getParticipants(competitionId).getOrNull() ?: return
         val terminalStatuses = setOf(ResultStatus.FINISHED, ResultStatus.DSQ, ResultStatus.DNS)
 

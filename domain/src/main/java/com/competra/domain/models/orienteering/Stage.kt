@@ -2,7 +2,7 @@ package com.competra.domain.models.orienteering
 
 data class Stage(
     val remoteId: Long? = null,
-    val competitionId: Long,
+    val competitionId: String,
     val stageNumber: Int,
     val startDate: Long,
     val endDate: Long? = null,

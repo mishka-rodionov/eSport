@@ -15,7 +15,7 @@ import com.competra.local.converters.CompetitionConverters
 /**
  * Сущность соревнования по ориентированию для базы данных Room.
  * 
- * @property localCompetitionId Уникальный идентификатор
+ * @property competitionId Глобально-уникальный клиентский UUID соревнования (PK, единый id на всех платформах)
  * @property competition Базовая информация о соревновании
  * @property direction Направление
  * @property punchingSystem Система отметки
@@ -29,8 +29,8 @@ import com.competra.local.converters.CompetitionConverters
 )
 @TypeConverters(CompetitionConverters::class)
 data class OrienteeringCompetitionEntity(
-    @PrimaryKey(autoGenerate = true)
-    val localCompetitionId: Long = 0,
+    @PrimaryKey
+    val competitionId: String,
     @Embedded
     val competition: Competition,
     val direction: OrienteeringDirection,

@@ -24,7 +24,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ParticipantSplitsScreen(
     participantId: String,
-    competitionId: Long,
+    competitionId: String,
     viewModel: ParticipantSplitsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()

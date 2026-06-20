@@ -639,7 +639,7 @@ fun OrienteeringEventControlScreenPreview() {
                 isTimerRunning = true,
                 countdownMillis = 120000L,
                 competition = OrienteeringCompetition(
-                    localCompetitionId = 1L,
+                    competitionId = "1",
                     competition = Competition(
                         title = "Чемпионат города по ориентированию",
                         startDate = System.currentTimeMillis(),

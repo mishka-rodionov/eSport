@@ -27,7 +27,7 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     }
 
     override suspend fun createParticipantsGroupsForCompetition(
-        competitionId: Long,
+        competitionId: String,
         participantGroups: List<ParticipantGroup>
     ): Result<List<ParticipantGroup>> {
         return orienteeringCompetitionRemoteDataSource.createCompetitionParticipantGroup(
@@ -36,14 +36,14 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     }
 
     override suspend fun publishGroupsForCompetition(
-        remoteCompetitionId: Long,
+        competitionId: String,
         participantGroups: List<ParticipantGroup>
     ): Result<List<ParticipantGroup>> {
         return orienteeringCompetitionRemoteDataSource.publishParticipantGroups(
             participantGroups.map { group ->
                 ParticipantGroupPublishRequest(
                     groupId = group.remoteId,  // null для новых, Long для существующих
-                    competitionId = remoteCompetitionId,
+                    competitionId = competitionId,
                     title = group.title,
                     gender = group.gender?.name,
                     minAge = group.minAge,
@@ -66,11 +66,10 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     }
 
     override suspend fun publishDistancesForCompetition(
-        remoteCompetitionId: Long,
-        localCompetitionId: Long,
+        competitionId: String,
         distances: List<Distance>
     ): Result<List<Distance>> {
-        val requests = distances.map { it.toRequest(remoteCompetitionId) }
+        val requests = distances.map { it.toRequest() }
         return orienteeringCompetitionRemoteDataSource.saveDistances(requests)
             .mapCatching { response ->
                 // Сопоставляем локальные дистанции с серверными по порядку (zip),
@@ -85,21 +84,20 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
             }
     }
 
-    override suspend fun getCompetitionById(competitionId: Long): Result<OrienteeringCompetition> {
+    override suspend fun getCompetitionById(competitionId: String): Result<OrienteeringCompetition> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getCompetitionParticipantsGroups(competitionId: Long): Result<List<ParticipantGroup>> {
+    override suspend fun getCompetitionParticipantsGroups(competitionId: String): Result<List<ParticipantGroup>> {
         return orienteeringCompetitionRemoteDataSource.getParticipantGroups(competitionId)
             .mapCatching { it.result!!.map { gr -> gr.toDomain() } }
     }
 
     override suspend fun getDistancesForCompetition(
-        remoteCompetitionId: Long,
-        localCompetitionId: Long
+        competitionId: String
     ): Result<List<Distance>> {
-        return orienteeringCompetitionRemoteDataSource.getDistances(remoteCompetitionId)
-            .mapCatching { it.result!!.map { dist -> dist.toDomain(localCompetitionId) } }
+        return orienteeringCompetitionRemoteDataSource.getDistances(competitionId)
+            .mapCatching { it.result!!.map { dist -> dist.toDomain(competitionId) } }
     }
 
     override suspend fun updateCompetition(competition: OrienteeringCompetition): Result<OrienteeringCompetition> {
@@ -107,17 +105,17 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
     }
 
     override suspend fun updateCompetitionParticipantsGroups(
-        competitionId: Long,
+        competitionId: String,
         participantGroups: List<ParticipantGroup>
     ): Result<List<ParticipantGroup>> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteCompetition(competitionId: Long): Result<Unit> {
+    override suspend fun deleteCompetition(competitionId: String): Result<Unit> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteCompetitionParticipantsGroups(competitionId: Long): Result<Unit> {
+    override suspend fun deleteCompetitionParticipantsGroups(competitionId: String): Result<Unit> {
         TODO("Not yet implemented")
     }
 
@@ -142,8 +140,8 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
             .mapCatching { it.result!!.map { r -> r.toDomain() } }
     }
 
-    override suspend fun getParticipantsForCompetition(remoteCompetitionId: Long): Result<List<OrienteeringParticipant>> {
-        return orienteeringCompetitionRemoteDataSource.getParticipantsByCompetition(remoteCompetitionId)
+    override suspend fun getParticipantsForCompetition(competitionId: String): Result<List<OrienteeringParticipant>> {
+        return orienteeringCompetitionRemoteDataSource.getParticipantsByCompetition(competitionId)
             .mapCatching {
                 it.result!!
                     .map { p -> p.toDomain() }
@@ -158,13 +156,13 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
             .mapCatching { it.result!!.toDomain() }
     }
 
-    override suspend fun getResultsByCompetition(competitionId: Long): Result<List<OrienteeringResult>> {
+    override suspend fun getResultsByCompetition(competitionId: String): Result<List<OrienteeringResult>> {
         return orienteeringCompetitionRemoteDataSource.getResultsByCompetition(competitionId)
             .mapCatching { it.result!!.map { r -> r.toDomain() } }
     }
 
-    override suspend fun deleteCompetitionRemotely(remoteCompetitionId: Long): Result<Unit> =
-        orienteeringCompetitionRemoteDataSource.deleteCompetition(remoteCompetitionId).mapCatching { }
+    override suspend fun deleteCompetitionRemotely(competitionId: String): Result<Unit> =
+        orienteeringCompetitionRemoteDataSource.deleteCompetition(competitionId).mapCatching { }
 
     override suspend fun deleteGroupRemotely(remoteGroupId: Long): Result<Unit> =
         orienteeringCompetitionRemoteDataSource.deleteParticipantGroup(remoteGroupId).mapCatching { }

@@ -6,8 +6,10 @@ import com.google.gson.annotations.SerializedName
  * Ответ сервера с данными о соревновании.
  */
 data class CompetitionResponse(
-    @SerializedName("remoteId")
-    val remoteId: Long?,
+    @SerializedName("id")
+    val id: String,
+    @SerializedName("legacyId")
+    val legacyId: Long? = null,
     @SerializedName("title")
     val title: String,
     @SerializedName("startDate")

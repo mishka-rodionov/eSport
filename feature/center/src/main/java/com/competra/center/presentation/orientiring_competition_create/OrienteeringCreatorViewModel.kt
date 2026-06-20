@@ -245,7 +245,7 @@ class OrienteeringCreatorViewModel(
      * 
      * @param competitionId Идентификатор соревнования.
      */
-    fun initialize(competitionId: Long?) {
+    fun initialize(competitionId: String?) {
         if (competitionId == null) return
         if (stateValue.competitionId == competitionId) return
 
@@ -263,7 +263,6 @@ class OrienteeringCreatorViewModel(
             updateState {
                 copy(
                     competitionId = competitionId,
-                    remoteCompetitionId = comp.competition.remoteId,
                     title = comp.competition.title,
                     imageUrl = comp.competition.imageUrl,
                     timeZoneId = comp.competition.timeZoneId,
@@ -308,12 +307,12 @@ class OrienteeringCreatorViewModel(
             // Если локальные дистанции уже есть — пользователь мог внести правки на предыдущем
             // шаге (saved silent=true без отправки на сервер). Повторный sync перезаписал бы их
             // серверными данными, уничтожив несохранённые изменения.
-            val remoteId = comp.competition.remoteId
-            if (remoteId != null) {
+            // Соревнование подтверждено сервером (serverUpdatedAt != null) — подтягиваем дистанции/группы.
+            if (comp.serverUpdatedAt != null) {
                 val hasLocalDistances = orienteeringCompetitionInteractor
                     .getDistances(competitionId).getOrNull().orEmpty().isNotEmpty()
                 if (!hasLocalDistances) {
-                    orienteeringCompetitionInteractor.fetchAndSyncFromServer(remoteId, competitionId)
+                    orienteeringCompetitionInteractor.fetchAndSyncFromServer(competitionId)
                 }
             }
 
@@ -348,13 +347,8 @@ class OrienteeringCreatorViewModel(
                 orienteeringCompetitionInteractor.updateCompetitionNew(competition, silent = true)
             }
             result.onSuccess {
-                val id = it.localCompetitionId
-                val remoteId = it.competition.remoteId
                 updateState {
-                    copy(
-                        competitionId = id,
-                        remoteCompetitionId = remoteId ?: remoteCompetitionId
-                    )
+                    copy(competitionId = it.competitionId)
                 }
                 analytics.trackEvent(
                     AnalyticsEvent.CreateCompetitionStepCompleted(AnalyticsEvent.CreateCompetitionStep.COMMON)
@@ -362,7 +356,7 @@ class OrienteeringCreatorViewModel(
                 viewModelScope.launch(Dispatchers.Main) {
                     navigation.navigate(
                         CenterNavigation.RegistrationCompetitionFieldRoute(
-                            competitionId = id
+                            competitionId = it.competitionId
                         )
                     )
                 }
@@ -412,7 +406,7 @@ class OrienteeringCreatorViewModel(
             viewModelScope.launch(Dispatchers.Main) {
                 navigation.navigate(
                     CenterNavigation.OrganizatorCompetitionFieldRoute(
-                        competitionId = stateValue.competitionId ?: 1L
+                        competitionId = stateValue.competitionId.orEmpty()
                     )
                 )
             }
@@ -443,7 +437,7 @@ class OrienteeringCreatorViewModel(
             viewModelScope.launch(Dispatchers.Main) {
                 navigation.navigate(
                     CenterNavigation.CreateDistanceRoute(
-                        competitionId = stateValue.competitionId ?: 1L
+                        competitionId = stateValue.competitionId.orEmpty()
                     )
                 )
             }
@@ -461,7 +455,7 @@ class OrienteeringCreatorViewModel(
         viewModelScope.launch(Dispatchers.Main) {
             navigation.navigate(
                 CenterNavigation.CreateParticipantGroupRoute(
-                    competitionId = stateValue.competitionId ?: 1L
+                    competitionId = stateValue.competitionId.orEmpty()
                 )
             )
         }
@@ -500,31 +494,27 @@ class OrienteeringCreatorViewModel(
                 .onSuccess { serverCompetition ->
                     analytics.trackEvent(
                         AnalyticsEvent.CreateCompetitionFinished(
-                            competitionId = serverCompetition.competition.remoteId ?: competition.localCompetitionId,
+                            competitionId = competition.competitionId,
                             kindOfSport = KIND_ORIENTEERING,
                         )
                     )
-                    serverCompetition.competition.remoteId?.let { remoteId ->
-                        // Загружаем дистанции из локальной БД и помечаем их unsynced —
-                        // worker сам выгрузит их и проставит remoteId.
-                        val distances = orienteeringCompetitionInteractor
-                            .getDistances(competition.localCompetitionId)
-                            .getOrDefault(emptyList())
-                        if (distances.isNotEmpty()) {
-                            orienteeringCompetitionInteractor.publishDistancesToServer(
-                                remoteCompetitionId = remoteId,
-                                localCompetitionId = competition.localCompetitionId,
-                                distances = distances
-                            )
-                        }
-
-                        // Группы передаём с ЛОКАЛЬНЫМ distanceId — маппинг local→remote
-                        // делает SyncOrchestrator.syncGroups перед отправкой. Если подменять
-                        // distanceId здесь, worker не найдёт дистанцию по локальному PK и
-                        // отфильтрует группу как «не готовую к синку» (см. SyncOrchestrator
-                        // строки 275-278) — запрос на сервер просто не уйдёт.
-                        orienteeringCompetitionInteractor.publishGroupsToServer(remoteId, freshGroups)
+                    // Загружаем дистанции из локальной БД и помечаем их unsynced —
+                    // worker сам выгрузит их при готовности соревнования на сервере.
+                    val distances = orienteeringCompetitionInteractor
+                        .getDistances(competition.competitionId)
+                        .getOrDefault(emptyList())
+                    if (distances.isNotEmpty()) {
+                        orienteeringCompetitionInteractor.publishDistancesToServer(
+                            competitionId = competition.competitionId,
+                            distances = distances
+                        )
                     }
+
+                    // Группы передаём с ЛОКАЛЬНЫМ distanceId — маппинг local→remote
+                    // делает SyncOrchestrator.syncGroups перед отправкой. Если подменять
+                    // distanceId здесь, worker не найдёт дистанцию по локальному PK и
+                    // отфильтрует группу как «не готовую к синку» — запрос на сервер не уйдёт.
+                    orienteeringCompetitionInteractor.publishGroupsToServer(competition.competitionId, freshGroups)
                 }
                 .onFailure { error ->
                     updateState { copy(error = error.message) }

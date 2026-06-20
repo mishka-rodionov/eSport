@@ -34,7 +34,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GetOrienteeringChipScreen(
-    competitionId: Long,
+    competitionId: String,
     viewModel: GetOrienteeringChipViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()

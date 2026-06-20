@@ -18,7 +18,7 @@ import com.competra.ui.BaseState
  * @property eventStatus Текущий статус события. Кнопка регистрации показывается только при [EventStatus.REGISTRATION].
  */
 data class EventParticipantGroupState(
-    val eventId: Long? = null,
+    val eventId: String? = null,
     val participantGroup: EventParticipantGroup? = null,
     val participants: List<OrienteeringParticipant> = emptyList(),
     val isLoading: Boolean = false,

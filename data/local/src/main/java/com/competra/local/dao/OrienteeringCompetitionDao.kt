@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.Flow
 interface OrienteeringCompetitionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(competition: OrienteeringCompetitionEntity): Long
+    suspend fun insert(competition: OrienteeringCompetitionEntity)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAll(competitions: List<OrienteeringCompetitionEntity>): List<Long>
+    suspend fun insertAll(competitions: List<OrienteeringCompetitionEntity>)
 
     @Update
     suspend fun update(competition: OrienteeringCompetitionEntity)
@@ -27,32 +27,32 @@ interface OrienteeringCompetitionDao {
     @Query("SELECT * FROM orienteering_competitions")
     fun getAll(): Flow<List<OrienteeringCompetitionEntity>>
 
-    @Query("SELECT * FROM orienteering_competitions WHERE localCompetitionId = :id")
-    suspend fun getCompetitionById(id: Long): OrienteeringCompetitionEntity?
+    @Query("SELECT * FROM orienteering_competitions WHERE competitionId = :id")
+    suspend fun getCompetitionById(id: String): OrienteeringCompetitionEntity?
 
-    @Query("SELECT * FROM orienteering_competitions WHERE localCompetitionId IN (:ids)")
-    suspend fun getByIds(ids: List<Long>): List<OrienteeringCompetitionEntity>
+    @Query("SELECT * FROM orienteering_competitions WHERE competitionId IN (:ids)")
+    suspend fun getByIds(ids: List<String>): List<OrienteeringCompetitionEntity>
 
     @Delete
     suspend fun delete(competition: OrienteeringCompetitionEntity)
 
-    @Query("DELETE FROM orienteering_competitions WHERE localCompetitionId = :competitionId")
-    suspend fun deleteById(competitionId: Long)
+    @Query("DELETE FROM orienteering_competitions WHERE competitionId = :competitionId")
+    suspend fun deleteById(competitionId: String)
 
     @Query("DELETE FROM orienteering_competitions")
     suspend fun clearAll()
 
     @Transaction
-    @Query("SELECT * FROM orienteering_competitions WHERE localCompetitionId = :id")
-    suspend fun getCompetitionWithGroups(id: Long): OrienteeringCompetitionWithGroups
+    @Query("SELECT * FROM orienteering_competitions WHERE competitionId = :id")
+    suspend fun getCompetitionWithGroups(id: String): OrienteeringCompetitionWithGroups
 
     @Transaction
     @Query("SELECT * FROM orienteering_competitions")
     suspend fun getAllCompetitionsWithGroups(): List<OrienteeringCompetitionWithGroups>
 
     @Transaction // Обязательно для вложенных связей!
-    @Query("SELECT * FROM orienteering_competitions WHERE localCompetitionId = :competitionId")
-    suspend fun getCompetitionWithDetails(competitionId: Long): OrienteeringCompetitionWithDetails
+    @Query("SELECT * FROM orienteering_competitions WHERE competitionId = :competitionId")
+    suspend fun getCompetitionWithDetails(competitionId: String): OrienteeringCompetitionWithDetails
 
     @Transaction
     @Query("SELECT * FROM orienteering_competitions")

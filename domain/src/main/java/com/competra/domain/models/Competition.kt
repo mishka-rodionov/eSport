@@ -10,7 +10,6 @@ import com.competra.domain.models.orienteering.ResultsStatus
  * Представляет общую информацию о спортивном событии, включая его сроки, место проведения,
  * организаторов, условия участия и статус синхронизации с сервером.
  *
- * @property remoteId Идентификатор соревнования на сервере (null, если запись еще не синхронизирована).
  * @property title Название соревнования.
  * @property startDate Дата и время начала соревнования (Unix timestamp в мс).
  * @property endDate Дата и время окончания соревнования (Unix timestamp в мс).
@@ -42,7 +41,9 @@ import com.competra.domain.models.orienteering.ResultsStatus
  * @property serverUpdatedAt Серверный updatedAt последней успешной синхронизации (для conflict detection).
  */
 data class Competition(
-    val remoteId: Long? = null,
+    /** UUID соревнования. Для плоского публичного списка (без обёртки OrienteeringCompetition)
+     *  это единственный носитель идентификатора; в обёртке дублирует OrienteeringCompetition.competitionId. */
+    val id: String = "",
     val title: String,
     val startDate: Long,
     val endDate: Long? = null,

@@ -17,7 +17,7 @@ data class DistanceRequest(
     @SerializedName("distanceId")
     val distanceId: Long?,
     @SerializedName("competitionId")
-    val competitionId: Long,
+    val competitionId: String,
     @SerializedName("name")
     val name: String?,
     @SerializedName("lengthMeters")

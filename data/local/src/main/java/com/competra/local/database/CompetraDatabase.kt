@@ -22,7 +22,10 @@ import com.competra.local.entities.orienteering.ParticipantGroupEntity
 import com.competra.local.entities.orienteering.StageEntity
 import com.competra.local.entities.user.UserEntity
 
-private const val DB_VERSION = 41
+// v42: переход идентичности соревнования на единый клиентский UUID
+// (competitions.id/competitionId: Long → String). Локальная схема пересоздаётся
+// через fallbackToDestructiveMigration; данные подтянутся с сервера при следующем pull.
+private const val DB_VERSION = 42
 
 /**
  * Основной класс базы данных приложения (Room).

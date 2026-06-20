@@ -111,7 +111,7 @@ private fun UserRegistrationsContent(
                 RegistrationCard(
                     competition = competition,
                     onClick = {
-                        val eventId = competition.competition.remoteId ?: return@RegistrationCard
+                        val eventId = competition.competition.id.ifEmpty { return@RegistrationCard }
                         onAction(UserRegistrationsAction.OnItemClick(eventId))
                     }
                 )

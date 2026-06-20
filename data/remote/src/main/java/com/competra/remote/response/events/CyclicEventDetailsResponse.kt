@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class CyclicEventDetailsResponse(
     @SerializedName("eventId")
-    val eventId: Long,
+    val eventId: String,
     @SerializedName("organizationId")
     val organizationId: String,
     @SerializedName("title")

@@ -17,7 +17,7 @@ import com.competra.local.entities.user.UserEntity
     foreignKeys = [
         ForeignKey(
             entity = OrienteeringCompetitionEntity::class,
-            parentColumns = ["localCompetitionId"],
+            parentColumns = ["competitionId"],
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         ),
@@ -34,7 +34,7 @@ data class OrganizerEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val remoteId: Long? = null,
-    val competitionId: Long,
+    val competitionId: String,
     val userId: Long? = null,               // если пользователь есть в системе
     val name: String? = null,               // если пользователь не зарегистрирован
     val role: OrganizerRole,                // MAIN, JUDGE, SECRETARY, etc.

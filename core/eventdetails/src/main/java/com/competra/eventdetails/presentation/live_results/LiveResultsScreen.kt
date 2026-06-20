@@ -54,7 +54,7 @@ import java.util.Locale
  */
 @Composable
 fun LiveResultsScreen(
-    eventId: Long,
+    eventId: String,
     viewModel: LiveResultsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -255,7 +255,7 @@ private fun previewParticipant(
     lastName = lastName,
     groupId = 1,
     groupName = "М21",
-    competitionId = 1,
+    competitionId = "1",
     commandName = "",
     startNumber = startNumber,
     startTime = startTime,
@@ -272,7 +272,7 @@ private fun previewResult(
     splits: List<SplitTime>? = null
 ) = OrienteeringResult(
     id = 1,
-    competitionId = 1,
+    competitionId = "1",
     groupId = 1,
     participantId = participantId,
     startTime = 1_700_000_000_000L,
@@ -285,7 +285,7 @@ private fun previewResult(
 
 private fun previewGroup(title: String, gender: Gender? = null) = ParticipantGroup(
     groupId = 1,
-    competitionId = 1,
+    competitionId = "1",
     title = title,
     gender = gender,
     distanceId = 1

@@ -16,7 +16,7 @@ import com.competra.remote.request.orienteering.SplitTimeRequest
 
 fun OrienteeringCompetition.toRequest(): OrienteeringCompetitionRequest {
     return OrienteeringCompetitionRequest(
-        competitionId = localCompetitionId,
+        competitionId = competitionId,
         competition = competition.toRequest(),
         direction = direction.name,
         punchingSystem = punchingSystem.name,
@@ -44,10 +44,10 @@ fun ParticipantGroup.toRequest(): ParticipantGroupRequest {
     )
 }
 
-fun Distance.toRequest(remoteCompetitionId: Long): DistanceRequest {
+fun Distance.toRequest(): DistanceRequest {
     return DistanceRequest(
         distanceId = remoteId,
-        competitionId = remoteCompetitionId,
+        competitionId = competitionId,
         name = name,
         lengthMeters = lengthMeters,
         climbMeters = climbMeters,

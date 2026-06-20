@@ -49,22 +49,22 @@ interface OrienteeringCompetitionRemoteDataSource {
     suspend fun saveDistances(@Body request: List<DistanceRequest>): Result<CommonModel<List<DistanceResponse>>>
 
     @GET("event/orienteering/distances")
-    suspend fun getDistances(@Query("competitionId") competitionId: Long): Result<CommonModel<List<DistanceResponse>>>
+    suspend fun getDistances(@Query("competitionId") competitionId: String): Result<CommonModel<List<DistanceResponse>>>
 
     @GET("event/orienteering/participantGroups")
-    suspend fun getParticipantGroups(@Query("competitionId") competitionId: Long): Result<CommonModel<List<ParticipantGroupResponse>>>
+    suspend fun getParticipantGroups(@Query("competitionId") competitionId: String): Result<CommonModel<List<ParticipantGroupResponse>>>
 
     @GET("event/orienteering/participants/competition")
-    suspend fun getParticipantsByCompetition(@Query("competitionId") competitionId: Long): Result<CommonModel<List<OrienteeringParticipantResponse>>>
+    suspend fun getParticipantsByCompetition(@Query("competitionId") competitionId: String): Result<CommonModel<List<OrienteeringParticipantResponse>>>
 
     @GET("event/orienteering/results/competition")
-    suspend fun getResultsByCompetition(@Query("competitionId") competitionId: Long): Result<CommonModel<List<OrienteeringResultResponse>>>
+    suspend fun getResultsByCompetition(@Query("competitionId") competitionId: String): Result<CommonModel<List<OrienteeringResultResponse>>>
 
     @POST("event/orienteering/save/results")
     suspend fun saveResults(@Body requests: List<OrienteeringResultRequest>): Result<CommonModel<List<OrienteeringResultResponse>>>
 
     @DELETE("event/orienteering/competitions/{id}")
-    suspend fun deleteCompetition(@Path("id") id: Long): Result<CommonModel<Any>>
+    suspend fun deleteCompetition(@Path("id") id: String): Result<CommonModel<Any>>
 
     @DELETE("event/orienteering/participantGroups/{id}")
     suspend fun deleteParticipantGroup(@Path("id") id: Long): Result<CommonModel<Any>>

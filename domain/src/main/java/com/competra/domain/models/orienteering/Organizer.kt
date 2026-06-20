@@ -2,7 +2,7 @@ package com.competra.domain.models.orienteering
 
 data class Organizer(
     val remoteId: Long? = null,
-    val competitionId: Long,
+    val competitionId: String,
     val userId: Long? = null,               // если пользователь есть в системе
     val name: String? = null,               // если пользователь не зарегистрирован
     val role: OrganizerRole,                // MAIN, JUDGE, SECRETARY, etc.

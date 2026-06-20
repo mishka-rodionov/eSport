@@ -13,7 +13,7 @@ interface ParticipantGroupDao {
     suspend fun insertAll(groups: List<ParticipantGroupEntity>)
 
     @Query("SELECT * FROM participant_groups WHERE competitionId = :competitionId")
-    suspend fun getGroupsForCompetition(competitionId: Long): List<ParticipantGroupEntity>
+    suspend fun getGroupsForCompetition(competitionId: String): List<ParticipantGroupEntity>
 
     @Query("SELECT * FROM participant_groups")
     suspend fun getAll(): List<ParticipantGroupEntity>
@@ -25,7 +25,7 @@ interface ParticipantGroupDao {
     suspend fun delete(group: ParticipantGroupEntity)
 
     @Query("DELETE FROM participant_groups WHERE competitionId = :competitionId")
-    suspend fun deleteGroupsForCompetition(competitionId: Long)
+    suspend fun deleteGroupsForCompetition(competitionId: String)
 
     @Update
     suspend fun updateParticipantGroup(participantGroup: ParticipantGroupEntity)

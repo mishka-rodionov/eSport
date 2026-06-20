@@ -29,16 +29,16 @@ interface OrienteeringParticipantDao {
     suspend fun getParticipantsByGroupId(groupId: Long): List<OrienteeringParticipantEntity>
 
     @Query("SELECT * FROM orienteering_participants WHERE competitionId = :competitionId")
-    suspend fun getAllParticipants(competitionId: Long): List<OrienteeringParticipantEntity>
+    suspend fun getAllParticipants(competitionId: String): List<OrienteeringParticipantEntity>
 
     @Query("SELECT * FROM orienteering_participants WHERE competitionId = :competitionId AND chipNumber = :chipNumber")
-    suspend fun getParticipantByChipNumber(competitionId: Long, chipNumber: Int): OrienteeringParticipantEntity
+    suspend fun getParticipantByChipNumber(competitionId: String, chipNumber: Int): OrienteeringParticipantEntity
 
     @Query("DELETE FROM orienteering_participants WHERE id = :id")
     suspend fun deleteParticipantById(id: String)
 
     @Query("DELETE FROM orienteering_participants WHERE competitionId = :competitionId")
-    suspend fun deleteParticipantsByCompetitionId(competitionId: Long)
+    suspend fun deleteParticipantsByCompetitionId(competitionId: String)
 
     @Query("SELECT * FROM orienteering_participants WHERE isSynced = 0 AND isDeleted = 0")
     suspend fun getUnsynced(): List<OrienteeringParticipantEntity>

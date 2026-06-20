@@ -6,8 +6,6 @@ import com.google.gson.annotations.SerializedName
  * Запрос на создание/обновление соревнования на сервере.
  */
 data class CompetitionRequest(
-    @SerializedName("remoteId")
-    val remoteId: Long?,
     @SerializedName("title")
     val title: String,
     @SerializedName("startDate")

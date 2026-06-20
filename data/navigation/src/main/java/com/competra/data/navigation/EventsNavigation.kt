@@ -33,7 +33,7 @@ sealed class EventsNavigation: BaseNavigation {
      * @param eventId Идентификатор события.
      */
     @Serializable
-    data class EventDetailsRoute(val eventId: Long) : EventsNavigation()
+    data class EventDetailsRoute(val eventId: String) : EventsNavigation()
 
     /**
      * Роут группы участников события.
@@ -42,7 +42,7 @@ sealed class EventsNavigation: BaseNavigation {
      */
     @Serializable
     data class EventParticipantGroupRoute(
-        val eventId: Long,
+        val eventId: String,
         val participantGroup: EventParticipantGroup
     ) : EventsNavigation()
 
@@ -51,12 +51,12 @@ sealed class EventsNavigation: BaseNavigation {
      * @param eventId Идентификатор события.
      */
     @Serializable
-    data class EventResultsRoute(val eventId: Long) : EventsNavigation()
+    data class EventResultsRoute(val eventId: String) : EventsNavigation()
 
     /**
      * Роут онлайн-результатов соревнования (live режим, только для IN_PROGRESS).
      * @param eventId Идентификатор события.
      */
     @Serializable
-    data class LiveResultsRoute(val eventId: Long) : EventsNavigation()
+    data class LiveResultsRoute(val eventId: String) : EventsNavigation()
 }

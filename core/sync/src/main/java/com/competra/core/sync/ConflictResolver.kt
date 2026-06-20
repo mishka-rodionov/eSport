@@ -26,41 +26,41 @@ class ConflictResolver(
 
     private val gson = Gson()
 
-    suspend fun applyCompetitionConflict(localCompetitionId: Long, payload: String?) {
+    suspend fun applyCompetitionConflict(competitionId: String, payload: String?) {
         val response = parseResult(payload, OrienteeringCompetitionResponse::class.java) ?: return
-        val domain = response.toDomain().copy(localCompetitionId = localCompetitionId)
+        val domain = response.toDomain().copy(competitionId = competitionId)
         localRepository.updateCompetition(domain, markUnsynced = false)
     }
 
-    suspend fun applyGroupConflict(localGroupId: Long, localCompetitionId: Long, payload: String?) {
+    suspend fun applyGroupConflict(localGroupId: Long, competitionId: String, payload: String?) {
         val response = parseResult(payload, ParticipantGroupResponse::class.java) ?: return
         val domain = response.toDomain().copy(
             groupId = localGroupId,
-            competitionId = localCompetitionId
+            competitionId = competitionId
         )
         localRepository.updateParticipantGroup(domain, markUnsynced = false)
     }
 
-    suspend fun applyDistanceConflict(localDistanceId: Long, localCompetitionId: Long, payload: String?) {
+    suspend fun applyDistanceConflict(localDistanceId: Long, competitionId: String, payload: String?) {
         val response = parseResult(payload, DistanceResponse::class.java) ?: return
-        val domain = response.toDomain(localCompetitionId).copy(id = localDistanceId)
+        val domain = response.toDomain(competitionId).copy(id = localDistanceId)
         localRepository.updateDistance(domain, markUnsynced = false)
     }
 
-    suspend fun applyParticipantConflict(localCompetitionId: Long, localGroupId: Long, payload: String?) {
+    suspend fun applyParticipantConflict(competitionId: String, localGroupId: Long, payload: String?) {
         val response = parseResult(payload, OrienteeringParticipantResponse::class.java) ?: return
         val domain = response.toDomain().copy(
-            competitionId = localCompetitionId,
+            competitionId = competitionId,
             groupId = localGroupId
         )
         localRepository.updateParticipants(listOf(domain), markUnsynced = false)
     }
 
-    suspend fun applyResultConflict(localResultId: Long, localCompetitionId: Long, localGroupId: Long, payload: String?) {
+    suspend fun applyResultConflict(localResultId: Long, competitionId: String, localGroupId: Long, payload: String?) {
         val response = parseResult(payload, OrienteeringResultResponse::class.java) ?: return
         val domain = response.toDomain().copy(
             id = localResultId,
-            competitionId = localCompetitionId,
+            competitionId = competitionId,
             groupId = localGroupId
         )
         localRepository.updateResults(listOf(domain), markUnsynced = false)

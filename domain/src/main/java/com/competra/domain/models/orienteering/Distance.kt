@@ -23,7 +23,7 @@ package com.competra.domain.models.orienteering
 data class Distance(
     val id: Long = 0,
     val remoteId: Long? = null,
-    val competitionId: Long,
+    val competitionId: String,
     val name: String? = null,
     val lengthMeters: Int,
     val climbMeters: Int,

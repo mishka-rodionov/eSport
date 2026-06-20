@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.SharedFlow
  */
 interface CompetitionServiceController {
     val commands: SharedFlow<CompetitionServiceCommand>
-    suspend fun start(competitionId: Long, startTimeMs: Long)
+    suspend fun start(competitionId: String, startTimeMs: Long)
     suspend fun stop()
 }
 
 sealed class CompetitionServiceCommand {
-    data class Start(val competitionId: Long, val startTimeMs: Long) : CompetitionServiceCommand()
+    data class Start(val competitionId: String, val startTimeMs: Long) : CompetitionServiceCommand()
     data object Stop : CompetitionServiceCommand()
 }

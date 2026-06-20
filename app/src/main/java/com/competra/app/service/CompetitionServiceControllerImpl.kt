@@ -14,7 +14,7 @@ class CompetitionServiceControllerImpl : CompetitionServiceController {
     private val _commands = MutableSharedFlow<CompetitionServiceCommand>(extraBufferCapacity = 1)
     override val commands: SharedFlow<CompetitionServiceCommand> = _commands.asSharedFlow()
 
-    override suspend fun start(competitionId: Long, startTimeMs: Long) {
+    override suspend fun start(competitionId: String, startTimeMs: Long) {
         _commands.emit(CompetitionServiceCommand.Start(competitionId, startTimeMs))
     }
 

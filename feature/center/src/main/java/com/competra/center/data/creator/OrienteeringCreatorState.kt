@@ -49,8 +49,7 @@ import java.time.ZoneId
  * @property error Сообщение об ошибке.
  */
 data class OrienteeringCreatorState(
-    val competitionId: Long? = null,
-    val remoteCompetitionId: Long? = null,
+    val competitionId: String? = null,
     val title: String = "",
     val startDate: Long = System.currentTimeMillis(),
     val startTimeStr: String = "10:00",
@@ -105,9 +104,8 @@ data class OrienteeringCreatorState(
     
     fun toOrienteeringCompetition(userId: String?): OrienteeringCompetition {
         return OrienteeringCompetition(
-            localCompetitionId = competitionId ?: 0L,
+            competitionId = competitionId ?: java.util.UUID.randomUUID().toString(),
             competition = Competition(
-                remoteId = remoteCompetitionId,
                 title = title,
                 startDate = startDate,
                 endDate = endDate,

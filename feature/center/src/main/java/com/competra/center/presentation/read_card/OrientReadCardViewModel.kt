@@ -35,7 +35,7 @@ class OrientReadCardViewModel(
     private val analytics: AnalyticsTracker,
 ) : BaseViewModel<OrientReadCardState>(OrientReadCardState()) {
 
-    val competitionId: Long? = navigation.getArguments<Long>(EventsConstants.EVENT_ID.name)
+    val competitionId: String? = navigation.getArguments<String>(EventsConstants.EVENT_ID.name)
 
     override fun onAction(action: BaseAction) {
         if (action !is OrientReadCardAction) return

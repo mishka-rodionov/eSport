@@ -112,9 +112,9 @@ class MockInterceptor : Interceptor {
         val zoneId = ZoneId.systemDefault()
         val mockOrienteeringResponse = listOf(
             OrienteeringCompetitionResponse(
-                competitionId = 1,
+                competitionId = "mock-comp-1",
                 competition = CompetitionResponse(
-                    remoteId = 1L,
+                    id = "mock-comp-1",
                     title = "Городские соревнования",
                     startDate = LocalDate.parse("2025-08-25").atStartOfDay(zoneId).toInstant().toEpochMilli(),
                     endDate = LocalDate.parse("2025-08-26").atStartOfDay(zoneId).toInstant().toEpochMilli(),
@@ -145,12 +145,12 @@ class MockInterceptor : Interceptor {
                 startTimeMode = StartTimeMode.STRICT
             ),
             OrienteeringCompetitionResponse(
-                competitionId = 2,
+                competitionId = "mock-comp-2",
                 direction = OrienteeringDirection.FORWARD.name,
                 punchingSystem = PunchingSystem.SPORTIDUINO,
                 startTimeMode = StartTimeMode.STRICT,
                 competition = CompetitionResponse(
-                    remoteId = 2L,
+                    id = "mock-comp-2",
                     title = "Городские соревнования #2",
                     startDate = LocalDate.parse("2025-08-27").atStartOfDay(zoneId).toInstant().toEpochMilli(),
                     endDate = LocalDate.parse("2025-08-28").atStartOfDay(zoneId).toInstant().toEpochMilli(),
@@ -212,13 +212,14 @@ class MockInterceptor : Interceptor {
             null
         }
 
+        val mockCompetitionId = competitionRequest?.competitionId ?: java.util.UUID.randomUUID().toString()
         val responseBody = OrienteeringCompetitionResponse(
-            competitionId = (1000..9999).random().toLong(),
+            competitionId = mockCompetitionId,
             direction = competitionRequest?.direction ?: OrienteeringDirection.FORWARD.name,
             punchingSystem = PunchingSystem.SPORTIDUINO,
             startTimeMode = StartTimeMode.valueOf(competitionRequest?.startTimeMode ?: StartTimeMode.STRICT.name),
             competition = CompetitionResponse(
-                remoteId = (1L..99L).random(),
+                id = mockCompetitionId,
                 title = competitionRequest?.competition?.title ?: "Mocked Competition",
                 startDate = competitionRequest?.competition?.startDate ?: System.currentTimeMillis(),
                 endDate = competitionRequest?.competition?.endDate,

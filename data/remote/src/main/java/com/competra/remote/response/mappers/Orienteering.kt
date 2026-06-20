@@ -22,7 +22,7 @@ import com.competra.remote.response.orienteering.ParticipantGroupResponse
  */
 fun OrienteeringCompetitionResponse.toDomain(): OrienteeringCompetition {
     return OrienteeringCompetition(
-        localCompetitionId = competitionId,
+        competitionId = competitionId,
         competition = competition.toDomain(),
         direction = OrienteeringDirection.valueOf(direction),
         punchingSystem = punchingSystem,
@@ -41,7 +41,7 @@ fun OrienteeringCompetitionResponse.toDomain(): OrienteeringCompetition {
 fun ParticipantGroupResponse.toDomain() : ParticipantGroup {
     return ParticipantGroup(
         groupId = 0L,
-        competitionId = 0L,
+        competitionId = "",
         title = title,
         gender = gender?.let {
             try {
@@ -63,12 +63,12 @@ fun ParticipantGroupResponse.toDomain() : ParticipantGroup {
 
 /**
  * Преобразует ответ сервера по дистанции в доменную модель.
- * localCompetitionId — локальный ID соревнования в Room, необходим для корректной привязки.
+ * competitionId — UUID соревнования (единый id на клиенте и сервере).
  */
-fun DistanceResponse.toDomain(localCompetitionId: Long): Distance {
+fun DistanceResponse.toDomain(competitionId: String): Distance {
     return Distance(
         remoteId = id,
-        competitionId = localCompetitionId,
+        competitionId = competitionId,
         name = name,
         lengthMeters = lengthMeters,
         climbMeters = climbMeters,
@@ -103,7 +103,7 @@ fun OrienteeringParticipantResponse.toDomain(): OrienteeringParticipant {
         lastName = lastName.orEmpty(),
         groupId = groupId ?: 0L,
         groupName = groupName.orEmpty(),
-        competitionId = competitionId ?: 0L,
+        competitionId = competitionId.orEmpty(),
         commandName = commandName.orEmpty(),
         startNumber = startNumber.orEmpty(),
         startTime = startTime ?: 0L,

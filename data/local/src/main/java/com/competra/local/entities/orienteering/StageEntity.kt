@@ -11,7 +11,7 @@ import com.competra.domain.models.Competition
     foreignKeys = [
         ForeignKey(
             entity = OrienteeringCompetitionEntity::class,
-            parentColumns = ["localCompetitionId"],
+            parentColumns = ["competitionId"],
             childColumns = ["competitionId"],
             onDelete = ForeignKey.CASCADE
         )
@@ -22,7 +22,7 @@ data class StageEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val remoteId: Long? = null,
-    val competitionId: Long,
+    val competitionId: String,
     val stageNumber: Int,
     val startDate: Long,
     val endDate: Long? = null,

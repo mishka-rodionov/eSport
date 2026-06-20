@@ -19,12 +19,12 @@ class CyclicEventDetailsRepositoryImpl(
     private val dataSource: CyclicEventDetailsRemoteDataSource
 ) : CyclicEventDetailsRepository {
 
-    override suspend fun getEventDetails(eventId: Long, userId: String?): Result<CyclicEventDetails?> {
+    override suspend fun getEventDetails(eventId: String, userId: String?): Result<CyclicEventDetails?> {
         return dataSource.getEventDetails(eventId, userId)
             .map { response ->
                 response.result?.let { dto ->
                     CyclicEventDetails(
-                        eventId = dto.remoteId,
+                        eventId = dto.id,
                         organizationId = dto.mainOrganizerId ?: "",
                         title = dto.title,
                         description = dto.description ?: "",
@@ -57,7 +57,7 @@ class CyclicEventDetailsRepositoryImpl(
     }
 
     override suspend fun registerToEvent(
-        eventId: Long,
+        eventId: String,
         groupId: String,
         firstName: String,
         lastName: String
@@ -72,13 +72,13 @@ class CyclicEventDetailsRepositoryImpl(
         ).mapCatching { }
     }
 
-    override suspend fun cancelRegistration(eventId: Long): Result<Unit> {
+    override suspend fun cancelRegistration(eventId: String): Result<Unit> {
         return dataSource.cancelRegistration(eventId)
             .mapCatching { }
     }
 
     override suspend fun getParticipants(
-        eventId: Long,
+        eventId: String,
         groupId: String
     ): Result<List<OrienteeringParticipant>> {
         return dataSource.getParticipantsByGroup(groupId)
@@ -95,7 +95,7 @@ class CyclicEventDetailsRepositoryImpl(
             lastName = lastName,
             groupId = 0L,
             groupName = groupName,
-            competitionId = 0L,
+            competitionId = "",
             commandName = commandName ?: "",
             startNumber = startNumber.toString(),
             startTime = startTime,

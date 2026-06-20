@@ -4,7 +4,7 @@ import com.competra.domain.models.orienteering.ControlPoint
 
 data class ParticipantGroup(
     val groupId: Long,
-    val competitionId: Long,
+    val competitionId: String,
     val title: String,
     val gender: Gender?,                   // MALE, FEMALE, MIXED, null – не задано
     val minAge: Int? = null,

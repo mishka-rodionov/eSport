@@ -376,7 +376,7 @@ fun DistanceEditor(
                             OrienteeringCreatorAction.CreateDistance(
                                 distance = Distance(
                                     id = if (state.editDistanceIndex == -1) 0L else state.distances[state.editDistanceIndex].id,
-                                    competitionId = state.competitionId ?: 0L,
+                                    competitionId = state.competitionId.orEmpty(),
                                     name = title,
                                     lengthMeters = lengthMeters.toIntOrNull() ?: 0,
                                     climbMeters = climbMeters.toIntOrNull() ?: 0,
