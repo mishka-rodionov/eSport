@@ -100,7 +100,8 @@
       "Bash(./gradlew :feature:center:compileDebugKotlin --info)",
       "Bash(xargs -0 ls -ld)",
       "Bash(grep \"\\\\.kt$\")",
-      "Bash(xargs ls)"
+      "Bash(xargs ls)",
+      "Bash(rtk gradlew *)"
     ]
   },
   "prefersReducedMotion": true

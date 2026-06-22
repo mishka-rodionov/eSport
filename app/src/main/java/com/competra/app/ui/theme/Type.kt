@@ -1,34 +1,15 @@
 package com.competra.app.ui.theme
 
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+// База — стандартная Material 3 type scale (размеры/межстрочные оставляем дефолтные),
+// переопределяем только акцентные веса (см. core/designsystem/DESIGN.md).
+private val default = Typography()
+
+val Typography = default.copy(
+    headlineSmall = default.headlineSmall.copy(fontWeight = FontWeight.Bold),
+    titleLarge = default.titleLarge.copy(fontWeight = FontWeight.Bold),
+    titleMedium = default.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+    labelLarge = default.labelLarge.copy(fontWeight = FontWeight.Medium),
 )
