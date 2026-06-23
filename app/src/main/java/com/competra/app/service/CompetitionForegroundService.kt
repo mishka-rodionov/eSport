@@ -146,74 +146,68 @@ class CompetitionForegroundService : Service() {
     private suspend fun CoroutineScope.monitorParticipants(
         participants: List<OrienteeringParticipant>
     ) {
+        // Участники, стартующие в один и тот же момент (жеребьевка по дистанциям),
+        // группируются по времени старта в единые стартовые слоты.
+        val slots: List<StartSlot> = participants
+            .groupBy { it.startTime }
+            .toSortedMap()
+            .map { (startTime, group) -> StartSlot(startTime, group) }
+
         val playedSounds = mutableSetOf<String>()
         var lastNotificationSecond = -1L
 
         while (isActive) {
             val now = System.currentTimeMillis()
 
-            // Участники, которые ещё не стартовали
-            val upcoming = participants.filter { it.startTime > now }
+            // Слоты, которые ещё не стартовали (по возрастанию времени)
+            val upcomingSlots = slots.filter { it.startTime > now }
 
-            // Участники, которые стартовали в последние 2 секунды
-            val justStarted = participants.filter {
+            // Слот, стартовавший в последние 2 секунды
+            val justStartedSlot = slots.firstOrNull {
                 it.startTime <= now && it.startTime > now - 2000
             }
 
-            // Звук старта (длинный сигнал) и событие для UI
-            justStarted.forEach { p ->
-                val key = "${p.id}_started"
+            // Звук старта (длинный сигнал) и событие для UI — один раз на весь слот
+            if (justStartedSlot != null) {
+                val key = "${justStartedSlot.startTime}_started"
                 if (playedSounds.add(key)) {
                     playLongBeep()
                     startAlertRepository.emit(
-                        ParticipantStartAlert.Started(
-                            participantName = "${p.lastName} ${p.firstName}",
-                            startNumber = p.startNumber
-                        )
+                        ParticipantStartAlert.Started(starters = justStartedSlot.toStarters())
                     )
                 }
             }
 
-            val nextStarter = upcoming.firstOrNull()
-            val nextNextStarter = upcoming.getOrNull(1)
+            val nextSlot = upcomingSlots.firstOrNull()
+            val nextNextSlot = upcomingSlots.getOrNull(1)
 
-            if (nextStarter != null) {
-                val msUntilStart = nextStarter.startTime - now
+            if (nextSlot != null) {
+                val msUntilStart = nextSlot.startTime - now
                 // ceil обеспечивает равномерность: seconds=N срабатывает когда msUntilStart ≤ N*1000,
                 // что гарантирует ровно ~1000ms между сигналами независимо от фазы polling
                 val secondsUntilStart = ceil(msUntilStart.toDouble() / 1000).toInt()
 
-                // Короткие звуковые сигналы за 10, 5, 4, 3, 2, 1 секунды
+                // Короткие звуковые сигналы за 10, 5, 4, 3, 2, 1 секунды — один раз на слот
                 val soundTargets = setOf(10, 5, 4, 3, 2, 1)
                 if (secondsUntilStart in soundTargets) {
-                    val key = "${nextStarter.id}_$secondsUntilStart"
+                    val key = "${nextSlot.startTime}_$secondsUntilStart"
                     if (playedSounds.add(key)) playShortBeep()
                 }
 
                 // Событие для UI-баннера в диапазоне 1..10 секунд
-                // (0 не используется: при msUntilStart→0 участник переходит в justStarted → GO)
+                // (0 не используется: при msUntilStart→0 слот переходит в justStarted → GO)
                 if (secondsUntilStart in 1..10) {
                     startAlertRepository.emit(
                         ParticipantStartAlert.Upcoming(
-                            participantName = "${nextStarter.lastName} ${nextStarter.firstName}",
-                            startNumber = nextStarter.startNumber,
+                            starters = nextSlot.toStarters(),
                             countdownSeconds = secondsUntilStart,
-                            nextParticipantName = nextNextStarter?.let {
-                                "${it.lastName} ${it.firstName}"
-                            },
-                            nextStartNumber = nextNextStarter?.startNumber
+                            nextStarters = nextNextSlot?.toStarters().orEmpty()
                         )
                     )
                 }
 
                 // Строка для уведомления
-                nextStarterText = if (secondsUntilStart in 0..10) {
-                    "СТАРТ: №${nextStarter.startNumber} ${nextStarter.lastName} • ${secondsUntilStart}с"
-                } else {
-                    val minutes = secondsUntilStart / 60
-                    val seconds = secondsUntilStart % 60
-                    "→ №${nextStarter.startNumber} ${nextStarter.lastName} И. • %02d:%02d".format(minutes, seconds)
-                }
+                nextStarterText = buildNextStarterText(nextSlot, secondsUntilStart)
             } else {
                 nextStarterText = null
             }
@@ -227,6 +221,37 @@ class CompetitionForegroundService : Service() {
             }
 
             delay(200)
+        }
+    }
+
+    /** Стартовый слот — участники с одинаковым временем старта. */
+    private data class StartSlot(
+        val startTime: Long,
+        val participants: List<OrienteeringParticipant>
+    ) {
+        fun toStarters(): List<ParticipantStartAlert.Starter> = participants.map {
+            ParticipantStartAlert.Starter(
+                participantName = "${it.lastName} ${it.firstName}",
+                startNumber = it.startNumber
+            )
+        }
+    }
+
+    /** Формирует строку уведомления для предстоящего стартового слота. */
+    private fun buildNextStarterText(slot: StartSlot, secondsUntilStart: Int): String {
+        val first = slot.participants.first()
+        val extra = slot.participants.size - 1
+        val who = if (extra > 0) {
+            "№${first.startNumber} ${first.lastName} +$extra"
+        } else {
+            "№${first.startNumber} ${first.lastName}"
+        }
+        return if (secondsUntilStart in 0..10) {
+            "СТАРТ: $who • ${secondsUntilStart}с"
+        } else {
+            val minutes = secondsUntilStart / 60
+            val seconds = secondsUntilStart % 60
+            "→ $who • %02d:%02d".format(minutes, seconds)
         }
     }
 

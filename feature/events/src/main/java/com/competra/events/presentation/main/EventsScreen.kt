@@ -1,13 +1,14 @@
 package com.competra.events.presentation.main
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -26,15 +29,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import com.competra.designsystem.components.NetworkImage
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -81,8 +81,11 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp), // Отступ между карточками 8 dp
-                contentPadding = PaddingValues(Dimens.SIZE_TWO.dp)
+                verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALFER.dp), // Отступ между карточками 12 dp
+                contentPadding = PaddingValues(
+                    horizontal = Dimens.SIZE_BASE.dp, // Поля по бокам 16 dp
+                    vertical = Dimens.SIZE_HALFER.dp   // Поля сверху/снизу 12 dp
+                )
             ) {
                 itemsIndexed(state.events) { _, item ->
                     EventItem(item, userAction = viewModel::onAction)
@@ -188,9 +191,7 @@ fun EventItem(
     event: Competition,
     userAction: (EventsAction) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var isOverflowing by remember { mutableStateOf(false) }
-
+    val accent = statusColor(event.status)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -198,116 +199,192 @@ fun EventItem(
                 userAction.invoke(EventsAction.EventClick(event.id))
             },
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp), // Скругление карточки 16 dp
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        elevation = CardDefaults.cardElevation(defaultElevation = Dimens.SIZE_TWO.dp), // 2 dp
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(Dimens.SIZE_SINGLE.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column {
-            // Изображение события с бейджем вида спорта
-            Box(modifier = Modifier.fillMaxWidth()) {
-                NetworkImage(
-                    url = event.imageUrl,
-                    contentDescription = "Event Banner",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                )
-                
-                // Бейдж вида спорта
-                Box(
-                    modifier = Modifier
-                        .padding(Dimens.SIZE_TWO.dp)
-                        .clip(RoundedCornerShape(Dimens.SIZE_BASE.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                        .align(Alignment.TopStart)
-                ) {
-                    Text(
-                        text = event.kindOfSport.name,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
+        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+            // Боковая акцент-полоса по статусу соревнования
+            Box(
+                modifier = Modifier
+                    .width(Dimens.SIZE_HALF.dp)
+                    .fillMaxHeight()
+                    .background(accent)
+            )
 
-            Column(modifier = Modifier.padding(Dimens.SIZE_TWO.dp)) {
-                // Заголовок
-                Text(
-                    text = event.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(Dimens.SIZE_SINGLE.dp))
-
-                // Дата и место
+            Column(modifier = Modifier.padding(Dimens.SIZE_BASE.dp)) {
+                // Верхняя строка: бейдж вида спорта + статус
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(com.competra.resources.R.drawable.ic_date_range_24px),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    val eventZone = runCatching { java.time.ZoneId.of(event.timeZoneId) }
-                        .getOrDefault(java.time.ZoneId.systemDefault())
-                    Text(
-                        text = DateTimeFormat.transformLongToDisplayDate(event.startDate, eventZone) +
-                            " " + DateTimeFormat.transformLongToTime(event.startDate, eventZone) +
-                            " (" + event.timeZoneId + ")",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    
-                    Spacer(modifier = Modifier.width(Dimens.SIZE_TWO.dp))
-                    
-                    Icon(
-                        imageVector = ImageVector.vectorResource(com.competra.resources.R.drawable.ic_location_on_24px),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = event.address ?: "",
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    SportBadge(event.kindOfSport.name)
+                    Spacer(modifier = Modifier.weight(1f))
+                    StatusChip(event.status)
                 }
 
-                Spacer(modifier = Modifier.height(Dimens.SIZE_SINGLE.dp))
+                Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
 
-                // Описание с логикой развертывания
+                // Заголовок
                 Text(
-                    text = event.description ?: "",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = if (expanded) Int.MAX_VALUE else 3,
-                    overflow = if (expanded) TextOverflow.Clip else TextOverflow.Ellipsis,
-                    onTextLayout = { layoutResult ->
-                        if (!expanded) {
-                            isOverflowing = layoutResult.lineCount > 2
-                        }
-                    }
+                    text = event.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-                
-                if (isOverflowing) {
-                    Text(
-                        text = if (expanded) "Свернуть" else "Подробнее...",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .clickable { expanded = !expanded }
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_SIX.dp))
+
+                // Дата и время
+                val eventZone = runCatching { java.time.ZoneId.of(event.timeZoneId) }
+                    .getOrDefault(java.time.ZoneId.systemDefault())
+                MetaRow(
+                    iconRes = com.competra.resources.R.drawable.ic_date_range_24px,
+                    text = DateTimeFormat.transformLongToDisplayDate(event.startDate, eventZone) +
+                        " " + DateTimeFormat.transformLongToTime(event.startDate, eventZone) +
+                        " (" + event.timeZoneId + ")"
+                )
+
+                if (!event.address.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_QUARTER.dp))
+                    MetaRow(
+                        iconRes = com.competra.resources.R.drawable.ic_location_on_24px,
+                        text = event.address ?: ""
                     )
                 }
             }
         }
     }
+}
+
+/** Строка мета-информации: иконка + текст (дата, место). */
+@Composable
+private fun MetaRow(iconRes: Int, text: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(Dimens.SIZE_QUARTER.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+/** Бейдж вида спорта. */
+@Composable
+private fun SportBadge(name: String) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(Dimens.SIZE_BASE.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(horizontal = Dimens.SIZE_HALF.dp, vertical = Dimens.SIZE_QUARTER.dp)
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    }
+}
+
+/**
+ * Чип статуса соревнования.
+ * Активные статусы (открытая регистрация, идущие) выделяются сплошной заливкой,
+ * пассивные — мягким тинтом, чтобы важные события сразу бросались в глаза.
+ */
+@Composable
+private fun StatusChip(status: CompetitionStatus) {
+    val label = statusLabel(status)
+    if (label.isEmpty()) return
+    val color = statusColor(status)
+
+    if (isEmphasizedStatus(status)) {
+        // Сплошная яркая плашка с контрастным текстом
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Dimens.SIZE_BASE.dp))
+                .background(color)
+                .padding(horizontal = Dimens.SIZE_TEN.dp, vertical = Dimens.SIZE_SIX.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = statusOnColor(status)
+            )
+        }
+    } else {
+        // Приглушённый тинт + точка
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clip(RoundedCornerShape(Dimens.SIZE_BASE.dp))
+                .background(color.copy(alpha = 0.14f))
+                .padding(horizontal = Dimens.SIZE_HALF.dp, vertical = Dimens.SIZE_QUARTER.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(Dimens.SIZE_HALF.dp)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+            Spacer(modifier = Modifier.width(Dimens.SIZE_QUARTER.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Medium,
+                color = color
+            )
+        }
+    }
+}
+
+/** Активные статусы, которые нужно акцентировать сильнее остальных. */
+private fun isEmphasizedStatus(status: CompetitionStatus): Boolean =
+    status == CompetitionStatus.REGISTRATION_OPEN || status == CompetitionStatus.IN_PROGRESS
+
+/** Контрастный цвет текста для сплошной плашки активного статуса. */
+@Composable
+private fun statusOnColor(status: CompetitionStatus): Color = when (status) {
+    CompetitionStatus.REGISTRATION_OPEN -> MaterialTheme.colorScheme.onPrimary
+    CompetitionStatus.IN_PROGRESS -> MaterialTheme.colorScheme.onSecondary
+    else -> MaterialTheme.colorScheme.onSurface
+}
+
+/** Семантический цвет статуса (см. DESIGN.md). */
+@Composable
+private fun statusColor(status: CompetitionStatus): Color = when (status) {
+    CompetitionStatus.REGISTRATION_OPEN -> MaterialTheme.colorScheme.primary
+    CompetitionStatus.IN_PROGRESS -> MaterialTheme.colorScheme.secondary
+    CompetitionStatus.REGISTRATION_CLOSED -> MaterialTheme.colorScheme.tertiary
+    CompetitionStatus.FINISHED, CompetitionStatus.ARCHIVED -> MaterialTheme.colorScheme.outline
+    else -> MaterialTheme.colorScheme.onSurfaceVariant // DRAFT, CREATED, UNKNOWN
+}
+
+/** Подпись статуса из строковых ресурсов. */
+@Composable
+private fun statusLabel(status: CompetitionStatus): String = when (status) {
+    CompetitionStatus.DRAFT -> stringResource(R.string.status_draft)
+    CompetitionStatus.CREATED -> stringResource(R.string.status_created)
+    CompetitionStatus.REGISTRATION_OPEN -> stringResource(R.string.status_registration_open)
+    CompetitionStatus.REGISTRATION_CLOSED -> stringResource(R.string.status_registration_closed)
+    CompetitionStatus.IN_PROGRESS -> stringResource(R.string.status_in_progress)
+    CompetitionStatus.FINISHED -> stringResource(R.string.status_finished)
+    CompetitionStatus.ARCHIVED -> stringResource(R.string.status_archived)
+    CompetitionStatus.UNKNOWN -> ""
 }
 
 @Preview(showBackground = true)

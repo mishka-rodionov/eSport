@@ -88,6 +88,15 @@
     <string name="events_empty_filter_title">Ничего не найдено</string>
     <string name="events_empty_filter_subtitle">По выбранным фильтрам соревнований нет. Попробуйте изменить параметры или сбросить фильтр.</string>
 
+    <!-- Competition Status -->
+    <string name="status_draft">Черновик</string>
+    <string name="status_created">Запланировано</string>
+    <string name="status_registration_open">Регистрация открыта</string>
+    <string name="status_registration_closed">Регистрация закрыта</string>
+    <string name="status_in_progress">Идёт</string>
+    <string name="status_finished">Завершено</string>
+    <string name="status_archived">Архив</string>
+
     <!-- Push Notifications -->
     <string name="notif_channel_push_name">Уведомления</string>
     <string name="notif_channel_push_desc">Push-уведомления о событиях и соревнованиях</string>

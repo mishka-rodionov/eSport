@@ -77,15 +77,20 @@ private fun UpcomingStartCard(event: ParticipantStartAlert.Upcoming) {
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "№${event.startNumber} ${event.participantName}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                if (event.nextParticipantName != null) {
+                // Все участники, стартующие в этот момент
+                event.starters.forEach { starter ->
                     Text(
-                        text = "Следующий: №${event.nextStartNumber} ${event.nextParticipantName}",
+                        text = "№${starter.startNumber} ${starter.participantName}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                if (event.nextStarters.isNotEmpty()) {
+                    Text(
+                        text = "Следующие: " + event.nextStarters.joinToString(", ") {
+                            "№${it.startNumber} ${it.participantName}"
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
                     )
@@ -121,12 +126,16 @@ private fun StartedCard(event: ParticipantStartAlert.Started) {
                 modifier = Modifier.width(72.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "№${event.startNumber} ${event.participantName}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                event.starters.forEach { starter ->
+                    Text(
+                        text = "№${starter.startNumber} ${starter.participantName}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
+            }
         }
     }
 }
