@@ -7,6 +7,7 @@ import com.competra.analytics.AnalyticsEvent
 import com.competra.analytics.AnalyticsTracker
 import com.competra.center.data.creator.OrienteeringCreatorAction
 import com.competra.center.data.creator.OrienteeringCreatorState
+import com.competra.center.data.creator.TestCompetitionFixtures
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
 import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.Navigation
@@ -236,6 +237,70 @@ class OrienteeringCreatorViewModel(
                 type = "competition_map",
                 onSuccess = { url -> updateState { copy(mapUrl = url) } }
             )
+
+            is OrienteeringCreatorAction.UpdateIsTest -> updateState {
+                copy(isTest = action.isTest)
+            }
+
+            OrienteeringCreatorAction.FillWithTestData -> fillWithTestData()
+        }
+    }
+
+    /**
+     * Debug-инструмент: заполняет форму преднабором тестовых данных и сразу создаёт
+     * локально соревнование, две дистанции (с разными КП) и две группы — М21 и Ж21,
+     * каждая на своей дистанции.
+     *
+     * Соревнование сохраняется немедленно (а не на шаге «Далее»), потому что дистанции
+     * и группы ссылаются на него по FK и требуют присвоенных Room локальных id дистанций.
+     * Все мутации `silent = true` — единственная синхронизация выполняется в конце мастера.
+     */
+    private fun fillWithTestData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (user == null) {
+                user = userRepository.retrieveUser().getOrNull()
+            }
+
+            // Собираем заполненный State ЛОКАЛЬНО. Нельзя полагаться на updateState→stateValue:
+            // updateState применяется асинхронно (Main.immediate), и чтение stateValue сразу после
+            // вернуло бы старое состояние — соревнование сохранилось бы под другим UUID, а дистанции
+            // и группы повисли бы на несуществующем FK.
+            val current = stateValue
+            val wasNew = current.competitionId == null
+            val compId = current.competitionId ?: java.util.UUID.randomUUID().toString()
+            val filled = TestCompetitionFixtures.fill(current).copy(competitionId = compId)
+
+            // 1. Сохраняем соревнование локально — нужно для FK дистанций и групп.
+            val competition = filled.toOrienteeringCompetition(user?.id)
+            val saved = if (wasNew) {
+                orienteeringCompetitionInteractor.saveCompetitionNew(competition, silent = true)
+            } else {
+                orienteeringCompetitionInteractor.updateCompetitionNew(competition, silent = true)
+            }
+            saved.onFailure {
+                handleFailure(it)
+                return@launch
+            }
+
+            // 2. Сохраняем дистанции и запоминаем присвоенные Room локальные id (в порядке фикстуры).
+            val distanceIds = TestCompetitionFixtures.distances(compId).map { distance ->
+                orienteeringCompetitionInteractor.saveDistance(distance, silent = true).getOrNull() ?: 0L
+            }
+
+            // 3. Сохраняем группы М21/Ж21, привязав каждую к своей дистанции.
+            orienteeringCompetitionInteractor.localSaveParticipantGroups(
+                participantGroups = TestCompetitionFixtures.groups(compId, distanceIds),
+                silent = true
+            )
+
+            // 4. Перечитываем дистанции и группы из БД (с реальными id) и одним апдейтом
+            //    кладём всё заполненное состояние в форму.
+            val freshDistances = orienteeringCompetitionInteractor.getDistances(compId)
+                .getOrDefault(emptyList())
+            val freshGroups = orienteeringCompetitionInteractor.getCompetitionWithDetails(compId)
+                .getOrNull()?.groupsWithParticipants?.map { it.group } ?: emptyList()
+
+            updateState { filled.copy(distances = freshDistances, participantGroups = freshGroups) }
         }
     }
 
@@ -300,6 +365,7 @@ class OrienteeringCreatorViewModel(
                     startTimeMode = comp.startTimeMode,
                     countdownTimer = comp.countdownTimer,
                     startIntervalSeconds = comp.startIntervalSeconds,
+                    isTest = comp.competition.isTest,
                 )
             }
             

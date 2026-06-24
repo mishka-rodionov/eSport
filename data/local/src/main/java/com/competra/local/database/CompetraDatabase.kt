@@ -25,7 +25,8 @@ import com.competra.local.entities.user.UserEntity
 // v42: переход идентичности соревнования на единый клиентский UUID
 // (competitions.id/competitionId: Long → String). Локальная схема пересоздаётся
 // через fallbackToDestructiveMigration; данные подтянутся с сервера при следующем pull.
-private const val DB_VERSION = 42
+// v43: поле isTest у соревнования (тестовые скрыты из публичной ленты).
+private const val DB_VERSION = 43
 
 /**
  * Основной класс базы данных приложения (Room).

@@ -101,7 +101,9 @@
       "Bash(xargs -0 ls -ld)",
       "Bash(grep \"\\\\.kt$\")",
       "Bash(xargs ls)",
-      "Bash(rtk gradlew *)"
+      "Bash(rtk gradlew *)",
+      "Bash(rtk proxy *)",
+      "Bash(rtk wc *)"
     ]
   },
   "prefersReducedMotion": true

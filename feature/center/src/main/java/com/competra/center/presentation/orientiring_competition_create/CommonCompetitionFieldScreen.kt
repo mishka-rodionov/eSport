@@ -136,8 +136,12 @@ private fun CommonCompetitionFieldContent(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+            // Debug-инструменты создания: преднабор данных + флаг «тестовое».
+            // Виден только в debug-сборке, в релизе блок отсутствует.
+            DebugTestToolsBlock(state = state, onAction = onAction)
 
             // Поле ввода названия
             DSTextInput(
@@ -540,6 +544,77 @@ private fun StartIntervalSelector(
         },
         itemToString = { formatIntervalSeconds(it) }
     )
+}
+
+/**
+ * Debug-блок инструментов разработчика на экране создания соревнования.
+ *
+ * Виден только в debug-сборке (определяется по флагу [android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE]).
+ * Содержит:
+ * - переключатель «Тестовое соревнование» — помечает соревнование как тестовое
+ *   ([OrienteeringCreatorState.isTest]); на сервере такие скрыты из публичной ленты;
+ * - кнопку «Заполнить тестовыми данными» — подставляет в форму преднабор
+ *   ([TestCompetitionFixtures]) и включает флаг «тестовое».
+ *
+ * В релизной сборке блок не отрисовывается.
+ */
+@Composable
+private fun DebugTestToolsBlock(
+    state: OrienteeringCreatorState,
+    onAction: (OrienteeringCreatorAction) -> Unit
+) {
+    val context = LocalContext.current
+    val isDebuggable = remember {
+        (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    }
+    if (!isDebuggable) return
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = Dimens.SIZE_BASE.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+    ) {
+        Column(modifier = Modifier.padding(Dimens.SIZE_BASE.dp)) {
+            Text(
+                text = "DEBUG · инструменты отладки",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Тестовое соревнование",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                    Text(
+                        text = "Скрыто из публичной ленты, видно только вам",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
+                Switch(
+                    checked = state.isTest,
+                    onCheckedChange = { onAction(OrienteeringCreatorAction.UpdateIsTest(it)) }
+                )
+            }
+            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+            Button(
+                onClick = { onAction(OrienteeringCreatorAction.FillWithTestData) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Заполнить тестовыми данными")
+            }
+        }
+    }
 }
 
 /**

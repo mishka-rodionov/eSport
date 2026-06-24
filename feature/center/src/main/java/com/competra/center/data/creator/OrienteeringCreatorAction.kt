@@ -62,6 +62,12 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data class UploadCompetitionImage(val uri: Uri) : OrienteeringCreatorAction()
     data class UploadCompetitionMap(val uri: Uri) : OrienteeringCreatorAction()
 
+    // Debug-инструменты (только в debug-сборке)
+    /** Переключить флаг «тестовое соревнование» (скрыто из публичной ленты). */
+    data class UpdateIsTest(val isTest: Boolean) : OrienteeringCreatorAction()
+    /** Заполнить форму преднабором тестовых данных для быстрой отладки. */
+    data object FillWithTestData : OrienteeringCreatorAction()
+
     // Действия для работы с дистанциями
     data object ShowDistanceCreateDialog : OrienteeringCreatorAction()
     data object HideDistanceCreateDialog : OrienteeringCreatorAction()

@@ -68,6 +68,8 @@ data class Competition(
     val website: String? = null,
     val resultsStatus: ResultsStatus,            // PRELIMINARY, OFFICIAL, NOT_PUBLISHED
     val timeZoneId: String,
+    /** Тестовое соревнование: видно только владельцу, исключено из публичной ленты. */
+    val isTest: Boolean = false,
     // Поля синхронизации
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),

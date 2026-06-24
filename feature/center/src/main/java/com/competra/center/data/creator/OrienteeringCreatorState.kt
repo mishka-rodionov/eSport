@@ -99,7 +99,10 @@ data class OrienteeringCreatorState(
     val stages: List<Stage> = emptyList(),
     
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+
+    /** Тестовое соревнование (только debug-сборка): скрыто из публичной ленты, видно лишь владельцу. */
+    val isTest: Boolean = false
 ) : BaseState {
     
     fun toOrienteeringCompetition(userId: String?): OrienteeringCompetition {
@@ -127,7 +130,8 @@ data class OrienteeringCreatorState(
                 contactEmail = contactEmail,
                 website = website,
                 resultsStatus = ResultsStatus.NOT_PUBLISHED,
-                timeZoneId = timeZoneId
+                timeZoneId = timeZoneId,
+                isTest = isTest
             ),
             direction = competitionDirection,
             punchingSystem = punchingSystem,

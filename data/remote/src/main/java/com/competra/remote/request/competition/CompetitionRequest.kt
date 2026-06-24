@@ -52,6 +52,9 @@ data class CompetitionRequest(
     val timeZoneId: String,
     @SerializedName("imageUrl")
     val imageUrl: String? = null,
+    /** Тестовое соревнование: создаётся из debug-сборки, не попадает в публичную ленту. */
+    @SerializedName("isTest")
+    val isTest: Boolean = false,
     @SerializedName("serverUpdatedAt")
     val serverUpdatedAt: Long? = null
 )

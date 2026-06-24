@@ -194,3 +194,15 @@ val MIGRATION_40_41 = object : Migration(40, 41) {
         db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN resultsUrl TEXT")
     }
 }
+
+/**
+ * Миграция с версии 42 на 43.
+ * Добавляет поле isTest соревнования (встроено через @Embedded Competition,
+ * без префикса) в таблицу orienteering_competitions. Тестовые соревнования
+ * исключаются из публичной ленты на сервере, локально хранятся как обычные.
+ */
+val MIGRATION_42_43 = object : Migration(42, 43) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN isTest INTEGER NOT NULL DEFAULT 0")
+    }
+}

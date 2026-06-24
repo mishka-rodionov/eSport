@@ -45,6 +45,7 @@ fun CompetitionResponse.toDomain(): Competition {
             ResultsStatus.NOT_PUBLISHED
         },
         timeZoneId = timeZoneId ?: "UTC",
+        isTest = isTest,
         // Данные получены с сервера, помечаем как синхронизированные
         isSynced = true,
         lastModified = System.currentTimeMillis(),

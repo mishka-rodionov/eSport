@@ -33,6 +33,7 @@ fun Competition.toRequest(): CompetitionRequest {
         resultsStatus = resultsStatus.name,
         timeZoneId = timeZoneId,
         imageUrl = imageUrl,
+        isTest = isTest,
         serverUpdatedAt = serverUpdatedAt
     )
 }
