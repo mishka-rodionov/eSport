@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.competra.center.data.CenterEffects
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
 import com.competra.center.data.main.CenterState
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.domain.exception.NetworkException
@@ -25,7 +27,8 @@ class CenterViewModel(
     private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository,
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
     private val networkErrorRepository: NetworkErrorRepository,
-    private val loadingRepository: LoadingRepository
+    private val loadingRepository: LoadingRepository,
+    private val analytics: AnalyticsTracker
 ) : BaseViewModel<CenterState>(CenterState()) {
 
     override fun onAction(action: BaseAction) {
@@ -69,6 +72,9 @@ class CenterViewModel(
 
             is CenterEffects.DeleteCompetition -> {
                 updateState { copy(deletingCompetition = null) }
+                analytics.trackEvent(
+                    AnalyticsEvent.CompetitionDeleted(effect.competition.competitionId)
+                )
                 viewModelScope.launch(Dispatchers.IO) {
                     loadingRepository.emit(true)
                     orienteeringCompetitionInteractor.deleteCompetition(effect.competition.competitionId)

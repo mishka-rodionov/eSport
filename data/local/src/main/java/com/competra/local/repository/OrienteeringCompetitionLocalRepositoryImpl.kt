@@ -237,6 +237,10 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
+    override suspend fun markCompetitionDeleted(competitionId: String): Result<Unit> {
+        return runCatching { orienteeringCompetitionDao.markDeleted(competitionId) }
+    }
+
     override suspend fun getParticipantByChipNumber(
         competitionId: String,
         chipNumber: Int

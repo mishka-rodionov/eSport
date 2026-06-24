@@ -85,6 +85,10 @@ sealed class AnalyticsEvent(
         mapOf("competition_id" to competitionId, "kind_of_sport" to kindOfSport),
     )
 
+    /** Пользователь подтвердил удаление соревнования. */
+    class CompetitionDeleted(competitionId: String) :
+        AnalyticsEvent("competition_deleted", mapOf("competition_id" to competitionId))
+
     // endregion
 
     // region NFC / чипы

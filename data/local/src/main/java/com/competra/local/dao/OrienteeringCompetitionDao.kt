@@ -39,6 +39,14 @@ interface OrienteeringCompetitionDao {
     @Query("DELETE FROM orienteering_competitions WHERE competitionId = :competitionId")
     suspend fun deleteById(competitionId: String)
 
+    /**
+     * Помечает соревнование на удаление (soft-delete): isDeleted=1, isSynced=0.
+     * SyncCenterWorker подхватит запись через [getMarkedForDeletion], отправит DELETE
+     * на сервер и физически удалит локально.
+     */
+    @Query("UPDATE orienteering_competitions SET isDeleted = 1, isSynced = 0, lastModified = :now WHERE competitionId = :competitionId")
+    suspend fun markDeleted(competitionId: String, now: Long = System.currentTimeMillis())
+
     @Query("DELETE FROM orienteering_competitions")
     suspend fun clearAll()
 
@@ -58,7 +66,7 @@ interface OrienteeringCompetitionDao {
     @Query("SELECT * FROM orienteering_competitions")
     suspend fun getAllCompetitionsWithDetails(): List<OrienteeringCompetitionWithDetails>
 
-    @Query("SELECT * FROM orienteering_competitions WHERE mainOrganizerId = :userId")
+    @Query("SELECT * FROM orienteering_competitions WHERE mainOrganizerId = :userId AND isDeleted = 0")
     suspend fun getCompetitionsByUserId(userId: String): List<OrienteeringCompetitionEntity>
 
     @Query("SELECT * FROM orienteering_competitions WHERE isSynced = 0 AND isDeleted = 0")

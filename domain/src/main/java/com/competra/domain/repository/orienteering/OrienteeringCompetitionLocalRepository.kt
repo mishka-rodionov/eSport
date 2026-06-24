@@ -32,6 +32,13 @@ interface OrienteeringCompetitionLocalRepository {
 
     suspend fun deleteCompetition(competitionId: String): Result<Unit>
 
+    /**
+     * Помечает соревнование на удаление (soft-delete) для последующей синхронизации с сервером.
+     * Запись остаётся в БД с isDeleted=true до тех пор, пока SyncCenterWorker не отправит DELETE
+     * на сервер и не удалит её физически.
+     */
+    suspend fun markCompetitionDeleted(competitionId: String): Result<Unit>
+
     suspend fun saveParticipant(participant: OrienteeringParticipant, markUnsynced: Boolean = true): Result<OrienteeringParticipant?>
 
     suspend fun getParticipants(competitionId: String): Result<List<OrienteeringParticipant>>

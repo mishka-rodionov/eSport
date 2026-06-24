@@ -213,13 +213,18 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
-     * Удаляет соревнование и все связанные данные из локальной базы данных.
+     * Помечает соревнование на удаление (soft-delete) и запускает синхронизацию.
+     *
+     * Запись остаётся в локальной БД с isDeleted=true и исчезает из списков пользователя.
+     * SyncCenterWorker отправит DELETE на сервер и после успеха физически удалит запись
+     * вместе со всеми связанными данными. Если соревнование ни разу не было на сервере,
+     * Worker удалит его локально сразу.
      *
      * @param competitionId Идентификатор соревнования.
-     * @return Result операции удаления.
+     * @return Result операции пометки на удаление.
      */
     suspend fun deleteCompetition(competitionId: String): Result<Unit> {
-        return localRepository.deleteCompetition(competitionId).also { touch() }
+        return localRepository.markCompetitionDeleted(competitionId).also { touch() }
     }
 
     /**
