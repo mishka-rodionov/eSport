@@ -88,6 +88,7 @@ class EventsViewModel(
         "statuses_count" to statuses.size,
         "has_date_from" to (dateFrom != null),
         "has_date_to" to (dateTo != null),
+        "include_test" to includeTest,
     )
 
     private fun handleFailure(throwable: Throwable) {

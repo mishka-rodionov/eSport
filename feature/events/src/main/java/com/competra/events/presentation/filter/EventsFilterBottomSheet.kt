@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -105,6 +106,11 @@ fun EventsFilterBottomSheet(
                             statuses = draft.statuses.toggle(status)
                         )
                     }
+                )
+
+                DebugSection(
+                    includeTest = draft.includeTest,
+                    onIncludeTestChange = { draft = draft.copy(includeTest = it) }
                 )
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_TWO.dp))
@@ -232,6 +238,50 @@ private fun StatusSection(
         checked = CompetitionStatus.FINISHED in selected,
         onCheckedChange = { onToggle(CompetitionStatus.FINISHED) }
     )
+}
+
+/**
+ * Debug-секция фильтра. Видна только в debug-сборке (флаг
+ * [android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE]). Содержит переключатель
+ * «Показывать тестовые», который выставляет [EventsFilter.includeTest] —
+ * на сервере по нему в публичную ленту попадают и тестовые соревнования.
+ * В релизной сборке секция не отрисовывается.
+ */
+@Composable
+private fun DebugSection(
+    includeTest: Boolean,
+    onIncludeTestChange: (Boolean) -> Unit
+) {
+    val context = LocalContext.current
+    val isDebuggable = remember {
+        (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    }
+    if (!isDebuggable) return
+
+    SectionTitle(text = "DEBUG")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onIncludeTestChange(!includeTest) }
+            .padding(vertical = Dimens.SIZE_SINGLE.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Показывать тестовые",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = "Включить в публичный список тестовые соревнования",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Switch(
+            checked = includeTest,
+            onCheckedChange = onIncludeTestChange
+        )
+    }
 }
 
 @Composable

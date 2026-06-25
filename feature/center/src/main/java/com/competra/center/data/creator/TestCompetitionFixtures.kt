@@ -112,6 +112,28 @@ object TestCompetitionFixtures {
             description = "Тестовая короткая дистанция",
             controlPoints = SHORT_COURSE_CONTROLS.map { ControlPoint(number = it) },
             finishControlPoint = FINISH_CONTROL
+        ),
+        Distance(
+            id = 0L,
+            competitionId = competitionId,
+            name = "М17 — короткая",
+            lengthMeters = 3400,
+            climbMeters = 110,
+            controlsCount = SHORT_COURSE_CONTROLS.size,
+            description = "Тестовая короткая дистанция",
+            controlPoints = SHORT_COURSE_CONTROLS.map { ControlPoint(number = it) },
+            finishControlPoint = FINISH_CONTROL
+        ),
+        Distance(
+            id = 0L,
+            competitionId = competitionId,
+            name = "Ж17 — короткая",
+            lengthMeters = 2400,
+            climbMeters = 90,
+            controlsCount = SMALL_SHORT_COURSE_CONTROLS.size,
+            description = "Тестовая короткая дистанция",
+            controlPoints = SMALL_SHORT_COURSE_CONTROLS.map { ControlPoint(number = it) },
+            finishControlPoint = FINISH_CONTROL
         )
     )
 
@@ -125,6 +147,8 @@ object TestCompetitionFixtures {
     fun groups(competitionId: String, distanceIds: List<Long>): List<ParticipantGroup> {
         val maleDistanceId = distanceIds.getOrNull(0) ?: 0L
         val femaleDistanceId = distanceIds.getOrNull(1) ?: maleDistanceId
+        val maleJuniorDistanceId = distanceIds.getOrNull(2) ?: femaleDistanceId
+        val femaleJuniorDistanceId = distanceIds.getOrNull(3) ?: maleJuniorDistanceId
         return listOf(
             ParticipantGroup(
                 groupId = 0L,
@@ -145,6 +169,26 @@ object TestCompetitionFixtures {
                 maxAge = null,
                 distanceId = femaleDistanceId,
                 maxParticipants = 50
+            ),
+            ParticipantGroup(
+                groupId = 0L,
+                competitionId = competitionId,
+                title = "М17",
+                gender = Gender.MALE,
+                minAge = 17,
+                maxAge = null,
+                distanceId = maleJuniorDistanceId,
+                maxParticipants = 50
+            ),
+            ParticipantGroup(
+                groupId = 0L,
+                competitionId = competitionId,
+                title = "Ж17",
+                gender = Gender.FEMALE,
+                minAge = 17,
+                maxAge = null,
+                distanceId = femaleJuniorDistanceId,
+                maxParticipants = 50
             )
         )
     }
@@ -153,11 +197,12 @@ object TestCompetitionFixtures {
     private const val REGISTRATION_START_TIME = "10:00"
 
     /** Номер финишного КП (станция финиша), общий для тестовых дистанций. */
-    private const val FINISH_CONTROL = 100
+    private const val FINISH_CONTROL = 45
 
     /** Набор КП длинной дистанции (М21). */
-    private val LONG_COURSE_CONTROLS = listOf(31, 32, 33, 34, 35, 36, 37, 38)
+    private val LONG_COURSE_CONTROLS = listOf(36, 37, 42, 46)
 
     /** Набор КП короткой дистанции (Ж21) — заведомо отличается от длинной. */
-    private val SHORT_COURSE_CONTROLS = listOf(41, 42, 43, 44, 45)
+    private val SHORT_COURSE_CONTROLS = listOf(46, 42, 37, 36)
+    private val SMALL_SHORT_COURSE_CONTROLS = listOf(46, 37, 36)
 }

@@ -10,16 +10,20 @@ import com.competra.domain.models.orienteering.CompetitionStatus
  * @property statuses Выбранные статусы (комбинируются через OR). Пустой список — без ограничения.
  * @property dateFrom Начало диапазона дат старта соревнования, millis, включительно. null — без ограничения.
  * @property dateTo Конец диапазона дат старта соревнования, millis, включительно. null — без ограничения.
+ * @property includeTest Включать ли тестовые соревнования в выдачу (debug-предпросмотр; по умолчанию они
+ * скрыты из публичной ленты на сервере). Выставляется только из debug-сборки.
  */
 data class EventsFilter(
     val kindOfSports: List<KindOfSport> = emptyList(),
     val statuses: List<CompetitionStatus> = emptyList(),
     val dateFrom: Long? = null,
-    val dateTo: Long? = null
+    val dateTo: Long? = null,
+    val includeTest: Boolean = false
 ) {
     val isEmpty: Boolean
         get() = kindOfSports.isEmpty() &&
                 statuses.isEmpty() &&
                 dateFrom == null &&
-                dateTo == null
+                dateTo == null &&
+                !includeTest
 }

@@ -18,7 +18,8 @@ class EventsRepositoryImpl(
             kindOfSports = filter.kindOfSports.map { it.name },
             statuses = filter.statuses.map { it.name },
             dateFrom = filter.dateFrom,
-            dateTo = filter.dateTo
+            dateTo = filter.dateTo,
+            includeTest = filter.includeTest
         ).map { response -> response.result?.map { it.toDomain() } }
     }
 }
