@@ -10,6 +10,7 @@ import com.competra.data.navigation.getArguments
 import com.competra.domain.exception.NetworkException
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.models.orienteering.CompetitionStatus
+import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.StartTimeMode
 import com.competra.domain.repository.LoadingRepository
 import com.competra.domain.repository.NetworkErrorRepository
@@ -269,10 +270,7 @@ class OrienteeringEventControlViewModel(
                 val intervalMs = (competition.startIntervalSeconds ?: 60) * 1000L
                 val participants = orienteeringCompetitionInteractor.getParticipants(id).getOrNull()
                 if (!participants.isNullOrEmpty()) {
-                    val updatedParticipants = participants.map { p ->
-                        val number = p.startNumber.toIntOrNull() ?: return@map p
-                        p.copy(startTime = startTime + number * intervalMs)
-                    }
+                    val updatedParticipants = rebaseStartTimes(participants, startTime, intervalMs)
                     orienteeringCompetitionInteractor.updateParticipants(updatedParticipants)
                 }
             }
@@ -410,15 +408,40 @@ class OrienteeringEventControlViewModel(
             val intervalMs = (competition.startIntervalSeconds ?: 60) * 1000L
             val participants = orienteeringCompetitionInteractor.getParticipants(compId).getOrNull()
             if (!participants.isNullOrEmpty()) {
-                val updated = participants.map { p ->
-                    val number = p.startNumber.toIntOrNull() ?: return@map p
-                    p.copy(startTime = actualStartTime + (number - 1) * intervalMs)
-                }
+                val updated = rebaseStartTimes(participants, actualStartTime, intervalMs)
                 orienteeringCompetitionInteractor.updateParticipants(updated)
             }
 
             updateState { copy(competition = updatedCompetition) }
             startStopwatch()
+        }
+    }
+
+    /**
+     * Сдвигает стартовые времена участников к новому времени старта [newStartTime],
+     * сохраняя относительную структуру жеребьёвки.
+     *
+     * Первая стартовая минута начинается через один стартовый интервал после гонга
+     * (например, при старте соревнования в 12:00 первые участники стартуют в 12:01).
+     * Базой считается самое раннее валидное стартовое время — каждое время сдвигается
+     * на ту же величину. Это сохраняет совместные стартовые минуты (несколько участников
+     * на одну минуту при жеребьёвке по дистанциям), в отличие от пересчёта по сквозному
+     * стартовому номеру, который раскидывал участников по одному на минуту.
+     * Участники без валидного стартового времени остаются без изменений.
+     */
+    private fun rebaseStartTimes(
+        participants: List<OrienteeringParticipant>,
+        newStartTime: Long,
+        intervalMs: Long
+    ): List<OrienteeringParticipant> {
+        val baseStartTime = participants
+            .map { it.startTime }
+            .filter { it >= MIN_VALID_TIMESTAMP_MS }
+            .minOrNull() ?: return participants
+        val firstStartTime = newStartTime + intervalMs
+        return participants.map { p ->
+            if (p.startTime < MIN_VALID_TIMESTAMP_MS) p
+            else p.copy(startTime = firstStartTime + (p.startTime - baseStartTime))
         }
     }
 
@@ -433,5 +456,10 @@ class OrienteeringEventControlViewModel(
         super.onCleared()
         timerJob?.cancel()
         stopwatchJob?.cancel()
+    }
+
+    private companion object {
+        /** Минимальный допустимый timestamp — 1 января 2000 года. */
+        const val MIN_VALID_TIMESTAMP_MS = 946_684_800_000L
     }
 }
