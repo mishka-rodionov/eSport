@@ -3,6 +3,7 @@ package com.competra.center.presentation.draw
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
@@ -25,6 +26,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -59,6 +61,17 @@ fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
 
     val pagerState = rememberPagerState { participantsByGroup.size }
     var cardsVisible by remember { mutableStateOf(true) }
+    var distanceDialogVisible by remember { mutableStateOf(false) }
+
+    if (distanceDialogVisible) {
+        DistanceDrawDialog(
+            onDismiss = { distanceDialogVisible = false },
+            onConfirm = { corridors, gap ->
+                distanceDialogVisible = false
+                userAction.invoke(DrawAction.StartDistanceDrawOperation(corridors, gap))
+            }
+        )
+    }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -134,7 +147,7 @@ fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
                         title = "По дистанциям",
                         description = "Участники с одинаковой дистанцией не стартуют вместе",
                         accentColor = MaterialTheme.colorScheme.tertiary,
-                        onClick = { userAction.invoke(DrawAction.StartDistanceDrawOperation) }
+                        onClick = { distanceDialogVisible = true }
                     )
                 }
             }
@@ -225,6 +238,67 @@ fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel()) {
             }
         }
     }
+}
+
+/**
+ * Диалог ввода параметров жеребьёвки по дистанциям.
+ *
+ * @param onConfirm вызывается с числом коридоров и зазором (оба ≥ 1) при подтверждении.
+ */
+@Composable
+private fun DistanceDrawDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (corridors: Int, gap: Int) -> Unit
+) {
+    var corridorsText by remember { mutableStateOf("3") }
+    var gapText by remember { mutableStateOf("2") }
+
+    val corridors = corridorsText.toIntOrNull()
+    val gap = gapText.toIntOrNull()
+    val isValid = corridors != null && corridors >= 1 && gap != null && gap >= 1
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Жеребьёвка по дистанциям") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_BASE.dp)) {
+                Text(
+                    text = "Участники одной дистанции не стартуют в одну минуту.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedTextField(
+                    value = corridorsText,
+                    onValueChange = { corridorsText = it.filter(Char::isDigit).take(3) },
+                    label = { Text("Стартовых коридоров") },
+                    supportingText = { Text("Максимум одновременных стартов в минуту") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = gapText,
+                    onValueChange = { gapText = it.filter(Char::isDigit).take(3) },
+                    label = { Text("Зазор (интервалов)") },
+                    supportingText = { Text("Минимум интервалов между стартами одной дистанции") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { if (isValid) onConfirm(corridors!!, gap!!) },
+                enabled = isValid
+            ) {
+                Text("Начать")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Отмена") }
+        }
+    )
 }
 
 @Composable

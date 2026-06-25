@@ -249,8 +249,11 @@ private fun EventControlCard(
                 }
 
                 Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+            }
 
-                // Кнопка удаления события
+            // Кнопка удаления события. Для завершённых соревнований обычно скрыта,
+            // но тестовые соревнования можно удалять в любом статусе.
+            if (competition.status != CompetitionStatus.FINISHED || competition.isTest) {
                 IconButton(
                     onClick = {
                         userAction.invoke(

@@ -54,4 +54,10 @@ sealed class ParticipantListAction : BaseAction {
      */
     data class DeleteParticipant(val participant: OrienteeringParticipant) : ParticipantListAction()
 
+    /**
+     * Сгенерировать тестовых участников для каждой пустой группы (только debug-сборка,
+     * только тестовое соревнование).
+     */
+    data object GenerateTestParticipants : ParticipantListAction()
+
 }

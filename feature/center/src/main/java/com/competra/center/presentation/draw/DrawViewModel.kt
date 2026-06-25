@@ -36,7 +36,8 @@ class DrawViewModel(
         when (action) {
             DrawAction.StartDrawOperation -> startDrawOperation()
             DrawAction.StartGroupDrawOperation -> startGroupDrawOperation()
-            DrawAction.StartDistanceDrawOperation -> startDistanceDrawOperation()
+            is DrawAction.StartDistanceDrawOperation ->
+                startDistanceDrawOperation(corridors = action.corridors, gap = action.gap)
         }
     }
 
@@ -64,7 +65,12 @@ class DrawViewModel(
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
                 interactor.setDrawConducted(compId)
-                analytics.trackEvent(AnalyticsEvent.ParticipantDrawn(sortedParticipants.size))
+                analytics.trackEvent(
+                    AnalyticsEvent.ParticipantDrawn(
+                        participantsCount = sortedParticipants.size,
+                        mode = AnalyticsEvent.DrawMode.GENERAL,
+                    )
+                )
                 updateState { copy(participants = sortedParticipants) }
             } finally {
                 loadingRepository.emit(false)
@@ -97,7 +103,12 @@ class DrawViewModel(
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
                 interactor.setDrawConducted(compId)
-                analytics.trackEvent(AnalyticsEvent.ParticipantDrawn(sortedParticipants.size))
+                analytics.trackEvent(
+                    AnalyticsEvent.ParticipantDrawn(
+                        participantsCount = sortedParticipants.size,
+                        mode = AnalyticsEvent.DrawMode.GROUP,
+                    )
+                )
                 updateState { copy(participants = sortedParticipants) }
             } finally {
                 loadingRepository.emit(false)
@@ -107,10 +118,12 @@ class DrawViewModel(
 
     /**
      * Жеребьевка по дистанциям: участники с одинаковой дистанцией не стартуют
-     * в одну и ту же минуту. На каждом стартовом слоте — не более одного участника
-     * из каждой различной дистанции. Стартовые номера уникальны глобально.
+     * в одну и ту же минуту. На каждом стартовом слоте — не более [corridors] участников
+     * и не более одного из каждой различной дистанции. Старты каждой дистанции разнесены
+     * минимум на [gap] интервалов и равномерно растянуты по всему расписанию.
+     * Стартовые номера уникальны глобально.
      */
-    private fun startDistanceDrawOperation() {
+    private fun startDistanceDrawOperation(corridors: Int, gap: Int) {
         val compId = competitionId ?: return
         viewModelScope.launch(Dispatchers.IO) {
             loadingRepository.emit(true)
@@ -129,12 +142,21 @@ class DrawViewModel(
                     groupDistanceMap = groupDistanceMap,
                     punchingSystem = competition.punchingSystem,
                     competitionStartTime = competitionStartTime,
-                    intervalMs = intervalMs
+                    intervalMs = intervalMs,
+                    corridors = corridors.coerceAtLeast(1),
+                    gap = gap.coerceAtLeast(1)
                 )
                 interactor.updateParticipants(sortedParticipants)
                 interactor.syncParticipantsAfterDraw(sortedParticipants)
                 interactor.setDrawConducted(compId)
-                analytics.trackEvent(AnalyticsEvent.ParticipantDrawn(sortedParticipants.size))
+                analytics.trackEvent(
+                    AnalyticsEvent.ParticipantDrawn(
+                        participantsCount = sortedParticipants.size,
+                        mode = AnalyticsEvent.DrawMode.DISTANCE,
+                        corridors = corridors,
+                        gap = gap,
+                    )
+                )
                 updateState { copy(participants = sortedParticipants) }
             } finally {
                 loadingRepository.emit(false)
@@ -195,55 +217,6 @@ class DrawViewModel(
     }
 
     /**
-     * Жеребьевка по дистанциям: каждый стартовый слот содержит не более одного участника
-     * из каждой различной дистанции. Участники внутри дистанции перемешиваются случайно.
-     * Все участники одного слота получают одинаковый [competitionStartTime] + slotIndex * intervalMs.
-     * Стартовые номера назначаются глобально.
-     */
-    private fun drawParticipantsByDistance(
-        participants: List<OrienteeringParticipant>,
-        groupDistanceMap: Map<Long, Long>,
-        punchingSystem: PunchingSystem?,
-        competitionStartTime: Long,
-        intervalMs: Long
-    ): List<OrienteeringParticipant> {
-        if (participants.isEmpty()) return emptyList()
-
-        val queues: MutableMap<Long, ArrayDeque<OrienteeringParticipant>> = participants
-            .groupBy { groupDistanceMap[it.groupId] ?: it.groupId }
-            .mapValues { (_, ps) -> ArrayDeque(ps.shuffled()) }
-            .toMutableMap()
-
-        val result = mutableListOf<OrienteeringParticipant>()
-        var slotIndex = 0
-        var globalNumber = 1
-
-        while (queues.isNotEmpty()) {
-            val slotStartTime = competitionStartTime + slotIndex * intervalMs
-            val exhaustedKeys = mutableListOf<Long>()
-
-            queues.forEach { (distanceId, queue) ->
-                val participant = queue.removeFirst()
-                val number = globalNumber.toString()
-                result.add(
-                    participant.copy(
-                        startNumber = number,
-                        startTime = slotStartTime,
-                        chipNumber = if (punchingSystem == PunchingSystem.SPORTIDUINO) number else participant.chipNumber
-                    )
-                )
-                globalNumber++
-                if (queue.isEmpty()) exhaustedKeys.add(distanceId)
-            }
-
-            exhaustedKeys.forEach { queues.remove(it) }
-            slotIndex++
-        }
-
-        return result
-    }
-
-    /**
      * Общая жеребьевка: участники перемешиваются с чередованием групп,
      * чтобы подряд не стартовали участники одной группы.
      * Стартовое время каждого участника — [competitionStartTime] + глобальная_позиция * intervalMs.
@@ -296,4 +269,100 @@ class DrawViewModel(
             )
         }
     }
+}
+
+/**
+ * Жеребьёвка по дистанциям с ограничением коридоров, зазором и равномерным растягиванием.
+ *
+ * Раскладывает участников по стартовым слотам (минутам), гарантируя инварианты:
+ * - в одном слоте дистанция встречается не более одного раза;
+ * - участники одной дистанции разнесены минимум на [gap] слотов;
+ * - в одном слоте не более [corridors] участников;
+ * - старты каждой дистанции равномерно растянуты по всему расписанию.
+ *
+ * Стартовые номера назначаются сквозно по порядку (слот, дистанция), стартовое время —
+ * [competitionStartTime] + slotIndex * [intervalMs]. Для [PunchingSystem.SPORTIDUINO]
+ * номер чипа приравнивается к стартовому номеру.
+ *
+ * Вынесена на верхний уровень (чистая функция без состояния) для удобства юнит-тестов.
+ *
+ * @param groupDistanceMap соответствие groupId → distanceId; при отсутствии записи ключом
+ *   дистанции выступает сам groupId.
+ * @param corridors максимум одновременных стартов в одну минуту (приводится к ≥ 1).
+ * @param gap минимальный зазор между стартами одной дистанции в слотах (приводится к ≥ 1).
+ */
+internal fun drawParticipantsByDistance(
+    participants: List<OrienteeringParticipant>,
+    groupDistanceMap: Map<Long, Long>,
+    punchingSystem: PunchingSystem?,
+    competitionStartTime: Long,
+    intervalMs: Long,
+    corridors: Int,
+    gap: Int
+): List<OrienteeringParticipant> {
+    if (participants.isEmpty()) return emptyList()
+
+    val maxCorridors = corridors.coerceAtLeast(1)
+    val minGap = gap.coerceAtLeast(1)
+
+    // 1. Группировка по дистанции + случайная жеребьёвка участников внутри дистанции.
+    val byDistance: Map<Long, List<OrienteeringParticipant>> = participants
+        .groupBy { groupDistanceMap[it.groupId] ?: it.groupId }
+        .mapValues { (_, ps) -> ps.shuffled() }
+
+    // 2. Нижняя граница длины расписания (число слотов).
+    val corridorBound = (participants.size + maxCorridors - 1) / maxCorridors
+    val gapBound = byDistance.values.maxOf { (it.size - 1) * minGap + 1 }
+    val slots = maxOf(corridorBound, gapBound, 1)
+
+    // 3. Идеальные целевые слоты для равномерного растягивания каждой дистанции.
+    val items = buildList {
+        byDistance.forEach { (distanceId, ps) ->
+            val count = ps.size
+            ps.forEachIndexed { index, participant ->
+                val target = ((index + 0.5) * slots / count).toInt().coerceIn(0, slots - 1)
+                add(Triple(distanceId, participant, target))
+            }
+        }
+    }
+        // Перемешиваем перед стабильной сортировкой — случайный tiebreak при равных целях.
+        .shuffled()
+        .sortedBy { it.third }
+
+    // 4. Жадная расстановка с жёсткими ограничениями (коридоры, зазор, уникальность дистанции).
+    val slotLoad = HashMap<Int, Int>()
+    val slotDistances = HashMap<Int, MutableSet<Long>>()
+    val lastSlot = HashMap<Long, Int>()
+    val placed = ArrayList<Pair<Int, OrienteeringParticipant>>(participants.size)
+
+    items.forEach { (distanceId, participant, target) ->
+        val minByGap = lastSlot[distanceId]?.let { it + minGap } ?: 0
+        var slot = maxOf(target, minByGap)
+        while ((slotLoad[slot] ?: 0) >= maxCorridors ||
+            slotDistances[slot]?.contains(distanceId) == true
+        ) {
+            slot++
+        }
+        slotLoad[slot] = (slotLoad[slot] ?: 0) + 1
+        slotDistances.getOrPut(slot) { mutableSetOf() }.add(distanceId)
+        lastSlot[distanceId] = slot
+        placed.add(slot to participant)
+    }
+
+    // 5. Сквозные номера и стартовые времена по порядку (слот, дистанция).
+    return placed
+        .sortedWith(
+            compareBy(
+                { it.first },
+                { groupDistanceMap[it.second.groupId] ?: it.second.groupId }
+            )
+        )
+        .mapIndexed { index, (slot, participant) ->
+            val number = (index + 1).toString()
+            participant.copy(
+                startNumber = number,
+                startTime = competitionStartTime + slot * intervalMs,
+                chipNumber = if (punchingSystem == PunchingSystem.SPORTIDUINO) number else participant.chipNumber
+            )
+        }
 }

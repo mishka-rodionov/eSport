@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -295,6 +296,31 @@ fun ParticipantListContent(
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
                         contentDescription = "Add participant"
+                    )
+                }
+            }
+
+            // DEBUG: генерация тестовых участников — только в debug-сборке и только для
+            // тестового соревнования. Размещается над кнопкой добавления участника.
+            val context = LocalContext.current
+            val isDebuggable = remember {
+                (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+            }
+            val isTestCompetition = state.competition?.competition?.isTest == true
+            if (isDebuggable && isTestCompetition && state.participantGroupWithParticipants.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = { userAction.invoke(ParticipantListAction.GenerateTestParticipants) },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(Dimens.SIZE_BASE.dp)
+                        .padding(bottom = 72.dp),
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary,
+                ) {
+                    Text(
+                        text = "DEBUG: +5 в группу",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }

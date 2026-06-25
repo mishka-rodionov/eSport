@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
 import com.competra.center.data.participant_list.ParticipantListAction
 import com.competra.center.data.participant_list.ParticipantListState
+import com.competra.center.data.participant_list.TestParticipantFixtures
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.getArguments
 import com.competra.domain.models.orienteering.OrienteeringParticipant
@@ -109,6 +110,58 @@ class ParticipantListViewModel(
                     }
                 }
             }
+            ParticipantListAction.GenerateTestParticipants -> {
+                generateTestParticipants()
+            }
+        }
+    }
+
+    /**
+     * Генерирует [TestParticipantFixtures.DEFAULT_COUNT] тестовых участников для каждой
+     * пустой группы. Стартовые номера и времена считаются по той же логике, что и при
+     * ручном добавлении (номера 1..N в группе, время от старта соревнования с шагом
+     * стартового интервала). Группы с уже добавленными участниками пропускаются —
+     * повторное нажатие не плодит дубликаты.
+     *
+     * Вызывается только из debug-сборки для тестового соревнования (проверка в UI).
+     */
+    private fun generateTestParticipants() {
+        val competition = stateValue.competition ?: return
+        if (!competition.competition.isTest) return
+
+        val groups = stateValue.participantGroupWithParticipants
+        val intervalMs = (competition.startIntervalSeconds ?: 60) * 1000L
+        val baseTime = competition.startTime ?: 0L
+
+        viewModelScope.launch(Dispatchers.IO) {
+            loadingRepository.emit(true)
+            groups.forEachIndexed { groupIndex, groupData ->
+                if (groupData.participants.isNotEmpty()) return@forEachIndexed
+                val group = groupData.group
+                val names = TestParticipantFixtures.names(group.gender, seed = groupIndex)
+                names.forEachIndexed { i, name ->
+                    val startNumber = i + 1
+                    val startTime = if (baseTime > 0L) baseTime + (startNumber - 1) * intervalMs else 0L
+                    val participant = OrienteeringParticipant(
+                        id = UUID.randomUUID().toString(),
+                        userId = "",
+                        firstName = name.firstName,
+                        lastName = name.lastName,
+                        groupId = group.groupId,
+                        groupName = group.title,
+                        competitionId = group.competitionId,
+                        commandName = "",
+                        startNumber = startNumber.toString(),
+                        startTime = startTime,
+                        chipNumber = "",
+                        comment = "",
+                        isChipGiven = false
+                    )
+                    competitionInteractor.saveParticipant(participant)
+                }
+            }
+            getCompetitionDetails()
+            loadingRepository.emit(false)
         }
     }
 

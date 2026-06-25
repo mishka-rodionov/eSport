@@ -117,9 +117,32 @@ sealed class AnalyticsEvent(
     class ParticipantAdded(method: ParticipantAddMethod) :
         AnalyticsEvent("participant_added", mapOf("method" to method.name.lowercase()))
 
-    /** Выполнена жеребьёвка. */
-    class ParticipantDrawn(participantsCount: Int) :
-        AnalyticsEvent("participant_drawn", mapOf("participants_count" to participantsCount))
+    /** Режим проведённой жеребьёвки. */
+    enum class DrawMode { GENERAL, GROUP, DISTANCE }
+
+    /**
+     * Выполнена жеребьёвка.
+     *
+     * @param participantsCount число распределённых участников.
+     * @param mode режим жеребьёвки.
+     * @param corridors число стартовых коридоров (только для [DrawMode.DISTANCE], иначе `null`).
+     * @param gap минимальный зазор между стартами одной дистанции в интервалах
+     *   (только для [DrawMode.DISTANCE], иначе `null`).
+     */
+    class ParticipantDrawn(
+        participantsCount: Int,
+        mode: DrawMode,
+        corridors: Int? = null,
+        gap: Int? = null,
+    ) : AnalyticsEvent(
+        "participant_drawn",
+        mapOf(
+            "participants_count" to participantsCount,
+            "mode" to mode.name.lowercase(),
+            "corridors" to corridors,
+            "gap" to gap,
+        ),
+    )
 
     // endregion
 
