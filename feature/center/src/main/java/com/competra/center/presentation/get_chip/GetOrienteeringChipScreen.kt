@@ -70,100 +70,124 @@ fun GetOrienteeringChipScreen(
 
             if (state.groupsWithParticipants.isNotEmpty()) {
                 val groups = state.groupsWithParticipants
-                
-                // Табы для выбора группы
+                // Вкладка «Все» показывается только когда групп больше одной.
+                val hasAllTab = groups.size > 1
+                val tabCount = groups.size + if (hasAllTab) 1 else 0
+                val safeTabIndex = selectedTabIndex.coerceIn(0, tabCount - 1)
+                val isAllTab = hasAllTab && safeTabIndex == 0
+
+                // Табы: «Все» (если есть) + по группам
                 SecondaryScrollableTabRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedTabIndex = selectedTabIndex.coerceIn(0, groups.size - 1),
+                    selectedTabIndex = safeTabIndex,
                     edgePadding = 16.dp,
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.primary,
                     divider = {},
-                    indicator = {
-//                        if (selectedTabIndex < tabPositions.size) {
-//                            TabRowDefaults.SecondaryIndicator(
-//                                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-//                                color = MaterialTheme.colorScheme.primary
-//                            )
-//                        }
-                    }
+                    indicator = {}
                 ) {
-                    groups.forEachIndexed { index, groupWithParticipants ->
+                    if (hasAllTab) {
                         Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
+                            selected = isAllTab,
+                            onClick = { selectedTabIndex = 0 },
+                            text = {
+                                Text(
+                                    text = "Все",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = if (isAllTab) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+                        )
+                    }
+                    groups.forEachIndexed { index, groupWithParticipants ->
+                        val tabIndex = if (hasAllTab) index + 1 else index
+                        Tab(
+                            selected = safeTabIndex == tabIndex,
+                            onClick = { selectedTabIndex = tabIndex },
                             text = {
                                 Text(
                                     text = groupWithParticipants.group.title,
                                     style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
+                                    fontWeight = if (safeTabIndex == tabIndex) FontWeight.Bold else FontWeight.Normal
                                 )
                             }
                         )
                     }
                 }
 
-                val currentGroup = groups.getOrNull(selectedTabIndex)
+                // На вкладке «Все» — плоский список всех участников, отсортированный по
+                // стартовому времени (затем по стартовому номеру). На вкладке группы — её участники.
+                val participantsToShow = if (isAllTab) {
+                    groups.flatMap { it.participants }
+                        .sortedWith(
+                            compareBy(
+                                { if (isValidTimestamp(it.startTime)) it.startTime else Long.MAX_VALUE },
+                                { it.startNumber.toIntOrNull() ?: Int.MAX_VALUE }
+                            )
+                        )
+                } else {
+                    val groupIndex = if (hasAllTab) safeTabIndex - 1 else safeTabIndex
+                    groups.getOrNull(groupIndex)?.participants ?: emptyList()
+                }
 
-                if (currentGroup != null) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            contentPadding = PaddingValues(Dimens.SIZE_BASE.dp),
-                            verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
-                        ) {
-                            items(currentGroup.participants, key = { it.id }) { participant ->
-                                ParticipantChipCard(
-                                    participant = participant,
-                                    onChipGivenChanged = { isGiven ->
-                                        viewModel.onAction(
-                                            GetOrienteeringChipAction.ToggleChipGiven(
-                                                participant.id,
-                                                isGiven
-                                            )
+                Column(modifier = Modifier.weight(1f)) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentPadding = PaddingValues(Dimens.SIZE_BASE.dp),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
+                    ) {
+                        items(participantsToShow, key = { it.id }) { participant ->
+                            ParticipantChipCard(
+                                participant = participant,
+                                showGroupName = isAllTab,
+                                onChipGivenChanged = { isGiven ->
+                                    viewModel.onAction(
+                                        GetOrienteeringChipAction.ToggleChipGiven(
+                                            participant.id,
+                                            isGiven
                                         )
-                                    },
-                                    onChipNumberChanged = { newNumber ->
-                                        viewModel.onAction(
-                                            GetOrienteeringChipAction.UpdateChipNumber(
-                                                participant.id,
-                                                newNumber
-                                            )
-                                        )
-                                    }
-                                )
-                            }
-                        }
-
-                        // Кнопка сохранения изменений
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(Dimens.SIZE_BASE.dp)
-                        ) {
-                            Button(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp),
-                                onClick = { viewModel.onAction(GetOrienteeringChipAction.SaveChanges) },
-                                enabled = !state.isSaving,
-                                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
-                            ) {
-                                if (state.isSaving) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        color = MaterialTheme.colorScheme.onPrimary,
-                                        strokeWidth = 2.dp
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                },
+                                onChipNumberChanged = { newNumber ->
+                                    viewModel.onAction(
+                                        GetOrienteeringChipAction.UpdateChipNumber(
+                                            participant.id,
+                                            newNumber
+                                        )
+                                    )
                                 }
-                                Text(
-                                    text = if (state.isSaving) "Сохранение..." else "Сохранить изменения",
-                                    fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    // Кнопка сохранения изменений
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Dimens.SIZE_BASE.dp)
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            onClick = { viewModel.onAction(GetOrienteeringChipAction.SaveChanges) },
+                            enabled = !state.isSaving,
+                            shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+                        ) {
+                            if (state.isSaving) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    strokeWidth = 2.dp
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
                             }
+                            Text(
+                                text = if (state.isSaving) "Сохранение..." else "Сохранить изменения",
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
@@ -183,14 +207,15 @@ fun GetOrienteeringChipScreen(
 private fun ParticipantChipCard(
     participant: OrienteeringParticipant,
     onChipNumberChanged: (String) -> Unit,
-    onChipGivenChanged: (Boolean) -> Unit
+    onChipGivenChanged: (Boolean) -> Unit,
+    showGroupName: Boolean = false
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (participant.isChipGiven) 
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f) 
+            containerColor = if (participant.isChipGiven)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
             else MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -207,6 +232,13 @@ private fun ParticipantChipCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
+                if (showGroupName && participant.groupName.isNotEmpty()) {
+                    Text(
+                        text = participant.groupName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Text(
                     text = "Старт: ${DateTimeFormat.transformLongToTime(participant.startTime)}",
                     style = MaterialTheme.typography.bodySmall,
@@ -235,6 +267,12 @@ private fun ParticipantChipCard(
         }
     }
 }
+
+/** Минимальный валидный timestamp (1 января 2000) — отсекает нулевые/неустановленные значения. */
+private const val MIN_VALID_TIMESTAMP_MS = 946_684_800_000L
+
+/** true, если стартовое время реально установлено (а не 0/мусор). */
+private fun isValidTimestamp(ms: Long): Boolean = ms >= MIN_VALID_TIMESTAMP_MS
 
 @Composable
 private fun LoadingPlaceholder() {
