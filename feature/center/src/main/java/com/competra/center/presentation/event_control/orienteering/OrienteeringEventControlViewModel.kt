@@ -172,6 +172,15 @@ class OrienteeringEventControlViewModel(
                 }
             }
 
+            OrientEventControlAction.OpenStartGrid -> {
+                viewModelScope.launch {
+                    navigation.navigate(
+                        destination = CenterNavigation.StartGridRoute,
+                        argument = navigation.createArguments(EventsConstants.EVENT_ID.name to competitionId)
+                    )
+                }
+            }
+
             OrientEventControlAction.OpenResults -> {
                 viewModelScope.launch {
                     navigation.navigate(

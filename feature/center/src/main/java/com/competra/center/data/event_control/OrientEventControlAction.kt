@@ -10,6 +10,7 @@ sealed class OrientEventControlAction: BaseAction {
     data object OpenOrientReadCard: OrientEventControlAction()
     data object OpenParticipantLists: OrientEventControlAction()
     data object OpenDrawParticipants: OrientEventControlAction()
+    data object OpenStartGrid: OrientEventControlAction()
     data object OpenResults: OrientEventControlAction()
     data object OpenGetOrienteeringChip: OrientEventControlAction()
     data object OpenWriteChip: OrientEventControlAction()

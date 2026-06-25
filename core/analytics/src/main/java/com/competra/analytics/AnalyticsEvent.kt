@@ -89,6 +89,10 @@ sealed class AnalyticsEvent(
     class CompetitionDeleted(competitionId: String) :
         AnalyticsEvent("competition_deleted", mapOf("competition_id" to competitionId))
 
+    /** Открыт экран «Стартовая решётка» (помощь судье на старте). */
+    class CenterStartGridOpened(competitionId: String) :
+        AnalyticsEvent("center_start_grid_opened", mapOf("competition_id" to competitionId))
+
     // endregion
 
     // region NFC / чипы

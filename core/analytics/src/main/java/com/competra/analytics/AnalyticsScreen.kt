@@ -27,6 +27,7 @@ enum class AnalyticsScreen(val screenName: String) {
     NfcReadCard("nfc_read_card"),
     ParticipantList("participant_list"),
     ParticipantDraw("participant_draw"),
+    StartGrid("start_grid"),
     CenterResults("center_results"),
     ParticipantSplits("participant_splits"),
     GetChip("get_chip"),
@@ -68,6 +69,7 @@ enum class AnalyticsScreen(val screenName: String) {
                 route.contains("OrienteeringEventControlRoute") -> EventControl
                 route.contains("OrientReadCardRoute") -> NfcReadCard
                 route.contains("ParticipantList") -> ParticipantList
+                route.contains("StartGridRoute") -> StartGrid
                 route.contains("DrawParticipants") -> ParticipantDraw
                 route.contains("ParticipantResults") -> CenterResults
                 route.contains("ParticipantSplitsRoute") -> ParticipantSplits

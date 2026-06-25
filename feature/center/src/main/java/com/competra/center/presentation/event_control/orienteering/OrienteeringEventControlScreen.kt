@@ -150,7 +150,15 @@ private fun OrienteeringEventControlScreenContent(
                 )
             }
 
-            // 3. Выдача чипов — после жеребьёвки, до запуска
+            // 3. Стартовая решётка — после жеребьёвки (до запуска как предпросмотр и во время старта)
+            if (isDrawConducted) {
+                NavigationRow(
+                    text = "Стартовая решётка",
+                    onClick = { onAction(OrientEventControlAction.OpenStartGrid) }
+                )
+            }
+
+            // 4. Выдача чипов — после жеребьёвки, до запуска
             if (!state.isFinished && !state.isCompetitionRunning && isDrawConducted) {
                 NavigationRow(
                     text = "Выдача чипов",
@@ -158,7 +166,7 @@ private fun OrienteeringEventControlScreenContent(
                 )
             }
 
-            // 4. Результаты — после завершения или во время соревнования (текущие финишные результаты)
+            // 5. Результаты — после завершения или во время соревнования (текущие финишные результаты)
             if (state.isFinished || state.isCompetitionRunning) {
                 NavigationRow(
                     text = "Результаты",

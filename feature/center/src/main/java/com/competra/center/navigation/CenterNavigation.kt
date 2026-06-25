@@ -20,6 +20,7 @@ import com.competra.center.presentation.participant_list.ParticipantListScreen
 import com.competra.center.presentation.read_card.OrientReadCardScreen
 import com.competra.center.presentation.results.OrienteeringCompetitionResultsScreen
 import com.competra.center.presentation.splits.ParticipantSplitsScreen
+import com.competra.center.presentation.start_grid.StartGridScreen
 import com.competra.center.presentation.orientiring_competition_create.MAP_RESULT_LAT
 import com.competra.center.presentation.orientiring_competition_create.MAP_RESULT_LON
 import com.competra.data.navigation.CenterNavigation
@@ -76,6 +77,7 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass, navController:
     composable<CenterNavigation.OrientReadCardRoute> { OrientReadCardScreen() }
     composable<CenterNavigation.ParticipantList> { ParticipantListScreen(onSave = { navController.popBackStack() }) }
     composable<CenterNavigation.DrawParticipants> { DrawParticipantsScreen() }
+    composable<CenterNavigation.StartGridRoute> { StartGridScreen() }
     composable<CenterNavigation.ParticipantResults> { OrienteeringCompetitionResultsScreen() }
     composable<CenterNavigation.GetOrienteeringChipRoute> { backStackEntry ->
         val route: CenterNavigation.GetOrienteeringChipRoute = backStackEntry.toRoute()
