@@ -407,12 +407,15 @@ private sealed class SplitDisplayItem {
      * @param isExtra true — КП нет в дистанции участника (лишняя отметка).
      * @param distanceOrdinal Порядковый номер этого КП по дистанции (1-based), либо null, если КП
      * не из дистанции (лишний) или не был сопоставлен с ожидаемой позицией.
+     * @param isOutOfOrder true — сопоставленная отметка взята не в том порядке (нарушает возрастание
+     * позиций дистанции относительно остальных отметок).
      */
     data class Actual(
         val split: SplitTime,
         val chipIndex: Int,
         val isExtra: Boolean,
         val distanceOrdinal: Int? = null,
+        val isOutOfOrder: Boolean = false,
     ) : SplitDisplayItem()
 
     /** @param distanceOrdinal Порядковый номер пропущенного КП по дистанции (1-based). */
@@ -454,6 +457,13 @@ private fun buildSplitDisplayItems(
         }
     }
 
+    // Отметки, взятые не в том порядке: сопоставленные отметки, не входящие в наибольшую возрастающую
+    // подпоследовательность их позиций по дистанции (хронологический порядок).
+    val outOfOrderIndices = computeOutOfOrderIndices(
+        matchedOrdinalsChronological = rawSplits.indices
+            .mapNotNull { i -> distanceOrdinalByIndex[i]?.let { i to it } }
+    )
+
     // Все отметки в фактическом (хронологическом) порядке + пропущенные КП в конце.
     // «Лишняя» — отметка, которой не нашлось места в дистанции: чужой КП либо повтор сверх нужного.
     val actualItems = rawSplits.indices.map { i ->
@@ -463,10 +473,48 @@ private fun buildSplitDisplayItems(
             chipIndex = i,
             isExtra = ordinal == null,
             distanceOrdinal = ordinal,
+            isOutOfOrder = i in outOfOrderIndices,
         )
     }
 
     return actualItems + missed
+}
+
+/**
+ * Возвращает индексы отметок (`chipIndex`), взятых не в том порядке.
+ *
+ * На вход — сопоставленные отметки в хронологическом порядке как пары `(chipIndex, distanceOrdinal)`.
+ * Вычисляется наибольшая возрастающая подпоследовательность позиций по дистанции; отметки, не вошедшие
+ * в неё, и есть нарушающие порядок (минимальный набор «мешающих» отметок).
+ */
+private fun computeOutOfOrderIndices(
+    matchedOrdinalsChronological: List<Pair<Int, Int>>
+): Set<Int> {
+    val n = matchedOrdinalsChronological.size
+    if (n < 2) return emptySet()
+    val ords = IntArray(n) { matchedOrdinalsChronological[it].second }
+    val lisLen = IntArray(n) { 1 }
+    val prev = IntArray(n) { -1 }
+    var bestEnd = 0
+    for (i in 0 until n) {
+        for (j in 0 until i) {
+            if (ords[j] < ords[i] && lisLen[j] + 1 > lisLen[i]) {
+                lisLen[i] = lisLen[j] + 1
+                prev[i] = j
+            }
+        }
+        if (lisLen[i] > lisLen[bestEnd]) bestEnd = i
+    }
+    val keep = HashSet<Int>()
+    var k = bestEnd
+    while (k != -1) {
+        keep.add(k)
+        k = prev[k]
+    }
+    return (0 until n)
+        .filter { it !in keep }
+        .map { matchedOrdinalsChronological[it].first }
+        .toSet()
 }
 
 /**
@@ -531,8 +579,11 @@ internal fun SplitsCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(
-                                    if (item.isExtra) Color(0xFFFFEB3B).copy(alpha = 0.25f)
-                                    else Color.Transparent
+                                    when {
+                                        item.isExtra -> Color(0xFFFFEB3B).copy(alpha = 0.25f)
+                                        item.isOutOfOrder -> Color(0xFFFF9800).copy(alpha = 0.22f)
+                                        else -> Color.Transparent
+                                    }
                                 )
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -548,8 +599,9 @@ internal fun SplitsCard(
                             Text(
                                 text = item.distanceOrdinal?.toString() ?: "",
                                 style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (item.isOutOfOrder) FontWeight.Bold else FontWeight.Normal,
                                 modifier = Modifier.weight(0.6f),
-                                color = textColor
+                                color = if (item.isOutOfOrder) Color(0xFFE65100) else textColor
                             )
                             Text(
                                 text = item.split.controlPoint.toString(),
@@ -648,7 +700,50 @@ internal fun SplitsCard(
                     )
                 }
             }
+
+            // Легенда подсветки — показываем только встретившиеся в таблице маркеры.
+            val hasOutOfOrder = displayItems.any { it is SplitDisplayItem.Actual && it.isOutOfOrder }
+            val hasExtra = displayItems.any { it is SplitDisplayItem.Actual && it.isExtra }
+            val hasMissed = displayItems.any { it is SplitDisplayItem.Missed }
+            if (hasOutOfOrder || hasExtra || hasMissed) {
+                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    if (hasOutOfOrder) {
+                        SplitsLegendItem(Color(0xFFFF9800).copy(alpha = 0.5f), "Взят не в том порядке")
+                    }
+                    if (hasExtra) {
+                        SplitsLegendItem(Color(0xFFFFEB3B).copy(alpha = 0.6f), "Лишняя отметка (нет в дистанции)")
+                    }
+                    if (hasMissed) {
+                        SplitsLegendItem(MaterialTheme.colorScheme.errorContainer, "Пропущенный КП")
+                    }
+                }
+            }
         }
+    }
+}
+
+/**
+ * Строка легенды: цветной маркер + пояснение.
+ */
+@Composable
+private fun SplitsLegendItem(color: Color, label: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
