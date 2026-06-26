@@ -130,7 +130,8 @@ class OrientReadCardViewModel(
     }
 
     fun handleChipData(chipData: ReadChipData) {
-        if (stateValue.isCompetitionFinished) return
+        // После завершения соревнования чип всё ещё можно отсканировать, но данные
+        // показываются только для просмотра и не сохраняются (см. createParticipantResult).
         val cardType = when (chipData) {
             is ReadChipData.RawResult -> AnalyticsEvent.NfcCardType.PARTICIPANT
             is ReadChipData.MasterChipData -> AnalyticsEvent.NfcCardType.MASTER
@@ -223,6 +224,21 @@ class OrientReadCardViewModel(
             penaltyTime = 0,
             splits = if (result.status == ResultStatus.DSQ) rawSplits else result.validSplits
         )
+
+        if (stateValue.isCompetitionFinished) {
+            // Соревнование завершено — режим «только просмотр»: показываем данные,
+            // но не сохраняем результат и не влияем на итоговые протоколы.
+            updateState {
+                copy(
+                    participant = participant,
+                    participantResult = newResult,
+                    rawSplits = rawSplits,
+                    expectedCpNumbers = expectedCpNumbers,
+                    isPendingSave = false,
+                )
+            }
+            return
+        }
 
         if (newResult.status == ResultStatus.DSQ) {
             // DSQ: показываем результат организатору и ждём явного сохранения

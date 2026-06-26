@@ -50,10 +50,8 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        if (state.isCompetitionFinished) {
-            CompetitionFinishedView()
-        } else if (state.participant == null) {
-            EmptyReadCardView()
+        if (state.participant == null) {
+            EmptyReadCardView(isReadOnly = state.isCompetitionFinished)
         } else {
             ReadCardContent(
                 participant = state.participant!!,
@@ -63,6 +61,7 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
                 groupTotalFinished = state.groupTotalFinished,
                 expectedCpOrder = state.expectedCpNumbers,
                 isPendingSave = state.isPendingSave,
+                isReadOnly = state.isCompetitionFinished,
                 onEditSplit = { index -> viewModel.onAction(OrientReadCardAction.EditSplitClicked(index)) },
                 onCreditCp = { cpNumber, prevTimestamp ->
                     viewModel.onAction(OrientReadCardAction.CreditMissedCp(cpNumber, prevTimestamp))
@@ -90,37 +89,45 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
 }
 
 /**
- * Экран при завершённом соревновании — считывание чипов недоступно.
+ * Баннер режима «только просмотр»: соревнование завершено, чип можно отсканировать,
+ * но данные не сохраняются и не влияют на результаты.
  */
 @Composable
-private fun CompetitionFinishedView() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(Dimens.SIZE_DOUBLE.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+private fun ReadOnlyBanner() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)
+        )
     ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
-            contentDescription = null,
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
-        )
-        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
-        Text(
-            text = "Соревнование завершено",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Запись результатов недоступна после завершения соревнования.",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.SIZE_BASE.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(Dimens.SIZE_BASE.dp))
+            Column {
+                Text(
+                    text = "Соревнование завершено",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+                Text(
+                    text = "Данные показаны только для просмотра и не сохраняются в результаты.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+        }
     }
 }
 
@@ -136,6 +143,7 @@ private fun ReadCardContent(
     groupTotalFinished: Int = 0,
     expectedCpOrder: List<Int> = emptyList(),
     isPendingSave: Boolean = false,
+    isReadOnly: Boolean = false,
     onEditSplit: (index: Int) -> Unit = {},
     onCreditCp: (cpNumber: Int, prevTimestamp: Long) -> Unit = { _, _ -> },
     onSaveResult: () -> Unit = {},
@@ -155,6 +163,13 @@ private fun ReadCardContent(
             )
         }
 
+        // Соревнование завершено — данные показаны только для просмотра
+        if (isReadOnly) {
+            item {
+                ReadOnlyBanner()
+            }
+        }
+
         // Карточка участника
         item {
             ParticipantInfoCard(participant)
@@ -169,6 +184,13 @@ private fun ReadCardContent(
             // Секция сплитов
             val displaySplits = rawSplits ?: result.splits
             if (!displaySplits.isNullOrEmpty()) {
+                // Последовательность КП дистанции для сверки порядка отметок
+                if (expectedCpOrder.isNotEmpty()) {
+                    item {
+                        DistanceCpSequenceCard(expectedCpOrder)
+                    }
+                }
+
                 item {
                     Text(
                         text = "Сплиты по пунктам",
@@ -184,7 +206,7 @@ private fun ReadCardContent(
                         participant = participant,
                         splits = displaySplits,
                         expectedCpOrder = expectedCpOrder,
-                        onEditSplit = onEditSplit,
+                        onEditSplit = if (isReadOnly) null else onEditSplit,
                         onCreditCp = if (isPendingSave) onCreditCp else null,
                     )
                 }
@@ -203,6 +225,40 @@ private fun ReadCardContent(
                     Text("Сохранить результат", fontWeight = FontWeight.Bold)
                 }
             }
+        }
+    }
+}
+
+/**
+ * Карточка с последовательностью КП дистанции участника.
+ *
+ * Каждый элемент — «порядковый_номер-номер_КП» (например «1-36, 2-37, 3-38»),
+ * чтобы организатор мог сверить правильность порядка отметок.
+ */
+@Composable
+private fun DistanceCpSequenceCard(expectedCpOrder: List<Int>) {
+    val sequence = remember(expectedCpOrder) {
+        expectedCpOrder.mapIndexed { index, cp -> "${index + 1}-$cp" }.joinToString(", ")
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(modifier = Modifier.padding(Dimens.SIZE_BASE.dp)) {
+            Text(
+                text = "Последовательность КП дистанции",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = sequence,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
@@ -284,32 +340,35 @@ internal fun RaceSummaryCard(
         Column(modifier = Modifier.padding(Dimens.SIZE_BASE.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.Bottom
             ) {
-                InfoColumn(label = "Старт", value = DateTimeFormat.transformLongToTime(participant.startTime))
-                InfoColumn(label = "Финиш", value = DateTimeFormat.transformLongToTime(result.finishTime))
-            }
-
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = Dimens.SIZE_BASE.dp),
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f)
-            )
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "ОБЩЕЕ ВРЕМЯ",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                InfoColumn(
+                    label = "Старт",
+                    value = DateTimeFormat.transformLongToTime(participant.startTime),
+                    modifier = Modifier.weight(1f)
                 )
-                Text(
-                    text = result.totalTime?.toRaceTime() ?: "00:00:00",
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onSurface
+                Column(
+                    modifier = Modifier.weight(1.6f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "ОБЩЕЕ ВРЕМЯ",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = result.totalTime?.toRaceTime() ?: "00:00:00",
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1
+                    )
+                }
+                InfoColumn(
+                    label = "Финиш",
+                    value = DateTimeFormat.transformLongToTime(result.finishTime),
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
                 )
             }
 
@@ -341,10 +400,32 @@ internal fun RaceSummaryCard(
 }
 
 private sealed class SplitDisplayItem {
-    data class Actual(val split: SplitTime, val chipIndex: Int, val isExtra: Boolean) : SplitDisplayItem()
-    data class Missed(val cpNumber: Int) : SplitDisplayItem()
+    /**
+     * Фактическая отметка с чипа.
+     *
+     * @param chipIndex Индекс отметки в хронологическом порядке чипа (фактический порядок взятия).
+     * @param isExtra true — КП нет в дистанции участника (лишняя отметка).
+     * @param distanceOrdinal Порядковый номер этого КП по дистанции (1-based), либо null, если КП
+     * не из дистанции (лишний) или не был сопоставлен с ожидаемой позицией.
+     */
+    data class Actual(
+        val split: SplitTime,
+        val chipIndex: Int,
+        val isExtra: Boolean,
+        val distanceOrdinal: Int? = null,
+    ) : SplitDisplayItem()
+
+    /** @param distanceOrdinal Порядковый номер пропущенного КП по дистанции (1-based). */
+    data class Missed(val cpNumber: Int, val distanceOrdinal: Int) : SplitDisplayItem()
 }
 
+/**
+ * Формирует список строк таблицы сплитов в **фактическом порядке отметок** (хронология чипа).
+ *
+ * Для каждой отметки вычисляется её позиция по дистанции ([SplitDisplayItem.Actual.distanceOrdinal]),
+ * чтобы судья мог увидеть нарушение порядка: если значения «Дист.» не растут 1, 2, 3…, КП взяты не по
+ * порядку. Пропущенные КП дистанции (не отмеченные на чипе) добавляются отдельными строками в конец.
+ */
 private fun buildSplitDisplayItems(
     rawSplits: List<SplitTime>,
     expectedCpOrder: List<Int>
@@ -352,40 +433,47 @@ private fun buildSplitDisplayItems(
     if (expectedCpOrder.isEmpty()) {
         return rawSplits.mapIndexed { i, s -> SplitDisplayItem.Actual(s, i, isExtra = false) }
     }
-    val expectedSet = expectedCpOrder.toSet()
     val shownIndices = mutableSetOf<Int>()
-    val items = mutableListOf<SplitDisplayItem>()
+    // Порядковый номер по дистанции для каждой сопоставленной фактической отметки.
+    val distanceOrdinalByIndex = HashMap<Int, Int>()
+    val missed = mutableListOf<SplitDisplayItem.Missed>()
 
-    for (expectedCp in expectedCpOrder) {
+    // Сопоставляем каждую позицию дистанции (с учётом повторов одного КП — бабочки/петли) с самой
+    // ранней ещё не занятой отметкой того же номера. Так каждое вхождение повторяющегося КП получает
+    // свою позицию, а отметки сверх нужного количества остаются несопоставленными (лишними).
+    expectedCpOrder.forEachIndexed { orderIndex, expectedCp ->
+        val ordinal = orderIndex + 1
         val visitedIdx = rawSplits.indices.firstOrNull {
             it !in shownIndices && rawSplits[it].controlPoint == expectedCp
         }
         if (visitedIdx != null) {
-            // Лишние КП (не из дистанции), встретившиеся до текущего ожидаемого
-            rawSplits.indices
-                .filter { it < visitedIdx && it !in shownIndices && rawSplits[it].controlPoint !in expectedSet }
-                .forEach { i ->
-                    items.add(SplitDisplayItem.Actual(rawSplits[i], i, isExtra = true))
-                    shownIndices.add(i)
-                }
-            items.add(SplitDisplayItem.Actual(rawSplits[visitedIdx], visitedIdx, isExtra = false))
+            distanceOrdinalByIndex[visitedIdx] = ordinal
             shownIndices.add(visitedIdx)
         } else {
-            items.add(SplitDisplayItem.Missed(expectedCp))
+            missed.add(SplitDisplayItem.Missed(expectedCp, ordinal))
         }
     }
-    // Оставшиеся лишние КП в конце чипа
-    rawSplits.indices
-        .filter { it !in shownIndices && rawSplits[it].controlPoint !in expectedSet }
-        .forEach { i -> items.add(SplitDisplayItem.Actual(rawSplits[i], i, isExtra = true)) }
 
-    return items
+    // Все отметки в фактическом (хронологическом) порядке + пропущенные КП в конце.
+    // «Лишняя» — отметка, которой не нашлось места в дистанции: чужой КП либо повтор сверх нужного.
+    val actualItems = rawSplits.indices.map { i ->
+        val ordinal = distanceOrdinalByIndex[i]
+        SplitDisplayItem.Actual(
+            split = rawSplits[i],
+            chipIndex = i,
+            isExtra = ordinal == null,
+            distanceOrdinal = ordinal,
+        )
+    }
+
+    return actualItems + missed
 }
 
 /**
  * Карточка со списком сплитов.
  *
- * - Жёлтый фон: КП из чипа, которого нет в дистанции участника.
+ * - Жёлтый фон: лишняя отметка — КП, которому не нашлось места в дистанции (чужой КП либо повтор
+ *   сверх нужного количества для повторяющихся КП дистанции).
  * - Красный фон: КП дистанции, которого нет в чипе (пропущен).
  */
 @Composable
@@ -413,7 +501,9 @@ internal fun SplitsCard(
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "КП", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+                Text(text = "Факт", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(0.6f))
+                Text(text = "Дист", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(0.6f))
+                Text(text = "КП", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(0.8f))
                 Text(text = "Сплит", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                 Text(text = "Время", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
             }
@@ -450,10 +540,22 @@ internal fun SplitsCard(
                         ) {
                             val textColor = if (item.isExtra) Color(0xFF9E8000) else MaterialTheme.colorScheme.onSurface
                             Text(
+                                text = (item.chipIndex + 1).toString(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(0.6f),
+                                color = textColor
+                            )
+                            Text(
+                                text = item.distanceOrdinal?.toString() ?: "",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(0.6f),
+                                color = textColor
+                            )
+                            Text(
                                 text = item.split.controlPoint.toString(),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(0.8f),
                                 color = textColor
                             )
                             Text(
@@ -495,10 +597,22 @@ internal fun SplitsCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
+                                text = "—",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(0.6f),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                text = item.distanceOrdinal.toString(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(0.6f),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
                                 text = item.cpNumber.toString(),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(0.8f),
                                 color = MaterialTheme.colorScheme.error
                             )
                             Text(
@@ -539,8 +653,13 @@ internal fun SplitsCard(
 }
 
 @Composable
-internal fun InfoColumn(label: String, value: String) {
-    Column {
+internal fun InfoColumn(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start
+) {
+    Column(modifier = modifier, horizontalAlignment = horizontalAlignment) {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
     }
@@ -550,7 +669,7 @@ internal fun InfoColumn(label: String, value: String) {
  * Заглушка при отсутствии данных (чип не считан).
  */
 @Composable
-private fun EmptyReadCardView() {
+private fun EmptyReadCardView(isReadOnly: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -572,7 +691,12 @@ private fun EmptyReadCardView() {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Приложите NFC-чип участника к устройству для считывания результатов гонки.",
+            text = if (isReadOnly) {
+                "Соревнование завершено. Можно приложить NFC-чип участника для просмотра данных — " +
+                    "результаты при этом не сохраняются."
+            } else {
+                "Приложите NFC-чип участника к устройству для считывания результатов гонки."
+            },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -627,11 +751,19 @@ private fun EmptyReadCardPreview() {
     }
 }
 
-@Preview(name = "Соревнование завершено", showBackground = true)
+@Preview(name = "Баннер «только просмотр»", showBackground = true)
 @Composable
-private fun CompetitionFinishedPreview() {
+private fun ReadOnlyBannerPreview() {
     MaterialTheme {
-        CompetitionFinishedView()
+        ReadOnlyBanner()
+    }
+}
+
+@Preview(name = "Ожидание чипа — соревнование завершено", showBackground = true)
+@Composable
+private fun EmptyReadCardReadOnlyPreview() {
+    MaterialTheme {
+        EmptyReadCardView(isReadOnly = true)
     }
 }
 
@@ -642,7 +774,8 @@ private fun ReadCardContentPreview() {
         ReadCardContent(
             participant = previewParticipant,
             result = previewResult,
-            rawSplits = previewSplits
+            rawSplits = previewSplits,
+            expectedCpOrder = listOf(31, 32, 33, 34, 99)
         )
     }
 }
@@ -701,6 +834,25 @@ private fun SplitsCardDsqPreview() {
                 SplitTime(controlPoint = 99, timestamp = 1700000960000L),
             ),
             expectedCpOrder = listOf(31, 32, 33, 34, 99)
+        )
+    }
+}
+
+@Preview(name = "Сплиты — бабочка (повторы КП)", showBackground = true)
+@Composable
+private fun SplitsCardButterflyPreview() {
+    MaterialTheme {
+        // Дистанция-бабочка: центральный КП 50 берётся дважды — [50, 31, 50, 32].
+        SplitsCard(
+            participant = previewParticipant,
+            splits = listOf(
+                SplitTime(controlPoint = 50, timestamp = 1700000100000L),
+                SplitTime(controlPoint = 32, timestamp = 1700000250000L), // взят раньше времени
+                SplitTime(controlPoint = 50, timestamp = 1700000400000L),
+                SplitTime(controlPoint = 31, timestamp = 1700000550000L),
+                SplitTime(controlPoint = 50, timestamp = 1700000700000L), // лишний повтор сверх нужного
+            ),
+            expectedCpOrder = listOf(50, 31, 50, 32)
         )
     }
 }
