@@ -37,6 +37,15 @@ android {
         }
     }
 
+    // Измерение «магазин»: один applicationId на все сторы, разные source set'ы
+    // под стор-специфику (HMS/RuStore SDK и т.п. добавляются отдельными задачами).
+    flavorDimensions += "store"
+    productFlavors {
+        create("gplay") { dimension = "store" }
+        create("rustore") { dimension = "store" }
+        create("huawei") { dimension = "store" }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -126,7 +135,8 @@ dependencies {
 
     implementation(libs.androidx.work.runtime.ktx)
 
-    implementation(libs.chucker.library)
+    debugImplementation(libs.chucker.library)
+    releaseImplementation(libs.library.no.op)
 
     //firebase
     implementation(platform(libs.firebase.bom))

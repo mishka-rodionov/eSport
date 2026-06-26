@@ -5,6 +5,7 @@ import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.competra.remote.BuildConfig
 import com.competra.domain.models.KindOfSport
 import com.competra.domain.repository.auth.TokenRepository
 import com.competra.remote.datasource.auth.AuthRemoteDataSource
@@ -43,9 +44,16 @@ fun retrofit(
     builder.addInterceptor(interceptor)
     // AuthInterceptor должен идти ДО HttpLoggingInterceptor, иначе в логе не видно
     // подставленный Authorization-заголовок (logger срабатывает раньше auth-интерсептора).
+    // В release тела запросов/ответов не логируем, чтобы не светить данные и
+    // токены в logcat прод-сборки.
+    val logLevel = if (BuildConfig.DEBUG) {
+        HttpLoggingInterceptor.Level.BODY
+    } else {
+        HttpLoggingInterceptor.Level.NONE
+    }
     val okClient = builder
         .addInterceptor(AuthInterceptor(tokenRepository = tokenRepository))
-        .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        .addInterceptor(HttpLoggingInterceptor().setLevel(logLevel))
         .authenticator(TokenAuthenticator(tokenRepository = tokenRepository))
 //        .addInterceptor(MockInterceptor())
         .retryOnConnectionFailure(true)
@@ -53,14 +61,13 @@ fun retrofit(
         .readTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .writeTimeout(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         .build()
-    val baseUrl = "https://BASE_URL"
+    // Базовый URL задаётся по buildType через BuildConfig (debug -> тест/override,
+    // release -> прод). Старые dev-адреса оставлены для быстрого ручного переключения.
 //    val localBaseUrl = "http://192.168.1.113:8080/"
-    val localBaseUrl = "https://competra.ru/api/" // remote server
 //    val localBaseUrl = "http://188.68.223.12:8080/" // remote server
 //    val localBaseUrl = "http://192.168.1.71:8080/"
     return Retrofit.Builder()
-        .baseUrl(localBaseUrl)
-//        .baseUrl(baseUrl)
+        .baseUrl(BuildConfig.BASE_URL)
         .addConverterFactory(ScalarsConverterFactory.create())
         .addConverterFactory(GsonConverterFactory.create(gson))
         .addCallAdapterFactory(ResultCallAdapterFactory())

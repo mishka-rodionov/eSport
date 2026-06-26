@@ -1,7 +1,19 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.android)
 }
+
+// Базовый URL тестовой (debug) сборки можно переопределить локально через
+// local.properties (BASE_URL_DEBUG) — например, на dev-сервер разработчика.
+// По умолчанию debug ходит на тот же прод-бэкенд, что и release.
+val prodBaseUrl = "https://competra.ru/api/"
+val remoteProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(f.inputStream())
+}
+val baseUrlDebug: String = remoteProps.getProperty("BASE_URL_DEBUG", prodBaseUrl)
 
 android {
     namespace = "com.competra.remote"
@@ -15,13 +27,22 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"$baseUrlDebug\"")
+            buildConfigField("boolean", "IS_TEST_BUILD", "true")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "BASE_URL", "\"$prodBaseUrl\"")
+            buildConfigField("boolean", "IS_TEST_BUILD", "false")
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -54,5 +75,6 @@ dependencies {
     implementation(libs.koin.core)
     implementation(libs.koin.android)
 
-    implementation(libs.chucker.library)
+    debugImplementation(libs.chucker.library)
+    releaseImplementation(libs.library.no.op)
 }
