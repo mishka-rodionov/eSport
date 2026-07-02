@@ -4,17 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build Commands
 
-```bash
-./gradlew assembleDebug          # Build debug APK
-./gradlew assembleRelease        # Build release APK
-./gradlew build                  # Full build (all modules)
-./gradlew clean build            # Clean + full build
+The app has a `store` flavor dimension with three flavors — `gplay`, `rustore`, `huawei` — so build tasks are per-flavor (e.g. `assembleGplayDebug`, `assembleRustoreRelease`). Bare `assembleDebug` builds all flavors.
 
-./gradlew test                   # Unit tests (all modules)
-./gradlew :feature:center:test   # Unit tests for a specific module
-./gradlew connectedAndroidTest   # Instrumented tests (requires device/emulator)
-./gradlew lint                   # Static analysis
+```bash
+./gradlew assembleGplayDebug       # Build debug APK for a store (gplay/rustore/huawei)
+./gradlew assembleGplayRelease     # Build release APK for a store
+./gradlew assembleDebug            # Build debug APK for ALL flavors
+./gradlew build                    # Full build (all modules, all flavors)
+./gradlew clean build              # Clean + full build
+
+./gradlew test                     # Unit tests (all modules)
+./gradlew :feature:center:test     # Unit tests for a specific module
+./gradlew connectedAndroidTest     # Instrumented tests (requires device/emulator)
+./gradlew lint                     # Static analysis
 ```
+
+`applicationId` is `com.competra` (debug builds get a `.debug` suffix). AppMetrica keys are read from `local.properties` (`APPMETRICA_API_KEY_DEBUG` / `APPMETRICA_API_KEY_RELEASE`) and are not committed.
 
 ## Architecture
 
@@ -36,6 +41,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `:core:nfchelper` | NFC read/write abstraction (MifareClassic, MifareUltralight, ParticipantCard, MasterCard) |
 | `:core:ui` | Shared composables |
 | `:core:resources` | Strings, drawables |
+| `:core:sync` | Offline-first sync: `SyncOrchestrator`, `ConflictResolver`, `NetworkAvailabilityObserver`, WorkManager `SyncCenterWorker` (см. `docs/skills/offline-first-sync.md`) |
+| `:core:analytics` | Analytics wrapper (`AnalyticsTracker` / `AppMetricaAnalyticsTracker`, `NavTracking`) — AppMetrica + Firebase Analytics |
+| `:core:eventdetails` | Event detail feature: details / live_results / results / participant_group screens, own nav graph |
 | `:utils` | Kotlin extension functions |
 
 ### Feature Module Structure
@@ -75,7 +83,9 @@ Features use a unidirectional State/Action pattern:
 - **Room 2.8 + KSP** — local persistence; KSP processes annotations at build time
 - **Retrofit 3 + OkHttp 5** — networking; Chucker interceptor available in debug builds
 - **Coroutines + Flow/StateFlow** — all async work
+- **WorkManager** — background sync (`:core:sync`, `SyncCenterWorker`)
 - **DataStore + Security Crypto** — for sensitive key-value storage
+- **AppMetrica + Firebase** — analytics (AppMetrica primary, via `:core:analytics`), plus Firebase Crashlytics / Analytics / Messaging
 
 ## Code Conventions (from AGENTS.md)
 
@@ -92,6 +102,7 @@ The app uses NFC to read/write participant chips for orienteering competitions. 
 ## SDK Targets
 
 - `minSdk 26` / `targetSdk 34` / `compileSdk 36`
+- Distributed to three stores via flavors: `gplay` (Google Play), `rustore` (RuStore), `huawei` (AppGallery)
 - Physical NFC device required for NFC features; emulator cannot emulate NFC hardware
 
 ## Workflows и skills
