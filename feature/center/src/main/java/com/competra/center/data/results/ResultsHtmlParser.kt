@@ -157,11 +157,13 @@ fun buildResultsDiff(
         val participant = participantWithResult.participant
         val existing = participantWithResult.result
 
-        val newSplits = existing?.startTime?.let { startTime ->
-            row.splits
-                .mapNotNull { (cp, cumulSec) -> cumulSec?.let { SplitTime(cp, startTime + it * 1000) } }
-                .takeIf { it.isNotEmpty() }
-        }
+        // Якорь для реконструкции абсолютного времени сплитов: приоритет — реальное время старта
+        // из текущего результата (если он есть), иначе плановое время старта участника (почти
+        // всегда доступно, даже когда результаты полностью потеряны — это и есть сценарий импорта).
+        val splitsAnchorStartTime = existing?.startTime ?: participant.startTime
+        val newSplits = row.splits
+            .mapNotNull { (cp, cumulSec) -> cumulSec?.let { SplitTime(cp, splitsAnchorStartTime + it * 1000) } }
+            .takeIf { it.isNotEmpty() }
 
         val newStatus = row.status ?: existing?.status ?: ResultStatus.FINISHED
         val newTotalTime = row.totalTimeSeconds ?: existing?.totalTime
