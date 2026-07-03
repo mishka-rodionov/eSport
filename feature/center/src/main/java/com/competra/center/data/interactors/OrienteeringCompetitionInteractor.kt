@@ -482,6 +482,25 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
+     * Батчево накатывает результаты, распознанные при импорте из HTML-протокола (восстановление
+     * после сбоя): bulk-upsert через [OrienteeringCompetitionLocalRepository.saveResults]
+     * (в отличие от updateResults, корректно создаёт и отсутствующие строки), затем пересчитывает
+     * места по каждой затронутой группе — аналогично [updateResultsAndRanks], но одним проходом.
+     */
+    suspend fun importResults(results: List<OrienteeringResult>): Result<Any> {
+        if (results.isEmpty()) return Result.success(Unit)
+
+        return localRepository.saveResults(results).onSuccess {
+            val affectedGroups = results.map { it.competitionId to it.groupId }.distinct()
+            affectedGroups.forEach { (competitionId, groupId) ->
+                val currentResults = localRepository.getResultForGroup(competitionId, groupId).getOrNull() ?: emptyList()
+                localRepository.updateResults(currentResults.withRecalculatedRanks())
+            }
+            touch()
+        }
+    }
+
+    /**
      * Загружает дистанции и группы участников с сервера и синхронизирует их в локальную БД.
      *
      * Алгоритм:

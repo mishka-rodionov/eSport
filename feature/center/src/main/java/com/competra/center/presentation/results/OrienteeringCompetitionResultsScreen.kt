@@ -1,5 +1,7 @@
 package com.competra.center.presentation.results
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import com.competra.center.data.results.ImportResultRow
+import com.competra.center.data.results.ImportResultsDiff
 import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.components.clickRipple
 import com.competra.designsystem.theme.Dimens
@@ -28,7 +32,9 @@ import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.resources.R
 import com.competra.utils.DateTimeFormat
 import com.competra.utils.orienteering.toRaceTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
 
@@ -44,8 +50,21 @@ fun OrienteeringCompetitionResultsScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedParticipant by remember { mutableStateOf<ParticipantWithResult?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val importSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var showExportMenu by remember { mutableStateOf(false) }
+
+    val importHtmlPicker = rememberLauncherForActivityResult(GetContent()) { uri ->
+        uri?.let { pickedUri ->
+            scope.launch(Dispatchers.IO) {
+                val text = context.contentResolver.openInputStream(pickedUri)?.bufferedReader()?.use { it.readText() }
+                text?.let {
+                    viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ImportHtml(it))
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.exportCsvEvent.collectLatest { (fileName, csv) ->
@@ -106,6 +125,38 @@ fun OrienteeringCompetitionResultsScreen(
                     }
                     context.startActivity(android.content.Intent.createChooser(sendIntent, "Поделиться ссылкой"))
                 }) { Text("Поделиться") }
+            }
+        )
+    }
+
+    // Ошибка распознавания импортируемого HTML-файла
+    state.importError?.let { error ->
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.DismissImportPreview)
+            },
+            title = { Text("Ошибка импорта") },
+            text = { Text(error) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.DismissImportPreview)
+                }) { Text("Ок") }
+            }
+        )
+    }
+
+    // Превью-дифф импорта результатов из HTML
+    state.importDiff?.let { diff ->
+        ImportResultsPreviewBottomSheet(
+            competitionTitle = state.competitionTitle,
+            diff = diff,
+            sheetState = importSheetState,
+            isImporting = state.isImporting,
+            onDismiss = {
+                viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.DismissImportPreview)
+            },
+            onConfirm = { selectedRows ->
+                viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ConfirmImport(selectedRows))
             }
         )
     }
@@ -177,6 +228,13 @@ fun OrienteeringCompetitionResultsScreen(
                                 onClick = {
                                     showExportMenu = false
                                     viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.PublishHtml)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Импорт из HTML") },
+                                onClick = {
+                                    showExportMenu = false
+                                    importHtmlPicker.launch("text/html")
                                 }
                             )
                         }
@@ -452,6 +510,130 @@ fun EditResultBottomSheet(
                 shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
             ) {
                 Text("Сохранить изменения", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+/**
+ * Превью-дифф перед импортом результатов из HTML: изменившиеся заматченные строки (с чекбоксом
+ * на каждой — можно исключить отдельные строки из импорта) и отдельно, только информационно,
+ * строки с нераспознанным стартовым номером.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ImportResultsPreviewBottomSheet(
+    competitionTitle: String,
+    diff: ImportResultsDiff,
+    sheetState: SheetState,
+    isImporting: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: (List<ImportResultRow>) -> Unit,
+) {
+    val checkedByParticipantId = remember(diff) {
+        mutableStateMapOf<String, Boolean>().apply { diff.changed.forEach { this[it.participant.id] = true } }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.85f)
+                .padding(Dimens.SIZE_BASE.dp)
+        ) {
+            Text(
+                text = "Импорт результатов из HTML",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Импорт применится к текущему соревнованию: $competitionTitle",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp, bottom = Dimens.SIZE_BASE.dp)
+            )
+
+            when {
+                diff.changed.isEmpty() && diff.unmatched.isEmpty() -> Text(
+                    "В файле не найдено ни одной строки результатов.",
+                    color = MaterialTheme.colorScheme.error
+                )
+                diff.changed.isEmpty() -> Text(
+                    "Совпадений с текущими участниками не найдено — проверьте, что выбран файл именно этого соревнования.",
+                    color = MaterialTheme.colorScheme.error
+                )
+                else -> Text("Изменения (${diff.changed.size}):", style = MaterialTheme.typography.titleMedium)
+            }
+
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(diff.changed, key = { it.participant.id }) { row ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = checkedByParticipantId[row.participant.id] == true,
+                            onCheckedChange = { checkedByParticipantId[row.participant.id] = it }
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "№${row.participant.startNumber} ${row.participant.lastName} ${row.participant.firstName}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                row.changeSummary,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                if (diff.unmatched.isNotEmpty()) {
+                    item {
+                        Text(
+                            "Не распознано (${diff.unmatched.size}) — стартовый номер не найден среди участников, будут пропущены:",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(top = Dimens.SIZE_BASE.dp, bottom = 4.dp)
+                        )
+                    }
+                    items(diff.unmatched) { row ->
+                        Text(
+                            "№${row.startNumber} ${row.fullName}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+
+            val selectedCount = diff.changed.count { checkedByParticipantId[it.participant.id] == true }
+            Button(
+                onClick = { onConfirm(diff.changed.filter { checkedByParticipantId[it.participant.id] == true }) },
+                enabled = selectedCount > 0 && !isImporting,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(top = Dimens.SIZE_BASE.dp),
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+            ) {
+                if (isImporting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Применить ($selectedCount)", fontWeight = FontWeight.Bold)
+                }
             }
         }
     }

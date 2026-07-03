@@ -294,6 +294,16 @@ class OrienteeringCompetitionLocalRepositoryImpl(
         }
     }
 
+    override suspend fun saveResults(
+        orienteeringResult: List<OrienteeringResult>,
+        markUnsynced: Boolean
+    ): Result<Any> {
+        return runCatching {
+            val prepared = if (markUnsynced) orienteeringResult.map { it.applyUnsynced() } else orienteeringResult
+            orienteeringResultDao.insertResults(prepared.map { it.toEntity() })
+        }
+    }
+
     override suspend fun getResultByGroups(competitionId: String): Result<List<GroupWithParticipantsAndResults>> {
         return runCatching {
             orienteeringResultDao.getProtocolByCompetition(competitionId).map { it.toDomain() }

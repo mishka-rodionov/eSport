@@ -52,6 +52,14 @@ interface OrienteeringCompetitionLocalRepository {
     suspend fun getResultForGroup(competitionId: String, groupId: Long): Result<List<OrienteeringResult>>
     suspend fun updateResults(orienteeringResult: List<OrienteeringResult>, markUnsynced: Boolean = true): Result<Any>
 
+    /**
+     * Bulk-upsert результатов (INSERT ... REPLACE по id). В отличие от [updateResults] (Room `@Update`,
+     * молча игнорирует записи без PK-совпадения), корректно создаёт как новые строки (id = 0), так и
+     * обновляет существующие — нужен для импорта/восстановления, когда часть результатов участников
+     * могла быть полностью потеряна.
+     */
+    suspend fun saveResults(orienteeringResult: List<OrienteeringResult>, markUnsynced: Boolean = true): Result<Any>
+
     suspend fun getResultByGroups(competitionId: String): Result<List<GroupWithParticipantsAndResults>>
 
     /**

@@ -9,4 +9,7 @@ data class OrienteeringCompetitionResultsState(
     val competitionTitle: String = "",
     val isPublishingHtml: Boolean = false,
     val publishedHtmlUrl: String? = null,
+    val importDiff: ImportResultsDiff? = null,
+    val isImporting: Boolean = false,
+    val importError: String? = null,
 ): BaseState

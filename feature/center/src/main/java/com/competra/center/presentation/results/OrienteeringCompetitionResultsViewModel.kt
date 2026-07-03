@@ -4,7 +4,10 @@ import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import androidx.lifecycle.viewModelScope
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
+import com.competra.center.data.results.ImportResultRow
 import com.competra.center.data.results.OrienteeringCompetitionResultsState
+import com.competra.center.data.results.buildResultsDiff
+import com.competra.center.data.results.parseResultsHtml
 import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.getArguments
@@ -100,6 +103,43 @@ class OrienteeringCompetitionResultsViewModel(
             is OrienteeringResultsAction.ExportPdf -> exportPdf()
             is OrienteeringResultsAction.PublishHtml -> publishHtml()
             is OrienteeringResultsAction.DismissPublishedUrl -> updateState { copy(publishedHtmlUrl = null) }
+            is OrienteeringResultsAction.ImportHtml -> importHtml(action.htmlText)
+            is OrienteeringResultsAction.ConfirmImport -> confirmImport(action.selectedRows)
+            is OrienteeringResultsAction.DismissImportPreview -> updateState { copy(importDiff = null, importError = null) }
+        }
+    }
+
+    /**
+     * Парсит выбранный HTML-протокол результатов и строит дифф-превью относительно текущих
+     * данных соревнования. Импорт всегда применяется к текущему открытому соревнованию —
+     * competitionId в самом HTML не хранится.
+     */
+    private fun importHtml(htmlText: String) {
+        val groups = stateValue.groupsWithParticipantsAndResults
+        val compId = competitionId ?: return
+        viewModelScope.launch(Dispatchers.Default) {
+            val diff = try {
+                val parsedRows = parseResultsHtml(htmlText)
+                if (parsedRows.isEmpty()) {
+                    updateState { copy(importError = "Не удалось распознать файл — проверьте, что это HTML-протокол результатов.") }
+                    return@launch
+                }
+                buildResultsDiff(parsedRows, groups, compId)
+            } catch (e: Exception) {
+                updateState { copy(importError = "Не удалось распознать файл — проверьте, что это HTML-протокол результатов.") }
+                return@launch
+            }
+            updateState { copy(importDiff = diff, importError = null) }
+        }
+    }
+
+    private fun confirmImport(selectedRows: List<ImportResultRow>) {
+        if (selectedRows.isEmpty()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            updateState { copy(isImporting = true) }
+            orienteeringCompetitionInteractor.importResults(selectedRows.map { it.request })
+            updateState { copy(isImporting = false, importDiff = null) }
+            loadResults()
         }
     }
 
@@ -538,5 +578,13 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
         data object PublishHtml : OrienteeringResultsAction()
 
         data object DismissPublishedUrl : OrienteeringResultsAction()
+
+        /** Пользователь выбрал HTML-файл для импорта; [htmlText] — его содержимое. */
+        data class ImportHtml(val htmlText: String) : OrienteeringResultsAction()
+
+        /** Подтверждение импорта: применить только отмеченные в превью строки. */
+        data class ConfirmImport(val selectedRows: List<ImportResultRow>) : OrienteeringResultsAction()
+
+        data object DismissImportPreview : OrienteeringResultsAction()
     }
 }

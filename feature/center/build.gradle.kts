@@ -75,4 +75,7 @@ dependencies {
 
     //osmdroid
     implementation(libs.osmdroid)
+
+    //Jsoup — парсинг HTML-протокола результатов при импорте
+    implementation(libs.jsoup)
 }

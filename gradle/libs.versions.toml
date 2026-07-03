@@ -63,6 +63,9 @@ firebaseCrashlyticsPlugin = "3.0.7"
 #AppMetrica
 appmetrica = "7.13.0"
 
+#Jsoup
+jsoupVersion = "1.18.3"
+
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-ui-ui = { module = "androidx.compose.ui:ui" }
@@ -116,6 +119,9 @@ firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 
 #AppMetrica
 appmetrica-analytics = { module = "io.appmetrica.analytics:analytics", version.ref = "appmetrica" }
+
+#Jsoup
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoupVersion" }
 
 #Lifecycle
 lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycle-extensions" }
