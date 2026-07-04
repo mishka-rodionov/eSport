@@ -30,6 +30,7 @@ enum class AnalyticsScreen(val screenName: String) {
     StartGrid("start_grid"),
     CenterResults("center_results"),
     ParticipantSplits("participant_splits"),
+    GroupSplitsTable("group_splits_table"),
     GetChip("get_chip"),
 
     // Profile
@@ -73,6 +74,7 @@ enum class AnalyticsScreen(val screenName: String) {
                 route.contains("DrawParticipants") -> ParticipantDraw
                 route.contains("ParticipantResults") -> CenterResults
                 route.contains("ParticipantSplitsRoute") -> ParticipantSplits
+                route.contains("GroupSplitsTableRoute") -> GroupSplitsTable
                 route.contains("GetOrienteeringChipRoute") -> GetChip
 
                 route.contains("MainProfileRoute") -> ProfileHome

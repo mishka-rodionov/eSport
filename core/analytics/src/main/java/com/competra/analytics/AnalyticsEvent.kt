@@ -162,6 +162,12 @@ sealed class AnalyticsEvent(
     /** Отметка на КП удалена вручную при считывании чипа. */
     data object SplitDeleted : AnalyticsEvent("split_deleted")
 
+    /** Открыта таблица сплитов всей группы. */
+    class GroupSplitsTableOpened(groupId: Long, competitionId: String) : AnalyticsEvent(
+        "group_splits_table_opened",
+        mapOf("group_id" to groupId, "competition_id" to competitionId),
+    )
+
     // endregion
 
     // region Profile

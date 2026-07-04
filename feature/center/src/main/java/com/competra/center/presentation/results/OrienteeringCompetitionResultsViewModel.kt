@@ -7,7 +7,10 @@ import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
 import com.competra.center.data.results.ImportResultRow
 import com.competra.center.data.results.OrienteeringCompetitionResultsState
 import com.competra.center.data.results.buildResultsDiff
+import com.competra.center.data.results.SplitsTableCell
+import com.competra.center.data.results.buildSplitsTable
 import com.competra.center.data.results.parseResultsHtml
+import com.competra.center.data.results.sortedForResults
 import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.getArguments
@@ -62,14 +65,7 @@ class OrienteeringCompetitionResultsViewModel(
                 val competition = orienteeringCompetitionInteractor.getCompetition(it)
                 val results = orienteeringCompetitionInteractor.getResultsByGroups(it).getOrNull() ?: emptyList()
                 val sortedResults = results.map { group ->
-                    group.copy(
-                        participants = group.participants.sortedWith(
-                            compareBy(
-                                { p -> statusSortOrder(p.result?.status) },
-                                { p -> p.result?.totalTime ?: Long.MAX_VALUE }
-                            )
-                        )
-                    )
+                    group.copy(participants = group.participants.sortedForResults())
                 }
                 val isApproved = sortedResults.isNotEmpty() &&
                     sortedResults.all { group -> group.participants.all { it.result?.isEditable == false } }
@@ -84,21 +80,12 @@ class OrienteeringCompetitionResultsViewModel(
         }
     }
 
-    private fun statusSortOrder(status: ResultStatus?): Int = when (status) {
-        ResultStatus.FINISHED -> 0
-        ResultStatus.DSQ -> 1
-        ResultStatus.DNF -> 2
-        ResultStatus.DNS -> 3
-        ResultStatus.STARTED -> 4
-        ResultStatus.REGISTERED -> 5
-        null -> 9
-    }
-
     override fun onAction(action: BaseAction) {
         when (action) {
             is OrienteeringResultsAction.UpdateResult -> updateParticipantResult(action.participantWithResult, action.startTime, action.finishTime)
             is OrienteeringResultsAction.ApproveResults -> approveResults()
             is OrienteeringResultsAction.OpenSplits -> openSplits(action.participantId)
+            is OrienteeringResultsAction.OpenGroupSplitsTable -> openGroupSplitsTable(action.groupId)
             is OrienteeringResultsAction.ExportCsv -> exportCsv()
             is OrienteeringResultsAction.ExportPdf -> exportPdf()
             is OrienteeringResultsAction.PublishHtml -> publishHtml()
@@ -147,6 +134,13 @@ class OrienteeringCompetitionResultsViewModel(
         val compId = competitionId ?: return
         viewModelScope.launch {
             navigation.navigate(CenterNavigation.ParticipantSplitsRoute(participantId, compId))
+        }
+    }
+
+    private fun openGroupSplitsTable(groupId: Long) {
+        val compId = competitionId ?: return
+        viewModelScope.launch {
+            navigation.navigate(CenterNavigation.GroupSplitsTableRoute(groupId, compId))
         }
     }
 
@@ -218,17 +212,14 @@ class OrienteeringCompetitionResultsViewModel(
             sb.appendLine()
         }
         groups.forEach { group ->
-            val cpOrder = group.participants
-                .mapNotNull { it.result?.splits }
-                .maxByOrNull { it.size }
-                ?.map { it.controlPoint }
-                ?: emptyList()
+            val table = buildSplitsTable(group)
+            val cpOrder = table.columns.map { it.controlPoint }
 
             sb.appendLine("Группа: ${group.group.title}")
             val headerSuffix = if (cpOrder.isNotEmpty()) ";${buildCpHeaders(cpOrder)}" else ""
             sb.appendLine("Место;Фамилия;Имя;Команда;Старт;Финиш;Результат;Статус$headerSuffix")
 
-            group.participants.forEach { pw ->
+            group.participants.zip(table.rows).forEach { (pw, row) ->
                 val rank = pw.result?.rank?.toString() ?: ""
                 val start = DateTimeFormat.transformLongToTime(pw.result?.startTime) ?: ""
                 val finish = DateTimeFormat.transformLongToTime(pw.result?.finishTime) ?: ""
@@ -240,12 +231,12 @@ class OrienteeringCompetitionResultsViewModel(
                     ResultStatus.DNF      -> "Сошёл"
                     else                  -> ""
                 }
-                val row = "$rank;${pw.participant.lastName};${pw.participant.firstName};${pw.participant.commandName};$start;$finish;$total;$status"
+                val resultRow = "$rank;${pw.participant.lastName};${pw.participant.firstName};${pw.participant.commandName};$start;$finish;$total;$status"
                 if (cpOrder.isNotEmpty()) {
-                    val splitValues = buildSplitValues(pw.result?.splits ?: emptyList(), pw.result?.startTime ?: 0L, cpOrder)
-                    sb.appendLine("$row;$splitValues")
+                    val splitValues = buildSplitValues(row.cells)
+                    sb.appendLine("$resultRow;$splitValues")
                 } else {
-                    sb.appendLine(row)
+                    sb.appendLine(resultRow)
                 }
             }
             sb.appendLine()
@@ -264,25 +255,12 @@ class OrienteeringCompetitionResultsViewModel(
         }
     }
 
-    /**
-     * Строит строку значений сплитов для одного участника.
-     * Использует позиционный индекс (splits[i] ↔ cpOrder[i]), что корректно обрабатывает
-     * дублирующиеся номера КП в дистанции.
-     */
-    private fun buildSplitValues(splits: List<com.competra.domain.models.orienteering.SplitTime>, startTs: Long, cpOrder: List<Int>): String {
-        return buildString {
-            cpOrder.forEachIndexed { i, _ ->
-                if (i > 0) append(";")
-                if (i < splits.size) {
-                    val splitTs = splits[i].timestamp
-                    val prevTs = if (i == 0) startTs else splits[i - 1].timestamp
-                    val delta = ((splitTs - prevTs) / 1000L).toRaceTime()
-                    val cumul = ((splitTs - startTs) / 1000L).toRaceTime()
-                    append("$delta;$cumul")
-                } else {
-                    append(";") // два пустых столбца для пропущенного КП
-                }
-            }
+    /** Строит строку значений сплитов (дельта;кумулятив на каждый КП) для одной строки таблицы. */
+    private fun buildSplitValues(cells: List<SplitsTableCell>): String {
+        return cells.joinToString(";") { cell ->
+            val delta = cell.deltaSeconds?.toRaceTime() ?: ""
+            val cumul = cell.cumulativeSeconds?.toRaceTime() ?: ""
+            "$delta;$cumul"
         }
     }
 
@@ -319,9 +297,8 @@ class OrienteeringCompetitionResultsViewModel(
         }
 
         groups.forEach { group ->
-            val cpOrder = group.participants
-                .mapNotNull { it.result?.splits }.maxByOrNull { it.size }
-                ?.map { it.controlPoint } ?: emptyList()
+            val table = buildSplitsTable(group)
+            val cpOrder = table.columns.map { it.controlPoint }
 
             ensureSpace(lineH * 3)
             canvas.drawText("Группа: ${group.group.title}", margin, y, paintGroup)
@@ -332,7 +309,7 @@ class OrienteeringCompetitionResultsViewModel(
             )
             y += smallLineH
 
-            group.participants.forEach { pw ->
+            group.participants.zip(table.rows).forEach { (pw, row) ->
                 ensureSpace(lineH + if (cpOrder.isNotEmpty()) smallLineH else 0f)
 
                 val rank   = (pw.result?.rank?.toString() ?: "-").padEnd(3)
@@ -352,16 +329,13 @@ class OrienteeringCompetitionResultsViewModel(
                 y += lineH
 
                 if (cpOrder.isNotEmpty()) {
-                    val splits = pw.result?.splits ?: emptyList()
-                    val startTs = pw.result?.startTime ?: 0L
                     val splitsLine = buildString {
                         cpOrder.forEachIndexed { i, cp ->
                             if (i > 0) append("  ")
-                            if (i < splits.size) {
-                                val splitTs = splits[i].timestamp
-                                val prevTs  = if (i == 0) startTs else splits[i - 1].timestamp
-                                val delta = ((splitTs - prevTs) / 1000L).toRaceTime()
-                                val cumul = ((splitTs - startTs) / 1000L).toRaceTime()
+                            val cell = row.cells[i]
+                            if (cell.deltaSeconds != null) {
+                                val delta = cell.deltaSeconds.toRaceTime()
+                                val cumul = cell.cumulativeSeconds?.toRaceTime() ?: ""
                                 append("КП$cp: $delta ($cumul)")
                             } else {
                                 append("КП$cp: —")
@@ -440,36 +414,8 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
         }
 
         groups.forEachIndexed { groupIndex, group ->
-            val cpOrder = group.participants
-                .mapNotNull { it.result?.splits }.maxByOrNull { it.size }
-                ?.map { it.controlPoint } ?: emptyList()
-
-            val cumulRanks: List<Map<String, Int>> = cpOrder.indices.map { i ->
-                group.participants
-                    .mapNotNull { pw ->
-                        val splits = pw.result?.splits ?: return@mapNotNull null
-                        val startTs = pw.result?.startTime ?: return@mapNotNull null
-                        if (i < splits.size) pw.participant.id to (splits[i].timestamp - startTs) else null
-                    }
-                    .sortedBy { it.second }
-                    .mapIndexed { rank, (id, _) -> id to (rank + 1) }
-                    .toMap()
-            }
-
-            val deltaRanks: List<Map<String, Int>> = cpOrder.indices.map { i ->
-                if (i == 0) emptyMap()
-                else group.participants
-                    .mapNotNull { pw ->
-                        val splits = pw.result?.splits ?: return@mapNotNull null
-                        if (i < splits.size) {
-                            val prevTs = splits[i - 1].timestamp
-                            pw.participant.id to (splits[i].timestamp - prevTs)
-                        } else null
-                    }
-                    .sortedBy { it.second }
-                    .mapIndexed { rank, (id, _) -> id to (rank + 1) }
-                    .toMap()
-            }
+            val table = buildSplitsTable(group)
+            val cpOrder = table.columns.map { it.controlPoint }
 
             val leaderTotalTime = group.participants
                 .filter { it.result?.status == ResultStatus.FINISHED }
@@ -488,7 +434,7 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
             cpOrder.forEachIndexed { i, cp -> sb.append("<th>#${i + 1} ($cp) </th>") }
             sb.appendLine("</tr>")
 
-            group.participants.forEachIndexed { rowIdx, pw ->
+            group.participants.zip(table.rows).forEachIndexed { rowIdx, (pw, row) ->
                 val rowAttr = if (rowIdx % 2 == 0) "style='background: #FFFFFF;'" else "class='yl'"
                 sb.append("<tr $rowAttr>")
 
@@ -514,27 +460,20 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
                 } else ""
                 sb.append("<td><nobr>$gap</td>")
 
-                val splits = pw.result?.splits ?: emptyList()
-                val startTs = pw.result?.startTime ?: 0L
-
-                cpOrder.indices.forEach { i ->
-                    if (i >= splits.size) {
+                row.cells.forEachIndexed { i, cell ->
+                    if (cell.cumulativeSeconds == null) {
                         sb.append("<td><nobr></td>")
-                        return@forEach
+                        return@forEachIndexed
                     }
-                    val splitTs = splits[i].timestamp
-                    val cumulSec = (splitTs - startTs) / 1000L
-                    val cumulStr = cumulSec.toRaceTime()
-                    val cumulRank = cumulRanks[i][pw.participant.id] ?: 0
+                    val cumulStr = cell.cumulativeSeconds.toRaceTime()
+                    val cumulRank = cell.cumulativeRank ?: 0
                     val cumulCell = if (cumulRank == 1) "<b><nobr>$cumulStr($cumulRank)</b>" else "<nobr>$cumulStr($cumulRank)"
 
                     if (i == 0) {
                         sb.append("<td>$cumulCell<br></td>")
                     } else {
-                        val prevTs = splits[i - 1].timestamp
-                        val deltaSec = (splitTs - prevTs) / 1000L
-                        val deltaStr = deltaSec.toRaceTime()
-                        val deltaRank = deltaRanks[i][pw.participant.id] ?: 0
+                        val deltaStr = cell.deltaSeconds?.toRaceTime() ?: ""
+                        val deltaRank = cell.deltaRank ?: 0
                         val deltaCell = if (deltaRank == 1) "<b><nobr>$deltaStr($deltaRank)</b>" else "<nobr>$deltaStr($deltaRank)"
                         sb.append("<td>$cumulCell<br>$deltaCell</td>")
                     }
@@ -570,6 +509,8 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
         object ApproveResults : OrienteeringResultsAction()
 
         data class OpenSplits(val participantId: String) : OrienteeringResultsAction()
+
+        data class OpenGroupSplitsTable(val groupId: Long) : OrienteeringResultsAction()
 
         data object ExportCsv : OrienteeringResultsAction()
 

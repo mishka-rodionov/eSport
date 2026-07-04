@@ -57,5 +57,8 @@ sealed class CenterNavigation: BaseNavigation {
     data class ParticipantSplitsRoute(val participantId: String, val competitionId: String): CenterNavigation()
 
     @Serializable
+    data class GroupSplitsTableRoute(val groupId: Long, val competitionId: String): CenterNavigation()
+
+    @Serializable
     data class MapPickerRoute(val initLatE6: Long = 0L, val initLonE6: Long = 0L): CenterNavigation()
 }

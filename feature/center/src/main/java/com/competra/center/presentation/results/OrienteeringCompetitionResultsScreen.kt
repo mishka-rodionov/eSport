@@ -251,13 +251,31 @@ fun OrienteeringCompetitionResultsScreen(
             ) {
                 state.groupsWithParticipantsAndResults.forEach { groupWithResults ->
                     item {
-                        Text(
-                            text = groupWithResults.group.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(vertical = Dimens.SIZE_HALF.dp, horizontal = 4.dp)
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = Dimens.SIZE_HALF.dp, horizontal = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = groupWithResults.group.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            TextButton(
+                                onClick = {
+                                    viewModel.onAction(
+                                        OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenGroupSplitsTable(
+                                            groupWithResults.group.groupId
+                                        )
+                                    )
+                                }
+                            ) {
+                                Text(text = "Сплиты")
+                            }
+                        }
                     }
                     items(groupWithResults.participants) { participantWithResult ->
                         ResultParticipantCard(
