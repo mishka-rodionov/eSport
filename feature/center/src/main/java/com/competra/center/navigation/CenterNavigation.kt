@@ -12,6 +12,7 @@ import com.competra.center.presentation.draw.DrawParticipantsScreen
 import com.competra.center.presentation.event_control.orienteering.OrienteeringEventControlScreen
 import com.competra.center.presentation.get_chip.GetOrienteeringChipScreen
 import com.competra.center.presentation.group_splits.GroupSplitsTableScreen
+import com.competra.center.presentation.race_graph.RaceGraphScreen
 import com.competra.center.presentation.write_chip.WriteChipScreen
 import com.competra.center.presentation.main.CenterScreen
 import com.competra.center.presentation.kind_of_sport.KindOfSportScreen
@@ -98,6 +99,14 @@ fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass, navController:
     composable<CenterNavigation.GroupSplitsTableRoute> { backStackEntry ->
         val route: CenterNavigation.GroupSplitsTableRoute = backStackEntry.toRoute()
         GroupSplitsTableScreen(
+            groupId = route.groupId,
+            competitionId = route.competitionId
+        )
+    }
+
+    composable<CenterNavigation.GroupRaceGraphRoute> { backStackEntry ->
+        val route: CenterNavigation.GroupRaceGraphRoute = backStackEntry.toRoute()
+        RaceGraphScreen(
             groupId = route.groupId,
             competitionId = route.competitionId
         )

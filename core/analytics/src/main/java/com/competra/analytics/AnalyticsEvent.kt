@@ -168,6 +168,12 @@ sealed class AnalyticsEvent(
         mapOf("group_id" to groupId, "competition_id" to competitionId),
     )
 
+    /** Открыт график отставания от лидера (race graph) по группе. */
+    class RaceGraphOpened(groupId: Long, competitionId: String) : AnalyticsEvent(
+        "race_graph_opened",
+        mapOf("group_id" to groupId, "competition_id" to competitionId),
+    )
+
     // endregion
 
     // region Profile

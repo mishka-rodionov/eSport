@@ -86,6 +86,7 @@ class OrienteeringCompetitionResultsViewModel(
             is OrienteeringResultsAction.ApproveResults -> approveResults()
             is OrienteeringResultsAction.OpenSplits -> openSplits(action.participantId)
             is OrienteeringResultsAction.OpenGroupSplitsTable -> openGroupSplitsTable(action.groupId)
+            is OrienteeringResultsAction.OpenRaceGraph -> openRaceGraph(action.groupId)
             is OrienteeringResultsAction.ExportCsv -> exportCsv()
             is OrienteeringResultsAction.ExportPdf -> exportPdf()
             is OrienteeringResultsAction.PublishHtml -> publishHtml()
@@ -141,6 +142,13 @@ class OrienteeringCompetitionResultsViewModel(
         val compId = competitionId ?: return
         viewModelScope.launch {
             navigation.navigate(CenterNavigation.GroupSplitsTableRoute(groupId, compId))
+        }
+    }
+
+    private fun openRaceGraph(groupId: Long) {
+        val compId = competitionId ?: return
+        viewModelScope.launch {
+            navigation.navigate(CenterNavigation.GroupRaceGraphRoute(groupId, compId))
         }
     }
 
@@ -513,6 +521,8 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
         data class OpenSplits(val participantId: String) : OrienteeringResultsAction()
 
         data class OpenGroupSplitsTable(val groupId: Long) : OrienteeringResultsAction()
+
+        data class OpenRaceGraph(val groupId: Long) : OrienteeringResultsAction()
 
         data object ExportCsv : OrienteeringResultsAction()
 

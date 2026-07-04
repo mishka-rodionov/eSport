@@ -134,3 +134,51 @@ private fun statusSortOrder(status: ResultStatus?): Int = when (status) {
     ResultStatus.REGISTERED -> 5
     null -> 9
 }
+
+/** Точка графика сплитов для одного КП: отставание участника от лидера в секундах. */
+data class RaceGraphPoint(
+    val positionIndex: Int,
+    val controlPoint: Int,
+    val deltaSeconds: Long?,
+)
+
+/** Кривая отставания от лидера для одного участника по всем КП дистанции. */
+data class RaceGraphSeries(
+    val participant: OrienteeringParticipant,
+    val result: OrienteeringResult?,
+    val points: List<RaceGraphPoint>,
+)
+
+data class RaceGraphData(
+    val columns: List<SplitsTableColumn>,
+    val series: List<RaceGraphSeries>,
+)
+
+/**
+ * Строит данные для графика отставания от лидера (race graph, аналог WinSplits) на основе
+ * уже посчитанной [SplitsTable]: для каждого КП лидер — участник с минимальным
+ * [SplitsTableCell.cumulativeSeconds], отставание остальных считается относительно него.
+ * Не финишировавшие (DNS/DNF/DSQ/REGISTERED/STARTED) исключаются — их кривая не имеет смысла.
+ */
+fun buildRaceGraphData(table: SplitsTable): RaceGraphData {
+    val finishedRows = table.rows.filter { it.result?.status == ResultStatus.FINISHED }
+
+    val leaderCumulativeByColumn = table.columns.indices.map { i ->
+        finishedRows.mapNotNull { it.cells.getOrNull(i)?.cumulativeSeconds }.minOrNull()
+    }
+
+    val series = finishedRows.map { row ->
+        val points = table.columns.mapIndexed { i, column ->
+            val cumulative = row.cells.getOrNull(i)?.cumulativeSeconds
+            val leader = leaderCumulativeByColumn[i]
+            RaceGraphPoint(
+                positionIndex = column.positionIndex,
+                controlPoint = column.controlPoint,
+                deltaSeconds = if (cumulative != null && leader != null) cumulative - leader else null,
+            )
+        }
+        RaceGraphSeries(participant = row.participant, result = row.result, points = points)
+    }
+
+    return RaceGraphData(columns = table.columns, series = series)
+}

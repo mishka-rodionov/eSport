@@ -67,4 +67,12 @@ sealed class EventsNavigation: BaseNavigation {
      */
     @Serializable
     data class EventSplitsTableRoute(val eventId: String, val groupId: Long) : EventsNavigation()
+
+    /**
+     * Роут графика отставания от лидера (race graph) по группе события.
+     * @param eventId Идентификатор события.
+     * @param groupId Идентификатор группы участников.
+     */
+    @Serializable
+    data class EventRaceGraphRoute(val eventId: String, val groupId: Long) : EventsNavigation()
 }

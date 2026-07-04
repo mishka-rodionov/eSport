@@ -10,6 +10,7 @@ import com.competra.eventdetails.presentation.details.EventDetailsScreen
 import com.competra.eventdetails.presentation.group_splits.EventGroupSplitsTableScreen
 import com.competra.eventdetails.presentation.live_results.LiveResultsScreen
 import com.competra.eventdetails.presentation.participant_group.EventParticipantGroupScreen
+import com.competra.eventdetails.presentation.race_graph.EventRaceGraphScreen
 import com.competra.eventdetails.presentation.results.EventResultsScreen
 import kotlin.reflect.typeOf
 
@@ -42,5 +43,9 @@ fun NavGraphBuilder.eventDetailsGraph() {
     composable<EventsNavigation.EventSplitsTableRoute> {
         val route = it.toRoute<EventsNavigation.EventSplitsTableRoute>()
         EventGroupSplitsTableScreen(eventId = route.eventId, groupId = route.groupId)
+    }
+    composable<EventsNavigation.EventRaceGraphRoute> {
+        val route = it.toRoute<EventsNavigation.EventRaceGraphRoute>()
+        EventRaceGraphScreen(eventId = route.eventId, groupId = route.groupId)
     }
 }

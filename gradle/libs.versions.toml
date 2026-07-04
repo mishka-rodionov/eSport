@@ -66,6 +66,9 @@ appmetrica = "7.13.0"
 #Jsoup
 jsoupVersion = "1.18.3"
 
+#Vico
+vico = "3.2.3"
+
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-ui-ui = { module = "androidx.compose.ui:ui" }
@@ -122,6 +125,9 @@ appmetrica-analytics = { module = "io.appmetrica.analytics:analytics", version.r
 
 #Jsoup
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoupVersion" }
+
+#Vico
+vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }
 
 #Lifecycle
 lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycle-extensions" }

@@ -120,6 +120,18 @@ fun EventResultsScreen(
                                 ) {
                                     Text(text = "Сплиты")
                                 }
+                                TextButton(
+                                    onClick = {
+                                        viewModel.onAction(
+                                            EventResultsAction.OpenRaceGraph(
+                                                eventId = eventId,
+                                                groupId = groupRemoteId
+                                            )
+                                        )
+                                    }
+                                ) {
+                                    Text(text = "График")
+                                }
                             }
                         }
                         ResultsList(

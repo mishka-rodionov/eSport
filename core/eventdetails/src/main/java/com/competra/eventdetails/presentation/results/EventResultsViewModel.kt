@@ -26,6 +26,7 @@ sealed interface EventResultsAction : BaseAction {
     data class ShowSplits(val participant: ParticipantWithResult) : EventResultsAction
     data object HideSplits : EventResultsAction
     data class OpenGroupSplitsTable(val eventId: String, val groupId: Long) : EventResultsAction
+    data class OpenRaceGraph(val eventId: String, val groupId: Long) : EventResultsAction
 }
 
 class EventResultsViewModel(
@@ -39,12 +40,19 @@ class EventResultsViewModel(
             is EventResultsAction.ShowSplits -> updateState { copy(selectedParticipant = action.participant) }
             is EventResultsAction.HideSplits -> updateState { copy(selectedParticipant = null) }
             is EventResultsAction.OpenGroupSplitsTable -> openGroupSplitsTable(action.eventId, action.groupId)
+            is EventResultsAction.OpenRaceGraph -> openRaceGraph(action.eventId, action.groupId)
         }
     }
 
     private fun openGroupSplitsTable(eventId: String, groupId: Long) {
         viewModelScope.launch {
             navigation.navigate(EventsNavigation.EventSplitsTableRoute(eventId, groupId))
+        }
+    }
+
+    private fun openRaceGraph(eventId: String, groupId: Long) {
+        viewModelScope.launch {
+            navigation.navigate(EventsNavigation.EventRaceGraphRoute(eventId, groupId))
         }
     }
 

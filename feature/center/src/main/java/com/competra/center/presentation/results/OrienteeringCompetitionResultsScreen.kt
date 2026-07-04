@@ -275,6 +275,17 @@ fun OrienteeringCompetitionResultsScreen(
                             ) {
                                 Text(text = "Сплиты")
                             }
+                            TextButton(
+                                onClick = {
+                                    viewModel.onAction(
+                                        OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenRaceGraph(
+                                            groupWithResults.group.groupId
+                                        )
+                                    )
+                                }
+                            ) {
+                                Text(text = "График")
+                            }
                         }
                     }
                     items(groupWithResults.participants) { participantWithResult ->
