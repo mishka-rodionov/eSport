@@ -59,4 +59,12 @@ sealed class EventsNavigation: BaseNavigation {
      */
     @Serializable
     data class LiveResultsRoute(val eventId: String) : EventsNavigation()
+
+    /**
+     * Роут таблицы сплитов группы события.
+     * @param eventId Идентификатор события.
+     * @param groupId Идентификатор группы участников.
+     */
+    @Serializable
+    data class EventSplitsTableRoute(val eventId: String, val groupId: Long) : EventsNavigation()
 }

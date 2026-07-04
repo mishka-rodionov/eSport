@@ -1,10 +1,6 @@
-package com.competra.center.data.results
+package com.competra.domain.models.orienteering
 
 import com.competra.domain.models.ResultStatus
-import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
-import com.competra.domain.models.orienteering.OrienteeringParticipant
-import com.competra.domain.models.orienteering.OrienteeringResult
-import com.competra.domain.models.orienteering.ParticipantWithResult
 
 /** Колонка таблицы сплитов — один контрольный пункт по позиции в дистанции. */
 data class SplitsTableColumn(

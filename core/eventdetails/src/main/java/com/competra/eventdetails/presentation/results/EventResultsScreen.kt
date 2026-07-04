@@ -1,5 +1,6 @@
 package com.competra.eventdetails.presentation.results
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -94,10 +96,37 @@ fun EventResultsScreen(
                     state = pagerState,
                     modifier = Modifier.weight(1f)
                 ) { page ->
-                    ResultsList(
-                        participants = groups[page].participants,
-                        onParticipantClick = { viewModel.onAction(EventResultsAction.ShowSplits(it)) }
-                    )
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // remoteId, а не groupId — в этом remote-only потоке локальный groupId
+                        // не заполняется (см. ParticipantGroupResponse.toDomain()) и одинаков
+                        // у всех групп, поэтому именно remoteId уникально идентифицирует группу.
+                        val groupRemoteId = groups[page].group.remoteId
+                        if (groupRemoteId != null) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.onAction(
+                                            EventResultsAction.OpenGroupSplitsTable(
+                                                eventId = eventId,
+                                                groupId = groupRemoteId
+                                            )
+                                        )
+                                    }
+                                ) {
+                                    Text(text = "Сплиты")
+                                }
+                            }
+                        }
+                        ResultsList(
+                            participants = groups[page].participants,
+                            onParticipantClick = { viewModel.onAction(EventResultsAction.ShowSplits(it)) }
+                        )
+                    }
                 }
             }
         }

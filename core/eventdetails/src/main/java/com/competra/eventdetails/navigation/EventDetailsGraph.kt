@@ -7,6 +7,7 @@ import com.competra.data.navigation.EventParticipantGroupNavType
 import com.competra.data.navigation.EventsNavigation
 import com.competra.domain.models.cyclic_event.EventParticipantGroup
 import com.competra.eventdetails.presentation.details.EventDetailsScreen
+import com.competra.eventdetails.presentation.group_splits.EventGroupSplitsTableScreen
 import com.competra.eventdetails.presentation.live_results.LiveResultsScreen
 import com.competra.eventdetails.presentation.participant_group.EventParticipantGroupScreen
 import com.competra.eventdetails.presentation.results.EventResultsScreen
@@ -37,5 +38,9 @@ fun NavGraphBuilder.eventDetailsGraph() {
     composable<EventsNavigation.LiveResultsRoute> {
         val route = it.toRoute<EventsNavigation.LiveResultsRoute>()
         LiveResultsScreen(eventId = route.eventId)
+    }
+    composable<EventsNavigation.EventSplitsTableRoute> {
+        val route = it.toRoute<EventsNavigation.EventSplitsTableRoute>()
+        EventGroupSplitsTableScreen(eventId = route.eventId, groupId = route.groupId)
     }
 }

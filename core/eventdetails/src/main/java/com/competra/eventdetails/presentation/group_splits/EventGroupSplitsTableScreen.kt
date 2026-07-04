@@ -1,4 +1,4 @@
-package com.competra.center.presentation.group_splits
+package com.competra.eventdetails.presentation.group_splits
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,15 +17,15 @@ import com.competra.ui.components.GroupSplitsTableContent
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun GroupSplitsTableScreen(
+fun EventGroupSplitsTableScreen(
+    eventId: String,
     groupId: Long,
-    competitionId: String,
-    viewModel: GroupSplitsTableViewModel = koinViewModel(),
+    viewModel: EventGroupSplitsTableViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(groupId, competitionId) {
-        viewModel.load(groupId, competitionId)
+    LaunchedEffect(eventId, groupId) {
+        viewModel.load(eventId, groupId)
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {

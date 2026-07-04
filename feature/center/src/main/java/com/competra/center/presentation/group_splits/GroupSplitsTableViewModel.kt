@@ -5,8 +5,8 @@ import com.competra.analytics.AnalyticsEvent
 import com.competra.analytics.AnalyticsTracker
 import com.competra.center.data.group_splits.GroupSplitsTableState
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
-import com.competra.center.data.results.buildSplitsTable
-import com.competra.center.data.results.sortedForResults
+import com.competra.domain.models.orienteering.buildSplitsTable
+import com.competra.domain.models.orienteering.sortedForResults
 import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.Dispatchers

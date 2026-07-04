@@ -1,13 +1,8 @@
-package com.competra.center.data.results
+package com.competra.domain.models.orienteering
 
 import com.competra.domain.models.Gender
 import com.competra.domain.models.ParticipantGroup
 import com.competra.domain.models.ResultStatus
-import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
-import com.competra.domain.models.orienteering.OrienteeringParticipant
-import com.competra.domain.models.orienteering.OrienteeringResult
-import com.competra.domain.models.orienteering.ParticipantWithResult
-import com.competra.domain.models.orienteering.SplitTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -16,7 +11,7 @@ import org.junit.Test
 
 /**
  * Проверка [buildSplitsTable] и [sortedForResults] — общего билдера таблицы сплитов,
- * переиспользуемого HTML/CSV/PDF-экспортом и экраном сплитов группы.
+ * переиспользуемого HTML/CSV/PDF-экспортом и экранами сплитов группы.
  */
 class SplitsTableBuilderTest {
 

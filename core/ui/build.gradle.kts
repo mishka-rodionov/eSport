@@ -50,6 +50,10 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.extensions)
 
+    implementation(project(":domain"))
+    implementation(project(":utils"))
+    implementation(project(":core:designsystem"))
+
     //compose
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.compose.ui.ui)

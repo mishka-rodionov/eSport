@@ -7,10 +7,7 @@ import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
 import com.competra.center.data.results.ImportResultRow
 import com.competra.center.data.results.OrienteeringCompetitionResultsState
 import com.competra.center.data.results.buildResultsDiff
-import com.competra.center.data.results.SplitsTableCell
-import com.competra.center.data.results.buildSplitsTable
 import com.competra.center.data.results.parseResultsHtml
-import com.competra.center.data.results.sortedForResults
 import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.getArguments
@@ -18,6 +15,9 @@ import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
+import com.competra.domain.models.orienteering.SplitsTableCell
+import com.competra.domain.models.orienteering.buildSplitsTable
+import com.competra.domain.models.orienteering.sortedForResults
 import com.competra.domain.repository.UploadRepository
 import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
@@ -333,8 +333,9 @@ class OrienteeringCompetitionResultsViewModel(
                         cpOrder.forEachIndexed { i, cp ->
                             if (i > 0) append("  ")
                             val cell = row.cells[i]
-                            if (cell.deltaSeconds != null) {
-                                val delta = cell.deltaSeconds.toRaceTime()
+                            val cellDeltaSeconds = cell.deltaSeconds
+                            if (cellDeltaSeconds != null) {
+                                val delta = cellDeltaSeconds.toRaceTime()
                                 val cumul = cell.cumulativeSeconds?.toRaceTime() ?: ""
                                 append("КП$cp: $delta ($cumul)")
                             } else {
@@ -461,11 +462,12 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
                 sb.append("<td><nobr>$gap</td>")
 
                 row.cells.forEachIndexed { i, cell ->
-                    if (cell.cumulativeSeconds == null) {
+                    val cellCumulativeSeconds = cell.cumulativeSeconds
+                    if (cellCumulativeSeconds == null) {
                         sb.append("<td><nobr></td>")
                         return@forEachIndexed
                     }
-                    val cumulStr = cell.cumulativeSeconds.toRaceTime()
+                    val cumulStr = cellCumulativeSeconds.toRaceTime()
                     val cumulRank = cell.cumulativeRank ?: 0
                     val cumulCell = if (cumulRank == 1) "<b><nobr>$cumulStr($cumulRank)</b>" else "<nobr>$cumulStr($cumulRank)"
 
