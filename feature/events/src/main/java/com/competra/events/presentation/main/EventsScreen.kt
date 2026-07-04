@@ -20,10 +20,12 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,9 +75,15 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
             onResetFilter = { viewModel.onAction(EventsAction.ResetFilter) }
         )
 
-        if (state.events.isEmpty() && !state.isLoading) {
+        if (state.isGlobalError) {
+            EventsErrorState(
+                onRetry = { viewModel.getEvents() },
+                modifier = Modifier.fillMaxSize()
+            )
+        } else if (state.events.isEmpty() && !state.isLoading) {
             EventsEmptyState(
                 isFilterActive = !state.appliedFilter.isEmpty,
+                onResetFilter = { viewModel.onAction(EventsAction.ResetFilter) },
                 modifier = Modifier.fillMaxSize()
             )
         } else {
@@ -106,6 +114,7 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
 @Composable
 private fun EventsEmptyState(
     isFilterActive: Boolean,
+    onResetFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val titleRes = if (isFilterActive) {
@@ -144,6 +153,50 @@ private fun EventsEmptyState(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
+        if (isFilterActive) {
+            Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+            OutlinedButton(onClick = onResetFilter) {
+                Text(text = stringResource(id = R.string.filter_reset))
+            }
+        }
+    }
+}
+
+/** Экран-заглушка при ошибке загрузки списка соревнований. */
+@Composable
+private fun EventsErrorState(
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(Dimens.SIZE_DOUBLE.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_info_24px),
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_TWO.dp))
+        Text(
+            text = stringResource(id = R.string.events_error_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_SINGLE.dp))
+        Text(
+            text = stringResource(id = R.string.events_error_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+        Button(onClick = onRetry) {
+            Text(text = stringResource(id = R.string.events_error_retry))
+        }
     }
 }
 

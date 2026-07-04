@@ -69,14 +69,16 @@ class EventsViewModel(
 
     fun getEvents(filter: EventsFilter = stateValue.appliedFilter) {
         viewModelScope.launch(Dispatchers.IO) {
+            updateState { copy(isLoading = true, isGlobalError = false) }
             loadingRepository.emit(true)
             eventsRepository.getEvents(filter = filter).onSuccess { events ->
                 events?.also { list ->
                     updateState { copy(events = list.sortedByDescending { it.startDate }) }
                 }
+                updateState { copy(isLoading = false) }
                 loadingRepository.emit(false)
             }.onFailure {
-                updateState { copy(isGlobalError = true) }
+                updateState { copy(isGlobalError = true, isLoading = false) }
                 handleFailure(it)
                 loadingRepository.emit(false)
             }

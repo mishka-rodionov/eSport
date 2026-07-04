@@ -88,6 +88,11 @@
     <string name="events_empty_filter_title">Ничего не найдено</string>
     <string name="events_empty_filter_subtitle">По выбранным фильтрам соревнований нет. Попробуйте изменить параметры или сбросить фильтр.</string>
 
+    <!-- Events Error State -->
+    <string name="events_error_title">Не удалось загрузить соревнования</string>
+    <string name="events_error_subtitle">Проверьте подключение к интернету и попробуйте снова</string>
+    <string name="events_error_retry">Повторить</string>
+
     <!-- Competition Status -->
     <string name="status_draft">Черновик</string>
     <string name="status_created">Запланировано</string>
