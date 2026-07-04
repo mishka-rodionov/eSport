@@ -142,6 +142,7 @@ private fun RegistrationCard(
             NetworkImage(
                 url = competition.competition.imageUrl,
                 contentDescription = null,
+                fullscreenOnClick = false,
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(Dimens.SIZE_HALF.dp))

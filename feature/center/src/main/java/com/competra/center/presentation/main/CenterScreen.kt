@@ -183,6 +183,7 @@ private fun EventControlCard(
             NetworkImage(
                 url = competition.imageUrl,
                 contentDescription = null,
+                fullscreenOnClick = false,
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(Dimens.SIZE_HALF.dp))
