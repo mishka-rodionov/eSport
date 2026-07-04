@@ -51,4 +51,6 @@ dependencies {
 
     //coil
     implementation(libs.coil.compose)
+
+    implementation(project(":core:resources"))
 }
