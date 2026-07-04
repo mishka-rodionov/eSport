@@ -5,6 +5,8 @@ import com.competra.analytics.AnalyticsEvent
 import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.ProfileNavigation
+import com.competra.domain.models.onboarding.OnboardingSource
+import com.competra.domain.repository.OnboardingRequestRepository
 import com.competra.domain.repository.user.UserRepository
 import com.competra.profile.data.ProfileAction
 import com.competra.profile.data.ProfileState
@@ -26,6 +28,7 @@ class ProfileViewModel(
     private val userRepository: UserRepository,
     private val authInteractor: AuthInteractor,
     private val analytics: AnalyticsTracker,
+    private val onboardingRequestRepository: OnboardingRequestRepository,
 ) : BaseViewModel<ProfileState>(ProfileState()) {
 
     override fun onAction(action: BaseAction) {
@@ -42,6 +45,17 @@ class ProfileViewModel(
             ProfileAction.ToProfileEditor -> toProfileEditor()
             ProfileAction.ToUserRegistrations -> openUserRegistrations()
             ProfileAction.Logout -> logout()
+            ProfileAction.ShowOnboarding -> showOnboardingAgain()
+        }
+    }
+
+    /**
+     * Запрашивает ручной повторный показ онбординга. Не связан с флагом
+     * «просмотрено» — не проверяет и не сбрасывает его.
+     */
+    private fun showOnboardingAgain() {
+        viewModelScope.launch {
+            onboardingRequestRepository.emit(OnboardingSource.SETTINGS)
         }
     }
 

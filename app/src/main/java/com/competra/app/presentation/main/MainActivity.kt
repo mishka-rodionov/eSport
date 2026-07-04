@@ -1,18 +1,14 @@
 package com.competra.app.presentation.main
 
-import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,7 +30,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -67,6 +62,7 @@ import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.EventsNavigation
 import com.competra.data.navigation.ProfileNavigation
 import com.competra.events.navigation.eventsGraph
+import com.competra.onboarding.presentation.OnboardingScreen
 import com.competra.profile.navigation.profileNavigation
 import com.competra.app.BottomNavItem
 import com.competra.app.service.CompetitionForegroundService
@@ -102,43 +98,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         viewModel.setNfcAdapter(NfcAdapter.getDefaultAdapter(this))
         setContent {
-            val widthSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             CompetraTheme {
-                // Запрос разрешений при старте приложения
-                RequestInitialPermissions()
-                
-                MainScreen(viewModel, widthSizeClass)
+                AppRoot(viewModel)
             }
         }
         observeServiceCommands()
-    }
-
-    /**
-     * Компонент для запроса начальных разрешений: уведомления и местоположение.
-     */
-    @Composable
-    private fun RequestInitialPermissions() {
-        val permissionsToRequest = mutableListOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                add(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            // Обработка результатов, если требуется логгирование или спец. логика
-            permissions.entries.forEach {
-                Log.d("PERMISSIONS", "${it.key} granted: ${it.value}")
-            }
-        }
-
-        LaunchedEffect(Unit) {
-            launcher.launch(permissionsToRequest.toTypedArray())
-        }
     }
 
     /**
@@ -196,7 +160,7 @@ class MainActivity : ComponentActivity() {
  * @param windowSizeClass Параметры размера экрана для адаптивной верстки.
  */
 @Composable
-private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass) {
+internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass) {
     BottomNavItem.all // не удалять, падает при первом tab.route
     var selectedTab by rememberSaveable { mutableStateOf<String>(BottomNavItem.CompetitionList.route) }
     val saveableStateHolder = rememberSaveableStateHolder()
@@ -206,6 +170,7 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     val conflictEvent by viewModel.conflictEvent.collectAsState()
     val networkError by viewModel.networkErrorEvent.collectAsState()
     val isLoading by viewModel.loadingEvent.collectAsState()
+    val onboardingRequest by viewModel.onboardingRequest.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.switchTabEffect.collect { tabRoute ->
@@ -327,6 +292,14 @@ private fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClas
     }
 
     GlobalLoader(isLoading = isLoading)
+
+    onboardingRequest?.let { request ->
+        OnboardingScreen(
+            source = request.source,
+            viewModelKey = "onboarding_settings_${request.requestId}",
+            onFinished = viewModel::dismissOnboarding
+        )
+    }
 
     conflictEvent?.let { event ->
         ResultConflictBottomSheet(

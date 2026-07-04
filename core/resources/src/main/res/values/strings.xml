@@ -100,4 +100,17 @@
     <!-- Push Notifications -->
     <string name="notif_channel_push_name">Уведомления</string>
     <string name="notif_channel_push_desc">Push-уведомления о событиях и соревнованиях</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_slide_1_title">Отметка на дистанции</string>
+    <string name="onboarding_slide_1_subtitle">Прикладывайте NFC-чип к контрольным пунктам — отметка фиксируется мгновенно, без дополнительного оборудования.</string>
+    <string name="onboarding_slide_2_title">Создавайте соревнования</string>
+    <string name="onboarding_slide_2_subtitle">Настраивайте дистанции, группы и правила старта прямо в приложении — от черновика до публикации.</string>
+    <string name="onboarding_slide_3_title">Участвуйте в стартах</string>
+    <string name="onboarding_slide_3_subtitle">Находите соревнования рядом, регистрируйтесь и следите за своими предстоящими стартами.</string>
+    <string name="onboarding_slide_4_title">Смотрите результаты</string>
+    <string name="onboarding_slide_4_subtitle">Live-результаты, сплиты и итоговые протоколы — сразу после финиша.</string>
+    <string name="onboarding_next">Далее</string>
+    <string name="onboarding_skip">Пропустить</string>
+    <string name="onboarding_start">Начать</string>
 </resources>

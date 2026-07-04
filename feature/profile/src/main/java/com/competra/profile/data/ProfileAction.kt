@@ -20,4 +20,7 @@ sealed class ProfileAction {
     /** Выход из аккаунта. */
     data object Logout: ProfileAction()
 
+    /** Повторный показ онбординга. */
+    data object ShowOnboarding: ProfileAction()
+
 }

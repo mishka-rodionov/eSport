@@ -8,9 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.competra.data.navigation.BaseNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.domain.models.NetworkErrorEvent
+import com.competra.domain.models.onboarding.OnboardingSource
 import com.competra.domain.models.orienteering.ResultConflictEvent
 import com.competra.domain.repository.LoadingRepository
 import com.competra.domain.repository.NetworkErrorRepository
+import com.competra.domain.repository.OnboardingRequestRepository
 import com.competra.domain.repository.ResultConflictRepository
 import com.competra.nfchelper.SportiduinoHelper
 import com.competra.app.service.CompetitionScanEventRepository
@@ -49,7 +51,8 @@ class MainViewModel(
     private val startAlertRepository: CompetitionStartAlertRepository,
     private val resultConflictRepository: ResultConflictRepository,
     private val networkErrorRepository: NetworkErrorRepository,
-    private val loadingRepository: LoadingRepository
+    private val loadingRepository: LoadingRepository,
+    private val onboardingRequestRepository: OnboardingRequestRepository
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     /**
@@ -102,6 +105,17 @@ class MainViewModel(
      */
     val startAlertEvent: StateFlow<ParticipantStartAlert?> = _startAlertEvent.asStateFlow()
 
+    private var onboardingRequestCounter = 0L
+
+    private val _onboardingRequest = MutableStateFlow<OnboardingOverlayRequest?>(null)
+
+    /**
+     * Текущий запрос на ручной повторный показ онбординга (из настроек профиля).
+     * Каждый запрос получает уникальный [OnboardingOverlayRequest.requestId], чтобы
+     * оверлей всегда создавался с чистым состоянием, а не переиспользовал прошлый показ.
+     */
+    val onboardingRequest: StateFlow<OnboardingOverlayRequest?> = _onboardingRequest.asStateFlow()
+
     init {
         viewModelScope.launch {
             scanEventRepository.events.collect { event ->
@@ -129,6 +143,16 @@ class MainViewModel(
                 _networkErrorEvent.value = event
             }
         }
+        viewModelScope.launch {
+            onboardingRequestRepository.events.collect { source ->
+                _onboardingRequest.value = OnboardingOverlayRequest(source, onboardingRequestCounter++)
+            }
+        }
+    }
+
+    /** Закрывает оверлей повторного показа онбординга. */
+    fun dismissOnboarding() {
+        _onboardingRequest.value = null
     }
 
     /** Закрывает диалог сетевой ошибки. */
@@ -177,3 +201,13 @@ class MainViewModel(
         }
     }
 }
+
+/**
+ * Запрос на показ оверлея онбординга посреди сессии, с уникальным [requestId] —
+ * чтобы каждый повторный показ создавал свежий OnboardingViewModel, а не переиспользовал
+ * состояние (текущий слайд, флаг завершения) с прошлого раза.
+ */
+data class OnboardingOverlayRequest(
+    val source: OnboardingSource,
+    val requestId: Long
+)

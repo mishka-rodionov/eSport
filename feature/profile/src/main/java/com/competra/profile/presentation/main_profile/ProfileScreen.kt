@@ -278,6 +278,16 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
                 icon = ImageVector.vectorResource(R.drawable.ic_info_24px),
                 onClick = { /* TODO */ }
             )
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp),
+                thickness = 0.5.dp,
+                color = LightColors.greyB8.copy(alpha = 0.3f)
+            )
+            ProfileMenuItem(
+                text = "Показать онбординг снова",
+                icon = ImageVector.vectorResource(R.drawable.play_arrow_24px),
+                onClick = { onAction(ProfileAction.ShowOnboarding) }
+            )
         }
 
         Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))

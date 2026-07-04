@@ -185,4 +185,23 @@ sealed class AnalyticsEvent(
     data object ProfileEditSaved : AnalyticsEvent("profile_edit_saved")
 
     // endregion
+
+    // region Onboarding
+
+    enum class OnboardingSource { FIRST_LAUNCH, SETTINGS }
+
+    /** Показан онбординг. */
+    class OnboardingStarted(source: OnboardingSource) : AnalyticsEvent(
+        "onboarding_started",
+        mapOf("source" to source.name.lowercase()),
+    )
+
+    /** Онбординг пропущен пользователем. */
+    class OnboardingSkipped(slideIndex: Int) :
+        AnalyticsEvent("onboarding_skipped", mapOf("slide_index" to slideIndex))
+
+    /** Онбординг пройден до конца. */
+    data object OnboardingCompleted : AnalyticsEvent("onboarding_completed")
+
+    // endregion
 }
