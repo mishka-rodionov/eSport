@@ -11,9 +11,9 @@ import com.competra.domain.exception.NetworkException
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.repository.NetworkErrorRepository
 import com.competra.profile.data.auth.AuthAction
+import com.competra.profile.data.auth.OtpState
 import com.competra.profile.data.interactors.AuthInteractor
 import com.competra.ui.BaseAction
-import com.competra.ui.BaseState
 import com.competra.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +24,7 @@ class AuthCodeViewModel(
     private val pendingRegistrationRepository: PendingRegistrationRepository,
     private val networkErrorRepository: NetworkErrorRepository,
     private val analytics: AnalyticsTracker,
-) : BaseViewModel<BaseState>(object : BaseState {}) {
+) : BaseViewModel<OtpState>(OtpState()) {
 
     private var email = ""
 
@@ -40,9 +40,13 @@ class AuthCodeViewModel(
     }
 
     fun sendAuthCode(code: String) {
+        if (stateValue.isLoading) return
+
         analytics.trackEvent(AnalyticsEvent.AuthCodeSubmitted)
+        updateState { copy(isLoading = true) }
         viewModelScope.launch(Dispatchers.IO) {
             authInteractor.authorize(email = email, code = code).onSuccess {
+                updateState { copy(isLoading = false) }
                 analytics.trackEvent(AnalyticsEvent.AuthLoginSuccess)
                 if (pendingRegistrationRepository.pending.value != null) {
                     navigation.switchTab(TabRoutes.EVENTS)
@@ -50,6 +54,7 @@ class AuthCodeViewModel(
                     navigation.navigate(ProfileNavigation.MainProfileRoute)
                 }
             }.onFailure {
+                updateState { copy(isLoading = false) }
                 analytics.trackEvent(AnalyticsEvent.AuthLoginFailed(it.toAuthFailureReason()))
                 handleFailure(it)
             }

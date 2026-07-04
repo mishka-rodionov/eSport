@@ -10,11 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
+import com.competra.designsystem.components.DSButton
 import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.components.clickRipple
 import com.competra.profile.data.auth.AuthAction
@@ -35,12 +36,13 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AuthScreen(authViewModel: AuthViewModel = koinViewModel()) {
-    EmailInputContent(authViewModel::onAction)
+    val state by authViewModel.state.collectAsState()
+    EmailInputContent(isLoading = state.isLoading, userAction = authViewModel::onAction)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmailInputContent(userAction: (AuthAction) -> Unit) {
+fun EmailInputContent(isLoading: Boolean = false, userAction: (AuthAction) -> Unit) {
     var email by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -71,17 +73,16 @@ fun EmailInputContent(userAction: (AuthAction) -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp)) // Отступ между полем и кнопкой
 
-            Button(
+            DSButton(
+                text = "Отправить",
+                isLoading = isLoading,
                 onClick = {
-                    // TODO: Обработка введенного email
                     Log.d("LOG_TAG", "EmailInputContent: Введенный email: $email")
                     keyboardController?.hide()
                     userAction.invoke(AuthAction.AuthClicked(email))
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Отправить")
-            }
+            )
         }
     }
 

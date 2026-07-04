@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,21 +43,23 @@ const val OTP_LENGTH = 6
  * */
 @Composable
 fun AuthCodeScreen(userEmail: String, viewModel: AuthCodeViewModel = koinViewModel()) {
+    val state by viewModel.state.collectAsState()
     LaunchedEffect(userEmail) {
         viewModel.initialize(userEmail)
     }
-    OtpInputContent(userEmail, viewModel::onAction)
+    OtpInputContent(userEmail, isLoading = state.isLoading, userAction = viewModel::onAction)
 }
 
 /**
  * Контент экрана ввода OTP кода.
  *
  * @param userEmail Email пользователя.
+ * @param isLoading Идёт ли сейчас проверка кода — блокирует повторный ввод/автосабмит.
  * @param userAction Функция для обработки действий пользователя (ввод кода).
  */
 @OptIn(ExperimentalComposeUiApi::class) // Нужен для onKeyEvent
 @Composable
-fun OtpInputContent(userEmail: String, userAction: (AuthAction) -> Unit) {
+fun OtpInputContent(userEmail: String, isLoading: Boolean = false, userAction: (AuthAction) -> Unit) {
     val otpValues =
         remember { mutableStateListOf<String>().apply { repeat(OTP_LENGTH) { add("") } } }
     val focusRequesters = remember { List(OTP_LENGTH) { FocusRequester() } }
@@ -111,6 +114,7 @@ fun OtpInputContent(userEmail: String, userAction: (AuthAction) -> Unit) {
                         value = otpValues[i],
                         onValueChange = { newValue -> onOtpValueChanged(i, newValue) },
                         focusRequester = focusRequesters[i],
+                        enabled = !isLoading,
                         modifier = Modifier
                             .onKeyEvent { event ->
                                 if (event.key == Key.Backspace && event.type == KeyEventType.KeyDown) {
@@ -125,6 +129,11 @@ fun OtpInputContent(userEmail: String, userAction: (AuthAction) -> Unit) {
                             }
                     )
                 }
+            }
+
+            if (isLoading) {
+                Spacer(modifier = Modifier.height(24.dp))
+                CircularProgressIndicator()
             }
         }
     }
@@ -146,6 +155,7 @@ fun OtpCell(
     value: String,
     onValueChange: (String) -> Unit,
     focusRequester: FocusRequester,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     // Используем TextFieldValue, чтобы лучше контролировать состояние, особенно курсор
@@ -167,13 +177,14 @@ fun OtpCell(
             if ((newTextFieldValue.text.length <= 1 && newTextFieldValue.text.all { it.isDigit() }) || newTextFieldValue.text.isEmpty()) {
                 val isTextChanged = textFieldValueState.text != newTextFieldValue.text
                 textFieldValueState = newTextFieldValue
-                
+
                 // Вызываем внешний обработчик только если текст действительно изменился
                 if (isTextChanged) {
                     onValueChange(newTextFieldValue.text)
                 }
             }
         },
+        enabled = enabled,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword, // Или KeyboardType.Number
             imeAction = ImeAction.Next // Для последнего можно было бы ImeAction.Done, но автопереход важнее
@@ -210,7 +221,7 @@ fun OtpCell(
 fun OtpInputScreenPreview() {
     MaterialTheme { // Оберните в MaterialTheme для использования Material компонентов и стилей
         Surface {
-            OtpInputContent("example@mail.com",{})
+            OtpInputContent(userEmail = "example@mail.com", userAction = {})
         }
     }
 }

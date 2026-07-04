@@ -3,6 +3,7 @@ package com.competra.designsystem.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -34,7 +35,8 @@ fun DSButton(
     ) {
         if (isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.width(64.dp),
+                modifier = Modifier.size(20.dp),
+                strokeWidth = 2.dp,
                 color = MaterialTheme.colorScheme.secondary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )

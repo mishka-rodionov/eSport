@@ -10,8 +10,8 @@ import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.repository.NetworkErrorRepository
 import com.competra.domain.repository.auth.AuthRepository
 import com.competra.profile.data.auth.AuthAction
+import com.competra.profile.data.auth.AuthState
 import com.competra.ui.BaseAction
-import com.competra.ui.BaseState
 import com.competra.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.launch
 
@@ -20,19 +20,24 @@ class AuthViewModel(
     private val authRepository: AuthRepository,
     private val networkErrorRepository: NetworkErrorRepository,
     private val analytics: AnalyticsTracker,
-) : BaseViewModel<BaseState>(object : BaseState{}) {
+) : BaseViewModel<AuthState>(AuthState()) {
 
     override fun onAction(action: BaseAction) {
 
         when (action) {
             is AuthAction.AuthClicked -> {
+                if (stateValue.isLoading) return
+
                 analytics.trackEvent(
                     AnalyticsEvent.AuthLoginRequested(action.email.substringAfter('@', ""))
                 )
+                updateState { copy(isLoading = true) }
                 viewModelScope.launch {
                     authRepository.login(action.email).onSuccess {
+                        updateState { copy(isLoading = false) }
                         navigation.navigate(destination = ProfileNavigation.AuthCodeRoute(action.email))
                     }.onFailure {
+                        updateState { copy(isLoading = false) }
                         handleFailure(it)
                     }
                 }
