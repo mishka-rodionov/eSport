@@ -1,7 +1,9 @@
 package com.competra.center.data.creator
 
+import android.net.Uri
 import com.competra.domain.models.Competition
 import com.competra.domain.models.Coordinates
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.KindOfSport
 import com.competra.domain.models.orienteering.*
 import com.competra.domain.models.ParticipantGroup
@@ -75,6 +77,9 @@ data class OrienteeringCreatorState(
     val feeAmount: Double? = null,
     val feeCurrency: String = "RUB",
     val imageUrl: String? = null,
+    val imageCropRect: CropRect? = null,
+    /** Uri выбранной, но ещё не подтверждённой в кроппере обложки. */
+    val pendingCoverCropUri: Uri? = null,
     val regulationUrl: String = "",
 
     val mapUrl: String = "",
@@ -124,6 +129,7 @@ data class OrienteeringCreatorState(
                 feeAmount = if (isFeeEnabled) feeAmount else null,
                 feeCurrency = feeCurrency,
                 imageUrl = imageUrl,
+                imageCropRect = imageCropRect,
                 regulationUrl = regulationUrl,
                 mapUrl = mapUrl,
                 contactPhone = contactPhone,

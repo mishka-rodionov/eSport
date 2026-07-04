@@ -55,6 +55,7 @@ import com.competra.designsystem.theme.Dimens
 import com.competra.profile.data.ProfileAction
 import com.competra.profile.data.ProfileState
 import com.competra.resources.R
+import com.competra.ui.components.toFractionalRect
 import com.competra.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
@@ -179,6 +180,7 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
                 Box {
                     NetworkImage(
                         url = user?.avatarUrl,
+                        cropRect = user?.avatarCropRect?.toFractionalRect(),
                         contentDescription = "User Avatar",
                         modifier = Modifier
                             .size(80.dp)

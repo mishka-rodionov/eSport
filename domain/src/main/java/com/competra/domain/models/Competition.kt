@@ -39,6 +39,7 @@ import com.competra.domain.models.orienteering.ResultsStatus
  * @property createdAt Время создания записи в локальной базе данных (Unix timestamp в мс).
  * @property syncError Текст последней ошибки синхронизации, если она произошла.
  * @property serverUpdatedAt Серверный updatedAt последней успешной синхронизации (для conflict detection).
+ * @property imageCropRect Область кропа обложки, выбранная организатором (оригинал на сервере не изменяется).
  */
 data class Competition(
     /** UUID соревнования. Для плоского публичного списка (без обёртки OrienteeringCompetition)
@@ -60,6 +61,8 @@ data class Competition(
     val feeAmount: Double? = null,
     val feeCurrency: String? = null,
     val imageUrl: String? = null,
+    @Embedded
+    val imageCropRect: CropRect? = null,
     val regulationUrl: String? = null,
     val mapUrl: String? = null,
     val resultsUrl: String? = null,

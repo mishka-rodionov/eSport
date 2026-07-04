@@ -1,5 +1,6 @@
 package com.competra.domain.models.cyclic_event
 
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.events.EventStatus
 import com.competra.domain.models.events.EventType
 
@@ -17,5 +18,6 @@ data class CyclicEventDetails(
     val status: EventStatus,
     val eventType: EventType,
     val isUserRegistered: Boolean = false,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    val imageCropRect: CropRect? = null
 )

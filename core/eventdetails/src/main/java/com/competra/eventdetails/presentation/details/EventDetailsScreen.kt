@@ -49,6 +49,7 @@ import com.competra.domain.models.events.EventStatus
 import com.competra.domain.models.events.EventType
 import com.competra.resources.R
 import com.competra.eventdetails.data.details.EventDetailsState
+import com.competra.ui.components.toFractionalRect
 import com.competra.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
@@ -121,6 +122,7 @@ fun ScrollableColumnScreenWithImageAnimation(
         )
         NetworkImage(
             url = state.eventDetails?.imageUrl,
+            cropRect = state.eventDetails?.imageCropRect?.toFractionalRect(),
             contentDescription = "Header Image",
             modifier = Modifier
                 .fillMaxWidth()

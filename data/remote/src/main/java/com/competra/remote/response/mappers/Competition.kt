@@ -2,6 +2,7 @@ package com.competra.remote.response.mappers
 
 import com.competra.domain.models.Competition
 import com.competra.domain.models.Coordinates
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.KindOfSport
 import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.ResultsStatus
@@ -33,6 +34,7 @@ fun CompetitionResponse.toDomain(): Competition {
         feeAmount = feeAmount,
         feeCurrency = feeCurrency,
         imageUrl = imageUrl,
+        imageCropRect = toImageCropRect(coverCropX, coverCropY, coverCropWidth, coverCropHeight),
         regulationUrl = regulationUrl,
         mapUrl = mapUrl,
         resultsUrl = resultsUrl,
@@ -59,4 +61,9 @@ fun CompetitionResponse.toDomain(): Competition {
  */
 fun CoordinatesResponse.toDomain(): Coordinates {
     return Coordinates(latitude, longitude)
+}
+
+private fun toImageCropRect(x: Double?, y: Double?, width: Double?, height: Double?): CropRect? {
+    if (x == null || y == null || width == null || height == null) return null
+    return CropRect(x, y, width, height)
 }

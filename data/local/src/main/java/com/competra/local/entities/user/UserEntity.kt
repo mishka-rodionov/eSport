@@ -1,8 +1,10 @@
 package com.competra.local.entities.user
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.Gender
 import com.competra.domain.models.Qualification
 import com.competra.local.converters.UserConverter
@@ -34,5 +36,7 @@ data class UserEntity(
     val avatarUrl: String,
     val phoneNumber: String?,
     val email: String,
-    val qualification: List<Qualification>
+    val qualification: List<Qualification>,
+    @Embedded
+    val avatarCropRect: CropRect? = null
 )

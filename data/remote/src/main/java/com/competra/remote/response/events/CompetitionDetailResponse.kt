@@ -31,5 +31,9 @@ data class CompetitionDetailResponse(
     @SerializedName("resultsStatus") val resultsStatus: String,
     @SerializedName("participantGroups") val participantGroups: List<ParticipantGroupDetailResponse>,
     @SerializedName("isUserRegistered") val isUserRegistered: Boolean = false,
-    @SerializedName("imageUrl") val imageUrl: String? = null
+    @SerializedName("imageUrl") val imageUrl: String? = null,
+    @SerializedName("coverCropX") val coverCropX: Double? = null,
+    @SerializedName("coverCropY") val coverCropY: Double? = null,
+    @SerializedName("coverCropWidth") val coverCropWidth: Double? = null,
+    @SerializedName("coverCropHeight") val coverCropHeight: Double? = null
 )

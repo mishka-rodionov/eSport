@@ -13,6 +13,7 @@ import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.domain.exception.NetworkException
 import com.competra.domain.models.Coordinates
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.models.orienteering.RegistrationEndMode
 import com.competra.domain.models.user.User
@@ -226,11 +227,15 @@ class OrienteeringCreatorViewModel(
                 copy(coordinates = Coordinates(action.latitude, action.longitude))
             }
 
-            is OrienteeringCreatorAction.UploadCompetitionImage -> uploadFile(
-                uri = action.uri,
-                type = "competition_image",
-                onSuccess = { url -> updateState { copy(imageUrl = url) } }
-            )
+            is OrienteeringCreatorAction.CoverImagePicked -> updateState {
+                copy(pendingCoverCropUri = action.uri)
+            }
+
+            is OrienteeringCreatorAction.CancelCoverCrop -> updateState {
+                copy(pendingCoverCropUri = null)
+            }
+
+            is OrienteeringCreatorAction.ConfirmCoverCrop -> confirmCoverCrop(action.cropRect)
 
             is OrienteeringCreatorAction.UploadCompetitionMap -> uploadFile(
                 uri = action.uri,
@@ -330,6 +335,7 @@ class OrienteeringCreatorViewModel(
                     competitionId = competitionId,
                     title = comp.competition.title,
                     imageUrl = comp.competition.imageUrl,
+                    imageCropRect = comp.competition.imageCropRect,
                     timeZoneId = comp.competition.timeZoneId,
                     startDate = comp.competition.startDate,
                     startTimeStr = DateTimeFormat.transformLongToTime(comp.competition.startDate, loadedZone),
@@ -621,6 +627,16 @@ class OrienteeringCreatorViewModel(
     fun updateDescription(description: String) = updateState { copy(description = description) }
     fun updateCoordinates(lat: Double, lon: Double) = updateState {
         copy(coordinates = Coordinates(lat, lon), isCoordinatesSetByUser = true)
+    }
+
+    private fun confirmCoverCrop(cropRect: CropRect) {
+        val uri = stateValue.pendingCoverCropUri ?: return
+        updateState { copy(pendingCoverCropUri = null) }
+        uploadFile(
+            uri = uri,
+            type = "competition_image",
+            onSuccess = { url -> updateState { copy(imageUrl = url, imageCropRect = cropRect) } }
+        )
     }
 
     private fun uploadFile(

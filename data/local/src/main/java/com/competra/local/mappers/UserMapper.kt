@@ -17,7 +17,8 @@ fun User.toEntity(): UserEntity {
         avatarUrl = avatarUrl,
         phoneNumber = phoneNumber,
         email = email,
-        qualification = qualification
+        qualification = qualification,
+        avatarCropRect = avatarCropRect
     )
 }
 
@@ -35,6 +36,7 @@ fun UserEntity.toDomain(): User {
         avatarUrl = avatarUrl,
         phoneNumber = phoneNumber,
         email = email,
-        qualification = qualification
+        qualification = qualification,
+        avatarCropRect = avatarCropRect
     )
 }

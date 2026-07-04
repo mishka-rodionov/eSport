@@ -1,6 +1,7 @@
 package com.competra.center.data.creator
 
 import android.net.Uri
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.ParticipantGroup
 import com.competra.domain.models.orienteering.PunchingSystem
@@ -59,7 +60,12 @@ sealed class OrienteeringCreatorAction : BaseAction {
     data class UpdateCoordinates(val latitude: Double, val longitude: Double) : OrienteeringCreatorAction()
 
     // Загрузка изображений
-    data class UploadCompetitionImage(val uri: Uri) : OrienteeringCreatorAction()
+    /** Пользователь выбрал файл обложки — открывает диалог кропа, загрузка ещё не начата. */
+    data class CoverImagePicked(val uri: Uri) : OrienteeringCreatorAction()
+    /** Рамка кропа подтверждена — запускает загрузку оригинала и сохранение рамки. */
+    data class ConfirmCoverCrop(val cropRect: CropRect) : OrienteeringCreatorAction()
+    /** Отмена кропа обложки — весь флоу загрузки прерывается. */
+    data object CancelCoverCrop : OrienteeringCreatorAction()
     data class UploadCompetitionMap(val uri: Uri) : OrienteeringCreatorAction()
 
     // Debug-инструменты (только в debug-сборке)

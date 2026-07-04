@@ -1,5 +1,6 @@
 package com.competra.domain.models.user
 
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.Gender
 import com.competra.domain.models.Qualification
 import java.util.Date
@@ -17,6 +18,7 @@ import java.util.Date
  * @property phoneNumber Номер телефона пользователя.
  * @property email Адрес электронной почты пользователя.
  * @property qualification Список спортивных квалификаций пользователя.
+ * @property avatarCropRect Область кропа аватара, выбранная пользователем (оригинал на сервере не изменяется).
  */
 data class User(
     val id: String,
@@ -28,5 +30,6 @@ data class User(
     val avatarUrl: String,
     val phoneNumber: String?,
     val email: String,
-    val qualification: List<Qualification>
+    val qualification: List<Qualification>,
+    val avatarCropRect: CropRect? = null
 )

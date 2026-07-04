@@ -36,8 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.competra.designsystem.components.DSTextInput
+import com.competra.designsystem.components.ImageCropperDialog
 import com.competra.designsystem.components.NetworkImage
 import com.competra.domain.models.Gender
+import com.competra.ui.components.toCropRect
+import com.competra.ui.components.toFractionalRect
 import com.competra.domain.models.user.User
 import com.competra.resources.R
 import org.koin.androidx.compose.koinViewModel
@@ -86,7 +89,16 @@ private fun ProfileEditorContent(
     val user = state.user
 
     val photoPicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
-        uri?.let { onAction(ProfileEditorAction.UploadPhoto(it)) }
+        uri?.let { onAction(ProfileEditorAction.PhotoPicked(it)) }
+    }
+
+    state.pendingCropUri?.let { uri ->
+        ImageCropperDialog(
+            uri = uri,
+            aspectRatio = 1f,
+            onConfirm = { cropRect -> onAction(ProfileEditorAction.ConfirmCrop(cropRect.toCropRect())) },
+            onCancel = { onAction(ProfileEditorAction.CancelCrop) }
+        )
     }
 
     Column(
@@ -106,6 +118,7 @@ private fun ProfileEditorContent(
         Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             NetworkImage(
                 url = user?.avatarUrl,
+                cropRect = user?.avatarCropRect?.toFractionalRect(),
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape)

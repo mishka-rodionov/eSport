@@ -39,6 +39,7 @@ import com.competra.domain.models.orienteering.PunchingSystem
 import com.competra.domain.models.orienteering.ResultsStatus
 import com.competra.domain.models.orienteering.StartTimeMode
 import com.competra.resources.R
+import com.competra.ui.components.toFractionalRect
 import com.competra.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
@@ -182,6 +183,7 @@ private fun EventControlCard(
             // Миниатюра события
             NetworkImage(
                 url = competition.imageUrl,
+                cropRect = competition.imageCropRect?.toFractionalRect(),
                 contentDescription = null,
                 fullscreenOnClick = false,
                 modifier = Modifier

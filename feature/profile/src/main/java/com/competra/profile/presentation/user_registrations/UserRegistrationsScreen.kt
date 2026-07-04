@@ -42,6 +42,7 @@ import com.competra.profile.data.user_registrations.UserRegistrationsAction
 import com.competra.profile.data.user_registrations.UserRegistrationsState
 import com.competra.resources.R
 import com.competra.ui.BaseAction
+import com.competra.ui.components.toFractionalRect
 import com.competra.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
 
@@ -141,6 +142,7 @@ private fun RegistrationCard(
         ) {
             NetworkImage(
                 url = competition.competition.imageUrl,
+                cropRect = competition.competition.imageCropRect?.toFractionalRect(),
                 contentDescription = null,
                 fullscreenOnClick = false,
                 modifier = Modifier

@@ -26,7 +26,8 @@ import com.competra.local.entities.user.UserEntity
 // (competitions.id/competitionId: Long → String). Локальная схема пересоздаётся
 // через fallbackToDestructiveMigration; данные подтянутся с сервера при следующем pull.
 // v43: поле isTest у соревнования (тестовые скрыты из публичной ленты).
-private const val DB_VERSION = 43
+// v44: crop rect для аватара пользователя и обложки соревнования.
+private const val DB_VERSION = 44
 
 /**
  * Основной класс базы данных приложения (Room).

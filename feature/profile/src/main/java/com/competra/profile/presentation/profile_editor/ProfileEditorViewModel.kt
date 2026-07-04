@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.competra.analytics.AnalyticsEvent
 import com.competra.analytics.AnalyticsTracker
 import com.competra.domain.exception.NetworkException
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.models.user.User
 import com.competra.domain.repository.LoadingRepository
@@ -48,7 +49,9 @@ class ProfileEditorViewModel(
             is ProfileEditorAction.UpdatePhoneNumber -> updatePhoneNumber(action.phoneNumber)
             is ProfileEditorAction.UpdateEmail -> updateEmail(action.email)
             is ProfileEditorAction.SaveProfile -> saveProfile()
-            is ProfileEditorAction.UploadPhoto -> uploadPhoto(action.uri)
+            is ProfileEditorAction.PhotoPicked -> updateState { copy(pendingCropUri = action.uri) }
+            is ProfileEditorAction.CancelCrop -> updateState { copy(pendingCropUri = null) }
+            is ProfileEditorAction.ConfirmCrop -> confirmCrop(action.cropRect)
         }
     }
 
@@ -116,7 +119,13 @@ class ProfileEditorViewModel(
         }
     }
 
-    private fun uploadPhoto(uri: Uri) {
+    private fun confirmCrop(cropRect: CropRect) {
+        val uri = stateValue.pendingCropUri ?: return
+        updateState { copy(pendingCropUri = null) }
+        uploadPhoto(uri, cropRect)
+    }
+
+    private fun uploadPhoto(uri: Uri, cropRect: CropRect) {
         viewModelScope.launch(Dispatchers.IO) {
             updateState { copy(isSaving = true) }
             loadingRepository.emit(true)
@@ -128,7 +137,7 @@ class ProfileEditorViewModel(
             val fileName = uri.lastPathSegment ?: "avatar.jpg"
             uploadRepository.uploadFile(bytes, fileName, "avatar")
                 .onSuccess { url ->
-                    userProfileRepository.updateAvatarUrl(url)
+                    userProfileRepository.updateAvatarUrl(url, cropRect)
                         .onSuccess { updatedUser ->
                             userRepository.saveUser(updatedUser)
                             updateState { copy(user = updatedUser, isSaving = false) }
@@ -164,5 +173,7 @@ sealed interface ProfileEditorAction : BaseAction {
     data class UpdatePhoneNumber(val phoneNumber: String) : ProfileEditorAction
     data class UpdateEmail(val email: String) : ProfileEditorAction
     data object SaveProfile : ProfileEditorAction
-    data class UploadPhoto(val uri: Uri) : ProfileEditorAction
+    data class PhotoPicked(val uri: Uri) : ProfileEditorAction
+    data class ConfirmCrop(val cropRect: CropRect) : ProfileEditorAction
+    data object CancelCrop : ProfileEditorAction
 }

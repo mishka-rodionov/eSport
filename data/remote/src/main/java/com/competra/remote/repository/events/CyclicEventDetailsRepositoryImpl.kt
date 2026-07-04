@@ -1,5 +1,6 @@
 package com.competra.remote.repository.events
 
+import com.competra.domain.models.CropRect
 import com.competra.domain.models.cyclic_event.CyclicEventDetails
 import com.competra.domain.models.cyclic_event.EventParticipantGroup
 import com.competra.domain.models.events.EventStatus
@@ -50,7 +51,8 @@ class CyclicEventDetailsRepositoryImpl(
                         status = mapStatus(dto.status),
                         eventType = EventType.CyclicEvent.Orienteering,
                         isUserRegistered = dto.isUserRegistered,
-                        imageUrl = dto.imageUrl
+                        imageUrl = dto.imageUrl,
+                        imageCropRect = toCropRect(dto.coverCropX, dto.coverCropY, dto.coverCropWidth, dto.coverCropHeight)
                     )
                 }
             }
@@ -85,6 +87,11 @@ class CyclicEventDetailsRepositoryImpl(
             .map { response ->
                 response.result?.map { it.toDomain() } ?: emptyList()
             }
+    }
+
+    private fun toCropRect(x: Double?, y: Double?, width: Double?, height: Double?): CropRect? {
+        if (x == null || y == null || width == null || height == null) return null
+        return CropRect(x, y, width, height)
     }
 
     private fun ParticipantPublicResponse.toDomain(): OrienteeringParticipant {

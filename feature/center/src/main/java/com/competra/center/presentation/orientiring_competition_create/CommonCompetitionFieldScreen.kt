@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.components.ExposedDropdownMenuOutlined
+import com.competra.designsystem.components.ImageCropperDialog
 import com.competra.designsystem.components.NetworkImage
 import com.competra.designsystem.components.TimePickerDialog
 import com.competra.designsystem.theme.Dimens
@@ -43,6 +44,8 @@ import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.PunchingSystem
 import com.competra.domain.models.orienteering.StartTimeMode
 import com.competra.resources.R
+import com.competra.ui.components.toCropRect
+import com.competra.ui.components.toFractionalRect
 import com.competra.utils.DateTimeFormat
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -112,7 +115,16 @@ private fun CommonCompetitionFieldContent(
     val focusManager = LocalFocusManager.current
 
     val imagePicker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
-        uri?.let { onAction(OrienteeringCreatorAction.UploadCompetitionImage(it)) }
+        uri?.let { onAction(OrienteeringCreatorAction.CoverImagePicked(it)) }
+    }
+
+    state.pendingCoverCropUri?.let { uri ->
+        ImageCropperDialog(
+            uri = uri,
+            aspectRatio = 16f / 9f,
+            onConfirm = { cropRect -> onAction(OrienteeringCreatorAction.ConfirmCoverCrop(cropRect.toCropRect())) },
+            onCancel = { onAction(OrienteeringCreatorAction.CancelCoverCrop) }
+        )
     }
 
     Scaffold(
@@ -170,6 +182,7 @@ private fun CommonCompetitionFieldContent(
             Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
             NetworkImage(
                 url = state.imageUrl,
+                cropRect = state.imageCropRect?.toFractionalRect(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp)

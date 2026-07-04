@@ -40,6 +40,14 @@ data class CompetitionResponse(
     val feeCurrency: String?,
     @SerializedName("imageUrl")
     val imageUrl: String? = null,
+    @SerializedName("coverCropX")
+    val coverCropX: Double? = null,
+    @SerializedName("coverCropY")
+    val coverCropY: Double? = null,
+    @SerializedName("coverCropWidth")
+    val coverCropWidth: Double? = null,
+    @SerializedName("coverCropHeight")
+    val coverCropHeight: Double? = null,
     @SerializedName("regulationUrl")
     val regulationUrl: String?,
     @SerializedName("mapUrl")

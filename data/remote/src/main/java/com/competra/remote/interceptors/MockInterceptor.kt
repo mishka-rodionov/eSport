@@ -81,6 +81,10 @@ class MockInterceptor : Interceptor {
                 birthDate = DateTimeFormat.transformApiDateToLong("15.05.1990"),
                 gender = Gender.MALE,
                 avatarUrl = "https://example.com/photos/ivan.jpg",
+                avatarCropX = null,
+                avatarCropY = null,
+                avatarCropWidth = null,
+                avatarCropHeight = null,
                 phoneNumber = "+79998887766",
                 email = "ivan.ivanov@example.com",
                 qualification = emptyList()
