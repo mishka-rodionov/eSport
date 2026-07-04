@@ -109,6 +109,7 @@ dependencies {
     implementation(project(":feature:events"))
     implementation(project(":feature:center"))
     implementation(project(":feature:onboarding"))
+    implementation(project(":feature:diary"))
     implementation(project(":core:resources"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:nfchelper"))

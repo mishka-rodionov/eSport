@@ -8,8 +8,10 @@ import androidx.work.Configuration
 import com.competra.analytics.di.analyticsCoreModule
 import com.competra.analytics.initAppMetrica
 import com.competra.center.di.centerModule
+import com.competra.diary.di.diaryModule
 import com.competra.core.sync.NetworkAvailabilityObserver
 import com.competra.core.sync.SyncBootstrap
+import com.competra.core.sync.WorkoutSyncBootstrap
 import com.competra.core.sync.di.syncModule
 import com.competra.app.service.CompetitionForegroundService
 import com.competra.data.navigation.di.navigationModule
@@ -22,6 +24,7 @@ import com.competra.onboarding.di.onboardingModule
 import com.competra.profile.di.profileModule
 import com.competra.remote.di.authModule
 import com.competra.remote.di.deviceModule
+import com.competra.remote.di.diaryDataModule
 import com.competra.remote.di.eventsDataModule
 import com.competra.remote.di.orienteeringModule
 import com.competra.remote.di.retrofitModule
@@ -67,10 +70,10 @@ class CompetraApp : Application(), Configuration.Provider {
             )
 
             // data modules
-            modules(authModule, orienteeringModule, eventsDataModule, uploadModule, deviceModule)
+            modules(authModule, orienteeringModule, eventsDataModule, uploadModule, deviceModule, diaryDataModule)
 
             // feature modules
-            modules(mainModule, centerModule, eventsModule, eventDetailsModule, profileModule, onboardingModule)
+            modules(mainModule, centerModule, eventsModule, eventDetailsModule, profileModule, onboardingModule, diaryModule)
 
             // firebase
             modules(firebaseModule)
@@ -85,10 +88,15 @@ class CompetraApp : Application(), Configuration.Provider {
         createNotificationChannel()
         createPushNotificationChannel()
 
-        // Подписываемся на появление сети — каждое появление триггерит SyncCenterWorker.
-        networkObserver.start { SyncBootstrap.enqueue(this) }
+        // Подписываемся на появление сети — каждое появление триггерит SyncCenterWorker и
+        // WorkoutSyncWorker (тренировочный дневник синкается независимо от :feature:center).
+        networkObserver.start {
+            SyncBootstrap.enqueue(this)
+            WorkoutSyncBootstrap.enqueue(this)
+        }
         // Дополнительный enqueue на старте — на случай, если сеть уже есть и есть unsynced.
         SyncBootstrap.enqueue(this)
+        WorkoutSyncBootstrap.enqueue(this)
     }
 
     /**

@@ -43,7 +43,12 @@ enum class AnalyticsScreen(val screenName: String) {
     Auth("auth"),
     AuthCode("auth_code"),
     Registration("registration"),
-    UserRegistrations("user_registrations");
+    UserRegistrations("user_registrations"),
+
+    // Diary
+    DiaryList("diary_list"),
+    DiaryWorkoutEditor("diary_workout_editor"),
+    DiaryWorkoutDetail("diary_workout_detail");
 
     companion object {
         /**
@@ -90,6 +95,10 @@ enum class AnalyticsScreen(val screenName: String) {
                 route.contains("AuthRoute") -> Auth
                 route.contains("RegistrationRoute") -> Registration
                 route.contains("UserRegistrationsRoute") -> UserRegistrations
+
+                route.contains("WorkoutEditorRoute") -> DiaryWorkoutEditor
+                route.contains("WorkoutDetailRoute") -> DiaryWorkoutDetail
+                route.contains("DiaryRoute") -> DiaryList
 
                 else -> null
             }

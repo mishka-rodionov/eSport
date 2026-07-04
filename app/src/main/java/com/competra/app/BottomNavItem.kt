@@ -33,12 +33,19 @@ sealed class BottomNavItem(
 
     @Serializable
     data object Profile : BottomNavItem(
-        route = "Profile", 
+        route = "Profile",
         title = "Профиль",
         iconRes = R.drawable.ic_account_circle_24px
     )
 
+    @Serializable
+    data object Diary : BottomNavItem(
+        route = "Diary",
+        title = "Дневник",
+        iconRes = R.drawable.ic_directions_run_24px
+    )
+
     companion object {
-        val all = listOf(CompetitionList, CompetitionConstructor, Profile)
+        val all = listOf(CompetitionList, CompetitionConstructor, Diary, Profile)
     }
 }

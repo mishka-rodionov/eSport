@@ -206,3 +206,69 @@ val MIGRATION_42_43 = object : Migration(42, 43) {
         db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN isTest INTEGER NOT NULL DEFAULT 0")
     }
 }
+
+/**
+ * Миграция с версии 44 на 45.
+ * Добавляет таблицы тренировочного дневника: workouts (общие поля + sync-trait) и
+ * специфичные для вида спорта детали (run_details/bike_details/ski_details, 1:1 по workoutId).
+ */
+val MIGRATION_44_45 = object : Migration(44, 45) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS workouts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                remoteId INTEGER,
+                sportType TEXT NOT NULL,
+                status TEXT NOT NULL,
+                scheduledDate INTEGER,
+                startedAt INTEGER,
+                durationSeconds INTEGER,
+                distanceMeters INTEGER,
+                elevationGainMeters INTEGER,
+                notes TEXT,
+                isSynced INTEGER NOT NULL DEFAULT 0,
+                lastModified INTEGER NOT NULL,
+                isDeleted INTEGER NOT NULL DEFAULT 0,
+                serverUpdatedAt INTEGER,
+                syncError TEXT
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_workouts_unsynced ON workouts(isSynced)")
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS run_details (
+                workoutId INTEGER PRIMARY KEY NOT NULL,
+                cadenceSpm INTEGER,
+                FOREIGN KEY(workoutId) REFERENCES workouts(id) ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_run_details_workoutId ON run_details(workoutId)")
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS bike_details (
+                workoutId INTEGER PRIMARY KEY NOT NULL,
+                cadenceRpm INTEGER,
+                powerWatts INTEGER,
+                FOREIGN KEY(workoutId) REFERENCES workouts(id) ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_bike_details_workoutId ON bike_details(workoutId)")
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS ski_details (
+                workoutId INTEGER PRIMARY KEY NOT NULL,
+                style TEXT NOT NULL,
+                FOREIGN KEY(workoutId) REFERENCES workouts(id) ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_ski_details_workoutId ON ski_details(workoutId)")
+    }
+}

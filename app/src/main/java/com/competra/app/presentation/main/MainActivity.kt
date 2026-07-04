@@ -59,8 +59,10 @@ import com.competra.center.navigation.centerGraph
 import com.competra.data.navigation.BackRoute
 import com.competra.data.navigation.BaseNavigation
 import com.competra.data.navigation.CenterNavigation
+import com.competra.data.navigation.DiaryNavigation
 import com.competra.data.navigation.EventsNavigation
 import com.competra.data.navigation.ProfileNavigation
+import com.competra.diary.navigation.diaryGraph
 import com.competra.events.navigation.eventsGraph
 import com.competra.onboarding.presentation.OnboardingScreen
 import com.competra.profile.navigation.profileNavigation
@@ -269,6 +271,7 @@ internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeCla
                                 BottomNavItem.Profile -> profileNavigation()
                                 BottomNavItem.CompetitionList -> eventsGraph()
                                 BottomNavItem.CompetitionConstructor -> centerGraph(windowSizeClass, navController)
+                                BottomNavItem.Diary -> diaryGraph()
                             }
                         }
                     }
@@ -332,6 +335,7 @@ private fun checkNavigation(tab: BottomNavItem): BaseNavigation = when (tab) {
     BottomNavItem.Profile -> ProfileNavigation.MainProfileRoute
     BottomNavItem.CompetitionList -> EventsNavigation.EventsRoute
     BottomNavItem.CompetitionConstructor -> CenterNavigation.CenterRoute
+    BottomNavItem.Diary -> DiaryNavigation.DiaryRoute
 }
 
 /**

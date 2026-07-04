@@ -204,4 +204,33 @@ sealed class AnalyticsEvent(
     data object OnboardingCompleted : AnalyticsEvent("onboarding_completed")
 
     // endregion
+
+    // region Diary (тренировочный дневник)
+
+    enum class DiarySportType { RUNNING, CYCLING, SKIING }
+    enum class DiaryWorkoutStatus { PLANNED, COMPLETED }
+
+    /**
+     * Сохранена тренировка (создание или редактирование, ручной ввод или планирование).
+     *
+     * @param isNew true — создание новой записи, false — редактирование существующей.
+     */
+    class DiaryWorkoutSaved(
+        sportType: DiarySportType,
+        status: DiaryWorkoutStatus,
+        isNew: Boolean,
+    ) : AnalyticsEvent(
+        "diary_workout_saved",
+        mapOf(
+            "sport_type" to sportType.name.lowercase(),
+            "status" to status.name.lowercase(),
+            "is_new" to isNew,
+        ),
+    )
+
+    /** Тренировка удалена из дневника. */
+    class DiaryWorkoutDeleted(sportType: DiarySportType) :
+        AnalyticsEvent("diary_workout_deleted", mapOf("sport_type" to sportType.name.lowercase()))
+
+    // endregion
 }
