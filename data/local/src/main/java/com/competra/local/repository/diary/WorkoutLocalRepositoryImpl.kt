@@ -56,6 +56,10 @@ class WorkoutLocalRepositoryImpl(
         workoutDao.getById(id)?.toDomain()
     }
 
+    override suspend fun getInProgressWorkout(): Result<WorkoutWithDetails?> = runCatching {
+        workoutDao.getInProgress()?.toDomain()
+    }
+
     override suspend fun markWorkoutDeleted(id: Long): Result<Unit> = runCatching {
         val existing = workoutDao.getById(id)?.toDomain() ?: return@runCatching
         val marked = existing.copy(

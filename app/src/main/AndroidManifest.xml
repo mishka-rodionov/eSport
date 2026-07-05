@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
     <!-- Разрешения для отправки уведомлений (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -56,6 +57,11 @@
         <service
             android:name=".service.CompetitionForegroundService"
             android:foregroundServiceType="dataSync"
+            android:exported="false" />
+
+        <service
+            android:name=".service.WorkoutTrackingService"
+            android:foregroundServiceType="location"
             android:exported="false" />
 
         <!-- Firebase Cloud Messaging -->

@@ -9,7 +9,9 @@ import com.competra.diary.data.interactors.WorkoutInteractor
 import com.competra.diary.data.list.DiaryListAction
 import com.competra.diary.data.list.DiaryListState
 import com.competra.diary.presentation.editor.toAnalytics
+import com.competra.domain.models.diary.WorkoutStatus
 import com.competra.ui.BaseAction
+import com.competra.ui.WorkoutTrackingRepository
 import com.competra.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,6 +19,7 @@ import kotlinx.coroutines.launch
 /** ViewModel экрана списка тренировок дневника. */
 class DiaryListViewModel(
     private val interactor: WorkoutInteractor,
+    private val trackingRepository: WorkoutTrackingRepository,
     private val navigation: Navigation,
     private val analytics: AnalyticsTracker
 ) : BaseViewModel<DiaryListState>(DiaryListState()) {
@@ -46,6 +49,27 @@ class DiaryListViewModel(
                     loadWorkouts()
                 }
             }
+            DiaryListAction.OpenSportPicker -> updateState { copy(isSportPickerVisible = true) }
+            DiaryListAction.HideSportPicker -> updateState { copy(isSportPickerVisible = false) }
+            is DiaryListAction.StartTracking -> {
+                updateState { copy(isSportPickerVisible = false) }
+                viewModelScope.launch {
+                    navigation.navigate(DiaryNavigation.LiveTrackingRoute(action.sportType.name))
+                }
+            }
+            DiaryListAction.OpenInProgressWorkout -> {
+                val sportType = stateValue.inProgressWorkout?.workout?.sportType ?: return
+                viewModelScope.launch {
+                    navigation.navigate(DiaryNavigation.LiveTrackingRoute(sportType.name))
+                }
+            }
+            DiaryListAction.FinalizeInProgressWorkout -> {
+                val workout = stateValue.inProgressWorkout ?: return
+                viewModelScope.launch(Dispatchers.IO) {
+                    interactor.updateWorkout(workout.copy(workout = workout.workout.copy(status = WorkoutStatus.COMPLETED)))
+                    loadWorkouts()
+                }
+            }
         }
     }
 
@@ -59,7 +83,18 @@ class DiaryListViewModel(
     fun loadWorkouts() {
         viewModelScope.launch(Dispatchers.IO) {
             interactor.getWorkouts()
-                .onSuccess { list -> updateState { copy(workouts = list, isLoading = false) } }
+                .onSuccess { list ->
+                    val inProgress = list.find { it.workout.status == WorkoutStatus.IN_PROGRESS }
+                    val rest = list.filterNot { it.workout.status == WorkoutStatus.IN_PROGRESS }
+                    updateState {
+                        copy(
+                            workouts = rest,
+                            inProgressWorkout = inProgress,
+                            isTrackingAlive = trackingRepository.snapshot.value != null,
+                            isLoading = false
+                        )
+                    }
+                }
                 .onFailure { updateState { copy(isLoading = false) } }
         }
     }

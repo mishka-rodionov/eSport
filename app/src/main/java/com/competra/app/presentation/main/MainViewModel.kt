@@ -23,6 +23,8 @@ import com.competra.ui.BaseAction
 import com.competra.ui.BaseState
 import com.competra.ui.CompetitionServiceCommand
 import com.competra.ui.CompetitionServiceController
+import com.competra.ui.WorkoutTrackingCommand
+import com.competra.ui.WorkoutTrackingController
 import com.competra.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +49,7 @@ class MainViewModel(
     private val navigation: Navigation,
     private val sportiduinoHelper: SportiduinoHelper,
     private val serviceController: CompetitionServiceController,
+    private val workoutTrackingController: WorkoutTrackingController,
     private val scanEventRepository: CompetitionScanEventRepository,
     private val startAlertRepository: CompetitionStartAlertRepository,
     private val resultConflictRepository: ResultConflictRepository,
@@ -75,6 +78,11 @@ class MainViewModel(
      * Команды запуска/остановки foreground-сервиса, читаются в MainActivity.
      */
     val serviceCommands: SharedFlow<CompetitionServiceCommand> = serviceController.commands
+
+    /**
+     * Команды старт/пауза/резюм/стоп сервиса live-трекинга тренировки, читаются в MainActivity.
+     */
+    val workoutTrackingCommands: SharedFlow<WorkoutTrackingCommand> = workoutTrackingController.commands
 
     private val _currentScanEvent = MutableStateFlow<NfcScanEvent?>(null)
 

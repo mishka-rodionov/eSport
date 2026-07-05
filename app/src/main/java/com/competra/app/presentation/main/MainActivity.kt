@@ -68,8 +68,10 @@ import com.competra.onboarding.presentation.OnboardingScreen
 import com.competra.profile.navigation.profileNavigation
 import com.competra.app.BottomNavItem
 import com.competra.app.service.CompetitionForegroundService
+import com.competra.app.service.WorkoutTrackingService
 import com.competra.app.ui.theme.CompetraTheme
 import com.competra.ui.CompetitionServiceCommand
+import com.competra.ui.WorkoutTrackingCommand
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -105,6 +107,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         observeServiceCommands()
+        observeWorkoutTrackingCommands()
     }
 
     /**
@@ -127,6 +130,30 @@ class MainActivity : ComponentActivity() {
                             stopService(
                                 Intent(this@MainActivity, CompetitionForegroundService::class.java)
                             )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Подписка на команды управления сервисом live-трекинга тренировки. Пауза/резюм/стоп
+     * доставляются в уже запущенный сервис обычным `startService` — новый `startForeground`
+     * не требуется, сервис уже промоутирован в foreground командой Start.
+     */
+    private fun observeWorkoutTrackingCommands() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.workoutTrackingCommands.collect { cmd ->
+                    when (cmd) {
+                        is WorkoutTrackingCommand.Start ->
+                            startForegroundService(WorkoutTrackingService.startIntent(this@MainActivity, cmd.sportType))
+                        WorkoutTrackingCommand.Pause ->
+                            startService(WorkoutTrackingService.pauseIntent(this@MainActivity))
+                        WorkoutTrackingCommand.Resume ->
+                            startService(WorkoutTrackingService.resumeIntent(this@MainActivity))
+                        is WorkoutTrackingCommand.Stop ->
+                            startService(WorkoutTrackingService.stopIntent(this@MainActivity, cmd.discard))
                     }
                 }
             }

@@ -51,10 +51,15 @@ interface WorkoutDao {
     suspend fun getById(id: Long): WorkoutWithDetailsEntity?
 
     @Transaction
-    @Query("SELECT * FROM workouts WHERE isSynced = 0 AND isDeleted = 0")
+    @Query("SELECT * FROM workouts WHERE isSynced = 0 AND isDeleted = 0 AND status != 'IN_PROGRESS'")
     suspend fun getUnsynced(): List<WorkoutWithDetailsEntity>
 
     @Transaction
     @Query("SELECT * FROM workouts WHERE isSynced = 0 AND isDeleted = 1")
     suspend fun getMarkedForDeletion(): List<WorkoutWithDetailsEntity>
+
+    /** Незавершённая live-тренировка, если есть — трекается не больше одной одновременно. */
+    @Transaction
+    @Query("SELECT * FROM workouts WHERE status = 'IN_PROGRESS' AND isDeleted = 0 LIMIT 1")
+    suspend fun getInProgress(): WorkoutWithDetailsEntity?
 }

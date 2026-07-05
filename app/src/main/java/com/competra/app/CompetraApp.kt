@@ -14,6 +14,7 @@ import com.competra.core.sync.SyncBootstrap
 import com.competra.core.sync.WorkoutSyncBootstrap
 import com.competra.core.sync.di.syncModule
 import com.competra.app.service.CompetitionForegroundService
+import com.competra.app.service.WorkoutTrackingService
 import com.competra.data.navigation.di.navigationModule
 import com.competra.eventdetails.di.eventDetailsModule
 import com.competra.events.di.eventsModule
@@ -86,6 +87,7 @@ class CompetraApp : Application(), Configuration.Provider {
         initAppMetrica(this, BuildConfig.APPMETRICA_API_KEY)
 
         createNotificationChannel()
+        createWorkoutTrackingNotificationChannel()
         createPushNotificationChannel()
 
         // Подписываемся на появление сети — каждое появление триггерит SyncCenterWorker и
@@ -108,6 +110,19 @@ class CompetraApp : Application(), Configuration.Provider {
             "Соревнование",
             NotificationManager.IMPORTANCE_LOW
         ).apply { description = "Информация о текущем соревновании" }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    /**
+     * Создаёт канал уведомлений для сервиса live-трекинга тренировки.
+     */
+    private fun createWorkoutTrackingNotificationChannel() {
+        val channel = NotificationChannel(
+            WorkoutTrackingService.CHANNEL_ID,
+            "Тренировка",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply { description = "Live-трекинг тренировки: время, дистанция" }
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }

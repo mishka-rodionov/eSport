@@ -18,6 +18,9 @@ interface WorkoutLocalRepository {
     suspend fun getWorkouts(): Result<List<WorkoutWithDetails>>
     suspend fun getWorkoutById(id: Long): Result<WorkoutWithDetails?>
 
+    /** Незавершённая live-тренировка (status=IN_PROGRESS), если есть. Трекается не больше одной сразу. */
+    suspend fun getInProgressWorkout(): Result<WorkoutWithDetails?>
+
     /** Помечает тренировку на удаление (soft-delete) до выгрузки DELETE на сервер. */
     suspend fun markWorkoutDeleted(id: Long): Result<Unit>
 

@@ -22,6 +22,7 @@ data class WorkoutEntity(
     val distanceMeters: Int? = null,
     val elevationGainMeters: Int? = null,
     val notes: String? = null,
+    val trackEncoded: String? = null,
     // Поля синхронизации
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),

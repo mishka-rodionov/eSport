@@ -23,4 +23,8 @@ sealed class DiaryNavigation : BaseNavigation {
 
     @Serializable
     data class WorkoutDetailRoute(val workoutId: Long) : DiaryNavigation()
+
+    /** Экран live-трекинга. sportType строкой (имя [com.competra.domain.models.diary.SportType]). */
+    @Serializable
+    data class LiveTrackingRoute(val sportType: String) : DiaryNavigation()
 }

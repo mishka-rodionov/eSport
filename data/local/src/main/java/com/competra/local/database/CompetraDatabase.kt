@@ -33,7 +33,8 @@ import com.competra.local.entities.user.UserEntity
 // v43: поле isTest у соревнования (тестовые скрыты из публичной ленты).
 // v44: crop rect для аватара пользователя и обложки соревнования.
 // v45: тренировочный дневник (workouts + run/bike/ski_details).
-private const val DB_VERSION = 45
+// v46: live GPS-трекинг — колонка trackEncoded в workouts.
+private const val DB_VERSION = 46
 
 /**
  * Основной класс базы данных приложения (Room).

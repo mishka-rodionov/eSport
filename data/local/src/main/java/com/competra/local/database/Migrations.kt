@@ -272,3 +272,15 @@ val MIGRATION_44_45 = object : Migration(44, 45) {
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_ski_details_workoutId ON ski_details(workoutId)")
     }
 }
+
+/**
+ * Миграция с версии 45 на 46.
+ * Добавляет колонку trackEncoded для live GPS-трекинга — закодированный одной строкой трек
+ * тренировки (см. `TrackCodec` в `:domain`). Статус тренировки `IN_PROGRESS` (новое значение
+ * enum'а WorkoutStatus) не требует изменений схемы — колонка status и так TEXT.
+ */
+val MIGRATION_45_46 = object : Migration(45, 46) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE workouts ADD COLUMN trackEncoded TEXT")
+    }
+}

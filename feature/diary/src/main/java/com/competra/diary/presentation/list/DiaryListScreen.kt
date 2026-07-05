@@ -22,11 +22,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -82,6 +86,13 @@ fun DiaryListScreen(viewModel: DiaryListViewModel = koinViewModel()) {
             onConfirm = { viewModel.onAction(DiaryListAction.DeleteWorkout(workout)) }
         )
     }
+
+    if (state.isSportPickerVisible) {
+        SportPickerDialog(
+            onDismiss = { viewModel.onAction(DiaryListAction.HideSportPicker) },
+            onSelected = { viewModel.onAction(DiaryListAction.StartTracking(it)) }
+        )
+    }
 }
 
 @Composable
@@ -98,22 +109,52 @@ private fun DiaryListContent(state: DiaryListState, onAction: (DiaryListAction) 
             modifier = Modifier.padding(top = Dimens.SIZE_BASE.dp)
         )
 
-        Button(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
                 .padding(top = Dimens.SIZE_BASE.dp),
-            onClick = { onAction(DiaryListAction.OpenCreateWorkout) },
-            shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_HALF.dp)
         ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                onClick = { onAction(DiaryListAction.OpenSportPicker) },
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_directions_run_24px),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Начать тренировку", fontSize = 16.sp)
+            }
+            OutlinedButton(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                onClick = { onAction(DiaryListAction.OpenCreateWorkout) },
+                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Добавить вручную", fontSize = 16.sp)
+            }
+        }
+
+        state.inProgressWorkout?.let { inProgress ->
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+            InProgressBanner(
+                workout = inProgress,
+                isAlive = state.isTrackingAlive,
+                onAction = onAction
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Добавить тренировку", fontSize = 16.sp)
         }
 
         Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
@@ -243,5 +284,79 @@ private fun EmptyDiaryView() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun InProgressBanner(
+    workout: WorkoutWithDetails,
+    isAlive: Boolean,
+    onAction: (DiaryListAction) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(Dimens.SIZE_BASE.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = if (isAlive) "Тренировка в процессе" else "Незавершённая тренировка",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = sportTypeLabel(workout.workout.sportType),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            if (isAlive) {
+                Button(onClick = { onAction(DiaryListAction.OpenInProgressWorkout) }) {
+                    Text("Открыть")
+                }
+            } else {
+                OutlinedButton(onClick = { onAction(DiaryListAction.FinalizeInProgressWorkout) }) {
+                    Text("Завершить")
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SportPickerDialog(onDismiss: () -> Unit, onSelected: (SportType) -> Unit) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(
+            modifier = Modifier
+                .padding(Dimens.SIZE_BASE.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "Какая тренировка?",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+            listOf(SportType.RUNNING, SportType.CYCLING, SportType.SKIING).forEach { sport ->
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = Dimens.SIZE_HALF.dp)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                    onClick = { onSelected(sport) }
+                ) {
+                    Text(sportTypeLabel(sport))
+                }
+            }
+            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+        }
     }
 }

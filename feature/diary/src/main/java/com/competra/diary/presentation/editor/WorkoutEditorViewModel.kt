@@ -144,5 +144,7 @@ internal fun SportType.toAnalytics(): AnalyticsEvent.DiarySportType = when (this
 
 internal fun WorkoutStatus.toAnalytics(): AnalyticsEvent.DiaryWorkoutStatus = when (this) {
     WorkoutStatus.PLANNED -> AnalyticsEvent.DiaryWorkoutStatus.PLANNED
-    WorkoutStatus.COMPLETED -> AnalyticsEvent.DiaryWorkoutStatus.COMPLETED
+    // Редактор никогда не сохраняет IN_PROGRESS (выставляется только сервисом трекинга) —
+    // ветка нужна лишь для исчерпывающего when по WorkoutStatus.
+    WorkoutStatus.IN_PROGRESS, WorkoutStatus.COMPLETED -> AnalyticsEvent.DiaryWorkoutStatus.COMPLETED
 }

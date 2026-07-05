@@ -7,6 +7,8 @@ import com.competra.data.navigation.DiaryNavigation
 import com.competra.diary.presentation.detail.WorkoutDetailScreen
 import com.competra.diary.presentation.editor.WorkoutEditorScreen
 import com.competra.diary.presentation.list.DiaryListScreen
+import com.competra.diary.presentation.tracking.LiveTrackingScreen
+import com.competra.domain.models.diary.SportType
 
 /**
  * Граф навигации для раздела "Тренировочный дневник".
@@ -22,5 +24,10 @@ fun NavGraphBuilder.diaryGraph() {
     composable<DiaryNavigation.WorkoutDetailRoute> { backStackEntry ->
         val route: DiaryNavigation.WorkoutDetailRoute = backStackEntry.toRoute()
         WorkoutDetailScreen(workoutId = route.workoutId)
+    }
+
+    composable<DiaryNavigation.LiveTrackingRoute> { backStackEntry ->
+        val route: DiaryNavigation.LiveTrackingRoute = backStackEntry.toRoute()
+        LiveTrackingScreen(sportType = SportType.valueOf(route.sportType))
     }
 }

@@ -13,6 +13,8 @@ package com.competra.domain.models.diary
  * @property distanceMeters Дистанция в метрах.
  * @property elevationGainMeters Набор высоты в метрах.
  * @property notes Произвольная заметка пользователя.
+ * @property trackEncoded GPS-трек, закодированный [com.competra.domain.diary.TrackCodec] одной строкой.
+ *   Общий для всех видов спорта (не в per-спорт Details). Null для тренировок без live-трекинга.
  * @property isSynced Флаг синхронизации с сервером.
  * @property lastModified Время последнего локального изменения.
  * @property isDeleted Флаг пометки на удаление (soft-delete).
@@ -30,6 +32,7 @@ data class Workout(
     val distanceMeters: Int? = null,
     val elevationGainMeters: Int? = null,
     val notes: String? = null,
+    val trackEncoded: String? = null,
     val isSynced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis(),
     val isDeleted: Boolean = false,
