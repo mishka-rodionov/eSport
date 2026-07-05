@@ -24,14 +24,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ShareCompat
+import androidx.core.content.FileProvider
 import com.competra.designsystem.theme.Dimens
 import com.competra.diary.data.track.WorkoutTrackAction
 import com.competra.diary.presentation.common.formatWorkoutDuration
 import com.competra.domain.diary.TrackCodec
 import com.competra.resources.R
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -40,6 +44,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polyline
+import java.io.File
 
 @Composable
 fun WorkoutTrackScreen(
@@ -47,9 +52,24 @@ fun WorkoutTrackScreen(
     viewModel: WorkoutTrackViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(workoutId) {
         viewModel.load(workoutId)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.exportGpxEvent.collectLatest { (fileName, content) ->
+            val file = File(context.cacheDir, fileName)
+            file.writeText(content, Charsets.UTF_8)
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            val intent = ShareCompat.IntentBuilder(context)
+                .setType("application/gpx+xml")
+                .addStream(uri)
+                .setChooserTitle("Экспорт трека")
+                .createChooserIntent()
+            context.startActivity(intent)
+        }
     }
 
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -96,6 +116,20 @@ fun WorkoutTrackScreen(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_back_24px),
                     contentDescription = null
                 )
+            }
+
+            if (encoded != null) {
+                FilledIconButton(
+                    onClick = { viewModel.onAction(WorkoutTrackAction.ExportGpxClick) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(Dimens.SIZE_BASE.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_share_24px),
+                        contentDescription = "Экспортировать GPX"
+                    )
+                }
             }
         }
     }
