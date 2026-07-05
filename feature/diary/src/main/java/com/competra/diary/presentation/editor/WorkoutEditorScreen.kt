@@ -134,14 +134,36 @@ private fun WorkoutEditorContent(state: WorkoutEditorState, onAction: (WorkoutEd
         if (state.status == WorkoutStatus.COMPLETED) {
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 
-            DSTextInput(
-                modifier = Modifier.fillMaxWidth(),
-                text = state.durationMinutesInput,
-                onValueChanged = { onAction(WorkoutEditorAction.ChangeDuration(it)) },
-                label = { Text("Длительность, мин") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true
-            )
+            Text(text = "Длительность", style = MaterialTheme.typography.labelLarge)
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                DSTextInput(
+                    modifier = Modifier.weight(1f),
+                    text = state.durationHoursInput,
+                    onValueChanged = { onAction(WorkoutEditorAction.ChangeDurationHours(it)) },
+                    label = { Text("Часы") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                DSTextInput(
+                    modifier = Modifier.weight(1f),
+                    text = state.durationMinutesInput,
+                    onValueChanged = { onAction(WorkoutEditorAction.ChangeDurationMinutes(it)) },
+                    label = { Text("Минуты") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                DSTextInput(
+                    modifier = Modifier.weight(1f),
+                    text = state.durationSecondsInput,
+                    onValueChanged = { onAction(WorkoutEditorAction.ChangeDurationSeconds(it)) },
+                    label = { Text("Секунды") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true
+                )
+            }
 
             Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
 

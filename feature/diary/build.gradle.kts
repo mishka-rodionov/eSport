@@ -50,6 +50,7 @@ dependencies {
     implementation(project(":data:navigation"))
     implementation(project(":data:local"))
     implementation(project(":data:remote"))
+    implementation(project(":core:sync"))
     implementation(project(":domain"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:resources"))

@@ -49,8 +49,14 @@ class DiaryListViewModel(
         }
     }
 
+    /**
+     * Загружает тренировки. Вызывается и при первом появлении экрана, и при каждом
+     * возврате на него (ON_RESUME из [DiaryListScreen]) — поэтому `isLoading` не
+     * взводится здесь заново: спиннер должен появляться только один раз, на самой первой
+     * загрузке (см. дефолт в [DiaryListState]), а последующие фоновые обновления не должны
+     * дёргать список пропаданием контента.
+     */
     fun loadWorkouts() {
-        updateState { copy(isLoading = true) }
         viewModelScope.launch(Dispatchers.IO) {
             interactor.getWorkouts()
                 .onSuccess { list -> updateState { copy(workouts = list, isLoading = false) } }

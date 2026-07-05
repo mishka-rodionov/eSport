@@ -16,7 +16,9 @@ data class WorkoutEditorState(
     val sportType: SportType = SportType.RUNNING,
     val status: WorkoutStatus = WorkoutStatus.COMPLETED,
     val dateMillis: Long = System.currentTimeMillis(),
+    val durationHoursInput: String = "",
     val durationMinutesInput: String = "",
+    val durationSecondsInput: String = "",
     val distanceKmInput: String = "",
     val elevationGainInput: String = "",
     val notes: String = "",
@@ -27,3 +29,18 @@ data class WorkoutEditorState(
     val isSaving: Boolean = false,
     val isSaved: Boolean = false
 ) : BaseState
+
+/**
+ * Суммирует часы/минуты/секунды в общее число секунд. Незаполненное поле трактуется как 0.
+ * Если пользователь вообще не тронул ни одно из трёх полей — возвращает null (длительность
+ * не указана), а не 0.
+ */
+fun WorkoutEditorState.totalDurationSeconds(): Int? {
+    if (durationHoursInput.isBlank() && durationMinutesInput.isBlank() && durationSecondsInput.isBlank()) {
+        return null
+    }
+    val hours = durationHoursInput.toIntOrNull() ?: 0
+    val minutes = durationMinutesInput.toIntOrNull() ?: 0
+    val seconds = durationSecondsInput.toIntOrNull() ?: 0
+    return hours * 3600 + minutes * 60 + seconds
+}

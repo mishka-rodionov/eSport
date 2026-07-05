@@ -6,6 +6,7 @@ import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.Navigation
 import com.competra.diary.data.editor.WorkoutEditorAction
 import com.competra.diary.data.editor.WorkoutEditorState
+import com.competra.diary.data.editor.totalDurationSeconds
 import com.competra.diary.data.interactors.WorkoutInteractor
 import com.competra.domain.models.diary.BikeDetails
 import com.competra.domain.models.diary.RunDetails
@@ -44,7 +45,9 @@ class WorkoutEditorViewModel(
                         dateMillis = details.workout.startedAt
                             ?: details.workout.scheduledDate
                             ?: System.currentTimeMillis(),
-                        durationMinutesInput = details.workout.durationSeconds?.let { (it / 60).toString() }.orEmpty(),
+                        durationHoursInput = details.workout.durationSeconds?.let { (it / 3600).toString() }.orEmpty(),
+                        durationMinutesInput = details.workout.durationSeconds?.let { (it % 3600 / 60).toString() }.orEmpty(),
+                        durationSecondsInput = details.workout.durationSeconds?.let { (it % 60).toString() }.orEmpty(),
                         distanceKmInput = details.workout.distanceMeters?.let { (it / 1000.0).toString() }.orEmpty(),
                         elevationGainInput = details.workout.elevationGainMeters?.toString().orEmpty(),
                         notes = details.workout.notes.orEmpty(),
@@ -63,7 +66,9 @@ class WorkoutEditorViewModel(
             is WorkoutEditorAction.SelectSportType -> updateState { copy(sportType = action.sportType) }
             is WorkoutEditorAction.SelectStatus -> updateState { copy(status = action.status) }
             is WorkoutEditorAction.ChangeDate -> updateState { copy(dateMillis = action.dateMillis) }
-            is WorkoutEditorAction.ChangeDuration -> updateState { copy(durationMinutesInput = action.value) }
+            is WorkoutEditorAction.ChangeDurationHours -> updateState { copy(durationHoursInput = action.value) }
+            is WorkoutEditorAction.ChangeDurationMinutes -> updateState { copy(durationMinutesInput = action.value) }
+            is WorkoutEditorAction.ChangeDurationSeconds -> updateState { copy(durationSecondsInput = action.value) }
             is WorkoutEditorAction.ChangeDistance -> updateState { copy(distanceKmInput = action.value) }
             is WorkoutEditorAction.ChangeElevationGain -> updateState { copy(elevationGainInput = action.value) }
             is WorkoutEditorAction.ChangeNotes -> updateState { copy(notes = action.value) }
@@ -86,7 +91,7 @@ class WorkoutEditorViewModel(
                 status = s.status,
                 scheduledDate = if (s.status == WorkoutStatus.PLANNED) s.dateMillis else null,
                 startedAt = if (s.status == WorkoutStatus.COMPLETED) s.dateMillis else null,
-                durationSeconds = s.durationMinutesInput.toIntOrNull()?.times(60),
+                durationSeconds = s.totalDurationSeconds(),
                 distanceMeters = s.distanceKmInput.toDoubleOrNull()?.times(1000)?.toInt(),
                 elevationGainMeters = s.elevationGainInput.toIntOrNull(),
                 notes = s.notes.ifBlank { null }

@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,15 +22,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -46,6 +44,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.competra.designsystem.theme.Dimens
 import com.competra.diary.data.list.DiaryListAction
 import com.competra.diary.data.list.DiaryListState
+import com.competra.diary.presentation.common.DeleteConfirmationDialog
 import com.competra.domain.models.diary.SportType
 import com.competra.domain.models.diary.WorkoutStatus
 import com.competra.domain.models.diary.WorkoutWithDetails
@@ -76,8 +75,8 @@ fun DiaryListScreen(viewModel: DiaryListViewModel = koinViewModel()) {
     }
 
     state.deletingWorkout?.let { workout ->
-        DeleteWorkoutDialog(
-            workout = workout,
+        DeleteConfirmationDialog(
+            title = "Удалить тренировку?",
             onDismiss = { viewModel.onAction(DiaryListAction.HideDeleteDialog) },
             onConfirm = { viewModel.onAction(DiaryListAction.DeleteWorkout(workout)) }
         )
@@ -118,15 +117,25 @@ private fun DiaryListContent(state: DiaryListState, onAction: (DiaryListAction) 
 
         Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
 
-        when {
-            state.isLoading -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+        val contentMode = when {
+            state.isLoading -> DiaryContentMode.LOADING
+            state.workouts.isEmpty() -> DiaryContentMode.EMPTY
+            else -> DiaryContentMode.LIST
+        }
+
+        Crossfade(targetState = contentMode, label = "diary_list_content") { mode ->
+            when (mode) {
+                DiaryContentMode.LOADING -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+                DiaryContentMode.EMPTY -> EmptyDiaryView()
+                DiaryContentMode.LIST -> WorkoutList(state.workouts, onAction)
             }
-            state.workouts.isEmpty() -> EmptyDiaryView()
-            else -> WorkoutList(state.workouts, onAction)
         }
     }
 }
+
+private enum class DiaryContentMode { LOADING, EMPTY, LIST }
 
 @Composable
 private fun WorkoutList(workouts: List<WorkoutWithDetails>, onAction: (DiaryListAction) -> Unit) {
@@ -136,16 +145,24 @@ private fun WorkoutList(workouts: List<WorkoutWithDetails>, onAction: (DiaryList
         contentPadding = PaddingValues(bottom = Dimens.SIZE_BASE.dp)
     ) {
         items(workouts, key = { it.workout.id }) { workout ->
-            WorkoutCard(workout, onAction)
+            WorkoutCard(
+                workout = workout,
+                onAction = onAction,
+                modifier = Modifier.animateItem(placementSpec = tween(durationMillis = 300))
+            )
         }
     }
 }
 
 @Composable
-private fun WorkoutCard(workout: WorkoutWithDetails, onAction: (DiaryListAction) -> Unit) {
+private fun WorkoutCard(
+    workout: WorkoutWithDetails,
+    onAction: (DiaryListAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val w = workout.workout
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -225,53 +242,5 @@ private fun EmptyDiaryView() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DeleteWorkoutDialog(
-    workout: WorkoutWithDetails,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        Column(
-            modifier = Modifier
-                .padding(Dimens.SIZE_BASE.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = "Удалить тренировку?",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                ),
-                onClick = onConfirm
-            ) {
-                Text(text = "Удалить", fontWeight = FontWeight.Bold)
-            }
-            Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
-            OutlinedButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
-                onClick = onDismiss
-            ) {
-                Text(text = "Отмена", fontWeight = FontWeight.Bold)
-            }
-            Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
-        }
     }
 }

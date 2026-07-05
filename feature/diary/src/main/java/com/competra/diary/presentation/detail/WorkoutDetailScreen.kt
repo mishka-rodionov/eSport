@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.competra.designsystem.theme.Dimens
 import com.competra.diary.data.detail.WorkoutDetailAction
+import com.competra.diary.presentation.common.DeleteConfirmationDialog
 import com.competra.domain.models.diary.SportType
 import com.competra.domain.models.diary.WorkoutStatus
 import com.competra.domain.models.diary.WorkoutWithDetails
@@ -90,6 +91,14 @@ fun WorkoutDetailScreen(
                 }
             }
         }
+    }
+
+    if (state.isDeleteDialogVisible) {
+        DeleteConfirmationDialog(
+            title = "Удалить тренировку?",
+            onDismiss = { viewModel.onAction(WorkoutDetailAction.CancelDeleteClick) },
+            onConfirm = { viewModel.onAction(WorkoutDetailAction.ConfirmDeleteClick) }
+        )
     }
 }
 

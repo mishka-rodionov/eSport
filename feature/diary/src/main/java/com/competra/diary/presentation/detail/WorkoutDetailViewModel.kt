@@ -33,8 +33,11 @@ class WorkoutDetailViewModel(
                 val workoutId = stateValue.workout?.workout?.id ?: return
                 viewModelScope.launch { navigation.navigate(DiaryNavigation.WorkoutEditorRoute(workoutId)) }
             }
-            WorkoutDetailAction.DeleteClick -> {
+            WorkoutDetailAction.DeleteClick -> updateState { copy(isDeleteDialogVisible = true) }
+            WorkoutDetailAction.CancelDeleteClick -> updateState { copy(isDeleteDialogVisible = false) }
+            WorkoutDetailAction.ConfirmDeleteClick -> {
                 val workout = stateValue.workout?.workout ?: return
+                updateState { copy(isDeleteDialogVisible = false) }
                 viewModelScope.launch(Dispatchers.IO) {
                     interactor.deleteWorkout(workout.id).onSuccess {
                         analytics.trackEvent(AnalyticsEvent.DiaryWorkoutDeleted(workout.sportType.toAnalytics()))
