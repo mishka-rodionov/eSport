@@ -25,6 +25,7 @@ fun WorkoutResponse.toDomain(): WorkoutWithDetails = WorkoutWithDetails(
         distanceMeters = distanceMeters,
         elevationGainMeters = elevationGainMeters,
         notes = notes,
+        trackEncoded = trackEncoded,
         isSynced = true,
         serverUpdatedAt = updatedAt.takeIf { it > 0L }
     ),

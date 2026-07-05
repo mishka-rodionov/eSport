@@ -16,6 +16,7 @@ fun WorkoutWithDetails.toRequest(): WorkoutRequest = WorkoutRequest(
     distanceMeters = workout.distanceMeters,
     elevationGainMeters = workout.elevationGainMeters,
     notes = workout.notes,
+    trackEncoded = workout.trackEncoded,
     runDetails = runDetails?.let { RunDetailsRequest(cadenceSpm = it.cadenceSpm) },
     bikeDetails = bikeDetails?.let { BikeDetailsRequest(cadenceRpm = it.cadenceRpm, powerWatts = it.powerWatts) },
     skiDetails = skiDetails?.let { SkiDetailsRequest(style = it.style.name) }

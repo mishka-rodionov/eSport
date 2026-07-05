@@ -21,6 +21,8 @@ data class WorkoutResponse(
     val elevationGainMeters: Int?,
     @SerializedName("notes")
     val notes: String?,
+    @SerializedName("trackEncoded")
+    val trackEncoded: String? = null,
     @SerializedName("runDetails")
     val runDetails: RunDetailsResponse? = null,
     @SerializedName("bikeDetails")
