@@ -8,4 +8,7 @@ sealed class WorkoutDetailAction : BaseAction {
     data object ConfirmDeleteClick : WorkoutDetailAction()
     data object CancelDeleteClick : WorkoutDetailAction()
     data object BackClick : WorkoutDetailAction()
+
+    /** Открыть полноэкранный просмотр записанного трека. */
+    data object ViewTrackClick : WorkoutDetailAction()
 }

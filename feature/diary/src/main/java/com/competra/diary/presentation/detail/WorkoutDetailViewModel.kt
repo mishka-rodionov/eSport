@@ -46,6 +46,10 @@ class WorkoutDetailViewModel(
                 }
             }
             WorkoutDetailAction.BackClick -> viewModelScope.launch { navigation.back() }
+            WorkoutDetailAction.ViewTrackClick -> {
+                val workoutId = stateValue.workout?.workout?.id ?: return
+                viewModelScope.launch { navigation.navigate(DiaryNavigation.WorkoutTrackRoute(workoutId)) }
+            }
         }
     }
 }

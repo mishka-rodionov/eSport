@@ -1,6 +1,5 @@
 package com.competra.diary.presentation.detail
 
-import android.preference.PreferenceManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -22,31 +22,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.competra.designsystem.theme.Dimens
 import com.competra.diary.data.detail.WorkoutDetailAction
 import com.competra.diary.presentation.common.DeleteConfirmationDialog
 import com.competra.diary.presentation.common.formatWorkoutDuration
-import com.competra.domain.diary.TrackCodec
 import com.competra.domain.models.diary.SportType
 import com.competra.domain.models.diary.WorkoutStatus
 import com.competra.domain.models.diary.WorkoutWithDetails
 import com.competra.resources.R
 import com.competra.utils.DateTimeFormat
 import org.koin.androidx.compose.koinViewModel
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.BoundingBox
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Polyline
 
 @Composable
 fun WorkoutDetailScreen(
@@ -81,6 +71,25 @@ fun WorkoutDetailScreen(
                 WorkoutDetailBody(workout)
 
                 Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+
+                if (workout.workout.trackEncoded != null) {
+                    OutlinedButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
+                        onClick = { viewModel.onAction(WorkoutDetailAction.ViewTrackClick) }
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_location_on_24px),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                        Text("Посмотреть трек")
+                    }
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+                }
 
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Button(
@@ -124,11 +133,6 @@ private fun WorkoutDetailBody(workout: WorkoutWithDetails) {
         value = DateTimeFormat.transformLongToDisplayDate(w.startedAt ?: w.scheduledDate)
     )
 
-    w.trackEncoded?.let { encoded ->
-        RouteMapView(startedAtMs = w.startedAt ?: 0L, trackEncoded = encoded)
-        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
-    }
-
     if (w.status == WorkoutStatus.COMPLETED) {
         w.durationSeconds?.let { DetailRow(label = "Длительность", value = formatWorkoutDuration(it)) }
         w.distanceMeters?.let { DetailRow(label = "Дистанция", value = "%.1f км".format(it / 1000.0)) }
@@ -147,33 +151,6 @@ private fun WorkoutDetailBody(workout: WorkoutWithDetails) {
     w.notes?.takeIf { it.isNotBlank() }?.let { notes ->
         DetailRow(label = "Заметка", value = notes)
     }
-}
-
-/** Неинтерактивная карта пройденного маршрута — декодирует [TrackCodec] и рисует Polyline. */
-@Composable
-private fun RouteMapView(startedAtMs: Long, trackEncoded: String) {
-    val points = remember(trackEncoded) { TrackCodec.decode(startedAtMs, trackEncoded) }
-    if (points.isEmpty()) return
-    val geoPoints = remember(points) { points.map { GeoPoint(it.lat, it.lon) } }
-
-    AndroidView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        factory = { ctx ->
-            Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
-            MapView(ctx).apply {
-                setTileSource(TileSourceFactory.MAPNIK)
-                setMultiTouchControls(true)
-                zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-                overlays.add(Polyline().apply { setPoints(geoPoints) })
-                post {
-                    zoomToBoundingBox(BoundingBox.fromGeoPoints(geoPoints), false, 32)
-                }
-            }
-        },
-        onRelease = { mapView -> mapView.onDetach() }
-    )
 }
 
 @Composable

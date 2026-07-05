@@ -48,7 +48,9 @@ enum class AnalyticsScreen(val screenName: String) {
     // Diary
     DiaryList("diary_list"),
     DiaryWorkoutEditor("diary_workout_editor"),
-    DiaryWorkoutDetail("diary_workout_detail");
+    DiaryWorkoutDetail("diary_workout_detail"),
+    DiaryLiveTracking("diary_live_tracking"),
+    DiaryWorkoutTrack("diary_workout_track");
 
     companion object {
         /**
@@ -98,6 +100,8 @@ enum class AnalyticsScreen(val screenName: String) {
 
                 route.contains("WorkoutEditorRoute") -> DiaryWorkoutEditor
                 route.contains("WorkoutDetailRoute") -> DiaryWorkoutDetail
+                route.contains("LiveTrackingRoute") -> DiaryLiveTracking
+                route.contains("WorkoutTrackRoute") -> DiaryWorkoutTrack
                 route.contains("DiaryRoute") -> DiaryList
 
                 else -> null
