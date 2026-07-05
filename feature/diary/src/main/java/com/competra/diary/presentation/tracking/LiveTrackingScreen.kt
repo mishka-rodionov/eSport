@@ -56,6 +56,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
@@ -101,6 +102,7 @@ private fun LiveTrackingContent(state: LiveTrackingState, onAction: (LiveTrackin
                     mapViewRef.value = mapView
                     mapView.setTileSource(TileSourceFactory.MAPNIK)
                     mapView.setMultiTouchControls(true)
+                    mapView.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     mapView.overlays.add(polyline)
 
                     val marker = Marker(mapView).apply {
@@ -178,11 +180,14 @@ private fun LiveTrackingContent(state: LiveTrackingState, onAction: (LiveTrackin
                     onClick = { onAction(LiveTrackingAction.PauseClick) }
                 ) { Text("Пауза") }
             }
-            OutlinedButton(
+            Button(
                 modifier = Modifier
                     .weight(1f)
                     .height(56.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                ),
                 onClick = { onAction(LiveTrackingAction.StopClick) }
             ) { Text("Стоп") }
         }

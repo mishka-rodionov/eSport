@@ -44,6 +44,7 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polyline
 
@@ -164,6 +165,7 @@ private fun RouteMapView(startedAtMs: Long, trackEncoded: String) {
             MapView(ctx).apply {
                 setTileSource(TileSourceFactory.MAPNIK)
                 setMultiTouchControls(true)
+                zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                 overlays.add(Polyline().apply { setPoints(geoPoints) })
                 post {
                     zoomToBoundingBox(BoundingBox.fromGeoPoints(geoPoints), false, 32)
