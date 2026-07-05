@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import com.competra.designsystem.theme.Dimens
 import com.competra.diary.data.detail.WorkoutDetailAction
 import com.competra.diary.presentation.common.DeleteConfirmationDialog
+import com.competra.diary.presentation.common.formatWorkoutDuration
 import com.competra.domain.models.diary.SportType
 import com.competra.domain.models.diary.WorkoutStatus
 import com.competra.domain.models.diary.WorkoutWithDetails
@@ -113,7 +114,7 @@ private fun WorkoutDetailBody(workout: WorkoutWithDetails) {
     )
 
     if (w.status == WorkoutStatus.COMPLETED) {
-        w.durationSeconds?.let { DetailRow(label = "Длительность", value = "${it / 60} мин") }
+        w.durationSeconds?.let { DetailRow(label = "Длительность", value = formatWorkoutDuration(it)) }
         w.distanceMeters?.let { DetailRow(label = "Дистанция", value = "%.1f км".format(it / 1000.0)) }
         w.elevationGainMeters?.let { DetailRow(label = "Набор высоты", value = "$it м") }
 

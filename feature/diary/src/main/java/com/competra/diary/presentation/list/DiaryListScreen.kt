@@ -45,6 +45,7 @@ import com.competra.designsystem.theme.Dimens
 import com.competra.diary.data.list.DiaryListAction
 import com.competra.diary.data.list.DiaryListState
 import com.competra.diary.presentation.common.DeleteConfirmationDialog
+import com.competra.diary.presentation.common.formatWorkoutDuration
 import com.competra.domain.models.diary.SportType
 import com.competra.domain.models.diary.WorkoutStatus
 import com.competra.domain.models.diary.WorkoutWithDetails
@@ -224,12 +225,12 @@ private fun sportTypeLabel(sportType: SportType): String = when (sportType) {
 
 private fun workoutSummary(workout: WorkoutWithDetails): String {
     val distanceKm = workout.workout.distanceMeters?.let { it / 1000.0 }
-    val minutes = workout.workout.durationSeconds?.let { it / 60 }
+    val durationSeconds = workout.workout.durationSeconds
     return buildString {
         if (distanceKm != null) append("%.1f км".format(distanceKm))
-        if (minutes != null) {
+        if (durationSeconds != null) {
             if (isNotEmpty()) append(" • ")
-            append("$minutes мин")
+            append(formatWorkoutDuration(durationSeconds))
         }
     }
 }
