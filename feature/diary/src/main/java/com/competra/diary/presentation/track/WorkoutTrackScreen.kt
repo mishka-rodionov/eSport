@@ -123,7 +123,8 @@ fun WorkoutTrackScreen(
                     onClick = { viewModel.onAction(WorkoutTrackAction.ExportGpxClick) },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(Dimens.SIZE_BASE.dp)
+                        .padding(horizontal = Dimens.SIZE_BASE.dp)
+                        .padding(top = 100.dp)
                 ) {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_share_24px),
