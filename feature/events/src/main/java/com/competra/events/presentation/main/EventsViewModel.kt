@@ -2,21 +2,31 @@ package com.competra.events.presentation.main
 
 import android.os.Parcelable
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.competra.analytics.AnalyticsEvent
 import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.EventsNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.domain.exception.NetworkException
+import com.competra.domain.models.Competition
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.models.events.EventsFilter
 import com.competra.domain.repository.LoadingRepository
 import com.competra.domain.repository.NetworkErrorRepository
 import com.competra.domain.repository.events.EventsRepository
+import com.competra.events.data.main.EVENTS_PAGE_SIZE
 import com.competra.events.data.main.EventsAction
+import com.competra.events.data.main.EventsPagingSource
 import com.competra.events.data.main.EventsState
 import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
@@ -27,6 +37,20 @@ class EventsViewModel(
     private val loadingRepository: LoadingRepository,
     private val analytics: AnalyticsTracker,
 ) : BaseViewModel<EventsState>(EventsState()) {
+
+    private val filterFlow = MutableStateFlow(stateValue.appliedFilter)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val events: Flow<PagingData<Competition>> = filterFlow
+        .flatMapLatest { filter ->
+            Pager(
+                config = PagingConfig(pageSize = EVENTS_PAGE_SIZE, initialLoadSize = EVENTS_PAGE_SIZE),
+                pagingSourceFactory = {
+                    EventsPagingSource(eventsRepository, filter, loadingRepository, ::handleFailure)
+                }
+            ).flow
+        }
+        .cachedIn(viewModelScope)
 
     override fun onAction(action: BaseAction) {
 
@@ -57,30 +81,12 @@ class EventsViewModel(
             is EventsAction.ApplyFilter -> {
                 analytics.trackEvent(AnalyticsEvent.EventFilterApplied(action.filter.toAnalyticsParams()))
                 updateState { copy(appliedFilter = action.filter, isFilterDialogOpen = false) }
-                getEvents(action.filter)
+                filterFlow.value = action.filter
             }
             is EventsAction.ResetFilter -> {
                 val cleared = EventsFilter()
                 updateState { copy(appliedFilter = cleared) }
-                getEvents(cleared)
-            }
-        }
-    }
-
-    fun getEvents(filter: EventsFilter = stateValue.appliedFilter) {
-        viewModelScope.launch(Dispatchers.IO) {
-            updateState { copy(isLoading = true, isGlobalError = false) }
-            loadingRepository.emit(true)
-            eventsRepository.getEvents(filter = filter).onSuccess { events ->
-                events?.also { list ->
-                    updateState { copy(events = list.sortedByDescending { it.startDate }) }
-                }
-                updateState { copy(isLoading = false) }
-                loadingRepository.emit(false)
-            }.onFailure {
-                updateState { copy(isGlobalError = true, isLoading = false) }
-                handleFailure(it)
-                loadingRepository.emit(false)
+                filterFlow.value = cleared
             }
         }
     }

@@ -69,6 +69,9 @@ jsoupVersion = "1.18.3"
 #Vico
 vico = "3.2.3"
 
+#Paging
+paging = "3.3.6"
+
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-ui-ui = { module = "androidx.compose.ui:ui" }
@@ -136,6 +139,10 @@ lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx
 #Chucker
 chucker-library = { module = "com.github.chuckerteam.chucker:library", version.ref = "chuckerVersion" }
 library-no-op = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chuckerVersion" }
+
+#Paging
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime-ktx", version.ref = "paging" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
 
 [plugins]
 android = { id = "org.jetbrains.kotlin.android", version.ref = "android-koltin" }

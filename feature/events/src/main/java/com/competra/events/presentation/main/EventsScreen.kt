@@ -15,20 +15,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,6 +44,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.competra.designsystem.components.clickRipple
 import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.Competition
@@ -63,10 +68,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
-
-    LaunchedEffect(key1 = null) {
-        viewModel.getEvents()
-    }
+    val events = viewModel.events.collectAsLazyPagingItems()
+    val refreshState = events.loadState.refresh
 
     Column(modifier = Modifier.fillMaxSize()) {
         EventsFilterBar(
@@ -75,12 +78,12 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
             onResetFilter = { viewModel.onAction(EventsAction.ResetFilter) }
         )
 
-        if (state.isGlobalError) {
+        if (refreshState is LoadState.Error) {
             EventsErrorState(
-                onRetry = { viewModel.getEvents() },
+                onRetry = { events.retry() },
                 modifier = Modifier.fillMaxSize()
             )
-        } else if (state.events.isEmpty() && !state.isLoading) {
+        } else if (events.itemCount == 0 && refreshState !is LoadState.Loading) {
             EventsEmptyState(
                 isFilterActive = !state.appliedFilter.isEmpty,
                 onResetFilter = { viewModel.onAction(EventsAction.ResetFilter) },
@@ -95,8 +98,16 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
                     vertical = Dimens.SIZE_HALFER.dp   // Поля сверху/снизу 12 dp
                 )
             ) {
-                itemsIndexed(state.events) { _, item ->
-                    EventItem(item, userAction = viewModel::onAction)
+                items(count = events.itemCount, key = events.itemKey { it.id }) { index ->
+                    events[index]?.let { item ->
+                        EventItem(item, userAction = viewModel::onAction)
+                    }
+                }
+                item {
+                    EventsAppendFooter(
+                        loadState = events.loadState.append,
+                        onRetry = { events.retry() }
+                    )
                 }
             }
         }
@@ -108,6 +119,43 @@ fun EventsScreen(viewModel: EventsViewModel = koinViewModel()) {
             onApply = { viewModel.onAction(EventsAction.ApplyFilter(it)) },
             onDismiss = { viewModel.onAction(EventsAction.CloseFilterDialog) }
         )
+    }
+}
+
+/** Футер списка: спиннер во время догрузки следующей страницы, кнопка повтора при ошибке. */
+@Composable
+private fun EventsAppendFooter(loadState: LoadState, onRetry: () -> Unit) {
+    when (loadState) {
+        is LoadState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Dimens.SIZE_BASE.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            }
+        }
+        is LoadState.Error -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Dimens.SIZE_BASE.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.events_error_title),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))
+                TextButton(onClick = onRetry, modifier = Modifier.wrapContentSize()) {
+                    Text(text = stringResource(R.string.events_error_retry))
+                }
+            }
+        }
+        else -> Unit
     }
 }
 
