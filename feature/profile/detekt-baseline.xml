@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:AuthCodeScreen.kt$@OptIn(ExperimentalComposeUiApi::class) // Нужен для onKeyEvent @Composable fun OtpInputContent(userEmail: String, isLoading: Boolean = false, userAction: (AuthAction) -&gt; Unit)</ID>
+    <ID>EmptyFunctionBlock:ProfileViewModel.kt$ProfileViewModel${ }</ID>
+    <ID>ForbiddenComment:ProfileEditorViewModel.kt$ProfileEditorViewModel$// TODO: Навигация назад или показ сообщения об успехе</ID>
+    <ID>ForbiddenComment:RegistrationScreen.kt$// TODO: Обработка введенного email</ID>
+    <ID>FunctionNaming:AboutAppScreen.kt$@Composable fun AboutAppScreen()</ID>
+    <ID>FunctionNaming:AuthCodeScreen.kt$@Composable fun AuthCodeScreen(userEmail: String, viewModel: AuthCodeViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:AuthCodeScreen.kt$@Composable fun OtpCell( value: String, onValueChange: (String) -&gt; Unit, focusRequester: FocusRequester, enabled: Boolean = true, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:AuthCodeScreen.kt$@OptIn(ExperimentalComposeUiApi::class) // Нужен для onKeyEvent @Composable fun OtpInputContent(userEmail: String, isLoading: Boolean = false, userAction: (AuthAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:AuthCodeScreen.kt$@Preview(showBackground = true) @Composable fun OtpInputScreenPreview()</ID>
+    <ID>FunctionNaming:AuthScreen.kt$@Composable fun AuthScreen(authViewModel: AuthViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:AuthScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EmailInputContent(isLoading: Boolean = false, userAction: (AuthAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:ProfileEditorScreen.kt$@Composable fun ProfileEditorScreen( viewModel: ProfileEditorViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:ProfileEditorScreen.kt$@Composable private fun ProfileEditorContent( state: ProfileEditorState, onAction: (ProfileEditorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ProfileEditorScreen.kt$@Preview(showBackground = true) @Composable private fun ProfileEditorPreview()</ID>
+    <ID>FunctionNaming:ProfileScreen.kt$@Composable fun ProfileMenuItem( text: String, icon: ImageVector, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ProfileScreen.kt$@Composable fun ProfileScreen(viewModel: ProfileViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:ProfileScreen.kt$@Composable fun UnauthorizedUser(userAction: (ProfileAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:ProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:RegistrationScreen.kt$@Composable fun DatePicker(bdate: String, userAction: (String) -&gt; Unit)</ID>
+    <ID>FunctionNaming:RegistrationScreen.kt$@Composable fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:UserRegistrationsScreen.kt$@Composable fun UserRegistrationsScreen( viewModel: UserRegistrationsViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:UserRegistrationsScreen.kt$@Composable private fun RegistrationCard( competition: OrienteeringCompetition, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:UserRegistrationsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun UserRegistrationsContent( state: UserRegistrationsState, onAction: (BaseAction) -&gt; Unit )</ID>
+    <ID>LongMethod:ProfileEditorScreen.kt$@Composable private fun ProfileEditorContent( state: ProfileEditorState, onAction: (ProfileEditorAction) -&gt; Unit )</ID>
+    <ID>LongMethod:ProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -&gt; Unit)</ID>
+    <ID>LongParameterList:ProfileEditorViewModel.kt$ProfileEditorViewModel$( private val userRepository: UserRepository, private val userProfileRepository: UserProfileRepository, private val networkErrorRepository: NetworkErrorRepository, private val uploadRepository: UploadRepository, private val context: Context, private val loadingRepository: LoadingRepository, private val analytics: AnalyticsTracker, )</ID>
+    <ID>MagicNumber:AuthCodeViewModel.kt$AuthCodeViewModel$400</ID>
+    <ID>MagicNumber:AuthCodeViewModel.kt$AuthCodeViewModel$499</ID>
+    <ID>MagicNumber:AuthCodeViewModel.kt$AuthCodeViewModel$500</ID>
+    <ID>MagicNumber:AuthCodeViewModel.kt$AuthCodeViewModel$599</ID>
+    <ID>MagicNumber:ProfileEditorViewModel.kt$ProfileEditorViewModel$1500</ID>
+    <ID>MaxLineLength:AuthCodeScreen.kt$if</ID>
+    <ID>MaxLineLength:RegistrationScreen.kt$DatePicker(DateTimeFormat.transformLongToDisplayDate(state.bdate)) { text -&gt; userAction.invoke(RegistrationAction.UpdateBdate(text)) }</ID>
+    <ID>MaxLineLength:RegistrationViewModel.kt$RegistrationViewModel$is RegistrationAction.UpdateBdate -&gt; updateState { copy(bdate = DateTimeFormat.transformApiDateToLong(action.bdate)) }</ID>
+    <ID>NewLineAtEndOfFile:AboutAppScreen.kt$com.competra.profile.presentation.about_app.AboutAppScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthAction.kt$com.competra.profile.data.auth.AuthAction.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthInteractor.kt$com.competra.profile.data.interactors.AuthInteractor.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthScreen.kt$com.competra.profile.presentation.auth.AuthScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthViewModel.kt$com.competra.profile.presentation.auth.AuthViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.profile.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:ProfileNavigation.kt$com.competra.profile.navigation.ProfileNavigation.kt</ID>
+    <ID>NewLineAtEndOfFile:ProfileState.kt$com.competra.profile.data.ProfileState.kt</ID>
+    <ID>NewLineAtEndOfFile:RegistrationAction.kt$com.competra.profile.data.registration.RegistrationAction.kt</ID>
+    <ID>NewLineAtEndOfFile:RegistrationScreen.kt$com.competra.profile.presentation.registration.RegistrationScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:profileModule.kt$com.competra.profile.di.profileModule.kt</ID>
+    <ID>PackageNaming:AboutAppScreen.kt$package com.competra.profile.presentation.about_app</ID>
+    <ID>PackageNaming:AuthCodeScreen.kt$package com.competra.profile.presentation.auth_code</ID>
+    <ID>PackageNaming:AuthCodeViewModel.kt$package com.competra.profile.presentation.auth_code</ID>
+    <ID>PackageNaming:ProfileEditorScreen.kt$package com.competra.profile.presentation.profile_editor</ID>
+    <ID>PackageNaming:ProfileEditorState.kt$package com.competra.profile.presentation.profile_editor</ID>
+    <ID>PackageNaming:ProfileEditorViewModel.kt$package com.competra.profile.presentation.profile_editor</ID>
+    <ID>PackageNaming:ProfileScreen.kt$package com.competra.profile.presentation.main_profile</ID>
+    <ID>PackageNaming:ProfileViewModel.kt$package com.competra.profile.presentation.main_profile</ID>
+    <ID>PackageNaming:UserRegistrationsAction.kt$package com.competra.profile.data.user_registrations</ID>
+    <ID>PackageNaming:UserRegistrationsScreen.kt$package com.competra.profile.presentation.user_registrations</ID>
+    <ID>PackageNaming:UserRegistrationsState.kt$package com.competra.profile.data.user_registrations</ID>
+    <ID>PackageNaming:UserRegistrationsViewModel.kt$package com.competra.profile.presentation.user_registrations</ID>
+    <ID>TooManyFunctions:ProfileEditorViewModel.kt$ProfileEditorViewModel : BaseViewModel</ID>
+    <ID>UnusedParameter:AuthCodeScreen.kt$userEmail: String</ID>
+    <ID>UnusedPrivateMember:ProfileEditorScreen.kt$@Preview(showBackground = true) @Composable private fun ProfileEditorPreview()</ID>
+    <ID>WildcardImport:AuthCodeScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AuthCodeScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

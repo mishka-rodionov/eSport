@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:EventsViewModel.kt$EventsViewModel${ }</ID>
+    <ID>FunctionNaming:EventsFilterBottomSheet.kt$@Composable private fun CheckboxRow( label: String, checked: Boolean, onCheckedChange: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsFilterBottomSheet.kt$@Composable private fun DatePickerRow( label: String, date: Long?, onDateChange: (Long?) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsFilterBottomSheet.kt$@Composable private fun DateSection( dateFrom: Long?, dateTo: Long?, onDateFromChange: (Long?) -&gt; Unit, onDateToChange: (Long?) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsFilterBottomSheet.kt$@Composable private fun DebugSection( includeTest: Boolean, onIncludeTestChange: (Boolean) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsFilterBottomSheet.kt$@Composable private fun SectionTitle(text: String)</ID>
+    <ID>FunctionNaming:EventsFilterBottomSheet.kt$@Composable private fun SportSection( selected: List&lt;KindOfSport&gt;, onToggle: (KindOfSport) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsFilterBottomSheet.kt$@Composable private fun StatusSection( selected: List&lt;CompetitionStatus&gt;, onToggle: (CompetitionStatus) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsFilterBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EventsFilterBottomSheet( initialFilter: EventsFilter, onApply: (EventsFilter) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable fun EventItem( event: Competition, userAction: (EventsAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable fun EventsScreen(viewModel: EventsViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable private fun EventsAppendFooter(loadState: LoadState, onRetry: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable private fun EventsEmptyState( isFilterActive: Boolean, onResetFilter: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable private fun EventsErrorState( onRetry: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable private fun EventsFilterBar( isFilterActive: Boolean, onOpenFilter: () -&gt; Unit, onResetFilter: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable private fun MetaRow(iconRes: Int, text: String)</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable private fun SportBadge(name: String)</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Composable private fun StatusChip(status: CompetitionStatus)</ID>
+    <ID>FunctionNaming:EventsScreen.kt$@Preview(showBackground = true) @Composable fun EventItemPreview()</ID>
+    <ID>MaxLineLength:EventsScreen.kt$description = "Традиционные соревнования в живописном лесу. Вас ждут интересные дистанции различной сложности, электронная отметка и горячий чай на финише. Приглашаются все желающие!"</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.events.ExampleUnitTest.kt</ID>
+    <ID>ReturnCount:EventsPagingSource.kt$EventsPagingSource$override fun getRefreshKey(state: PagingState&lt;Int, Competition&gt;): Int?</ID>
+    <ID>TooManyFunctions:EventsFilterBottomSheet.kt$com.competra.events.presentation.filter.EventsFilterBottomSheet.kt</ID>
+    <ID>TooManyFunctions:EventsScreen.kt$com.competra.events.presentation.main.EventsScreen.kt</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

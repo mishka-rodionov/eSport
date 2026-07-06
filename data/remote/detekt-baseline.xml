@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:Competition.kt$x == null || y == null || width == null || height == null</ID>
+    <ID>ComplexCondition:CyclicEventDetailsRepositoryImpl.kt$CyclicEventDetailsRepositoryImpl$x == null || y == null || width == null || height == null</ID>
+    <ID>CyclomaticComplexMethod:MockInterceptor.kt$MockInterceptor$private fun getOrienteeringCompetitionsResponse(request: Request): Response</ID>
+    <ID>LongMethod:MockInterceptor.kt$MockInterceptor$private fun getOrienteeringCompetitionsResponse(request: Request): Response</ID>
+    <ID>LongMethod:MockInterceptor.kt$MockInterceptor$private fun mockEvents(request: Request): Response</ID>
+    <ID>LongParameterList:EventsRemoteDataSource.kt$EventsRemoteDataSource$( @Query("kind_of_sports") kindOfSports: List&lt;String&gt; = emptyList(), @Query("statuses") statuses: List&lt;String&gt; = emptyList(), @Query("date_from") dateFrom: Long? = null, @Query("date_to") dateTo: Long? = null, @Query("includeTest") includeTest: Boolean = false, @Query("page") page: Int = 0, @Query("limit") limit: Int = 20 )</ID>
+    <ID>MagicNumber:MockInterceptor.kt$MockInterceptor$200</ID>
+    <ID>MatchingDeclarationName:AuthInterceptors.kt$AuthInterceptor : Interceptor</ID>
+    <ID>MaxLineLength:CyclicEventDetailsRemoteDataSource.kt$CyclicEventDetailsRemoteDataSource$suspend</ID>
+    <ID>MaxLineLength:CyclicEventDetailsRepositoryImpl.kt$CyclicEventDetailsRepositoryImpl$imageCropRect = toCropRect(dto.coverCropX, dto.coverCropY, dto.coverCropWidth, dto.coverCropHeight)</ID>
+    <ID>MaxLineLength:Diary.kt$bikeDetails = bikeDetails?.let { BikeDetails(workoutId = 0, cadenceRpm = it.cadenceRpm, powerWatts = it.powerWatts) }</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionRemoteDataSource.kt$OrienteeringCompetitionRemoteDataSource$suspend</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionRemoteRepositoryImpl.kt$OrienteeringCompetitionRemoteRepositoryImpl$override suspend</ID>
+    <ID>NewLineAtEndOfFile:Auth.kt$com.competra.remote.response.mappers.Auth.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthRemoteDataSource.kt$com.competra.remote.datasource.auth.AuthRemoteDataSource.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthRepositoryImpl.kt$com.competra.remote.repository.auth.AuthRepositoryImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthResponse.kt$com.competra.remote.response.auth.AuthResponse.kt</ID>
+    <ID>NewLineAtEndOfFile:BaseModel.kt$com.competra.remote.base.BaseModel.kt</ID>
+    <ID>NewLineAtEndOfFile:CommonModel.kt$com.competra.remote.base.CommonModel.kt</ID>
+    <ID>NewLineAtEndOfFile:ControlPointRequest.kt$com.competra.remote.request.orienteering.ControlPointRequest.kt</ID>
+    <ID>NewLineAtEndOfFile:CoordinatesResponse.kt$com.competra.remote.response.competition.CoordinatesResponse.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.remote.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:KindOfSportAdapter.kt$com.competra.remote.network.adapters.KindOfSportAdapter.kt</ID>
+    <ID>NewLineAtEndOfFile:Orienteering.kt$com.competra.remote.request.mappers.Orienteering.kt</ID>
+    <ID>NewLineAtEndOfFile:OrienteeringCompetitionRemoteDataSource.kt$com.competra.remote.datasource.orienteering.OrienteeringCompetitionRemoteDataSource.kt</ID>
+    <ID>NewLineAtEndOfFile:Qualification.kt$com.competra.remote.response.mappers.Qualification.kt</ID>
+    <ID>NewLineAtEndOfFile:QualificationResponse.kt$com.competra.remote.response.user.QualificationResponse.kt</ID>
+    <ID>NewLineAtEndOfFile:ResultCall.kt$com.competra.remote.network.retrofit.ResultCall.kt</ID>
+    <ID>NewLineAtEndOfFile:ResultCallAdapterFactory.kt$com.competra.remote.network.retrofit.ResultCallAdapterFactory.kt</ID>
+    <ID>NewLineAtEndOfFile:TokenAuthenticator.kt$com.competra.remote.network.retrofit.TokenAuthenticator.kt</ID>
+    <ID>NewLineAtEndOfFile:authModule.kt$com.competra.remote.di.authModule.kt</ID>
+    <ID>NewLineAtEndOfFile:eventsDataModule.kt$com.competra.remote.di.eventsDataModule.kt</ID>
+    <ID>NewLineAtEndOfFile:koin.kt$com.competra.remote.extension.koin.kt</ID>
+    <ID>NewLineAtEndOfFile:orienteeringModule.kt$com.competra.remote.di.orienteeringModule.kt</ID>
+    <ID>NewLineAtEndOfFile:retrofitModule.kt$com.competra.remote.di.retrofitModule.kt</ID>
+    <ID>ReturnCount:User.kt$private fun UserResponse.toAvatarCropRect(): CropRect?</ID>
+    <ID>SwallowedException:Competition.kt$e: Exception</ID>
+    <ID>SwallowedException:MockInterceptor.kt$MockInterceptor$e: Exception</ID>
+    <ID>SwallowedException:Orienteering.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:Competition.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MockInterceptor.kt$MockInterceptor$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:Orienteering.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ResultCall.kt$ResultCall$exception: Throwable</ID>
+    <ID>TooManyFunctions:OrienteeringCompetitionRemoteDataSource.kt$OrienteeringCompetitionRemoteDataSource</ID>
+    <ID>TooManyFunctions:OrienteeringCompetitionRemoteRepositoryImpl.kt$OrienteeringCompetitionRemoteRepositoryImpl : OrienteeringCompetitionRemoteRepository</ID>
+    <ID>TooManyFunctions:ResultCall.kt$ResultCall&lt;T : BaseModel&gt; : Call</ID>
+    <ID>UnusedParameter:ResultCall.kt$ResultCall$call: Call&lt;T&gt;</ID>
+    <ID>UnusedPrivateProperty:AuthRepositoryImpl.kt$AuthRepositoryImpl$private val tokenRepository: TokenRepository</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

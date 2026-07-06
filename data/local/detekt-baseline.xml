@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:CryptoManager.kt$CryptoManager$128</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$27</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$28</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$32</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$33</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$34</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$35</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$36</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$37</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$38</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$39</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$40</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$41</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$42</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$43</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$44</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$45</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$46</ID>
+    <ID>MagicNumber:TokenSerializer.kt$TokenSerializer$4</ID>
+    <ID>MaxLineLength:DatabaseHelper.kt$DatabaseHelper$.</ID>
+    <ID>MaxLineLength:Migrations.kt$&lt;no name provided&gt;$db.execSQL("CREATE INDEX IF NOT EXISTS index_orienteering_results_competitionId ON orienteering_results(competitionId)")</ID>
+    <ID>MaxLineLength:Migrations.kt$&lt;no name provided&gt;$db.execSQL("CREATE INDEX IF NOT EXISTS index_orienteering_results_participantId ON orienteering_results(participantId)")</ID>
+    <ID>MaxLineLength:Migrations.kt$&lt;no name provided&gt;$db.execSQL("INSERT INTO users_new SELECT id, firstName, lastName, middleName, birthDate, gender, photo, phoneNumber, email, qualification FROM users")</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionDao.kt$OrienteeringCompetitionDao$@Query("UPDATE orienteering_competitions SET isDeleted = 1, isSynced = 0, lastModified = :now WHERE competitionId = :competitionId")</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepositoryImpl.kt$OrienteeringCompetitionLocalRepositoryImpl$orienteeringResultDao.getResultsForCompetitionGroupDirect(competitionId = competitionId, groupId = groupId).map { it.toDomain() }</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepositoryImpl.kt$OrienteeringCompetitionLocalRepositoryImpl$val prepared = if (markUnsynced) orienteeringCompetition.map { it.applyUnsynced() } else orienteeringCompetition</ID>
+    <ID>MaxLineLength:UserConverter.kt$UserConverter$return if (qualifications?.isNotEmpty() == true) qualifications.split("_").map { it.toQualification() } else emptyList()</ID>
+    <ID>MaxLineLength:UserConverter.kt$return Qualification(KindOfSport.all.first { it.name == kindOfSport }, SportsCategory.entries.first { it.name == sportsCategory })</ID>
+    <ID>NewLineAtEndOfFile:DatabaseHelper.kt$com.competra.local.database.DatabaseHelper.kt</ID>
+    <ID>NewLineAtEndOfFile:DatabaseModule.kt$com.competra.local.di.DatabaseModule.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.local.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:OrganizerEntity.kt$com.competra.local.entities.orienteering.OrganizerEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:OrienteeringCompetitionWithDetails.kt$com.competra.local.entities.orienteering.OrienteeringCompetitionWithDetails.kt</ID>
+    <ID>NewLineAtEndOfFile:OrienteeringCompetitionWithGroups.kt$com.competra.local.dto.orienteering.OrienteeringCompetitionWithGroups.kt</ID>
+    <ID>NewLineAtEndOfFile:OrienteeringResultMapper.kt$com.competra.local.mappers.OrienteeringResultMapper.kt</ID>
+    <ID>NewLineAtEndOfFile:TokenRepositoryImpl.kt$com.competra.local.repository.auth.TokenRepositoryImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:TokenSerializer.kt$com.competra.local.repository.auth.TokenSerializer.kt</ID>
+    <ID>NewLineAtEndOfFile:UserConverter.kt$com.competra.local.converters.UserConverter.kt</ID>
+    <ID>NewLineAtEndOfFile:UserDao.kt$com.competra.local.dao.UserDao.kt</ID>
+    <ID>NewLineAtEndOfFile:UserRepositoryImpl.kt$com.competra.local.repository.user.UserRepositoryImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:localModule.kt$com.competra.local.di.localModule.kt</ID>
+    <ID>SwallowedException:ControlPointConverters.kt$ControlPointConverters$e: Exception</ID>
+    <ID>SwallowedException:TokenSerializer.kt$TokenSerializer$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ControlPointConverters.kt$ControlPointConverters$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TokenSerializer.kt$TokenSerializer$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:UserRepositoryImpl.kt$UserRepositoryImpl$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:UserRepositoryImpl.kt$UserRepositoryImpl$throw Exception("User not authorized")</ID>
+    <ID>TooManyFunctions:CompetitionMappers.kt$com.competra.local.mappers.CompetitionMappers.kt</ID>
+    <ID>TooManyFunctions:OrienteeringCompetitionDao.kt$OrienteeringCompetitionDao</ID>
+    <ID>TooManyFunctions:OrienteeringCompetitionLocalRepositoryImpl.kt$OrienteeringCompetitionLocalRepositoryImpl : OrienteeringCompetitionLocalRepository</ID>
+    <ID>TooManyFunctions:OrienteeringParticipantDao.kt$OrienteeringParticipantDao</ID>
+    <ID>TooManyFunctions:OrienteeringResultDao.kt$OrienteeringResultDao</ID>
+    <ID>TooManyFunctions:ParticipantGroupDao.kt$ParticipantGroupDao</ID>
+    <ID>TooManyFunctions:WorkoutDao.kt$WorkoutDao</ID>
+    <ID>TooManyFunctions:WorkoutLocalRepositoryImpl.kt$WorkoutLocalRepositoryImpl : WorkoutLocalRepository</ID>
+    <ID>UseCheckOrError:OrienteeringCompetitionLocalRepositoryImpl.kt$OrienteeringCompetitionLocalRepositoryImpl$throw IllegalStateException("Failed to fetch saved competition with id = ${toSave.competitionId}")</ID>
+    <ID>UseCheckOrError:WorkoutLocalRepositoryImpl.kt$WorkoutLocalRepositoryImpl$throw IllegalStateException("Failed to fetch saved workout with id = $workoutId")</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:ParticipantGroupDao.kt$import androidx.room.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

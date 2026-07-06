@@ -1,0 +1,138 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:CardMifareClassic.kt$CardMifareClassic$stopIfPageNull &amp;&amp; blockData[i][0].toInt() == 0 &amp;&amp; blockData[i][1].toInt() == 0 &amp;&amp; blockData[i][2].toInt() == 0 &amp;&amp; blockData[i][3].toInt() == 0</ID>
+    <ID>ComplexCondition:CardMifareUltralight.kt$CardMifareUltralight$stopIfPageNull &amp;&amp; blockData[i][0].toInt() == 0 &amp;&amp; blockData[i][1].toInt() == 0 &amp;&amp; blockData[i][2].toInt() == 0 &amp;&amp; blockData[i][3].toInt() == 0</ID>
+    <ID>CyclomaticComplexMethod:CardMifareClassic.kt$CardMifareClassic$@Throws(ReadWriteCardException::class) public override fun readPages( firstPageIndex: Int, count: Int, stopIfPageNull: Boolean ): Array&lt;ByteArray&gt;</ID>
+    <ID>ImplicitDefaultLocale:CardMifareClassic.kt$CardMifareClassic$String.format("writeBlock %d failed, attempt %d", blockIndex, j + 1)</ID>
+    <ID>ImplicitDefaultLocale:Config.kt$Config$String.format(" &lt;b&gt;%s&lt;/b&gt;", stationCode)</ID>
+    <ID>ImplicitDefaultLocale:MasterCard.kt$MasterCard$String.format("\n%1$4s", cardNum)</ID>
+    <ID>ImplicitDefaultLocale:MasterCard.kt$MasterCard$String.format("\n%1$5s", cardNum)</ID>
+    <ID>ImplicitDefaultLocale:ParticipantCard.kt$ParticipantCard$String.format(" (%s)", resourceProvider.getString(R.string.fast_punch))</ID>
+    <ID>ImplicitDefaultLocale:ParticipantCard.kt$ParticipantCard$String.format("%1$6s", cpStr)</ID>
+    <ID>ImplicitDefaultLocale:State.kt$State.Version$String.format("0-beta.%d", (this.patch - MAX_PATCH_VERSION))</ID>
+    <ID>ImplicitDefaultLocale:State.kt$State.Version$String.format("v%d.%d.%s", this.major, this.minor, suffix)</ID>
+    <ID>ImplicitDefaultLocale:Util.kt$Util$String.format("&lt;font color=\"%s\"&gt;%s&lt;/font&gt;", color, s)</ID>
+    <ID>LoopWithTooManyJumpStatements:CardMifareClassic.kt$CardMifareClassic$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MasterCard.kt$MasterCard$for</ID>
+    <ID>MagicNumber:Card.kt$Card.Companion$0xFF</ID>
+    <ID>MagicNumber:Card.kt$Card.Companion$3</ID>
+    <ID>MagicNumber:Card.kt$Card.Companion$8</ID>
+    <ID>MagicNumber:CardAdapter.kt$CardAdapter$129</ID>
+    <ID>MagicNumber:CardAdapter.kt$CardAdapter$17</ID>
+    <ID>MagicNumber:CardAdapter.kt$CardAdapter$225</ID>
+    <ID>MagicNumber:CardAdapter.kt$CardAdapter$39</ID>
+    <ID>MagicNumber:CardAdapter.kt$CardAdapter$50</ID>
+    <ID>MagicNumber:CardAdapter.kt$CardAdapter$98</ID>
+    <ID>MagicNumber:CardMifareClassic.kt$CardMifareClassic$3</ID>
+    <ID>MagicNumber:CardMifareClassic.kt$CardMifareClassic$4</ID>
+    <ID>MagicNumber:CardMifareClassic.kt$CardMifareClassic$5</ID>
+    <ID>MagicNumber:CardMifareUltralight.kt$CardMifareUltralight$0x12</ID>
+    <ID>MagicNumber:CardMifareUltralight.kt$CardMifareUltralight$0x3e</ID>
+    <ID>MagicNumber:CardMifareUltralight.kt$CardMifareUltralight$0x6d</ID>
+    <ID>MagicNumber:CardMifareUltralight.kt$CardMifareUltralight$0xFF</ID>
+    <ID>MagicNumber:CardMifareUltralight.kt$CardMifareUltralight$16</ID>
+    <ID>MagicNumber:CardMifareUltralight.kt$CardMifareUltralight$3</ID>
+    <ID>MagicNumber:CardType.kt$CardType.MASTER_CONFIG$0xFE</ID>
+    <ID>MagicNumber:CardType.kt$CardType.MASTER_GET_STATE$0xF9</ID>
+    <ID>MagicNumber:CardType.kt$CardType.MASTER_PASSWORD$0xFF</ID>
+    <ID>MagicNumber:CardType.kt$CardType.MASTER_SET_NUMBER$0xFB</ID>
+    <ID>MagicNumber:CardType.kt$CardType.MASTER_SET_TIME$0xFA</ID>
+    <ID>MagicNumber:CardType.kt$CardType.MASTER_SLEEP$0xFC</ID>
+    <ID>MagicNumber:Config.kt$Config$0x08</ID>
+    <ID>MagicNumber:Config.kt$Config$0x10</ID>
+    <ID>MagicNumber:Config.kt$Config$0x20</ID>
+    <ID>MagicNumber:Config.kt$Config$0x80</ID>
+    <ID>MagicNumber:Config.kt$Config.ActiveModeDuration.ACTIVE_MODE_16H$4</ID>
+    <ID>MagicNumber:Config.kt$Config.ActiveModeDuration.ACTIVE_MODE_32H$5</ID>
+    <ID>MagicNumber:Config.kt$Config.ActiveModeDuration.ACTIVE_MODE_8H$3</ID>
+    <ID>MagicNumber:Config.kt$Config.ActiveModeDuration.ACTIVE_MODE_ALWAYS$6</ID>
+    <ID>MagicNumber:Config.kt$Config.ActiveModeDuration.ACTIVE_MODE_NEVER$7</ID>
+    <ID>MagicNumber:Config.kt$Config.AntennaGain.ANTENNA_GAIN_23DB$0x03</ID>
+    <ID>MagicNumber:Config.kt$Config.AntennaGain.ANTENNA_GAIN_33DB$0x04</ID>
+    <ID>MagicNumber:Config.kt$Config.AntennaGain.ANTENNA_GAIN_38DB$0x05</ID>
+    <ID>MagicNumber:Config.kt$Config.AntennaGain.ANTENNA_GAIN_43DB$0x06</ID>
+    <ID>MagicNumber:Config.kt$Config.AntennaGain.ANTENNA_GAIN_48DB$0x07</ID>
+    <ID>MagicNumber:Config.kt$Config.Companion$0x08</ID>
+    <ID>MagicNumber:Config.kt$Config.Companion$0x10</ID>
+    <ID>MagicNumber:Config.kt$Config.Companion$0x20</ID>
+    <ID>MagicNumber:Config.kt$Config.Companion$0x7</ID>
+    <ID>MagicNumber:Config.kt$Config.Companion$0x80</ID>
+    <ID>MagicNumber:Config.kt$Config.Companion$0xFF</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$0x100000</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$0xff</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$0xfff00000L</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$0xfffff</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$10</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$1000</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$12</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$16</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$3</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$4</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$6</ID>
+    <ID>MagicNumber:MasterCard.kt$MasterCard$8</ID>
+    <ID>MagicNumber:ParticipantCard.kt$ParticipantCard$0x1000000</ID>
+    <ID>MagicNumber:ParticipantCard.kt$ParticipantCard$0xFF</ID>
+    <ID>MagicNumber:ParticipantCard.kt$ParticipantCard$0xFF000000L</ID>
+    <ID>MagicNumber:ParticipantCard.kt$ParticipantCard$0xFFFFFFL</ID>
+    <ID>MagicNumber:ParticipantCard.kt$ParticipantCard$1000</ID>
+    <ID>MagicNumber:Password.kt$Password$3</ID>
+    <ID>MagicNumber:SportiduinoHelperImpl.kt$SportiduinoHelperImpl$0xFF</ID>
+    <ID>MagicNumber:State.kt$State$0xFF</ID>
+    <ID>MagicNumber:State.kt$State$1000</ID>
+    <ID>MagicNumber:State.kt$State$17</ID>
+    <ID>MagicNumber:State.kt$State$20</ID>
+    <ID>MagicNumber:State.kt$State$3</ID>
+    <ID>MagicNumber:State.kt$State$4</ID>
+    <ID>MagicNumber:State.kt$State$5</ID>
+    <ID>MagicNumber:State.kt$State$60</ID>
+    <ID>MagicNumber:State.kt$State.Battery$100f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$20f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$3.25f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$3.35f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$3.45f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$3.55f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$3.6f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$3.75f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$3.95f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$4.10f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$40f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$50f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$5f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$60f</ID>
+    <ID>MagicNumber:State.kt$State.Battery$95f</ID>
+    <ID>MagicNumber:State.kt$State.Version$0x03</ID>
+    <ID>MagicNumber:State.kt$State.Version$100</ID>
+    <ID>MagicNumber:State.kt$State.Version$104</ID>
+    <ID>MagicNumber:State.kt$State.Version$239</ID>
+    <ID>MagicNumber:State.kt$State.Version$6</ID>
+    <ID>MagicNumber:Util.kt$Util$0x00ffffff</ID>
+    <ID>MagicNumber:Util.kt$Util$0xFF</ID>
+    <ID>MagicNumber:Util.kt$Util$0xff</ID>
+    <ID>MagicNumber:Util.kt$Util$4</ID>
+    <ID>MagicNumber:Util.kt$Util$8</ID>
+    <ID>MaxLineLength:CardMifareClassic.kt$CardMifareClassic$&amp;&amp;</ID>
+    <ID>MaxLineLength:CardMifareUltralight.kt$CardMifareUltralight$&amp;&amp;</ID>
+    <ID>MaxLineLength:MasterCard.kt$MasterCard$class</ID>
+    <ID>NestedBlockDepth:CardMifareClassic.kt$CardMifareClassic$@Throws(ReadWriteCardException::class) public override fun readPages( firstPageIndex: Int, count: Int, stopIfPageNull: Boolean ): Array&lt;ByteArray&gt;</ID>
+    <ID>NestedBlockDepth:CardMifareClassic.kt$CardMifareClassic$@Throws(ReadWriteCardException::class) public override fun writePages(firstPageIndex: Int, data: Array&lt;ByteArray&gt;, count: Int)</ID>
+    <ID>NestedBlockDepth:MasterCard.kt$MasterCard$private fun parseBackupMaster(data: Array&lt;ByteArray&gt;): String</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.nfchelper.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:SportiduinoHelper.kt$com.competra.nfchelper.SportiduinoHelper.kt</ID>
+    <ID>NewLineAtEndOfFile:SportiduinoHelperImpl.kt$com.competra.nfchelper.SportiduinoHelperImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:SportiduinoNfcMode.kt$com.competra.nfchelper.SportiduinoNfcMode.kt</ID>
+    <ID>NewLineAtEndOfFile:nfcModule.kt$com.competra.nfchelper.di.nfcModule.kt</ID>
+    <ID>PrintStackTrace:CardAdapter.kt$CardAdapter$e</ID>
+    <ID>PrintStackTrace:CardMifareUltralight.kt$CardMifareUltralight$e</ID>
+    <ID>ReturnCount:SportiduinoHelperImpl.kt$SportiduinoHelperImpl$private fun resolveAdapter(tag: Tag): CardAdapter?</ID>
+    <ID>SwallowedException:State.kt$State$e: ArrayIndexOutOfBoundsException</ID>
+    <ID>TooGenericExceptionCaught:State.kt$State$e: ArrayIndexOutOfBoundsException</ID>
+    <ID>TooManyFunctions:SportiduinoHelper.kt$SportiduinoHelper</ID>
+    <ID>TooManyFunctions:SportiduinoHelperImpl.kt$SportiduinoHelperImpl : SportiduinoHelper</ID>
+    <ID>TooManyFunctions:Util.kt$Util</ID>
+    <ID>UnusedPrivateProperty:SportiduinoHelperImpl.kt$SportiduinoHelperImpl$val tagIdStr = tagInfo.toString()</ID>
+    <ID>VariableNaming:State.kt$State.Version$val MAX_PATCH_VERSION = 239</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

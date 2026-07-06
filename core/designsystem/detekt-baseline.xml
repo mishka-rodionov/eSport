@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ImageCropperDialog.kt$@Composable fun ImageCropperDialog( uri: Uri, aspectRatio: Float, onConfirm: (FractionalRect) -&gt; Unit, onCancel: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:DSBottomDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DSBottomDialog( sheetState: SheetState, sheetContent: @Composable () -&gt; Unit, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:DSButton.kt$@Composable fun DSButton( text: CharSequence, modifier: Modifier = Modifier, isEnabled: Boolean = true, isLoading: Boolean = false, @DrawableRes iconLeft: Int = 0, @DrawableRes iconRight: Int = 0, onClick: () -&gt; Unit = {}, )</ID>
+    <ID>FunctionNaming:DSTextInput.kt$@Composable fun DSTextInput( modifier: Modifier = Modifier, text: String = "", onValueChanged: (String) -&gt; Unit = {}, enabled: Boolean = true, readOnly: Boolean = false, label: @Composable (() -&gt; Unit)? = null, placeholder: @Composable (() -&gt; Unit)? = null, leadingIcon: @Composable (() -&gt; Unit)? = null, trailingIcon: @Composable (() -&gt; Unit)? = null, prefix: @Composable (() -&gt; Unit)? = null, suffix: @Composable (() -&gt; Unit)? = null, supportingText: @Composable (() -&gt; Unit)? = null, singleLine: Boolean = false, isError: Boolean = false, interactionSource: MutableInteractionSource? = null, keyboardOptions: KeyboardOptions = KeyboardOptions.Default, keyboardActions: KeyboardActions = KeyboardActions.Default, visualTransformation: VisualTransformation = VisualTransformation.None )</ID>
+    <ID>FunctionNaming:ExposedDropdownMenuOutlined.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun &lt;T&gt; ExposedDropdownMenuOutlined( modifier: Modifier = Modifier, label: String, items: List&lt;T&gt;, selectedItem: T?, onItemSelected: (T) -&gt; Unit, itemToString: (T) -&gt; String = { it.toString() } // Функция для отображения элемента как строки )</ID>
+    <ID>FunctionNaming:ExposedDropdownMenuOutlined.kt$@Preview(showBackground = true) @Composable fun ExposedDropdownMenuOutlinedPreview()</ID>
+    <ID>FunctionNaming:FullscreenImageViewer.kt$@Composable fun FullscreenImageViewer( url: String, contentDescription: String?, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ImageCropperDialog.kt$@Composable fun ImageCropperDialog( uri: Uri, aspectRatio: Float, onConfirm: (FractionalRect) -&gt; Unit, onCancel: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:NetworkImage.kt$@Composable fun NetworkImage( url: String?, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Crop, contentDescription: String? = null, fullscreenOnClick: Boolean = true, cropRect: FractionalRect? = null )</ID>
+    <ID>FunctionNaming:NetworkImage.kt$@Composable private fun CroppedNetworkImage( url: String, cropRect: FractionalRect, contentDescription: String?, modifier: Modifier )</ID>
+    <ID>FunctionNaming:TimePickerDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TimePickerDialog( onDismissRequest: () -&gt; Unit, onConfirm: (hour: Int, minute: Int) -&gt; Unit, initialHour: Int = 12, initialMinute: Int = 0, is24Hour: Boolean = true, title: String = "Выберите время" )</ID>
+    <ID>LongMethod:FullscreenImageViewer.kt$@Composable fun FullscreenImageViewer( url: String, contentDescription: String?, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongMethod:ImageCropperDialog.kt$@Composable fun ImageCropperDialog( uri: Uri, aspectRatio: Float, onConfirm: (FractionalRect) -&gt; Unit, onCancel: () -&gt; Unit )</ID>
+    <ID>LongParameterList:DSButton.kt$( text: CharSequence, modifier: Modifier = Modifier, isEnabled: Boolean = true, isLoading: Boolean = false, @DrawableRes iconLeft: Int = 0, @DrawableRes iconRight: Int = 0, onClick: () -&gt; Unit = {}, )</ID>
+    <ID>LongParameterList:DSTextInput.kt$( modifier: Modifier = Modifier, text: String = "", onValueChanged: (String) -&gt; Unit = {}, enabled: Boolean = true, readOnly: Boolean = false, label: @Composable (() -&gt; Unit)? = null, placeholder: @Composable (() -&gt; Unit)? = null, leadingIcon: @Composable (() -&gt; Unit)? = null, trailingIcon: @Composable (() -&gt; Unit)? = null, prefix: @Composable (() -&gt; Unit)? = null, suffix: @Composable (() -&gt; Unit)? = null, supportingText: @Composable (() -&gt; Unit)? = null, singleLine: Boolean = false, isError: Boolean = false, interactionSource: MutableInteractionSource? = null, keyboardOptions: KeyboardOptions = KeyboardOptions.Default, keyboardActions: KeyboardActions = KeyboardActions.Default, visualTransformation: VisualTransformation = VisualTransformation.None )</ID>
+    <ID>LongParameterList:ExposedDropdownMenuOutlined.kt$( modifier: Modifier = Modifier, label: String, items: List&lt;T&gt;, selectedItem: T?, onItemSelected: (T) -&gt; Unit, itemToString: (T) -&gt; String = { it.toString() } // Функция для отображения элемента как строки )</ID>
+    <ID>LongParameterList:NetworkImage.kt$( url: String?, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Crop, contentDescription: String? = null, fullscreenOnClick: Boolean = true, cropRect: FractionalRect? = null )</ID>
+    <ID>LongParameterList:TimePickerDialog.kt$( onDismissRequest: () -&gt; Unit, onConfirm: (hour: Int, minute: Int) -&gt; Unit, initialHour: Int = 12, initialMinute: Int = 0, is24Hour: Boolean = true, title: String = "Выберите время" )</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF06311D</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF0A2417</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF121A15</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF1B271F</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF1E4A34</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF21302A</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF2B3420</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF2E5D43</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF3A1A0C</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF3F4A42</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF4A2210</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF4C5A50</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF601410</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF693924</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF6B7A5A</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF7E877C</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF7FCFA0</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF899389</ID>
+    <ID>MagicNumber:LesColors.kt$0xFF9CEBC0</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFAEBE96</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFB3261E</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFB6E5C9</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFBFCABE</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFC8643C</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFC9CEC3</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFE1E6DD</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFE5E2D6</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFE8A07C</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFF2B8B5</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFF4F1E8</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFFCDBC8</ID>
+    <ID>MagicNumber:LesColors.kt$0xFFFFFFFF</ID>
+    <ID>MagicNumber:LightColors.kt$LightColors$0xFF000000</ID>
+    <ID>MagicNumber:LightColors.kt$LightColors$0xFF111111</ID>
+    <ID>MagicNumber:LightColors.kt$LightColors$0xFFB8B8B8</ID>
+    <ID>MagicNumber:LightColors.kt$LightColors$0xFFFFFFFF</ID>
+    <ID>MagicNumber:NetworkImage.kt$0.5f</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$(frame.corner(nearestCorner) - startPos).getDistance() &lt;= handleHitRadiusPx</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$drawRect(color = Color.Transparent, topLeft = frame.topLeft, size = frame.size, blendMode = BlendMode.Clear)</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$drawRect(color = Color.White, topLeft = frame.topLeft, size = frame.size, style = Stroke(width = FRAME_BORDER_WIDTH.toPx()))</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$frameRect = Rect(newLeft, newTop, newLeft + currentFrame.width, newTop + currentFrame.height)</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$val signX = if (corner == Corner.TOP_RIGHT || corner == Corner.BOTTOM_RIGHT) 1f else -1f</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$val signY = if (corner == Corner.BOTTOM_LEFT || corner == Corner.BOTTOM_RIGHT) 1f else -1f</ID>
+    <ID>NewLineAtEndOfFile:DSButton.kt$com.competra.designsystem.components.DSButton.kt</ID>
+    <ID>NewLineAtEndOfFile:DSRippleTheme.kt$com.competra.designsystem.theme.DSRippleTheme.kt</ID>
+    <ID>NewLineAtEndOfFile:Dimens.kt$com.competra.designsystem.theme.Dimens.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.designsystem.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:LightColors.kt$com.competra.designsystem.colors.LightColors.kt</ID>
+    <ID>NewLineAtEndOfFile:Modifier.kt$com.competra.designsystem.components.Modifier.kt</ID>
+    <ID>NewLineAtEndOfFile:Shapes.kt$com.competra.designsystem.theme.Shapes.kt</ID>
+    <ID>NewLineAtEndOfFile:TimePickerDialog.kt$com.competra.designsystem.components.TimePickerDialog.kt</ID>
+    <ID>ReturnCount:ImageCropperDialog.kt$fun computeCropRect(): FractionalRect?</ID>
+    <ID>ReturnCount:ImageCropperDialog.kt$fun displayedImageRect(): Rect?</ID>
+    <ID>UnusedParameter:DSButton.kt$@DrawableRes iconLeft: Int = 0</ID>
+    <ID>UnusedParameter:DSButton.kt$@DrawableRes iconRight: Int = 0</ID>
+    <ID>UnusedPrivateProperty:DSBottomDialog.kt$private val topCornerShape = RoundedCornerShape(topEnd = Dimens.SIZE_BASER.dp, topStart = Dimens.SIZE_BASER.dp)</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:ExposedDropdownMenuOutlined.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ExposedDropdownMenuOutlined.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

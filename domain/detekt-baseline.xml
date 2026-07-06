@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongMethod:SplitsTableBuilder.kt$fun buildSplitsTable(group: GroupWithParticipantsAndResults): SplitsTable</ID>
+    <ID>MagicNumber:SplitsTableBuilder.kt$1000L</ID>
+    <ID>MagicNumber:SplitsTableBuilder.kt$3</ID>
+    <ID>MagicNumber:SplitsTableBuilder.kt$4</ID>
+    <ID>MagicNumber:SplitsTableBuilder.kt$5</ID>
+    <ID>MagicNumber:SplitsTableBuilder.kt$9</ID>
+    <ID>MagicNumber:TrackCodec.kt$TrackCodec$1000L</ID>
+    <ID>MagicNumber:TrackCodec.kt$TrackCodec$3</ID>
+    <ID>MatchingDeclarationName:OrganizeRole.kt$OrganizerRole</ID>
+    <ID>MaxLineLength:GroupWithParticipantsAndResults.kt$GroupWithParticipantsAndResults$*</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition, markUnsynced: Boolean = true): Result&lt;OrienteeringCompetition&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun saveCompetitions(orienteeringCompetition: List&lt;OrienteeringCompetition&gt;, markUnsynced: Boolean = true): Result&lt;List&lt;OrienteeringCompetition&gt;&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun saveParticipant(participant: OrienteeringParticipant, markUnsynced: Boolean = true): Result&lt;OrienteeringParticipant?&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun saveParticipantsGroups(participantGroups: List&lt;ParticipantGroup&gt;, markUnsynced: Boolean = true): Result&lt;Any&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun updateCompetition(orienteeringCompetition: OrienteeringCompetition, markUnsynced: Boolean = true): Result&lt;Any&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun updateParticipants(participants: List&lt;OrienteeringParticipant&gt;, markUnsynced: Boolean = true) : Result&lt;Any&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun updateParticipantsGroups(competitionId: String, participantGroups: List&lt;ParticipantGroup&gt;, markUnsynced: Boolean = true): Result&lt;Any&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionRemoteRepository.kt$OrienteeringCompetitionRemoteRepository$suspend fun createParticipantsGroupsForCompetition(competitionId: String, participantGroups: List&lt;ParticipantGroup&gt;): Result&lt;List&lt;ParticipantGroup&gt;&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionRemoteRepository.kt$OrienteeringCompetitionRemoteRepository$suspend fun publishGroupsForCompetition(competitionId: String, participantGroups: List&lt;ParticipantGroup&gt;): Result&lt;List&lt;ParticipantGroup&gt;&gt;</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionRemoteRepository.kt$OrienteeringCompetitionRemoteRepository$suspend fun updateCompetitionParticipantsGroups(competitionId: String, participantGroups: List&lt;ParticipantGroup&gt;): Result&lt;List&lt;ParticipantGroup&gt;&gt;</ID>
+    <ID>MaxLineLength:SplitsTableBuilderTest.kt$SplitsTableBuilderTest$val finishedFast = ParticipantWithResult(participant("fast"), result("fast", ResultStatus.FINISHED, totalTime = 300))</ID>
+    <ID>MaxLineLength:SplitsTableBuilderTest.kt$SplitsTableBuilderTest$val finishedSlow = ParticipantWithResult(participant("slow"), result("slow", ResultStatus.FINISHED, totalTime = 500))</ID>
+    <ID>MaxLineLength:Token.kt$Token$*</ID>
+    <ID>NewLineAtEndOfFile:CompetitionStatus.kt$com.competra.domain.models.orienteering.CompetitionStatus.kt</ID>
+    <ID>NewLineAtEndOfFile:ControlPointRole.kt$com.competra.domain.models.orienteering.ControlPointRole.kt</ID>
+    <ID>NewLineAtEndOfFile:EventStatus.kt$com.competra.domain.models.events.EventStatus.kt</ID>
+    <ID>NewLineAtEndOfFile:EventType.kt$com.competra.domain.models.events.EventType.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.domain.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:Gender.kt$com.competra.domain.models.Gender.kt</ID>
+    <ID>NewLineAtEndOfFile:KindOfSport.kt$com.competra.domain.models.KindOfSport.kt</ID>
+    <ID>NewLineAtEndOfFile:OrganizeRole.kt$com.competra.domain.models.orienteering.OrganizeRole.kt</ID>
+    <ID>NewLineAtEndOfFile:OrienteeringCompetitionRemoteRepository.kt$com.competra.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:OrienteeringDirection.kt$com.competra.domain.models.orienteering.OrienteeringDirection.kt</ID>
+    <ID>NewLineAtEndOfFile:ParticipantGroup.kt$com.competra.domain.models.ParticipantGroup.kt</ID>
+    <ID>NewLineAtEndOfFile:PunchingSystem.kt$com.competra.domain.models.orienteering.PunchingSystem.kt</ID>
+    <ID>NewLineAtEndOfFile:ResultStatus.kt$com.competra.domain.models.ResultStatus.kt</ID>
+    <ID>NewLineAtEndOfFile:ResultsStatus.kt$com.competra.domain.models.orienteering.ResultsStatus.kt</ID>
+    <ID>NewLineAtEndOfFile:SportsCategory.kt$com.competra.domain.models.SportsCategory.kt</ID>
+    <ID>NewLineAtEndOfFile:StartTimeMode.kt$com.competra.domain.models.orienteering.StartTimeMode.kt</ID>
+    <ID>NewLineAtEndOfFile:Token.kt$com.competra.domain.models.auth.Token.kt</ID>
+    <ID>NewLineAtEndOfFile:TokenRepository.kt$com.competra.domain.repository.auth.TokenRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:UserRepository.kt$com.competra.domain.repository.user.UserRepository.kt</ID>
+    <ID>PackageNaming:CyclicEventDetails.kt$package com.competra.domain.models.cyclic_event</ID>
+    <ID>PackageNaming:EventParticipantGroup.kt$package com.competra.domain.models.cyclic_event</ID>
+    <ID>TooManyFunctions:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository</ID>
+    <ID>TooManyFunctions:OrienteeringCompetitionRemoteRepository.kt$OrienteeringCompetitionRemoteRepository</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

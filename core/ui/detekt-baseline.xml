@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:GroupSplitsTable.kt$@Composable fun GroupSplitsTableContent(groupTitle: String, table: SplitsTable)</ID>
+    <ID>FunctionNaming:GroupSplitsTable.kt$@Composable private fun HeaderCell(text: String, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Center)</ID>
+    <ID>FunctionNaming:GroupSplitsTable.kt$@Composable private fun ParticipantCell(row: SplitsTableRow, modifier: Modifier = Modifier)</ID>
+    <ID>FunctionNaming:GroupSplitsTable.kt$@Composable private fun SplitCell(cell: SplitsTableCell, modifier: Modifier = Modifier)</ID>
+    <ID>FunctionNaming:RaceGraphChart.kt$@Composable fun RaceGraphChart( data: RaceGraphData, visibleParticipantIds: Set&lt;String&gt;, highlightedParticipantId: String?, onToggleVisibility: (participantId: String) -&gt; Unit, onToggleHighlight: (participantId: String) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>FunctionNaming:RaceGraphChart.kt$@Composable private fun RaceGraphLegendRow( series: RaceGraphSeries, color: Color, isVisible: Boolean, isHighlighted: Boolean, onToggleVisibility: () -&gt; Unit, onToggleHighlight: () -&gt; Unit, )</ID>
+    <ID>LongMethod:RaceGraphChart.kt$@Composable fun RaceGraphChart( data: RaceGraphData, visibleParticipantIds: Set&lt;String&gt;, highlightedParticipantId: String?, onToggleVisibility: (participantId: String) -&gt; Unit, onToggleHighlight: (participantId: String) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongParameterList:RaceGraphChart.kt$( data: RaceGraphData, visibleParticipantIds: Set&lt;String&gt;, highlightedParticipantId: String?, onToggleVisibility: (participantId: String) -&gt; Unit, onToggleHighlight: (participantId: String) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongParameterList:RaceGraphChart.kt$( series: RaceGraphSeries, color: Color, isVisible: Boolean, isHighlighted: Boolean, onToggleVisibility: () -&gt; Unit, onToggleHighlight: () -&gt; Unit, )</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFF00BCD4</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFF2196F3</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFF3F51B5</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFF4CAF50</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFF607D8B</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFF795548</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFF8BC34A</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFF9C27B0</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFFE91E63</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFFFF5722</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFFFF9800</ID>
+    <ID>MagicNumber:RaceGraphChart.kt$0xFFFFC107</ID>
+    <ID>NewLineAtEndOfFile:BaseStateEffectAction.kt$com.competra.ui.BaseStateEffectAction.kt</ID>
+    <ID>NewLineAtEndOfFile:BaseViewModel.kt$com.competra.ui.viewmodel.BaseViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.ui.ExampleUnitTest.kt</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

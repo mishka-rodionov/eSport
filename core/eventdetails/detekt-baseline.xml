@@ -1,0 +1,141 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:EventGroupSplitsTableViewModel.kt$EventGroupSplitsTableViewModel${}</ID>
+    <ID>EmptyFunctionBlock:EventRaceGraphViewModel.kt$EventRaceGraphViewModel${}</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@Composable fun ScrollableColumnScreenWithImageAnimation( state: EventDetailsState, onAction: (EventDetailsAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@Composable private fun EventActionButtons( state: EventDetailsState, onAction: (EventDetailsAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@Composable private fun ParticipantGroupItem( group: EventParticipantGroup, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@Composable private fun ParticipantGroupsList( groups: List&lt;EventParticipantGroup&gt;, onGroupClick: (EventParticipantGroup) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@Composable private fun Spacer(modifier: Modifier)</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EventDetailsScreen( idEvent: String, viewModel: EventDetailsViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun RegistrationBottomSheet( state: EventDetailsState, sheetState: SheetState, onAction: (EventDetailsAction) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@Preview(showBackground = true, name = "Регистрация") @Composable private fun EventDetailsRegistrationPreview()</ID>
+    <ID>FunctionNaming:EventDetailsScreen.kt$@Preview(showBackground = true, name = "Результаты") @Composable private fun EventDetailsResultsPreview()</ID>
+    <ID>FunctionNaming:EventGroupSplitsTableScreen.kt$@Composable fun EventGroupSplitsTableScreen( eventId: String, groupId: Long, viewModel: EventGroupSplitsTableViewModel = koinViewModel(), )</ID>
+    <ID>FunctionNaming:EventParticipantGroupScreen.kt$@Composable fun EventParticipantGroupScreen( eventId: String, participantGroup: EventParticipantGroup, viewModel: EventParticipantGroupViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:EventParticipantGroupScreen.kt$@Composable private fun DistanceInfoBlock(group: EventParticipantGroup)</ID>
+    <ID>FunctionNaming:EventParticipantGroupScreen.kt$@Composable private fun EventParticipantGroupContent( participantGroup: EventParticipantGroup, state: EventParticipantGroupState, onAction: (BaseAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventParticipantGroupScreen.kt$@Composable private fun RegistrationButton( isUserRegistered: Boolean, isRegistering: Boolean, onAction: (BaseAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventParticipantGroupScreen.kt$@Composable private fun StartProtocolHeader()</ID>
+    <ID>FunctionNaming:EventParticipantGroupScreen.kt$@Composable private fun StartProtocolRow(participant: OrienteeringParticipant)</ID>
+    <ID>FunctionNaming:EventParticipantGroupScreen.kt$@Preview(showBackground = true) @Composable private fun EventParticipantGroupScreenPreview()</ID>
+    <ID>FunctionNaming:EventRaceGraphScreen.kt$@Composable fun EventRaceGraphScreen( eventId: String, groupId: Long, viewModel: EventRaceGraphViewModel = koinViewModel(), )</ID>
+    <ID>FunctionNaming:EventResultsScreen.kt$@Composable fun EventResultsScreen( eventId: String, viewModel: EventResultsViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:EventResultsScreen.kt$@Composable private fun ResultItem(item: ParticipantWithResult, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:EventResultsScreen.kt$@Composable private fun ResultsHeader()</ID>
+    <ID>FunctionNaming:EventResultsScreen.kt$@Composable private fun ResultsList( participants: List&lt;ParticipantWithResult&gt;, onParticipantClick: (ParticipantWithResult) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventResultsScreen.kt$@Preview(showBackground = true) @Composable private fun EventResultsPreview()</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable fun LiveResultsScreen( eventId: String, viewModel: LiveResultsViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun LiveResultRow( item: ParticipantWithResult, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun LiveResultsHeader(lastUpdated: Long?)</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun LiveResultsList( participants: List&lt;ParticipantWithResult&gt;, onParticipantClick: (ParticipantWithResult) -&gt; Unit )</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun SplitsTable(participant: OrienteeringParticipant, splits: List&lt;SplitTime&gt;)</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Заголовок — без времени") @Composable private fun LiveResultsHeaderNoTimePreview()</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Заголовок — с временем обновления") @Composable private fun LiveResultsHeaderPreview()</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Загрузка") @Composable private fun LiveResultsLoadingPreview()</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Пустое состояние") @Composable private fun LiveResultsEmptyPreview()</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Список результатов") @Composable private fun LiveResultsListPreview()</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Строка результата — 1 место") @Composable private fun LiveResultRowFinishedPreview()</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Строка результата — на дистанции") @Composable private fun LiveResultRowStartedPreview()</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Экран с группами") @Composable private fun LiveResultsWithGroupsPreview()</ID>
+    <ID>FunctionNaming:SplitsBottomSheet.kt$@Composable internal fun SplitsTable(participant: OrienteeringParticipant, splits: List&lt;SplitTime&gt;)</ID>
+    <ID>FunctionNaming:SplitsBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun SplitsBottomSheet( participantWithResult: ParticipantWithResult, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongMethod:EventDetailsScreen.kt$@Composable private fun EventActionButtons( state: EventDetailsState, onAction: (EventDetailsAction) -&gt; Unit )</ID>
+    <ID>LongMethod:EventDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun RegistrationBottomSheet( state: EventDetailsState, sheetState: SheetState, onAction: (EventDetailsAction) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongMethod:EventResultsScreen.kt$@Composable fun EventResultsScreen( eventId: String, viewModel: EventResultsViewModel = koinViewModel() )</ID>
+    <ID>LongMethod:LiveResultsScreen.kt$@Composable fun LiveResultsScreen( eventId: String, viewModel: LiveResultsViewModel = koinViewModel() )</ID>
+    <ID>LongMethod:SplitsBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun SplitsBottomSheet( participantWithResult: ParticipantWithResult, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongParameterList:EventDetailsViewModel.kt$EventDetailsViewModel$( private val cyclicEventDetailsRepository: CyclicEventDetailsRepository, private val userRepository: UserRepository, private val navigation: Navigation, private val pendingRegistrationRepository: PendingRegistrationRepository, private val networkErrorRepository: NetworkErrorRepository, private val loadingRepository: LoadingRepository, private val analytics: AnalyticsTracker, )</ID>
+    <ID>MagicNumber:EventDetailsScreen.kt$100</ID>
+    <ID>MagicNumber:EventDetailsScreen.kt$1000</ID>
+    <ID>MagicNumber:EventDetailsScreen.kt$1000.0</ID>
+    <ID>MagicNumber:EventDetailsScreen.kt$45</ID>
+    <ID>MagicNumber:EventParticipantGroupScreen.kt$0.12f</ID>
+    <ID>MagicNumber:EventParticipantGroupScreen.kt$0.33f</ID>
+    <ID>MagicNumber:EventParticipantGroupScreen.kt$0.55f</ID>
+    <ID>MagicNumber:EventParticipantGroupScreen.kt$1000</ID>
+    <ID>MagicNumber:EventParticipantGroupScreen.kt$1000.0</ID>
+    <ID>MagicNumber:EventResultsScreen.kt$0.1f</ID>
+    <ID>MagicNumber:EventResultsScreen.kt$0.3f</ID>
+    <ID>MagicNumber:EventResultsScreen.kt$0.5f</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$0.15f</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$0.1f</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$0.25f</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$0.5f</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$0xFFB8860B</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$0xFFE53935</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$1_700_000_000_000L</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$1_800_000</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$31</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$32</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$33</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$3_723_000</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$4015L</ID>
+    <ID>MagicNumber:LiveResultsScreen.kt$720_000</ID>
+    <ID>MagicNumber:LiveResultsViewModel.kt$LiveResultsViewModel$3</ID>
+    <ID>MagicNumber:LiveResultsViewModel.kt$LiveResultsViewModel$4</ID>
+    <ID>MagicNumber:LiveResultsViewModel.kt$LiveResultsViewModel$5</ID>
+    <ID>MagicNumber:LiveResultsViewModel.kt$LiveResultsViewModel$9</ID>
+    <ID>MaxLineLength:EventGroupSplitsTableViewModel.kt$EventGroupSplitsTableViewModel$val groupsDeferred = async { remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList() }</ID>
+    <ID>MaxLineLength:EventGroupSplitsTableViewModel.kt$EventGroupSplitsTableViewModel$val participantsDeferred = async { remoteRepository.getParticipantsForCompetition(eventId).getOrNull() ?: emptyList() }</ID>
+    <ID>MaxLineLength:EventParticipantGroupScreen.kt$startNumber = "101"</ID>
+    <ID>MaxLineLength:EventParticipantGroupScreen.kt$startNumber = "102"</ID>
+    <ID>MaxLineLength:EventParticipantGroupScreen.kt$startNumber = "103"</ID>
+    <ID>MaxLineLength:EventParticipantGroupViewModel.kt$EventParticipantGroupViewModel$updateState { copy(isRegistering = false, isUserRegistered = false, isUserRegisteredInEvent = false) }</ID>
+    <ID>MaxLineLength:EventRaceGraphViewModel.kt$EventRaceGraphViewModel$val groupsDeferred = async { remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList() }</ID>
+    <ID>MaxLineLength:EventRaceGraphViewModel.kt$EventRaceGraphViewModel$val participantsDeferred = async { remoteRepository.getParticipantsForCompetition(eventId).getOrNull() ?: emptyList() }</ID>
+    <ID>MaxLineLength:EventResultsViewModel.kt$EventResultsViewModel$val groupsDeferred = async { remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList() }</ID>
+    <ID>MaxLineLength:EventResultsViewModel.kt$EventResultsViewModel$val participantsDeferred = async { remoteRepository.getParticipantsForCompetition(eventId).getOrNull() ?: emptyList() }</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = "Время", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = "КП", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = "Место", modifier = Modifier.weight(0.15f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.End)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = "Результат", modifier = Modifier.weight(0.25f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = "Сплит", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = "Участник", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = "№", modifier = Modifier.weight(0.1f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = split.controlPoint.toString(), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = splitMs.toSplitTime(), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.secondary)</ID>
+    <ID>MaxLineLength:LiveResultsScreen.kt$Text(text = totalMs.toSplitTime(), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = "Время", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = "КП", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = "Место", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = "Сплит", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = "Статус", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = formatResultTime(result), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = rank.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = split.controlPoint.toString(), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = splitMs.toSplitTime(), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.secondary)</ID>
+    <ID>MaxLineLength:SplitsBottomSheet.kt$Text(text = totalMs.toSplitTime(), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End)</ID>
+    <ID>PackageNaming:EventGroupSplitsTableScreen.kt$package com.competra.eventdetails.presentation.group_splits</ID>
+    <ID>PackageNaming:EventGroupSplitsTableState.kt$package com.competra.eventdetails.presentation.group_splits</ID>
+    <ID>PackageNaming:EventGroupSplitsTableViewModel.kt$package com.competra.eventdetails.presentation.group_splits</ID>
+    <ID>PackageNaming:EventParticipantGroupScreen.kt$package com.competra.eventdetails.presentation.participant_group</ID>
+    <ID>PackageNaming:EventParticipantGroupState.kt$package com.competra.eventdetails.data.participant_group</ID>
+    <ID>PackageNaming:EventParticipantGroupViewModel.kt$package com.competra.eventdetails.presentation.participant_group</ID>
+    <ID>PackageNaming:EventRaceGraphScreen.kt$package com.competra.eventdetails.presentation.race_graph</ID>
+    <ID>PackageNaming:EventRaceGraphState.kt$package com.competra.eventdetails.presentation.race_graph</ID>
+    <ID>PackageNaming:EventRaceGraphViewModel.kt$package com.competra.eventdetails.presentation.race_graph</ID>
+    <ID>PackageNaming:LiveResultsScreen.kt$package com.competra.eventdetails.presentation.live_results</ID>
+    <ID>PackageNaming:LiveResultsViewModel.kt$package com.competra.eventdetails.presentation.live_results</ID>
+    <ID>ReturnCount:EventDetailsViewModel.kt$EventDetailsViewModel$private fun confirmRegistration()</ID>
+    <ID>TooManyFunctions:EventDetailsScreen.kt$com.competra.eventdetails.presentation.details.EventDetailsScreen.kt</ID>
+    <ID>TooManyFunctions:EventDetailsViewModel.kt$EventDetailsViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:LiveResultsScreen.kt$com.competra.eventdetails.presentation.live_results.LiveResultsScreen.kt</ID>
+    <ID>UnusedPrivateMember:EventDetailsScreen.kt$@Preview(showBackground = true, name = "Регистрация") @Composable private fun EventDetailsRegistrationPreview()</ID>
+    <ID>UnusedPrivateMember:EventDetailsScreen.kt$@Preview(showBackground = true, name = "Результаты") @Composable private fun EventDetailsResultsPreview()</ID>
+    <ID>UnusedPrivateMember:EventParticipantGroupScreen.kt$@Preview(showBackground = true) @Composable private fun EventParticipantGroupScreenPreview()</ID>
+    <ID>UnusedPrivateMember:EventResultsScreen.kt$@Preview(showBackground = true) @Composable private fun EventResultsPreview()</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Composable private fun SplitsTable(participant: OrienteeringParticipant, splits: List&lt;SplitTime&gt;)</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Заголовок — без времени") @Composable private fun LiveResultsHeaderNoTimePreview()</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Заголовок — с временем обновления") @Composable private fun LiveResultsHeaderPreview()</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Загрузка") @Composable private fun LiveResultsLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Пустое состояние") @Composable private fun LiveResultsEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Список результатов") @Composable private fun LiveResultsListPreview()</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Строка результата — 1 место") @Composable private fun LiveResultRowFinishedPreview()</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Строка результата — на дистанции") @Composable private fun LiveResultRowStartedPreview()</ID>
+    <ID>UnusedPrivateMember:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Экран с группами") @Composable private fun LiveResultsWithGroupsPreview()</ID>
+    <ID>WildcardImport:LiveResultsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

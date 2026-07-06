@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:OnboardingScreen.kt$@Composable fun OnboardingScreen( source: OnboardingSource, viewModelKey: String, onFinished: () -&gt; Unit, )</ID>
+    <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun OnboardingDotsIndicator( pageCount: Int, currentPage: Int, modifier: Modifier = Modifier, )</ID>
+    <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun OnboardingSlideContent(slide: OnboardingSlide)</ID>
+    <ID>LongMethod:OnboardingScreen.kt$@Composable fun OnboardingScreen( source: OnboardingSource, viewModelKey: String, onFinished: () -&gt; Unit, )</ID>
+    <ID>MagicNumber:OnboardingScreen.kt$200f</ID>
+    <ID>WildcardImport:OnboardingScreen.kt$import androidx.compose.foundation.layout.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

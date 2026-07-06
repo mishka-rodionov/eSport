@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ImplicitDefaultLocale:ResourceProviderImpl.kt$ResourceProviderImpl$String.format("&lt;font color=\"%s\"&gt;%s&lt;/font&gt;", color, s)</ID>
+    <ID>MagicNumber:ResourceProviderImpl.kt$ResourceProviderImpl$0x00ffffff</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.resources.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:ResourceProvider.kt$com.competra.resources.ResourceProvider.kt</ID>
+    <ID>NewLineAtEndOfFile:ResourceProviderImpl.kt$com.competra.resources.ResourceProviderImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:resourceModule.kt$com.competra.resources.di.resourceModule.kt</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

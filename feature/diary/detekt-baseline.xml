@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:WorkoutEditorViewModel.kt$WorkoutEditorViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>FunctionNaming:DeleteConfirmationDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DeleteConfirmationDialog( title: String, onDismiss: () -&gt; Unit, onConfirm: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:DiaryListScreen.kt$@Composable fun DiaryListScreen(viewModel: DiaryListViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:DiaryListScreen.kt$@Composable private fun DiaryListContent(state: DiaryListState, onAction: (DiaryListAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:DiaryListScreen.kt$@Composable private fun EmptyDiaryView()</ID>
+    <ID>FunctionNaming:DiaryListScreen.kt$@Composable private fun InProgressBanner( workout: WorkoutWithDetails, isAlive: Boolean, onAction: (DiaryListAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:DiaryListScreen.kt$@Composable private fun WorkoutCard( workout: WorkoutWithDetails, onAction: (DiaryListAction) -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:DiaryListScreen.kt$@Composable private fun WorkoutList(workouts: List&lt;WorkoutWithDetails&gt;, onAction: (DiaryListAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:DiaryListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun SportPickerDialog(onDismiss: () -&gt; Unit, onSelected: (SportType) -&gt; Unit)</ID>
+    <ID>FunctionNaming:LiveTrackingScreen.kt$@Composable fun LiveTrackingScreen( sportType: SportType, viewModel: LiveTrackingViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:LiveTrackingScreen.kt$@Composable private fun LiveTrackingContent(state: LiveTrackingState, onAction: (LiveTrackingAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:LiveTrackingScreen.kt$@Composable private fun StatColumn(label: String, value: String)</ID>
+    <ID>FunctionNaming:LiveTrackingScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun StopTrackingDialog(onDismiss: () -&gt; Unit, onSave: () -&gt; Unit, onDiscard: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:WorkoutDetailScreen.kt$@Composable fun WorkoutDetailScreen( workoutId: Long, viewModel: WorkoutDetailViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:WorkoutDetailScreen.kt$@Composable private fun DetailRow(label: String, value: String)</ID>
+    <ID>FunctionNaming:WorkoutDetailScreen.kt$@Composable private fun WorkoutDetailBody(workout: WorkoutWithDetails)</ID>
+    <ID>FunctionNaming:WorkoutEditorScreen.kt$@Composable fun WorkoutEditorScreen( workoutId: Long?, viewModel: WorkoutEditorViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:WorkoutEditorScreen.kt$@Composable private fun SportSpecificFields(state: WorkoutEditorState, onAction: (WorkoutEditorAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:WorkoutEditorScreen.kt$@Composable private fun WorkoutEditorContent(state: WorkoutEditorState, onAction: (WorkoutEditorAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:WorkoutTrackScreen.kt$@Composable fun WorkoutTrackScreen( workoutId: Long, viewModel: WorkoutTrackViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:WorkoutTrackScreen.kt$@Composable private fun FullTrackMap(startedAtMs: Long, trackEncoded: String)</ID>
+    <ID>FunctionNaming:WorkoutTrackScreen.kt$@Composable private fun StatColumn(label: String, value: String)</ID>
+    <ID>LongMethod:DiaryListScreen.kt$@Composable private fun DiaryListContent(state: DiaryListState, onAction: (DiaryListAction) -&gt; Unit)</ID>
+    <ID>LongMethod:LiveTrackingScreen.kt$@Composable private fun LiveTrackingContent(state: LiveTrackingState, onAction: (LiveTrackingAction) -&gt; Unit)</ID>
+    <ID>LongMethod:WorkoutDetailScreen.kt$@Composable fun WorkoutDetailScreen( workoutId: Long, viewModel: WorkoutDetailViewModel = koinViewModel() )</ID>
+    <ID>LongMethod:WorkoutEditorScreen.kt$@Composable private fun WorkoutEditorContent(state: WorkoutEditorState, onAction: (WorkoutEditorAction) -&gt; Unit)</ID>
+    <ID>LongMethod:WorkoutTrackScreen.kt$@Composable fun WorkoutTrackScreen( workoutId: Long, viewModel: WorkoutTrackViewModel = koinViewModel() )</ID>
+    <ID>MagicNumber:DiaryListScreen.kt$1000.0</ID>
+    <ID>MagicNumber:DurationFormat.kt$3600</ID>
+    <ID>MagicNumber:DurationFormat.kt$60</ID>
+    <ID>MagicNumber:LiveTrackingScreen.kt$1000.0</ID>
+    <ID>MagicNumber:LiveTrackingScreen.kt$17.0</ID>
+    <ID>MagicNumber:LiveTrackingScreen.kt$3600</ID>
+    <ID>MagicNumber:LiveTrackingScreen.kt$37.61556</ID>
+    <ID>MagicNumber:LiveTrackingScreen.kt$55.75222</ID>
+    <ID>MagicNumber:LiveTrackingScreen.kt$60</ID>
+    <ID>MagicNumber:WorkoutDetailScreen.kt$1000.0</ID>
+    <ID>MagicNumber:WorkoutEditorState.kt$3600</ID>
+    <ID>MagicNumber:WorkoutEditorState.kt$60</ID>
+    <ID>MagicNumber:WorkoutEditorViewModel.kt$WorkoutEditorViewModel$1000</ID>
+    <ID>MagicNumber:WorkoutEditorViewModel.kt$WorkoutEditorViewModel$1000.0</ID>
+    <ID>MagicNumber:WorkoutEditorViewModel.kt$WorkoutEditorViewModel$3600</ID>
+    <ID>MagicNumber:WorkoutEditorViewModel.kt$WorkoutEditorViewModel$60</ID>
+    <ID>MagicNumber:WorkoutTrackScreen.kt$1000.0</ID>
+    <ID>MagicNumber:WorkoutTrackScreen.kt$64</ID>
+    <ID>MaxLineLength:DiaryListScreen.kt$DiaryContentMode.LOADING</ID>
+    <ID>MaxLineLength:DiaryListViewModel.kt$DiaryListViewModel$interactor.updateWorkout(workout.copy(workout = workout.workout.copy(status = WorkoutStatus.COMPLETED)))</ID>
+    <ID>MaxLineLength:LiveTrackingScreen.kt$Text(text = "Завершить тренировку?", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:LiveTrackingScreen.kt$Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>MaxLineLength:WorkoutDetailScreen.kt$Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>MaxLineLength:WorkoutEditorScreen.kt$CircularProgressIndicator(modifier = Modifier.height(20.dp), color = MaterialTheme.colorScheme.onPrimary)</ID>
+    <ID>MaxLineLength:WorkoutEditorViewModel.kt$WorkoutEditorViewModel$durationMinutesInput = details.workout.durationSeconds?.let { (it % 3600 / 60).toString() }.orEmpty()</ID>
+    <ID>MaxLineLength:WorkoutTrackScreen.kt$Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>ReturnCount:WorkoutDetailViewModel.kt$WorkoutDetailViewModel$override fun onAction(action: BaseAction)</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,563 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$!isStrictMode || !isAtStartMode || !timeReached || base.status != CompetitionStatus.REGISTRATION_OPEN</ID>
+    <ID>CyclomaticComplexMethod:DistanceEditor.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DistanceEditor( userAction: (OrienteeringCreatorAction) -&gt; Unit, state: OrienteeringCreatorState, )</ID>
+    <ID>CyclomaticComplexMethod:GetOrienteeringChipScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun GetOrienteeringChipScreen( competitionId: String, viewModel: GetOrienteeringChipViewModel = koinViewModel() )</ID>
+    <ID>CyclomaticComplexMethod:OrientReadCardScreen.kt$@Composable internal fun SplitsCard( participant: OrienteeringParticipant, splits: List&lt;SplitTime&gt;, expectedCpOrder: List&lt;Int&gt; = emptyList(), onEditSplit: ((index: Int) -&gt; Unit)? = null, onCreditCp: ((cpNumber: Int, prevTimestamp: Long) -&gt; Unit)? = null, )</ID>
+    <ID>CyclomaticComplexMethod:OrienteeringCompetitionResultsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OrienteeringCompetitionResultsScreen( viewModel: OrienteeringCompetitionResultsViewModel = koinViewModel() )</ID>
+    <ID>CyclomaticComplexMethod:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$private fun buildCsvContent(title: String, groups: List&lt;GroupWithParticipantsAndResults&gt;): String</ID>
+    <ID>CyclomaticComplexMethod:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$private fun buildHtmlContent(title: String, groups: List&lt;GroupWithParticipantsAndResults&gt;): String</ID>
+    <ID>CyclomaticComplexMethod:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$private fun buildPdfBytes(title: String, groups: List&lt;GroupWithParticipantsAndResults&gt;): ByteArray</ID>
+    <ID>CyclomaticComplexMethod:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$fun initialize(competitionId: String?)</ID>
+    <ID>CyclomaticComplexMethod:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>CyclomaticComplexMethod:OrienteeringEventControlScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun OrienteeringEventControlScreenContent( state: OrienteeringEventControlState, isExpanded: Boolean, onAction: (OrientEventControlAction) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>CyclomaticComplexMethod:ParticipantListScreen.kt$@Composable fun CreateParticipantDialogContent( userAction: (BaseAction) -&gt; Unit, group: Int, groupName: String, editingParticipant: OrienteeringParticipant? )</ID>
+    <ID>CyclomaticComplexMethod:ParticipantListScreen.kt$@Composable fun ParticipantCard( participant: OrienteeringParticipant, displayIndex: Int, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: () -&gt; Unit, onDeleteClick: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:ParticipantListScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun ParticipantListContent( userAction: (BaseAction) -&gt; Unit, state: ParticipantListState, onSave: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:ParticipantListScreen.kt$private fun parseTimeInput(timeStr: String, baseDateMs: Long): Long?</ID>
+    <ID>CyclomaticComplexMethod:ParticipantListViewModel.kt$ParticipantListViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>CyclomaticComplexMethod:ResultsHtmlParser.kt$fun buildResultsDiff( parsedRows: List&lt;ParsedResultRow&gt;, groups: List&lt;GroupWithParticipantsAndResults&gt;, competitionId: String, ): ImportResultsDiff</ID>
+    <ID>CyclomaticComplexMethod:StartGridScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun StartGridContent( state: StartGridState, onAction: (BaseAction) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:WriteChipViewModel.kt$WriteChipViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:WriteChipScreen.kt$val (containerColor, contentColor, icon, text) = when { isWaiting -&gt; listOf( MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer, null, "Приложите чип к устройству" ) result is WriteChipOperationResult.Success -&gt; listOf( Color(0xFF4CAF50).copy(alpha = 0.15f), Color(0xFF2E7D32), R.drawable.ic_check_24px, result.message ) else -&gt; listOf( MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.onErrorContainer, R.drawable.close_24px, (result as? WriteChipOperationResult.Error)?.message ?: "Ошибка" ) }</ID>
+    <ID>EmptyFunctionBlock:CenterViewModel.kt$CenterViewModel${ }</ID>
+    <ID>EmptyFunctionBlock:GroupSplitsTableViewModel.kt$GroupSplitsTableViewModel${}</ID>
+    <ID>EmptyFunctionBlock:ParticipantSplitsViewModel.kt$ParticipantSplitsViewModel${}</ID>
+    <ID>EmptyFunctionBlock:RaceGraphViewModel.kt$RaceGraphViewModel${}</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@Composable fun CenterScreen(viewModel: CenterViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@Composable private fun AuthorizedCenterContent(state: CenterState, handleEffects: (CenterEffects) -&gt; Unit)</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@Composable private fun CenterScreenContent(state: CenterState, handleEffects: (CenterEffects) -&gt; Unit)</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@Composable private fun ControlledEventsList(state: CenterState, userAction: (CenterEffects) -&gt; Unit)</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@Composable private fun EmptyControlledEventsView()</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@Composable private fun EventControlCard( competition: Competition, eventId: String, orienteeringCompetition: OrienteeringCompetition, userAction: (CenterEffects) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@Composable private fun UnauthorizedCenterView()</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun DeleteCompetitionDialog( competition: OrienteeringCompetition, onDismiss: () -&gt; Unit, onConfirm: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:CenterScreen.kt$@Preview(showBackground = true) @Composable private fun CenterScreenAuthPreview()</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable fun CommonCompetitionFieldScreen( competitionId: String? = null, viewModel: OrienteeringCreatorViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable fun NavigationButtons( onBack: () -&gt; Unit, onNext: () -&gt; Unit, nextEnabled: Boolean = true, nextText: String = "Далее" )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable internal fun FieldDescription(text: String)</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable private fun CommonCompetitionFieldContent( state: OrienteeringCreatorState, onAction: (OrienteeringCreatorAction) -&gt; Unit, onTitleChanged: (String) -&gt; Unit, onAddressChanged: (String) -&gt; Unit, onDescriptionChanged: (String) -&gt; Unit, onOpenMap: () -&gt; Unit, onBack: () -&gt; Unit, onNext: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable private fun DebugTestToolsBlock( state: OrienteeringCreatorState, onAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable private fun OrienteeringCompetitionDirection( state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable private fun PunchingSystemSelector( state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable private fun StageDatePicker(index: Int, date: Long, userAction: (OrienteeringCreatorAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable private fun StageTimePicker(index: Int, date: Long, userAction: (OrienteeringCreatorAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable private fun StartIntervalSelector( state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Composable private fun StartTimeModeSelector( state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class) @Composable private fun TimeZonePicker( selectedZoneId: String, onSelect: (String) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Preview(showBackground = true, name = "Empty state") @Composable private fun CommonCompetitionFieldPreview()</ID>
+    <ID>FunctionNaming:CommonCompetitionFieldScreen.kt$@Preview(showBackground = true, name = "Filled state") @Composable private fun CommonCompetitionFieldFilledPreview()</ID>
+    <ID>FunctionNaming:CreateDistanceScreen.kt$@Composable fun CreateDistanceScreen( competitionId: String, viewModel: OrienteeringCreatorViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:CreateDistanceScreen.kt$@Composable private fun CreateDistanceContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CreateDistanceScreen.kt$@Preview(showBackground = true, name = "Empty list") @Composable private fun CreateDistanceEmptyPreview()</ID>
+    <ID>FunctionNaming:CreateDistanceScreen.kt$@Preview(showBackground = true, name = "With distances") @Composable private fun CreateDistanceFilledPreview()</ID>
+    <ID>FunctionNaming:CreateParticipantGroupScreen.kt$@Composable fun CreateParticipantGroupScreen( competitionId: String, viewModel: OrienteeringCreatorViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:CreateParticipantGroupScreen.kt$@Composable private fun CreateParticipantGroupContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CreateParticipantGroupScreen.kt$@Preview(showBackground = true, name = "Empty list") @Composable private fun CreateParticipantGroupEmptyPreview()</ID>
+    <ID>FunctionNaming:CreateParticipantGroupScreen.kt$@Preview(showBackground = true, name = "With groups") @Composable private fun CreateParticipantGroupFilledPreview()</ID>
+    <ID>FunctionNaming:DistanceEditor.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DistanceEditor( userAction: (OrienteeringCreatorAction) -&gt; Unit, state: OrienteeringCreatorState, )</ID>
+    <ID>FunctionNaming:DrawParticipantsScreen.kt$@Composable private fun DistanceDrawDialog( onDismiss: () -&gt; Unit, onConfirm: (corridors: Int, gap: Int) -&gt; Unit )</ID>
+    <ID>FunctionNaming:DrawParticipantsScreen.kt$@Composable private fun DrawModeCard( icon: ImageVector, title: String, description: String, accentColor: Color, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:DrawParticipantsScreen.kt$@Composable private fun EmptyDrawView()</ID>
+    <ID>FunctionNaming:DrawParticipantsScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:GetOrienteeringChipScreen.kt$@Composable private fun EmptyPlaceholder(message: String)</ID>
+    <ID>FunctionNaming:GetOrienteeringChipScreen.kt$@Composable private fun LoadingPlaceholder()</ID>
+    <ID>FunctionNaming:GetOrienteeringChipScreen.kt$@Composable private fun ParticipantChipCard( participant: OrienteeringParticipant, onChipNumberChanged: (String) -&gt; Unit, onChipGivenChanged: (Boolean) -&gt; Unit, showGroupName: Boolean = false )</ID>
+    <ID>FunctionNaming:GetOrienteeringChipScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun GetOrienteeringChipScreen( competitionId: String, viewModel: GetOrienteeringChipViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:GroupSplitsTableScreen.kt$@Composable fun GroupSplitsTableScreen( groupId: Long, competitionId: String, viewModel: GroupSplitsTableViewModel = koinViewModel(), )</ID>
+    <ID>FunctionNaming:KindOfSportScreen.kt$@Composable fun KindOfSportScreen(viewModel: CenterViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:KindOfSportScreen.kt$@Composable private fun KindOfSportCard( kindOfSport: KindOfSport, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:KindOfSportScreen.kt$@Preview(showBackground = true) @Composable private fun KindOfSportScreenPreview()</ID>
+    <ID>FunctionNaming:MapPickerScreen.kt$@Composable fun MapPickerScreen( initLat: Double = 0.0, initLon: Double = 0.0, onConfirm: (lat: Double, lon: Double) -&gt; Unit )</ID>
+    <ID>FunctionNaming:OrganizatorCompetitionFieldScreen.kt$@Composable fun OrganizatorCompetitionFieldScreen( competitionId: String, viewModel: OrienteeringCreatorViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:OrganizatorCompetitionFieldScreen.kt$@Composable private fun OrganizatorCompetitionFieldContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:OrganizatorCompetitionFieldScreen.kt$@Preview(showBackground = true) @Composable private fun OrganizatorCompetitionFieldPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable internal fun InfoColumn( label: String, value: String, modifier: Modifier = Modifier, horizontalAlignment: Alignment.Horizontal = Alignment.Start )</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable internal fun ParticipantInfoCard(participant: OrienteeringParticipant)</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable internal fun RaceSummaryCard( participant: OrienteeringParticipant, result: OrienteeringResult, groupRank: Int? = null, groupTotalFinished: Int = 0 )</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable internal fun SplitsCard( participant: OrienteeringParticipant, splits: List&lt;SplitTime&gt;, expectedCpOrder: List&lt;Int&gt; = emptyList(), onEditSplit: ((index: Int) -&gt; Unit)? = null, onCreditCp: ((cpNumber: Int, prevTimestamp: Long) -&gt; Unit)? = null, )</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable private fun DistanceCpSequenceCard(expectedCpOrder: List&lt;Int&gt;)</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable private fun EmptyReadCardView(isReadOnly: Boolean = false)</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable private fun ReadCardContent( participant: OrienteeringParticipant, result: OrienteeringResult?, rawSplits: List&lt;SplitTime&gt;? = null, groupRank: Int? = null, groupTotalFinished: Int = 0, expectedCpOrder: List&lt;Int&gt; = emptyList(), isPendingSave: Boolean = false, isReadOnly: Boolean = false, onEditSplit: (index: Int) -&gt; Unit = {}, onCreditCp: (cpNumber: Int, prevTimestamp: Long) -&gt; Unit = { _, _ -&gt; }, onSaveResult: () -&gt; Unit = {}, )</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable private fun ReadOnlyBanner()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable private fun SplitsLegendItem(color: Color, label: String)</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EditSplitBottomSheet( split: SplitTime, sheetState: SheetState, onDismiss: () -&gt; Unit, onSave: (newTimestamp: Long) -&gt; Unit, onDelete: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Баннер «только просмотр»", showBackground = true) @Composable private fun ReadOnlyBannerPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Карточка итогового времени", showBackground = true) @Composable private fun RaceSummaryCardPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Карточка участника", showBackground = true) @Composable private fun ParticipantInfoCardPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Ожидание чипа — соревнование завершено", showBackground = true) @Composable private fun EmptyReadCardReadOnlyPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Ожидание чипа", showBackground = true) @Composable private fun EmptyReadCardPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Результат без сплитов", showBackground = true) @Composable private fun ReadCardContentNoSplitsPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Результат участника", showBackground = true) @Composable private fun ReadCardContentPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Сплиты — бабочка (повторы КП)", showBackground = true) @Composable private fun SplitsCardButterflyPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Сплиты — лишний КП + пропуск", showBackground = true) @Composable private fun SplitsCardDsqPreview()</ID>
+    <ID>FunctionNaming:OrientReadCardScreen.kt$@Preview(name = "Сплиты", showBackground = true) @Composable private fun SplitsCardPreview()</ID>
+    <ID>FunctionNaming:OrienteeringCompetitionCreator.kt$@Composable fun DatePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:OrienteeringCompetitionCreator.kt$@Composable fun TimePicker(state: OrienteeringCreatorState, userAction: (OrienteeringCreatorAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:OrienteeringCompetitionResultsScreen.kt$@Composable fun ResultParticipantCard( result: ParticipantWithResult, onEditClick: () -&gt; Unit, onCardClick: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:OrienteeringCompetitionResultsScreen.kt$@Composable private fun EmptyResultsView()</ID>
+    <ID>FunctionNaming:OrienteeringCompetitionResultsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EditResultBottomSheet( participantWithResult: ParticipantWithResult, sheetState: SheetState, onDismiss: () -&gt; Unit, onSave: (startTime: Long?, finishTime: Long?) -&gt; Unit )</ID>
+    <ID>FunctionNaming:OrienteeringCompetitionResultsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ImportResultsPreviewBottomSheet( competitionTitle: String, diff: ImportResultsDiff, sheetState: SheetState, isImporting: Boolean, onDismiss: () -&gt; Unit, onConfirm: (List&lt;ImportResultRow&gt;) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:OrienteeringCompetitionResultsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OrienteeringCompetitionResultsScreen( viewModel: OrienteeringCompetitionResultsViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable fun OrienteeringEventControlContent( isExpanded: Boolean, userAction: (OrientEventControlAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable fun OrienteeringEventControlScreen( viewModel: OrienteeringEventControlViewModel = koinViewModel(), windowSizeClass: WindowSizeClass )</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun AllParticipantsFinishedBanner()</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun CompetitionStartedBanner()</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun ControlActionButton(text: String, icon: Int, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun ControlGridItem( modifier: Modifier, text: String, color: Color, icon: Int, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun CountdownBanner(countdownMillis: Long, onCancel: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun NavigationRow(text: String, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun SectionHeader(title: String)</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun StartConfirmContent(onConfirm: () -&gt; Unit, onCancel: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun StopConfirmContent(onConfirm: () -&gt; Unit, onCancel: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Composable private fun StopwatchBanner(elapsedMillis: Long)</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun OrienteeringEventControlScreenContent( state: OrienteeringEventControlState, isExpanded: Boolean, onAction: (OrientEventControlAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Preview(name = "Compact", showBackground = true) @Composable fun OrienteeringEventControlScreenPreviewCompact()</ID>
+    <ID>FunctionNaming:OrienteeringEventControlScreen.kt$@Preview(showBackground = true) @Composable fun OrienteeringEventControlScreenPreview()</ID>
+    <ID>FunctionNaming:ParticipantGroupCreator.kt$@Composable private fun DistanceSelectCard( distance: Distance, isSelected: Boolean, onSelect: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParticipantGroupCreator.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParticipantGroupEditor( userAction: (OrienteeringCreatorAction) -&gt; Unit, state: OrienteeringCreatorState, )</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@Composable fun CreateParticipantDialogContent( userAction: (BaseAction) -&gt; Unit, group: Int, groupName: String, editingParticipant: OrienteeringParticipant? )</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@Composable fun ParticipantCard( participant: OrienteeringParticipant, displayIndex: Int, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: () -&gt; Unit, onDeleteClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@Composable fun ParticipantList( participants: List&lt;OrienteeringParticipant&gt;, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: (OrienteeringParticipant) -&gt; Unit, onDeleteClick: (OrienteeringParticipant) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@Composable fun ParticipantListScreen( onSave: () -&gt; Unit = {}, viewModel: ParticipantListViewModel = koinViewModel(), )</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@Composable private fun EmptyParticipantsView(message: String)</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@Composable private fun StopwatchBanner(elapsedMillis: Long, modifier: Modifier = Modifier)</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun ParticipantListContent( userAction: (BaseAction) -&gt; Unit, state: ParticipantListState, onSave: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreateParticipantDialog( userAction: (BaseAction) -&gt; Unit, group: Int, groupName: String, editingParticipant: OrienteeringParticipant? )</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DeleteParticipantDialog( participant: OrienteeringParticipant, onDismiss: () -&gt; Unit, onConfirm: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParticipantListScreen.kt$@Preview(showBackground = true) @Composable fun ParticipantListScreenPreview()</ID>
+    <ID>FunctionNaming:ParticipantSplitsScreen.kt$@Composable fun ParticipantSplitsScreen( participantId: String, competitionId: String, viewModel: ParticipantSplitsViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:RaceGraphScreen.kt$@Composable fun RaceGraphScreen( groupId: Long, competitionId: String, viewModel: RaceGraphViewModel = koinViewModel(), )</ID>
+    <ID>FunctionNaming:RegistrationCompetitionFieldScreen.kt$@Composable fun RegistrationCompetitionFieldScreen( competitionId: String, viewModel: OrienteeringCreatorViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:RegistrationCompetitionFieldScreen.kt$@Composable private fun RegistrationCompetitionFieldContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMaxParticipants: (String) -&gt; Unit, onUpdateFeeEnabled: (Boolean) -&gt; Unit, onUpdateFeeAmount: (String) -&gt; Unit, onUpdateRegulationUrl: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:RegistrationCompetitionFieldScreen.kt$@Composable private fun RegistrationDatePicker( displayDate: Long?, zoneId: ZoneId, isError: Boolean = false, onDateSelected: (Long) -&gt; Unit )</ID>
+    <ID>FunctionNaming:RegistrationCompetitionFieldScreen.kt$@Composable private fun RegistrationEndModeOption( label: String, selected: Boolean, onSelect: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RegistrationCompetitionFieldScreen.kt$@Composable private fun RegistrationTimePicker( displayTime: String, isError: Boolean = false, onTimeSelected: (String) -&gt; Unit )</ID>
+    <ID>FunctionNaming:RegistrationCompetitionFieldScreen.kt$@Preview(showBackground = true) @Composable private fun RegistrationCompetitionFieldPreview()</ID>
+    <ID>FunctionNaming:StartGridScreen.kt$@Composable fun StartGridScreen( viewModel: StartGridViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:StartGridScreen.kt$@Composable private fun EmptyView(message: String)</ID>
+    <ID>FunctionNaming:StartGridScreen.kt$@Composable private fun SlotHeader( slot: StartSlot, currentTimeMs: Long, isCompetitionRunning: Boolean )</ID>
+    <ID>FunctionNaming:StartGridScreen.kt$@Composable private fun StartGridParticipantCard(participant: OrienteeringParticipant)</ID>
+    <ID>FunctionNaming:StartGridScreen.kt$@Composable private fun StartSlotParticipantList(participants: List&lt;OrienteeringParticipant&gt;)</ID>
+    <ID>FunctionNaming:StartGridScreen.kt$@Composable private fun StopwatchBanner( elapsedMillis: Long, isRunning: Boolean, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:StartGridScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun StartGridContent( state: StartGridState, onAction: (BaseAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable fun WriteChipScreen(viewModel: WriteChipViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun ClearChipTab( isWaiting: Boolean, onClear: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun NfcStatusCard( isWaiting: Boolean, result: WriteChipOperationResult?, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun PasswordByteField( label: String, value: Int, modifier: Modifier = Modifier, onChanged: (Int) -&gt; Unit )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun PasswordInputRow( password: Triple&lt;Int, Int, Int&gt;, onChanged: (Int, Int, Int) -&gt; Unit )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun SleepTimePicker( wakeUpMs: Long, onTimeChanged: (Long) -&gt; Unit )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun StationButton(text: String, enabled: Boolean, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun StationCard( title: String, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun StationTab( state: WriteChipState, onAction: (WriteChipAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun WriteChipContent( state: WriteChipState, onAction: (WriteChipAction) -&gt; Unit )</ID>
+    <ID>FunctionNaming:WriteChipScreen.kt$@Composable private fun WriteNumberTab( state: WriteChipState, onAction: (WriteChipAction) -&gt; Unit )</ID>
+    <ID>ImplicitDefaultLocale:ParticipantListScreen.kt$String.format("%02d:%02d", h, m)</ID>
+    <ID>ImplicitDefaultLocale:ParticipantListScreen.kt$String.format("%02d:%02d:%02d", h, m, s)</ID>
+    <ID>ImplicitDefaultLocale:WriteChipScreen.kt$String.format( "%02d.%02d.%04d %02d:%02d", calendar.get(java.util.Calendar.DAY_OF_MONTH), calendar.get(java.util.Calendar.MONTH) + 1, calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.HOUR_OF_DAY), calendar.get(java.util.Calendar.MINUTE) )</ID>
+    <ID>LongMethod:CenterNavigation.kt$fun NavGraphBuilder.centerGraph(windowSizeClass: WindowSizeClass, navController: NavController)</ID>
+    <ID>LongMethod:CenterScreen.kt$@Composable private fun EventControlCard( competition: Competition, eventId: String, orienteeringCompetition: OrienteeringCompetition, userAction: (CenterEffects) -&gt; Unit )</ID>
+    <ID>LongMethod:CommonCompetitionFieldScreen.kt$@Composable private fun CommonCompetitionFieldContent( state: OrienteeringCreatorState, onAction: (OrienteeringCreatorAction) -&gt; Unit, onTitleChanged: (String) -&gt; Unit, onAddressChanged: (String) -&gt; Unit, onDescriptionChanged: (String) -&gt; Unit, onOpenMap: () -&gt; Unit, onBack: () -&gt; Unit, onNext: () -&gt; Unit )</ID>
+    <ID>LongMethod:CommonCompetitionFieldScreen.kt$@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class) @Composable private fun TimeZonePicker( selectedZoneId: String, onSelect: (String) -&gt; Unit )</ID>
+    <ID>LongMethod:CreateDistanceScreen.kt$@Composable private fun CreateDistanceContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>LongMethod:DistanceEditor.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DistanceEditor( userAction: (OrienteeringCreatorAction) -&gt; Unit, state: OrienteeringCreatorState, )</ID>
+    <ID>LongMethod:DrawParticipantsScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel())</ID>
+    <ID>LongMethod:GetOrienteeringChipScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun GetOrienteeringChipScreen( competitionId: String, viewModel: GetOrienteeringChipViewModel = koinViewModel() )</ID>
+    <ID>LongMethod:MapPickerScreen.kt$@Composable fun MapPickerScreen( initLat: Double = 0.0, initLon: Double = 0.0, onConfirm: (lat: Double, lon: Double) -&gt; Unit )</ID>
+    <ID>LongMethod:OrganizatorCompetitionFieldScreen.kt$@Composable private fun OrganizatorCompetitionFieldContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:OrientReadCardScreen.kt$@Composable internal fun RaceSummaryCard( participant: OrienteeringParticipant, result: OrienteeringResult, groupRank: Int? = null, groupTotalFinished: Int = 0 )</ID>
+    <ID>LongMethod:OrientReadCardScreen.kt$@Composable internal fun SplitsCard( participant: OrienteeringParticipant, splits: List&lt;SplitTime&gt;, expectedCpOrder: List&lt;Int&gt; = emptyList(), onEditSplit: ((index: Int) -&gt; Unit)? = null, onCreditCp: ((cpNumber: Int, prevTimestamp: Long) -&gt; Unit)? = null, )</ID>
+    <ID>LongMethod:OrientReadCardScreen.kt$@Composable private fun ReadCardContent( participant: OrienteeringParticipant, result: OrienteeringResult?, rawSplits: List&lt;SplitTime&gt;? = null, groupRank: Int? = null, groupTotalFinished: Int = 0, expectedCpOrder: List&lt;Int&gt; = emptyList(), isPendingSave: Boolean = false, isReadOnly: Boolean = false, onEditSplit: (index: Int) -&gt; Unit = {}, onCreditCp: (cpNumber: Int, prevTimestamp: Long) -&gt; Unit = { _, _ -&gt; }, onSaveResult: () -&gt; Unit = {}, )</ID>
+    <ID>LongMethod:OrientReadCardViewModel.kt$OrientReadCardViewModel$private suspend fun createParticipantResult( participant: OrienteeringParticipant, finishTime: Long, totalTime: Long, result: CheckResult, rawSplits: List&lt;SplitTime&gt;, expectedCpNumbers: List&lt;Int&gt; = emptyList() )</ID>
+    <ID>LongMethod:OrienteeringCompetitionResultsScreen.kt$@Composable fun ResultParticipantCard( result: ParticipantWithResult, onEditClick: () -&gt; Unit, onCardClick: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:OrienteeringCompetitionResultsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EditResultBottomSheet( participantWithResult: ParticipantWithResult, sheetState: SheetState, onDismiss: () -&gt; Unit, onSave: (startTime: Long?, finishTime: Long?) -&gt; Unit )</ID>
+    <ID>LongMethod:OrienteeringCompetitionResultsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ImportResultsPreviewBottomSheet( competitionTitle: String, diff: ImportResultsDiff, sheetState: SheetState, isImporting: Boolean, onDismiss: () -&gt; Unit, onConfirm: (List&lt;ImportResultRow&gt;) -&gt; Unit, )</ID>
+    <ID>LongMethod:OrienteeringCompetitionResultsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OrienteeringCompetitionResultsScreen( viewModel: OrienteeringCompetitionResultsViewModel = koinViewModel() )</ID>
+    <ID>LongMethod:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$private fun buildHtmlContent(title: String, groups: List&lt;GroupWithParticipantsAndResults&gt;): String</ID>
+    <ID>LongMethod:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$private fun buildPdfBytes(title: String, groups: List&lt;GroupWithParticipantsAndResults&gt;): ByteArray</ID>
+    <ID>LongMethod:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$fun initialize(competitionId: String?)</ID>
+    <ID>LongMethod:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>LongMethod:OrienteeringEventControlScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun OrienteeringEventControlScreenContent( state: OrienteeringEventControlState, isExpanded: Boolean, onAction: (OrientEventControlAction) -&gt; Unit )</ID>
+    <ID>LongMethod:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>LongMethod:ParticipantGroupCreator.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParticipantGroupEditor( userAction: (OrienteeringCreatorAction) -&gt; Unit, state: OrienteeringCreatorState, )</ID>
+    <ID>LongMethod:ParticipantListScreen.kt$@Composable fun CreateParticipantDialogContent( userAction: (BaseAction) -&gt; Unit, group: Int, groupName: String, editingParticipant: OrienteeringParticipant? )</ID>
+    <ID>LongMethod:ParticipantListScreen.kt$@Composable fun ParticipantCard( participant: OrienteeringParticipant, displayIndex: Int, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: () -&gt; Unit, onDeleteClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:ParticipantListScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun ParticipantListContent( userAction: (BaseAction) -&gt; Unit, state: ParticipantListState, onSave: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ParticipantListViewModel.kt$ParticipantListViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>LongMethod:ParticipantSplitsScreen.kt$@Composable fun ParticipantSplitsScreen( participantId: String, competitionId: String, viewModel: ParticipantSplitsViewModel = koinViewModel() )</ID>
+    <ID>LongMethod:RegistrationCompetitionFieldScreen.kt$@Composable private fun RegistrationCompetitionFieldContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMaxParticipants: (String) -&gt; Unit, onUpdateFeeEnabled: (Boolean) -&gt; Unit, onUpdateFeeAmount: (String) -&gt; Unit, onUpdateRegulationUrl: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>LongMethod:StartGridScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun StartGridContent( state: StartGridState, onAction: (BaseAction) -&gt; Unit )</ID>
+    <ID>LongMethod:WriteChipScreen.kt$@Composable private fun StationTab( state: WriteChipState, onAction: (WriteChipAction) -&gt; Unit )</ID>
+    <ID>LongMethod:WriteChipViewModel.kt$WriteChipViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>LongParameterList:CenterViewModel.kt$CenterViewModel$( private val userRepository: UserRepository, private val navigation: Navigation, private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository, private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor, private val networkErrorRepository: NetworkErrorRepository, private val loadingRepository: LoadingRepository, private val analytics: AnalyticsTracker )</ID>
+    <ID>LongParameterList:CommonCompetitionFieldScreen.kt$( state: OrienteeringCreatorState, onAction: (OrienteeringCreatorAction) -&gt; Unit, onTitleChanged: (String) -&gt; Unit, onAddressChanged: (String) -&gt; Unit, onDescriptionChanged: (String) -&gt; Unit, onOpenMap: () -&gt; Unit, onBack: () -&gt; Unit, onNext: () -&gt; Unit )</ID>
+    <ID>LongParameterList:DrawParticipantsScreen.kt$( icon: ImageVector, title: String, description: String, accentColor: Color, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:DrawViewModel.kt$( participants: List&lt;OrienteeringParticipant&gt;, groupDistanceMap: Map&lt;Long, Long&gt;, punchingSystem: PunchingSystem?, competitionStartTime: Long, intervalMs: Long, corridors: Int, gap: Int )</ID>
+    <ID>LongParameterList:OrganizatorCompetitionFieldScreen.kt$( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:OrientReadCardScreen.kt$( participant: OrienteeringParticipant, result: OrienteeringResult?, rawSplits: List&lt;SplitTime&gt;? = null, groupRank: Int? = null, groupTotalFinished: Int = 0, expectedCpOrder: List&lt;Int&gt; = emptyList(), isPendingSave: Boolean = false, isReadOnly: Boolean = false, onEditSplit: (index: Int) -&gt; Unit = {}, onCreditCp: (cpNumber: Int, prevTimestamp: Long) -&gt; Unit = { _, _ -&gt; }, onSaveResult: () -&gt; Unit = {}, )</ID>
+    <ID>LongParameterList:OrientReadCardViewModel.kt$OrientReadCardViewModel$( participant: OrienteeringParticipant, finishTime: Long, totalTime: Long, result: CheckResult, rawSplits: List&lt;SplitTime&gt;, expectedCpNumbers: List&lt;Int&gt; = emptyList() )</ID>
+    <ID>LongParameterList:OrienteeringCompetitionResultsScreen.kt$( competitionTitle: String, diff: ImportResultsDiff, sheetState: SheetState, isImporting: Boolean, onDismiss: () -&gt; Unit, onConfirm: (List&lt;ImportResultRow&gt;) -&gt; Unit, )</ID>
+    <ID>LongParameterList:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$( val navigation: Navigation, private val resourceProvider: ResourceProvider, private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor, private val userRepository: UserRepository, private val networkErrorRepository: NetworkErrorRepository, private val uploadRepository: UploadRepository, private val context: Context, private val loadingRepository: LoadingRepository, private val analytics: AnalyticsTracker, )</ID>
+    <ID>LongParameterList:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$( title: String, competition: com.competra.domain.models.orienteering.OrienteeringCompetition, groups: List&lt;com.competra.domain.models.ParticipantGroup&gt; = emptyList(), allChipsDistributed: Boolean = true, allParticipantsFinished: Boolean = false, isDrawConducted: Boolean = false )</ID>
+    <ID>LongParameterList:ParticipantListScreen.kt$( participant: OrienteeringParticipant, displayIndex: Int, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: () -&gt; Unit, onDeleteClick: () -&gt; Unit )</ID>
+    <ID>LongParameterList:ParticipantListScreen.kt$( participants: List&lt;OrienteeringParticipant&gt;, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: (OrienteeringParticipant) -&gt; Unit, onDeleteClick: (OrienteeringParticipant) -&gt; Unit )</ID>
+    <ID>LongParameterList:RegistrationCompetitionFieldScreen.kt$( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMaxParticipants: (String) -&gt; Unit, onUpdateFeeEnabled: (Boolean) -&gt; Unit, onUpdateFeeAmount: (String) -&gt; Unit, onUpdateRegulationUrl: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit )</ID>
+    <ID>LoopWithTooManyJumpStatements:ResultsHtmlParser.kt$for</ID>
+    <ID>MagicNumber:CommonCompetitionFieldScreen.kt$20</ID>
+    <ID>MagicNumber:CommonCompetitionFieldScreen.kt$60</ID>
+    <ID>MagicNumber:CommonCompetitionFieldScreen.kt$9</ID>
+    <ID>MagicNumber:DrawParticipantsScreen.kt$12f</ID>
+    <ID>MagicNumber:DrawParticipantsScreen.kt$3</ID>
+    <ID>MagicNumber:DrawParticipantsScreen.kt$8f</ID>
+    <ID>MagicNumber:DrawParticipantsScreen.kt$&lt;no name provided&gt;$10f</ID>
+    <ID>MagicNumber:DrawViewModel.kt$0.5</ID>
+    <ID>MagicNumber:DrawViewModel.kt$DrawViewModel$1000L</ID>
+    <ID>MagicNumber:DrawViewModel.kt$DrawViewModel$60L</ID>
+    <ID>MagicNumber:MapPickerScreen.kt$15.0</ID>
+    <ID>MagicNumber:MapPickerScreen.kt$17</ID>
+    <ID>MagicNumber:MapPickerScreen.kt$256</ID>
+    <ID>MagicNumber:MapPickerScreen.kt$37.61556</ID>
+    <ID>MagicNumber:MapPickerScreen.kt$55.75222</ID>
+    <ID>MagicNumber:MapPickerScreen.kt$&lt;no name provided&gt;$19</ID>
+    <ID>MagicNumber:MapPickerScreen.kt$&lt;no name provided&gt;$256</ID>
+    <ID>MagicNumber:OrganizatorCompetitionFieldScreen.kt$11</ID>
+    <ID>MagicNumber:OrganizatorCompetitionFieldScreen.kt$PhoneNumberVisualTransformation$11</ID>
+    <ID>MagicNumber:OrganizatorCompetitionFieldScreen.kt$PhoneNumberVisualTransformation$3</ID>
+    <ID>MagicNumber:OrganizatorCompetitionFieldScreen.kt$PhoneNumberVisualTransformation$6</ID>
+    <ID>MagicNumber:OrganizatorCompetitionFieldScreen.kt$PhoneNumberVisualTransformation$8</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$0.6f</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$0.8f</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$0xFF9E8000</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$0xFFE65100</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$0xFFFF9800</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$0xFFFFEB3B</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$1.6f</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$31</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$32</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$33</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$34</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$50</ID>
+    <ID>MagicNumber:OrientReadCardScreen.kt$99</ID>
+    <ID>MagicNumber:OrientReadCardViewModel.kt$OrientReadCardViewModel$1000L</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsScreen.kt$0.85f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsScreen.kt$0xFFB8860B</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsScreen.kt$0xFFFFD700</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$0.5f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$1.5f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$10</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$110</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$12f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$13f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$14f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$16f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$18</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$20</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$3</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$3600</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$36f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$40</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$595</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$60</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$842</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$8f</ID>
+    <ID>MagicNumber:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$9f</ID>
+    <ID>MagicNumber:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$1000</ID>
+    <ID>MagicNumber:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$24L</ID>
+    <ID>MagicNumber:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$60</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$0xFF2196F3</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$0xFF4CAF50</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$0xFFF44336</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$0xFFFFC107</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$1.1f</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$10</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$1000</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$1_000L</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$3_600_000L</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$60</ID>
+    <ID>MagicNumber:OrienteeringEventControlScreen.kt$60_000L</ID>
+    <ID>MagicNumber:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$1000</ID>
+    <ID>MagicNumber:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$1000L</ID>
+    <ID>MagicNumber:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$16</ID>
+    <ID>MagicNumber:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$60</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$10</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$1000</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$16</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$1_000L</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$23</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$3</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$3_600_000L</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$5</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$500</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$59</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$60_000L</ID>
+    <ID>MagicNumber:ParticipantListScreen.kt$999</ID>
+    <ID>MagicNumber:ParticipantListViewModel.kt$ParticipantListViewModel$1000L</ID>
+    <ID>MagicNumber:ParticipantListViewModel.kt$ParticipantListViewModel$60</ID>
+    <ID>MagicNumber:RegistrationCompetitionFieldScreen.kt$0.5f</ID>
+    <ID>MagicNumber:ResultsHtmlParser.kt$1000</ID>
+    <ID>MagicNumber:ResultsHtmlParser.kt$3600</ID>
+    <ID>MagicNumber:ResultsHtmlParser.kt$4</ID>
+    <ID>MagicNumber:ResultsHtmlParser.kt$5</ID>
+    <ID>MagicNumber:ResultsHtmlParser.kt$60</ID>
+    <ID>MagicNumber:ResultsHtmlParser.kt$7</ID>
+    <ID>MagicNumber:StartGridScreen.kt$10</ID>
+    <ID>MagicNumber:StartGridScreen.kt$100</ID>
+    <ID>MagicNumber:StartGridScreen.kt$1000L</ID>
+    <ID>MagicNumber:StartGridScreen.kt$11</ID>
+    <ID>MagicNumber:StartGridScreen.kt$14</ID>
+    <ID>MagicNumber:StartGridScreen.kt$1_000L</ID>
+    <ID>MagicNumber:StartGridScreen.kt$3_600_000L</ID>
+    <ID>MagicNumber:StartGridScreen.kt$4</ID>
+    <ID>MagicNumber:StartGridScreen.kt$500</ID>
+    <ID>MagicNumber:StartGridScreen.kt$60</ID>
+    <ID>MagicNumber:StartGridScreen.kt$60_000L</ID>
+    <ID>MagicNumber:StartGridViewModel.kt$StartGridViewModel$16</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$1000</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$24L</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$3</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$36</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$37</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$37.7900</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$42</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$46</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$55.8400</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$60</ID>
+    <ID>MagicNumber:TestCompetitionFixtures.kt$TestCompetitionFixtures$7</ID>
+    <ID>MagicNumber:WriteChipScreen.kt$0xFF2E7D32</ID>
+    <ID>MagicNumber:WriteChipScreen.kt$0xFF4CAF50</ID>
+    <ID>MagicNumber:WriteChipScreen.kt$3_600_000L</ID>
+    <ID>MagicNumber:WriteChipState.kt$WriteChipState$3_600_000L</ID>
+    <ID>MagicNumber:WriteChipViewModel.kt$WriteChipViewModel$255</ID>
+    <ID>MagicNumber:WriteChipViewModel.kt$WriteChipViewModel$65535</ID>
+    <ID>MaxLineLength:CenterScreen.kt$imageVector = ImageVector.vectorResource(R.drawable.ic_date_range_24px)</ID>
+    <ID>MaxLineLength:CommonCompetitionFieldScreen.kt$text = "lat: ${"%.5f".format(state.coordinates.latitude)}, lon: ${"%.5f".format(state.coordinates.longitude)}"</ID>
+    <ID>MaxLineLength:CreateDistanceScreen.kt$IconButton</ID>
+    <ID>MaxLineLength:CreateParticipantGroupScreen.kt$ParticipantGroup(groupId = 2, competitionId = "1", title = "Ж18", distanceId = 2, minAge = 16, maxAge = 18, gender = Gender.FEMALE)</ID>
+    <ID>MaxLineLength:DistanceEditor.kt$id = if (state.editDistanceIndex == -1) 0L else state.distances[state.editDistanceIndex].id</ID>
+    <ID>MaxLineLength:DrawViewModel.kt$DrawViewModel$chipNumber = if (punchingSystem == PunchingSystem.SPORTIDUINO) number else participant.chipNumber</ID>
+    <ID>MaxLineLength:OrientReadCardScreen.kt$Text(text = "Время", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f), textAlign = TextAlign.End)</ID>
+    <ID>MaxLineLength:OrientReadCardScreen.kt$Text(text = "Сплит", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)</ID>
+    <ID>MaxLineLength:OrientReadCardScreen.kt$Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>MaxLineLength:OrientReadCardScreen.kt$imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionCreator.kt$imageVector = ImageVector.vectorResource(R.drawable.ic_build_24px)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$val currentResults = localRepository.getResultForGroup(competitionId, groupId).getOrNull() ?: emptyList()</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$"Не распознано (${diff.unmatched.size}) — стартовый номер не найден среди участников, будут пропущены:"</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$"Совпадений с текущими участниками не найдено — проверьте, что выбран файл именно этого соревнования."</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$"№${row.participant.startNumber} ${row.participant.lastName} ${row.participant.firstName}"</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$onClick = { viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ApproveResults) }</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$val newFinish = DateTimeFormat.updateTimeInTimestamp(participantWithResult.result?.finishTime, finishTimeStr)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$val newStart = DateTimeFormat.updateTimeInTimestamp(participantWithResult.result?.startTime, startTimeStr)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ConfirmImport(selectedRows))</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.DismissImportPreview)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.DismissPublishedUrl)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ExportCsv)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ExportPdf)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsScreen.kt$viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.PublishHtml)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$is OrienteeringResultsAction.DismissImportPreview -&gt; updateState { copy(importDiff = null, importError = null) }</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$is OrienteeringResultsAction.UpdateResult -&gt; updateParticipantResult(action.participantWithResult, action.startTime, action.finishTime)</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$private</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$updateState { copy(importError = "Не удалось распознать файл — проверьте, что это HTML-протокол результатов.") }</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$val cumulCell = if (cumulRank == 1) "&lt;b&gt;&lt;nobr&gt;$cumulStr($cumulRank)&lt;/b&gt;" else "&lt;nobr&gt;$cumulStr($cumulRank)"</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$val deltaCell = if (deltaRank == 1) "&lt;b&gt;&lt;nobr&gt;$deltaStr($deltaRank)&lt;/b&gt;" else "&lt;nobr&gt;$deltaStr($deltaRank)"</ID>
+    <ID>MaxLineLength:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$val resultRow = "$rank;${pw.participant.lastName};${pw.participant.firstName};${pw.participant.commandName};$start;$finish;$total;$status"</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$contactPhone = comp.competition.contactPhone?.ifEmpty { user?.phoneNumber ?: "" } ?: user?.phoneNumber ?: ""</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$fun updateContactPhone(phone: String)</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$registrationEndTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationEnd, loadedZone).ifEmpty { "23:59" }</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$registrationStartTimeStr = DateTimeFormat.transformLongToTime(comp.competition.registrationStart, loadedZone).ifEmpty { "10:00" }</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$updateState { copy(registrationEndTimeStr = action.time, registrationEnd = combined ?: stateValue.registrationEnd) }</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$updateState { copy(registrationStart = combined, errors = errors.copy(isEmptyRegistrationStart = false)) }</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$updateState { copy(registrationStartTimeStr = action.time, registrationStart = combined ?: stateValue.registrationStart) }</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$updateState { copy(startTimeStr = action.competitionTime, startDate = combined ?: stateValue.startDate) }</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val actualRegistrationStart = if (stateValue.registrationStartOnCreate) null else stateValue.registrationStart</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationEndTimeStr, competitionZone()) ?: action.date</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val combined = DateTimeFormat.updateTimeInTimestamp(action.date, stateValue.registrationStartTimeStr, competitionZone()) ?: action.date</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationEnd, action.time, competitionZone())</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.registrationStart, action.time, competitionZone())</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val combined = DateTimeFormat.updateTimeInTimestamp(stateValue.startDate, action.competitionTime, competitionZone())</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val updatedGroups = stateValue.participantGroups.toMutableList().apply { add(action.participantGroup) }</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val updatedGroups = stateValue.participantGroups.toMutableList().apply { set(action.index, action.participantGroup) }</ID>
+    <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val updatedTimestamp = DateTimeFormat.updateTimeInTimestamp(date, stateValue.startTimeStr, competitionZone()) ?: date</ID>
+    <ID>MaxLineLength:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$updateState { copy(isCompetitionRunning = false, isTimerRunning = false, isFinished = true, stopwatchMillis = 0L) }</ID>
+    <ID>MaxLineLength:ParticipantGroupCreator.kt$containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant</ID>
+    <ID>MaxLineLength:ParticipantGroupCreator.kt$keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)</ID>
+    <ID>MaxLineLength:ParticipantGroupCreator.kt$var selectedDistanceId by remember { mutableLongStateOf(initialGroup?.distanceId ?: state.distances.firstOrNull()?.id ?: 0L) }</ID>
+    <ID>MaxLineLength:ParticipantListAction.kt$ParticipantListAction.ShowEditParticipantDialog$data</ID>
+    <ID>MaxLineLength:ParticipantListScreen.kt$fontWeight = if (pagerState.currentPage == pageIndex) FontWeight.Bold else FontWeight.Normal</ID>
+    <ID>MaxLineLength:ParticipantListScreen.kt$userAction.invoke(ParticipantListAction.ShowEditParticipantDialog(groupIndex, participant))</ID>
+    <ID>MaxLineLength:ParticipantListViewModel.kt$ParticipantListViewModel$updateState { copy(group = action.group, editingParticipant = action.participant, isShowParticipantCreateDialog = true) }</ID>
+    <ID>MaxLineLength:ParticipantListViewModel.kt$ParticipantListViewModel$updateState { copy(group = action.group, editingParticipant = null, isShowParticipantCreateDialog = true) }</ID>
+    <ID>MaxLineLength:ParticipantListViewModel.kt$ParticipantListViewModel$val latestStartTime = allParticipants.filter { it.startTime &gt; 0L }.maxOfOrNull { it.startTime } ?: 0L</ID>
+    <ID>MaxLineLength:ParticipantListViewModel.kt$ParticipantListViewModel$val nextNum = (existingParticipants.mapNotNull { it.startNumber.toIntOrNull() }.maxOrNull() ?: 0) + 1</ID>
+    <ID>MaxLineLength:RegistrationCompetitionFieldScreen.kt$onAction(OrienteeringCreatorAction.UpdateRegistrationEndMode(RegistrationEndMode.AT_COMPETITION_START))</ID>
+    <ID>MaxLineLength:ResultsHtmlParser.kt$private</ID>
+    <ID>MaxLineLength:WriteChipScreen.kt$Text("Разбудить в", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>MaxLineLength:WriteChipScreen.kt$text = "Записывает карту GET_STATE. Поднесите карту к станции — станция запишет своё состояние, затем считайте карту."</ID>
+    <ID>MaxLineLength:WriteChipScreen.kt$text = "Записывает конфигурацию с номером станции из поля выше. Режим активности: 2 ч, усиление антенны: 33 дБ."</ID>
+    <ID>MaxLineLength:WriteChipScreen.kt$text = "Сбрасывает все отметки участника. Timestamp очистки будет записан на чип. Номер участника обнуляется."</ID>
+    <ID>MaxLineLength:WriteChipViewModel.kt$WriteChipViewModel$updateState { copy(lastResult = WriteChipOperationResult.Error("Номер станции должен быть от 1 до 255")) }</ID>
+    <ID>NewLineAtEndOfFile:CenterEffects.kt$com.competra.center.data.CenterEffects.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.center.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:GetOrienteeringChipState.kt$com.competra.center.data.get_chip.GetOrienteeringChipState.kt</ID>
+    <ID>NewLineAtEndOfFile:OrientEventControlAction.kt$com.competra.center.data.event_control.OrientEventControlAction.kt</ID>
+    <ID>NewLineAtEndOfFile:OrientReadCardViewModel.kt$com.competra.center.presentation.read_card.OrientReadCardViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:OrienteeringCompetitionResultsState.kt$com.competra.center.data.results.OrienteeringCompetitionResultsState.kt</ID>
+    <ID>NewLineAtEndOfFile:OrienteeringEventControlState.kt$com.competra.center.data.event_control.OrienteeringEventControlState.kt</ID>
+    <ID>NewLineAtEndOfFile:centerModule.kt$com.competra.center.di.centerModule.kt</ID>
+    <ID>PackageNaming:CheckResult.kt$package com.competra.center.data.read_card</ID>
+    <ID>PackageNaming:CommonCompetitionFieldScreen.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:CreateDistanceScreen.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:CreateParticipantGroupScreen.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:DistanceEditor.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:GetOrienteeringChipAction.kt$package com.competra.center.data.get_chip</ID>
+    <ID>PackageNaming:GetOrienteeringChipScreen.kt$package com.competra.center.presentation.get_chip</ID>
+    <ID>PackageNaming:GetOrienteeringChipState.kt$package com.competra.center.data.get_chip</ID>
+    <ID>PackageNaming:GetOrienteeringChipViewModel.kt$package com.competra.center.presentation.get_chip</ID>
+    <ID>PackageNaming:GroupSplitsTableScreen.kt$package com.competra.center.presentation.group_splits</ID>
+    <ID>PackageNaming:GroupSplitsTableState.kt$package com.competra.center.data.group_splits</ID>
+    <ID>PackageNaming:GroupSplitsTableViewModel.kt$package com.competra.center.presentation.group_splits</ID>
+    <ID>PackageNaming:KindOfSportScreen.kt$package com.competra.center.presentation.kind_of_sport</ID>
+    <ID>PackageNaming:OrganizatorCompetitionFieldScreen.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:OrientEventControlAction.kt$package com.competra.center.data.event_control</ID>
+    <ID>PackageNaming:OrientReadCardAction.kt$package com.competra.center.data.read_card</ID>
+    <ID>PackageNaming:OrientReadCardScreen.kt$package com.competra.center.presentation.read_card</ID>
+    <ID>PackageNaming:OrientReadCardState.kt$package com.competra.center.data.read_card</ID>
+    <ID>PackageNaming:OrientReadCardViewModel.kt$package com.competra.center.presentation.read_card</ID>
+    <ID>PackageNaming:OrienteeringCompetitionCreator.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:OrienteeringCreatorViewModel.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:OrienteeringEventControlScreen.kt$package com.competra.center.presentation.event_control.orienteering</ID>
+    <ID>PackageNaming:OrienteeringEventControlState.kt$package com.competra.center.data.event_control</ID>
+    <ID>PackageNaming:OrienteeringEventControlViewModel.kt$package com.competra.center.presentation.event_control.orienteering</ID>
+    <ID>PackageNaming:ParticipantGroupCreator.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:ParticipantListAction.kt$package com.competra.center.data.participant_list</ID>
+    <ID>PackageNaming:ParticipantListScreen.kt$package com.competra.center.presentation.participant_list</ID>
+    <ID>PackageNaming:ParticipantListState.kt$package com.competra.center.data.participant_list</ID>
+    <ID>PackageNaming:ParticipantListViewModel.kt$package com.competra.center.presentation.participant_list</ID>
+    <ID>PackageNaming:RaceGraphScreen.kt$package com.competra.center.presentation.race_graph</ID>
+    <ID>PackageNaming:RaceGraphState.kt$package com.competra.center.data.race_graph</ID>
+    <ID>PackageNaming:RaceGraphViewModel.kt$package com.competra.center.presentation.race_graph</ID>
+    <ID>PackageNaming:RegistrationCompetitionFieldScreen.kt$package com.competra.center.presentation.orientiring_competition_create</ID>
+    <ID>PackageNaming:StartGridAction.kt$package com.competra.center.data.start_grid</ID>
+    <ID>PackageNaming:StartGridScreen.kt$package com.competra.center.presentation.start_grid</ID>
+    <ID>PackageNaming:StartGridState.kt$package com.competra.center.data.start_grid</ID>
+    <ID>PackageNaming:StartGridViewModel.kt$package com.competra.center.presentation.start_grid</ID>
+    <ID>PackageNaming:TestParticipantFixtures.kt$package com.competra.center.data.participant_list</ID>
+    <ID>PackageNaming:WriteChipAction.kt$package com.competra.center.data.write_chip</ID>
+    <ID>PackageNaming:WriteChipScreen.kt$package com.competra.center.presentation.write_chip</ID>
+    <ID>PackageNaming:WriteChipState.kt$package com.competra.center.data.write_chip</ID>
+    <ID>PackageNaming:WriteChipViewModel.kt$package com.competra.center.presentation.write_chip</ID>
+    <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$fun checkControlPointOrderPro( expected: List&lt;ControlPoint&gt;, actual: List&lt;SplitTime&gt; ): CheckResult</ID>
+    <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$private suspend fun recalculateAndSaveResult()</ID>
+    <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$private suspend fun recalculatePending()</ID>
+    <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$suspend fun getExpectedControlPoints(groupId: Long): List&lt;ControlPoint&gt;</ID>
+    <ID>ReturnCount:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$suspend fun areAllParticipantsFinished(competitionId: String): Boolean</ID>
+    <ID>ReturnCount:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$suspend fun getCompetitionsByUserId(userId: String): Result&lt;List&lt;OrienteeringCompetition&gt;&gt;</ID>
+    <ID>ReturnCount:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$suspend fun tryAutoFinish(competitionId: String): Boolean</ID>
+    <ID>ReturnCount:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$suspend fun tryAutoStartFromRegistration(competitionId: String): Boolean</ID>
+    <ID>ReturnCount:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$private fun onCountdownFinished()</ID>
+    <ID>ReturnCount:ParticipantListScreen.kt$private fun parseTimeInput(timeStr: String, baseDateMs: Long): Long?</ID>
+    <ID>ReturnCount:WriteChipViewModel.kt$WriteChipViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>SwallowedException:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$e: Exception</ID>
+    <ID>TooManyFunctions:CommonCompetitionFieldScreen.kt$com.competra.center.presentation.orientiring_competition_create.CommonCompetitionFieldScreen.kt</ID>
+    <ID>TooManyFunctions:OrientReadCardScreen.kt$com.competra.center.presentation.read_card.OrientReadCardScreen.kt</ID>
+    <ID>TooManyFunctions:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor</ID>
+    <ID>TooManyFunctions:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:OrienteeringEventControlScreen.kt$com.competra.center.presentation.event_control.orienteering.OrienteeringEventControlScreen.kt</ID>
+    <ID>TooManyFunctions:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:ParticipantListScreen.kt$com.competra.center.presentation.participant_list.ParticipantListScreen.kt</ID>
+    <ID>TooManyFunctions:WriteChipScreen.kt$com.competra.center.presentation.write_chip.WriteChipScreen.kt</ID>
+    <ID>UnusedParameter:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$competitionId: String</ID>
+    <ID>UnusedPrivateMember:CenterScreen.kt$@Preview(showBackground = true) @Composable private fun CenterScreenAuthPreview()</ID>
+    <ID>UnusedPrivateMember:CommonCompetitionFieldScreen.kt$@Preview(showBackground = true, name = "Empty state") @Composable private fun CommonCompetitionFieldPreview()</ID>
+    <ID>UnusedPrivateMember:CommonCompetitionFieldScreen.kt$@Preview(showBackground = true, name = "Filled state") @Composable private fun CommonCompetitionFieldFilledPreview()</ID>
+    <ID>UnusedPrivateMember:CreateDistanceScreen.kt$@Preview(showBackground = true, name = "Empty list") @Composable private fun CreateDistanceEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:CreateDistanceScreen.kt$@Preview(showBackground = true, name = "With distances") @Composable private fun CreateDistanceFilledPreview()</ID>
+    <ID>UnusedPrivateMember:CreateParticipantGroupScreen.kt$@Preview(showBackground = true, name = "Empty list") @Composable private fun CreateParticipantGroupEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:CreateParticipantGroupScreen.kt$@Preview(showBackground = true, name = "With groups") @Composable private fun CreateParticipantGroupFilledPreview()</ID>
+    <ID>UnusedPrivateMember:KindOfSportScreen.kt$@Preview(showBackground = true) @Composable private fun KindOfSportScreenPreview()</ID>
+    <ID>UnusedPrivateMember:OrganizatorCompetitionFieldScreen.kt$@Preview(showBackground = true) @Composable private fun OrganizatorCompetitionFieldPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Баннер «только просмотр»", showBackground = true) @Composable private fun ReadOnlyBannerPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Карточка итогового времени", showBackground = true) @Composable private fun RaceSummaryCardPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Карточка участника", showBackground = true) @Composable private fun ParticipantInfoCardPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Ожидание чипа — соревнование завершено", showBackground = true) @Composable private fun EmptyReadCardReadOnlyPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Ожидание чипа", showBackground = true) @Composable private fun EmptyReadCardPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Результат без сплитов", showBackground = true) @Composable private fun ReadCardContentNoSplitsPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Результат участника", showBackground = true) @Composable private fun ReadCardContentPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Сплиты — бабочка (повторы КП)", showBackground = true) @Composable private fun SplitsCardButterflyPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Сплиты — лишний КП + пропуск", showBackground = true) @Composable private fun SplitsCardDsqPreview()</ID>
+    <ID>UnusedPrivateMember:OrientReadCardScreen.kt$@Preview(name = "Сплиты", showBackground = true) @Composable private fun SplitsCardPreview()</ID>
+    <ID>UnusedPrivateMember:OrienteeringEventControlScreen.kt$@Composable private fun ControlActionButton(text: String, icon: Int, onClick: () -&gt; Unit)</ID>
+    <ID>UnusedPrivateMember:RegistrationCompetitionFieldScreen.kt$@Preview(showBackground = true) @Composable private fun RegistrationCompetitionFieldPreview()</ID>
+    <ID>UnusedPrivateProperty:CenterScreen.kt$// Поправка для ресурса иконки даты, если в предыдущих шагах использовался ic_date_range_24px private val R.datasource_ic_date_range_24px: Int get() = R.drawable.ic_date_range_24px</ID>
+    <ID>UnusedPrivateProperty:CenterViewModel.kt$CenterViewModel$private val orienteeringCompetitionRemoteRepository: OrienteeringCompetitionRemoteRepository</ID>
+    <ID>UnusedPrivateProperty:DistanceEditor.kt$val controlsFocus = remember { FocusRequester() }</ID>
+    <ID>UnusedPrivateProperty:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$private val resourceProvider: ResourceProvider</ID>
+    <ID>UnusedPrivateProperty:ParticipantSplitsViewModel.kt$ParticipantSplitsViewModel$private val navigation: Navigation</ID>
+    <ID>WildcardImport:CenterNavigation.kt$import com.competra.center.presentation.orientiring_competition_create.*</ID>
+    <ID>WildcardImport:CenterScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CenterScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CommonCompetitionFieldScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CommonCompetitionFieldScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CommonCompetitionFieldScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CreateDistanceScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CreateDistanceScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CreateDistanceScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CreateParticipantGroupScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CreateParticipantGroupScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CreateParticipantGroupScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:DistanceEditor.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:DistanceEditor.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:DistanceEditor.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:DrawParticipantsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:DrawParticipantsScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:DrawParticipantsScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:GetOrienteeringChipScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:GetOrienteeringChipScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:GetOrienteeringChipScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:KindOfSportScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:KindOfSportScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:MapPickerScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:MapPickerScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:MapPickerScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:OrganizatorCompetitionFieldScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:OrganizatorCompetitionFieldScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:OrganizatorCompetitionFieldScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:OrientReadCardScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:OrientReadCardScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:OrientReadCardScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:OrienteeringCompetitionCreator.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:OrienteeringCompetitionCreator.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:OrienteeringCompetitionCreator.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:OrienteeringCompetitionResultsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:OrienteeringCompetitionResultsScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:OrienteeringCompetitionResultsScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:OrienteeringCreatorState.kt$import com.competra.domain.models.orienteering.*</ID>
+    <ID>WildcardImport:OrienteeringEventControlScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:OrienteeringEventControlScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParticipantGroupCreator.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParticipantGroupCreator.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParticipantGroupCreator.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParticipantListScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParticipantListScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParticipantListScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParticipantSplitsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParticipantSplitsScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RegistrationCompetitionFieldScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:RegistrationCompetitionFieldScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RegistrationCompetitionFieldScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:StartGridScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:StartGridScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:StartGridScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:WriteChipScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:WriteChipScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:WriteChipScreen.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

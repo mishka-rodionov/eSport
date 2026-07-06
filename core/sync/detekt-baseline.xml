@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaxLineLength:SyncOrchestrator.kt$SyncOrchestrator$groups.forEach { localRepository.updateParticipantGroup(it.copy(syncError = msg), markUnsynced = false) }</ID>
+    <ID>MaxLineLength:SyncOrchestrator.kt$SyncOrchestrator$listOf(result.copy(isSynced = true, syncError = null, serverUpdatedAt = server.serverUpdatedAt))</ID>
+    <ID>MaxLineLength:WorkoutSyncOrchestrator.kt$WorkoutSyncOrchestrator$Log.w(TAG, "Permanent delete error for workout ${workout.workout.id}: ${error.message} — purging locally")</ID>
+    <ID>ReturnCount:ConflictResolver.kt$ConflictResolver$private fun &lt;T&gt; parseResult(payload: String?, clazz: Class&lt;T&gt;): T?</ID>
+    <ID>ReturnCount:SyncOrchestrator.kt$SyncOrchestrator$private suspend fun syncDistances(): Boolean</ID>
+    <ID>ReturnCount:SyncOrchestrator.kt$SyncOrchestrator$private suspend fun syncGroups(): Boolean</ID>
+    <ID>ReturnCount:SyncOrchestrator.kt$SyncOrchestrator$private suspend fun syncParticipants(): Boolean</ID>
+    <ID>ReturnCount:SyncOrchestrator.kt$SyncOrchestrator$private suspend fun syncResults(): Boolean</ID>
+    <ID>TooGenericExceptionCaught:ConflictResolver.kt$ConflictResolver$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SyncCenterWorker.kt$SyncCenterWorker$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WorkoutSyncWorker.kt$WorkoutSyncWorker$e: Exception</ID>
+    <ID>TooManyFunctions:SyncOrchestrator.kt$SyncOrchestrator</ID>
+    <ID>UnusedPrivateProperty:SyncTriggerImpl.kt$SyncTriggerImpl$signal</ID>
+  </CurrentIssues>
+</SmellBaseline>

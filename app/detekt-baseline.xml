@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:MainActivity.kt$@Composable internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass)</ID>
+    <ID>ForbiddenComment:MainActivity.kt$// TODO: принудительный logout / навигация на экран авторизации</ID>
+    <ID>FunctionNaming:AppRoot.kt$@Composable fun AppRoot(viewModel: MainViewModel)</ID>
+    <ID>FunctionNaming:AppRoot.kt$@Composable private fun RequestInitialPermissions()</ID>
+    <ID>FunctionNaming:MainActivity.kt$@Composable internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass)</ID>
+    <ID>FunctionNaming:MainActivity.kt$@Composable private fun GlobalLoader(isLoading: Boolean)</ID>
+    <ID>FunctionNaming:NetworkErrorBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NetworkErrorBottomSheet( message: String, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:NfcScanBanner.kt$@Composable fun NfcScanBanner(event: NfcScanEvent?, modifier: Modifier = Modifier)</ID>
+    <ID>FunctionNaming:ParticipantStartBanner.kt$@Composable fun ParticipantStartBanner( event: ParticipantStartAlert?, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:ParticipantStartBanner.kt$@Composable private fun StartedCard(event: ParticipantStartAlert.Started)</ID>
+    <ID>FunctionNaming:ParticipantStartBanner.kt$@Composable private fun UpcomingStartCard(event: ParticipantStartAlert.Upcoming)</ID>
+    <ID>FunctionNaming:ResultConflictBottomSheet.kt$@Composable private fun DiffRow(diff: ResultFieldDiff)</ID>
+    <ID>FunctionNaming:ResultConflictBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ResultConflictBottomSheet( event: ResultConflictEvent, onApply: () -&gt; Unit, onCancel: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ResultConflictBottomSheet.kt$@Preview(showBackground = true) @Composable private fun ResultConflictBottomSheetPreview()</ID>
+    <ID>FunctionNaming:SplashScreen.kt$@Composable fun SplashScreen(onFinished: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SplashScreen.kt$@Composable private fun ShimmeringLogo(modifier: Modifier = Modifier)</ID>
+    <ID>FunctionNaming:Theme.kt$@Composable fun CompetraTheme( darkTheme: Boolean = isSystemInDarkTheme(), // Фирменная палитра «Лес» по умолчанию. Динамические цвета Material You отключены, // иначе на Android 12+ цвета берутся из обоев и наша палитра игнорируется. dynamicColor: Boolean = false, content: @Composable () -&gt; Unit )</ID>
+    <ID>LongMethod:MainActivity.kt$@Composable internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass)</ID>
+    <ID>LongMethod:ResultConflictBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ResultConflictBottomSheet( event: ResultConflictEvent, onApply: () -&gt; Unit, onCancel: () -&gt; Unit )</ID>
+    <ID>LongParameterList:MainViewModel.kt$MainViewModel$( private val navigation: Navigation, private val sportiduinoHelper: SportiduinoHelper, private val serviceController: CompetitionServiceController, private val workoutTrackingController: WorkoutTrackingController, private val scanEventRepository: CompetitionScanEventRepository, private val startAlertRepository: CompetitionStartAlertRepository, private val resultConflictRepository: ResultConflictRepository, private val networkErrorRepository: NetworkErrorRepository, private val loadingRepository: LoadingRepository, private val onboardingRequestRepository: OnboardingRequestRepository )</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$10</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$1000</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$200</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$2000</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$3</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$4</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$5</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$60</ID>
+    <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$900</ID>
+    <ID>MagicNumber:MainActivity.kt$100f</ID>
+    <ID>MagicNumber:MainActivity.kt$10f</ID>
+    <ID>MagicNumber:MainActivity.kt$11f</ID>
+    <ID>MagicNumber:MainActivity.kt$401</ID>
+    <ID>MagicNumber:MainViewModel.kt$MainViewModel$3000</ID>
+    <ID>MagicNumber:MainViewModel.kt$MainViewModel$4000</ID>
+    <ID>MagicNumber:MainViewModel.kt$MainViewModel$5000</ID>
+    <ID>MagicNumber:ResultConflictBottomSheet.kt$1.2f</ID>
+    <ID>MagicNumber:ResultConflictBottomSheet.kt$1000</ID>
+    <ID>MagicNumber:ResultConflictBottomSheet.kt$3600</ID>
+    <ID>MagicNumber:ResultConflictBottomSheet.kt$60</ID>
+    <ID>MagicNumber:SplashScreen.kt$0.9f</ID>
+    <ID>MagicNumber:SplashScreen.kt$0xFFE54B0A</ID>
+    <ID>MagicNumber:SplashScreen.kt$0xFFFF9A3D</ID>
+    <ID>MagicNumber:SplashScreen.kt$0xFFFFD37A</ID>
+    <ID>MagicNumber:WorkoutTrackingService.kt$WorkoutTrackingService$1000</ID>
+    <ID>MagicNumber:WorkoutTrackingService.kt$WorkoutTrackingService$1000.0</ID>
+    <ID>MagicNumber:WorkoutTrackingService.kt$WorkoutTrackingService$1000L</ID>
+    <ID>MagicNumber:WorkoutTrackingService.kt$WorkoutTrackingService$60</ID>
+    <ID>MatchingDeclarationName:FcmTokenRegistry.kt$FcmTokenRegistryImpl : FcmTokenRegistry</ID>
+    <ID>MaxLineLength:CompetraApp.kt$CompetraApp$modules(mainModule, centerModule, eventsModule, eventDetailsModule, profileModule, onboardingModule, diaryModule)</ID>
+    <ID>MaxLineLength:FcmTokenWorker.kt$FcmTokenWorker$Log.e(TAG, "Server rejected FCM token registration: ${t.message?.ifBlank { "&lt;empty body&gt;" } ?: t.javaClass.simpleName}", t)</ID>
+    <ID>MaxLineLength:WorkoutTrackingService.kt$WorkoutTrackingService$val sport = intent?.getStringExtra(EXTRA_SPORT_TYPE)?.let { runCatching { SportType.valueOf(it) }.getOrNull() }</ID>
+    <ID>NestedBlockDepth:CompetitionForegroundService.kt$CompetitionForegroundService$private suspend fun CoroutineScope.monitorParticipants( participants: List&lt;OrienteeringParticipant&gt; )</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.app.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:Theme.kt$com.competra.app.ui.theme.Theme.kt</ID>
+    <ID>NewLineAtEndOfFile:mainModule.kt$com.competra.app.di.mainModule.kt</ID>
+    <ID>ReturnCount:FcmTokenWorker.kt$FcmTokenWorker$override suspend fun doWork(): Result</ID>
+    <ID>TooGenericExceptionCaught:FcmTokenWorker.kt$FcmTokenWorker$e: Exception</ID>
+    <ID>TooManyFunctions:CompetitionForegroundService.kt$CompetitionForegroundService : Service</ID>
+    <ID>TooManyFunctions:WorkoutTrackingService.kt$WorkoutTrackingService : Service</ID>
+    <ID>UnusedPrivateMember:ResultConflictBottomSheet.kt$@Preview(showBackground = true) @Composable private fun ResultConflictBottomSheetPreview()</ID>
+    <ID>UnusedPrivateProperty:MainActivity.kt$MainActivity$private val nfcPendingIntent: PendingIntent by lazy { PendingIntent.getActivity( this, 0, Intent( this, this.javaClass ).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_MUTABLE ) }</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

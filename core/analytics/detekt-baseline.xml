@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:AnalyticsScreen.kt$AnalyticsScreen.Companion$fun fromRoute(route: String?): AnalyticsScreen?</ID>
+    <ID>FunctionNaming:NavTracking.kt$@Composable fun TrackNavScreens( navController: NavController, tracker: AnalyticsTracker, )</ID>
+  </CurrentIssues>
+</SmellBaseline>

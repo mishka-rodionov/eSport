@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.data.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:ProfileNavigation.kt$com.competra.data.navigation.ProfileNavigation.kt</ID>
+    <ID>NewLineAtEndOfFile:navigationModule.kt$com.competra.data.navigation.di.navigationModule.kt</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

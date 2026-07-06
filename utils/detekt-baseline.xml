@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:ResultFormatter.kt$1000</ID>
+    <ID>MagicNumber:ResultFormatter.kt$3600</ID>
+    <ID>MagicNumber:ResultFormatter.kt$60</ID>
+    <ID>NewLineAtEndOfFile:EventsConstants.kt$com.competra.utils.constants.EventsConstants.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.competra.utils.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:ProfileConstants.kt$com.competra.utils.constants.ProfileConstants.kt</ID>
+    <ID>NewLineAtEndOfFile:ResultFormatter.kt$com.competra.utils.orienteering.ResultFormatter.kt</ID>
+    <ID>SwallowedException:DateTimeFormat.kt$DateTimeFormat$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DateTimeFormat.kt$DateTimeFormat$e: Exception</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
