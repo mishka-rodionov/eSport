@@ -11,6 +11,9 @@ data class ParticipantGroup(
     val maxAge: Int? = null,
     val distanceId: Long,                  // ссылка на дистанцию
     val maxParticipants: Int? = null,      // лимит для группы
+    val timeLimitMinutes: Int? = null,         // лимит времени для формата "по выбору" (BY_CHOICE)
+    val scorePenaltyPerMinute: Int? = null,    // штраф в очках за минуту опоздания сверх лимита
+    val maxLatenessMinutes: Int? = null,       // порог сильного опоздания → результат обнуляется
     // Поля синхронизации
     val remoteId: Long? = null,          // ID группы на сервере (null = не синхронизирована)
     val isSynced: Boolean = false,

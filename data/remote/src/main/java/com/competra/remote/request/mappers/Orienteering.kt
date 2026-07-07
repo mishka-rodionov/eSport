@@ -40,6 +40,9 @@ fun ParticipantGroup.toRequest(): ParticipantGroupRequest {
         maxAge = maxAge,
         distanceId = distanceId,
         maxParticipants = maxParticipants,
+        timeLimitMinutes = timeLimitMinutes,
+        scorePenaltyPerMinute = scorePenaltyPerMinute,
+        maxLatenessMinutes = maxLatenessMinutes,
         serverUpdatedAt = serverUpdatedAt
     )
 }
@@ -98,6 +101,8 @@ fun OrienteeringResult.toRequest(): OrienteeringResultRequest {
         rank = rank,
         status = status.name,
         penaltyTime = penaltyTime,
+        totalScore = totalScore,
+        scorePenalty = scorePenalty,
         splits = splits?.map { SplitTimeRequest(it.controlPoint, it.timestamp) },
         isEditable = isEditable,
         isEdited = isEdited,

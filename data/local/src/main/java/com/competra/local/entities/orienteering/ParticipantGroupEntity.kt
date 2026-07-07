@@ -21,7 +21,9 @@ import com.competra.local.converters.UserConverter
  * @property title Название группы (например, "М21", "Ж16", "Open")
  * @property distance Длина дистанции в километрах
  * @property countOfControls Количество контрольных пунктов (КП) на дистанции
- * @property maxTimeInMinute Максимальное время прохождения дистанции в минутах (контрольное время)
+ * @property timeLimitMinutes Лимит времени для формата "по выбору" (BY_CHOICE), в минутах
+ * @property scorePenaltyPerMinute Штраф в очках за минуту опоздания сверх лимита (BY_CHOICE)
+ * @property maxLatenessMinutes Порог сильного опоздания, после которого результат обнуляется (BY_CHOICE)
  * @property controlPoints Список контрольных пунктов с их координатами и порядком прохождения
  */
 @Entity(
@@ -47,6 +49,9 @@ data class ParticipantGroupEntity(
     val maxAge: Int? = null,
     val distanceId: Long,                  // ссылка на дистанцию
     val maxParticipants: Int? = null,      // лимит для группы
+    val timeLimitMinutes: Int? = null,         // лимит времени для формата "по выбору" (BY_CHOICE)
+    val scorePenaltyPerMinute: Int? = null,    // штраф в очках за минуту опоздания сверх лимита
+    val maxLatenessMinutes: Int? = null,       // порог сильного опоздания → результат обнуляется
     // Поля синхронизации
     val remoteId: Long? = null,            // ID группы на сервере
     val isSynced: Boolean = false,

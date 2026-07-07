@@ -9,10 +9,12 @@ import com.competra.center.data.read_card.CheckResult
 import com.competra.center.data.read_card.OrientReadCardState
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.getArguments
+import com.competra.domain.models.ParticipantGroup
 import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.ControlPoint
 import com.competra.domain.models.orienteering.ControlPointRole
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ReadChipData
@@ -26,6 +28,7 @@ import com.competra.ui.viewmodel.BaseViewModel
 import com.competra.utils.constants.EventsConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.ceil
 
 class OrientReadCardViewModel(
     private val sportiduinoHelper: SportiduinoHelper,
@@ -78,7 +81,7 @@ class OrientReadCardViewModel(
         val rawSplits = stateValue.rawSplits ?: return
         if (rawSplits.isEmpty()) return
         val expected = getExpectedControlPoints(participant.groupId)
-        val checkResult = checkControlPointOrderPro(expected, rawSplits)
+        val checkResult = computeCheckResult(participant.groupId, participant.startTime, expected, rawSplits)
         val lastValidPunch = checkResult.validSplits.lastOrNull() ?: rawSplits.last()
         val finishTime = lastValidPunch.timestamp
         val totalTime = (finishTime - participant.startTime) / 1000L
@@ -92,6 +95,8 @@ class OrientReadCardViewModel(
             rank = -1,
             status = checkResult.status,
             penaltyTime = 0,
+            totalScore = checkResult.totalScore,
+            scorePenalty = checkResult.scorePenalty,
             splits = checkResult.validSplits,
             isEdited = true
         )
@@ -121,6 +126,9 @@ class OrientReadCardViewModel(
                 val competition = orienteeringCompetitionInteractor.getCompetition(id)
                 if (competition?.competition?.status == CompetitionStatus.FINISHED) {
                     updateState { copy(isCompetitionFinished = true) }
+                }
+                competition?.direction?.let { direction ->
+                    updateState { copy(competitionDirection = direction) }
                 }
             }
             sportiduinoHelper.subscribeToReadCard { chipData ->
@@ -187,7 +195,9 @@ class OrientReadCardViewModel(
         val expected = getExpectedControlPoints(participant.groupId)
         Log.d("LOG_TAG", "computeParticipantResult: $expected")
         val expectedCpNumbers = expected.map { it.number }
-        val result = checkControlPointOrderPro(
+        val result = computeCheckResult(
+            groupId = participant.groupId,
+            startTime = participant.startTime,
             expected = expected,
             actual = splits
         )
@@ -222,6 +232,8 @@ class OrientReadCardViewModel(
             rank = -1,
             status = result.status,
             penaltyTime = 0,
+            totalScore = result.totalScore,
+            scorePenalty = result.scorePenalty,
             splits = if (result.status == ResultStatus.DSQ) rawSplits else result.validSplits
         )
 
@@ -289,7 +301,7 @@ class OrientReadCardViewModel(
         val rawSplits = stateValue.rawSplits ?: return
         if (rawSplits.isEmpty()) return
         val expected = getExpectedControlPoints(participant.groupId)
-        val checkResult = checkControlPointOrderPro(expected, rawSplits)
+        val checkResult = computeCheckResult(participant.groupId, participant.startTime, expected, rawSplits)
         val lastValidPunch = checkResult.validSplits.lastOrNull() ?: rawSplits.last()
         val finishTime = lastValidPunch.timestamp
         val totalTime = (finishTime - participant.startTime) / 1000L
@@ -303,6 +315,8 @@ class OrientReadCardViewModel(
             rank = -1,
             status = checkResult.status,
             penaltyTime = 0,
+            totalScore = checkResult.totalScore,
+            scorePenalty = checkResult.scorePenalty,
             splits = if (checkResult.status == ResultStatus.DSQ) rawSplits else checkResult.validSplits,
             isEdited = true,
         )
@@ -330,6 +344,21 @@ class OrientReadCardViewModel(
             refreshGroupRank(participant)
         }
         updateState { copy(isPendingSave = false) }
+    }
+
+    /** Выбирает алгоритм проверки отметок в зависимости от формата соревнования. */
+    private suspend fun computeCheckResult(
+        groupId: Long,
+        startTime: Long,
+        expected: List<ControlPoint>,
+        actual: List<SplitTime>
+    ): CheckResult {
+        if (stateValue.competitionDirection != OrienteeringDirection.BY_CHOICE) {
+            return checkControlPointOrderPro(expected, actual)
+        }
+        val group = orienteeringCompetitionInteractor.getParticipantGroup(groupId).getOrNull()
+            ?: return CheckResult(ResultStatus.DSQ, "Группа участника не найдена")
+        return computeByChoiceResult(expected, actual, startTime, group)
     }
 
     fun checkControlPointOrderPro(
@@ -379,4 +408,72 @@ class OrientReadCardViewModel(
         )
     }
 
+}
+
+/**
+ * Проверка отметок для формата «по выбору» (score-О): порядок взятия КП не важен,
+ * повторные отметки одного КП засчитываются один раз, обязательные (REQUIRED) КП должны
+ * быть взяты все — иначе DSQ. Результат — сумма баллов за минусом штрафа за опоздание
+ * сверх лимита времени группы; при превышении порога сильного опоздания баллы обнуляются.
+ *
+ * Вынесена в top-level функцию (а не метод [OrientReadCardViewModel]), т.к. не использует
+ * состояние ViewModel — это упрощает unit-тестирование без мокирования зависимостей.
+ */
+fun computeByChoiceResult(
+    expected: List<ControlPoint>,
+    actual: List<SplitTime>,
+    startTime: Long,
+    group: ParticipantGroup
+): CheckResult {
+    if (expected.isEmpty()) {
+        return CheckResult(ResultStatus.DSQ, "Для группы не заданы КП")
+    }
+    if (actual.isEmpty()) {
+        return CheckResult(ResultStatus.DSQ, "В чипе нет отметок")
+    }
+
+    val expectedNumbers = expected.map { it.number }.toSet()
+    val dedupedSplits = actual
+        .sortedBy { it.timestamp }
+        .distinctBy { it.controlPoint }
+        .filter { it.controlPoint in expectedNumbers }
+
+    val requiredNumbers = expected.filter { it.role == ControlPointRole.REQUIRED }.map { it.number }
+    val takenNumbers = dedupedSplits.map { it.controlPoint }.toSet()
+    val missingRequired = requiredNumbers.firstOrNull { it !in takenNumbers }
+    if (missingRequired != null) {
+        return CheckResult(ResultStatus.DSQ, "Пропущен обязательный КП $missingRequired")
+    }
+
+    val scoreByNumber = expected.associate { it.number to it.score }
+    val rawScore = dedupedSplits.sumOf { scoreByNumber[it.controlPoint] ?: 0 }
+
+    val lastPunch = dedupedSplits.lastOrNull() ?: actual.last()
+    val totalTimeSeconds = (lastPunch.timestamp - startTime) / 1000L
+
+    val timeLimitMinutes = group.timeLimitMinutes
+    var scorePenalty = 0
+    var finalScore = rawScore
+
+    if (timeLimitMinutes != null) {
+        val lateSeconds = totalTimeSeconds - timeLimitMinutes * 60L
+        val lateMinutes = if (lateSeconds > 0) ceil(lateSeconds / 60.0).toInt() else 0
+
+        if (lateMinutes > 0) {
+            scorePenalty = lateMinutes * (group.scorePenaltyPerMinute ?: 0)
+            finalScore = (rawScore - scorePenalty).coerceAtLeast(0)
+        }
+
+        val maxLateness = group.maxLatenessMinutes
+        if (maxLateness != null && lateMinutes > maxLateness) {
+            finalScore = 0
+        }
+    }
+
+    return CheckResult(
+        status = ResultStatus.FINISHED,
+        validSplits = dedupedSplits,
+        totalScore = finalScore,
+        scorePenalty = scorePenalty
+    )
 }

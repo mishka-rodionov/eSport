@@ -6,5 +6,7 @@ import com.competra.domain.models.orienteering.SplitTime
 data class CheckResult(
     val status: ResultStatus,
     val message: String? = null,
-    val validSplits: List<SplitTime> = emptyList()
+    val validSplits: List<SplitTime> = emptyList(),
+    val totalScore: Int? = null,
+    val scorePenalty: Int = 0
 )

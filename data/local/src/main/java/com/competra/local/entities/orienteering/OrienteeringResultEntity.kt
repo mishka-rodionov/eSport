@@ -65,6 +65,8 @@ data class OrienteeringResultEntity(
     val rank: Int? = null,
     val status: ResultStatus,
     val penaltyTime: Long = 0,
+    val totalScore: Int? = null,
+    val scorePenalty: Int = 0,
     val splits: List<SplitTime>? = null,
     val isEditable: Boolean = true,
     val isEdited: Boolean = false,

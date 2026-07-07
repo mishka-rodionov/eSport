@@ -11,6 +11,7 @@ import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.Distance
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.StartTimeMode
 import com.competra.domain.repository.orienteering.OrienteeringCompetitionLocalRepository
 import com.competra.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
@@ -401,23 +402,46 @@ class OrienteeringCompetitionInteractor(
     }
 
     /**
-     * Альтернативная версия с использованием groupBy для более компактной обработки
+     * Пересчитывает места с учётом формата соревнования: для BY_CHOICE (score-О) — по сумме
+     * баллов убыв. с тай-брейком по времени финиша, для остальных направлений — как раньше,
+     * по общему времени с учётом штрафа (возрастание).
      */
-    fun recalculateRanksV2(results: List<OrienteeringResult>): List<OrienteeringResult> {
+    fun recalculateRanksV2(
+        results: List<OrienteeringResult>,
+        direction: OrienteeringDirection = OrienteeringDirection.FORWARD
+    ): List<OrienteeringResult> {
         val (finished, others) = results.partition { it.status == ResultStatus.FINISHED }
 
         if (finished.isEmpty()) return results
 
-        // Группируем по общему времени и сортируем группы
-        val resultsByTime = finished
-            .groupBy { (it.totalTime ?: Long.MAX_VALUE) + it.penaltyTime }
-            .toSortedMap()
+        val sortedFinished = if (direction == OrienteeringDirection.BY_CHOICE) {
+            finished.sortedWith(
+                compareByDescending<OrienteeringResult> { it.totalScore ?: 0 }
+                    .thenBy { it.finishTime ?: Long.MAX_VALUE }
+            )
+        } else {
+            finished.sortedBy { (it.totalTime ?: Long.MAX_VALUE) + it.penaltyTime }
+        }
+
+        fun rankKey(result: OrienteeringResult): Any = if (direction == OrienteeringDirection.BY_CHOICE) {
+            result.totalScore ?: 0
+        } else {
+            (result.totalTime ?: Long.MAX_VALUE) + result.penaltyTime
+        }
 
         var rank = 1
-        val rankedFinished = resultsByTime.flatMap { (_, groupResults) ->
-            groupResults.map { result ->
-                result.copy(rank = rank)
-            }.also { rank += groupResults.size }
+        var prevKey: Any? = null
+        var skipCount = 0
+
+        val rankedFinished = sortedFinished.mapIndexed { index, result ->
+            val key = rankKey(result)
+            if (prevKey != null && key == prevKey) {
+                skipCount++
+            } else {
+                rank = index + 1 - skipCount
+                prevKey = key
+            }
+            result.copy(rank = rank)
         }
 
         return rankedFinished + others
@@ -426,8 +450,10 @@ class OrienteeringCompetitionInteractor(
     /**
      * Расширение для списка OrienteeringResult - обновляет ранги и возвращает отсортированный список
      */
-    fun List<OrienteeringResult>.withRecalculatedRanks(): List<OrienteeringResult> {
-        return recalculateRanksV2(this).sortedBy { it.rank ?: Int.MAX_VALUE }
+    fun List<OrienteeringResult>.withRecalculatedRanks(
+        direction: OrienteeringDirection = OrienteeringDirection.FORWARD
+    ): List<OrienteeringResult> {
+        return recalculateRanksV2(this, direction).sortedBy { it.rank ?: Int.MAX_VALUE }
     }
 
     /**
@@ -445,8 +471,11 @@ class OrienteeringCompetitionInteractor(
         // Объединяем с новыми
         val allResults = (currentResults + newResults).distinctBy { it.participantId }
 
+        val direction = localRepository.getCompetition(newResults.competitionId).getOrNull()?.direction
+            ?: OrienteeringDirection.FORWARD
+
         // Пересчитываем места
-        val updatedResults = allResults.withRecalculatedRanks()
+        val updatedResults = allResults.withRecalculatedRanks(direction)
 
         // Сохраняем обновленные результаты
         localRepository.updateResults(updatedResults)
@@ -494,7 +523,9 @@ class OrienteeringCompetitionInteractor(
             val affectedGroups = results.map { it.competitionId to it.groupId }.distinct()
             affectedGroups.forEach { (competitionId, groupId) ->
                 val currentResults = localRepository.getResultForGroup(competitionId, groupId).getOrNull() ?: emptyList()
-                localRepository.updateResults(currentResults.withRecalculatedRanks())
+                val direction = localRepository.getCompetition(competitionId).getOrNull()?.direction
+                    ?: OrienteeringDirection.FORWARD
+                localRepository.updateResults(currentResults.withRecalculatedRanks(direction))
             }
             touch()
         }

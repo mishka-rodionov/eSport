@@ -2,10 +2,11 @@ package com.competra.eventdetails.presentation.live_results
 
 import androidx.lifecycle.viewModelScope
 import com.competra.domain.models.ParticipantGroup
-import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.ParticipantWithResult
+import com.competra.domain.models.orienteering.sortedForResults
 import com.competra.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
 import com.competra.ui.BaseAction
 import com.competra.ui.BaseState
@@ -21,7 +22,8 @@ data class LiveResultsState(
     val groupsWithResults: List<GroupWithParticipantsAndResults> = emptyList(),
     val isLoading: Boolean = true,
     val lastUpdated: Long? = null,
-    val selectedParticipant: ParticipantWithResult? = null
+    val selectedParticipant: ParticipantWithResult? = null,
+    val direction: OrienteeringDirection = OrienteeringDirection.FORWARD
 ) : BaseState
 
 sealed interface LiveResultsAction : BaseAction {
@@ -54,6 +56,9 @@ class LiveResultsViewModel(
     }
 
     private suspend fun loadResults(eventId: String) {
+        val competitionDeferred = viewModelScope.async(Dispatchers.IO) {
+            remoteRepository.getCompetitionById(eventId).getOrNull()
+        }
         val groupsDeferred = viewModelScope.async(Dispatchers.IO) {
             remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList()
         }
@@ -64,6 +69,7 @@ class LiveResultsViewModel(
             remoteRepository.getResultsByCompetition(eventId).getOrNull() ?: emptyList()
         }
 
+        val direction = competitionDeferred.await()?.direction ?: OrienteeringDirection.FORWARD
         val groups = groupsDeferred.await()
         val participants = participantsDeferred.await()
         val results = resultsDeferred.await()
@@ -78,12 +84,7 @@ class LiveResultsViewModel(
                     participant = participant,
                     result = resultsByParticipant[participant.id]
                 )
-            }.sortedWith(
-                compareBy(
-                    { statusSortOrder(it.result?.status) },
-                    { it.result?.totalTime ?: Long.MAX_VALUE }
-                )
-            )
+            }.sortedForResults(direction)
             GroupWithParticipantsAndResults(group = group, participants = participantsWithResults)
         }
 
@@ -91,18 +92,9 @@ class LiveResultsViewModel(
             copy(
                 groupsWithResults = groupsWithResults,
                 isLoading = false,
-                lastUpdated = System.currentTimeMillis()
+                lastUpdated = System.currentTimeMillis(),
+                direction = direction
             )
         }
-    }
-
-    private fun statusSortOrder(status: ResultStatus?): Int = when (status) {
-        ResultStatus.FINISHED -> 0
-        ResultStatus.DSQ -> 1
-        ResultStatus.DNF -> 2
-        ResultStatus.DNS -> 3
-        ResultStatus.STARTED -> 4
-        ResultStatus.REGISTERED -> 5
-        null -> 9
     }
 }

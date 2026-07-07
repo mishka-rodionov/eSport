@@ -284,3 +284,18 @@ val MIGRATION_45_46 = object : Migration(45, 46) {
         db.execSQL("ALTER TABLE workouts ADD COLUMN trackEncoded TEXT")
     }
 }
+
+/**
+ * Миграция с версии 46 на 47.
+ * Добавляет поддержку формата "по выбору" (score-О): лимит времени, штраф за минуту опоздания
+ * и порог сильного опоздания у группы участников; сумму баллов и штраф в очках у результата.
+ */
+val MIGRATION_46_47 = object : Migration(46, 47) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE participant_groups ADD COLUMN timeLimitMinutes INTEGER")
+        db.execSQL("ALTER TABLE participant_groups ADD COLUMN scorePenaltyPerMinute INTEGER")
+        db.execSQL("ALTER TABLE participant_groups ADD COLUMN maxLatenessMinutes INTEGER")
+        db.execSQL("ALTER TABLE orienteering_results ADD COLUMN totalScore INTEGER")
+        db.execSQL("ALTER TABLE orienteering_results ADD COLUMN scorePenalty INTEGER NOT NULL DEFAULT 0")
+    }
+}

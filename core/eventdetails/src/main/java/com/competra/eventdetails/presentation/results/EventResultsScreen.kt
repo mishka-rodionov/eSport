@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.competra.designsystem.components.clickRipple
 import com.competra.domain.models.ResultStatus
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
@@ -136,6 +137,7 @@ fun EventResultsScreen(
                         }
                         ResultsList(
                             participants = groups[page].participants,
+                            direction = state.direction,
                             onParticipantClick = { viewModel.onAction(EventResultsAction.ShowSplits(it)) }
                         )
                     }
@@ -160,6 +162,7 @@ fun EventResultsScreen(
 @Composable
 private fun ResultsList(
     participants: List<ParticipantWithResult>,
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
     onParticipantClick: (ParticipantWithResult) -> Unit
 ) {
     LazyColumn(
@@ -171,7 +174,7 @@ private fun ResultsList(
             ResultsHeader()
         }
         items(participants) { item ->
-            ResultItem(item = item, onClick = { onParticipantClick(item) })
+            ResultItem(item = item, direction = direction, onClick = { onParticipantClick(item) })
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         }
     }
@@ -200,7 +203,11 @@ private fun ResultsHeader() {
  * @param item Данные участника и его результата.
  */
 @Composable
-private fun ResultItem(item: ParticipantWithResult, onClick: () -> Unit) {
+private fun ResultItem(
+    item: ParticipantWithResult,
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -216,7 +223,7 @@ private fun ResultItem(item: ParticipantWithResult, onClick: () -> Unit) {
             modifier = Modifier.weight(0.5f)
         )
         Text(
-            text = formatResultTime(item.result),
+            text = formatResultTime(item.result, direction),
             modifier = Modifier.weight(0.3f)
         )
         Text(

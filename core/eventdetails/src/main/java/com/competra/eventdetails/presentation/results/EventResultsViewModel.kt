@@ -6,6 +6,7 @@ import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.EventsNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.domain.models.orienteering.sortedForResults
 import com.competra.domain.repository.orienteering.OrienteeringCompetitionRemoteRepository
@@ -19,7 +20,8 @@ import kotlinx.coroutines.launch
 data class EventResultsState(
     val isLoading: Boolean = true,
     val groupsWithResults: List<GroupWithParticipantsAndResults> = emptyList(),
-    val selectedParticipant: ParticipantWithResult? = null
+    val selectedParticipant: ParticipantWithResult? = null,
+    val direction: OrienteeringDirection = OrienteeringDirection.FORWARD
 ) : BaseState
 
 sealed interface EventResultsAction : BaseAction {
@@ -61,10 +63,12 @@ class EventResultsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             updateState { copy(isLoading = true) }
 
+            val competitionDeferred = async { remoteRepository.getCompetitionById(eventId).getOrNull() }
             val groupsDeferred = async { remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList() }
             val participantsDeferred = async { remoteRepository.getParticipantsForCompetition(eventId).getOrNull() ?: emptyList() }
             val resultsDeferred = async { remoteRepository.getResultsByCompetition(eventId).getOrNull() ?: emptyList() }
 
+            val direction = competitionDeferred.await()?.direction ?: OrienteeringDirection.FORWARD
             val groups = groupsDeferred.await()
             val participants = participantsDeferred.await()
             val results = resultsDeferred.await()
@@ -79,11 +83,11 @@ class EventResultsViewModel(
                         participant = participant,
                         result = resultsByParticipant[participant.id]
                     )
-                }.sortedForResults()
+                }.sortedForResults(direction)
                 GroupWithParticipantsAndResults(group = group, participants = participantsWithResults)
             }
 
-            updateState { copy(isLoading = false, groupsWithResults = groupsWithResults) }
+            updateState { copy(isLoading = false, groupsWithResults = groupsWithResults, direction = direction) }
         }
     }
 }

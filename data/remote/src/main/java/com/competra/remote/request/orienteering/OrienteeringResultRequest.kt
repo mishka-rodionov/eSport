@@ -11,6 +11,8 @@ data class OrienteeringResultRequest(
     val rank: Int?,
     val status: String,
     val penaltyTime: Long,
+    val totalScore: Int? = null,
+    val scorePenalty: Int = 0,
     val splits: List<SplitTimeRequest>?,
     val isEditable: Boolean,
     val isEdited: Boolean,

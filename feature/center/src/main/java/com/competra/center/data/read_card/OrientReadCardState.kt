@@ -1,5 +1,6 @@
 package com.competra.center.data.read_card
 
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.SplitTime
@@ -10,6 +11,8 @@ data class OrientReadCardState(
     val participantResult: OrienteeringResult? = null,
     val rawSplits: List<SplitTime>? = null,
     val isCompetitionFinished: Boolean = false,
+    /** Формат соревнования (FORWARD/BY_CHOICE/MARKING) — определяет алгоритм проверки отметок. */
+    val competitionDirection: OrienteeringDirection = OrienteeringDirection.FORWARD,
     val editingSplitIndex: Int? = null,
     val groupRank: Int? = null,
     val groupTotalFinished: Int = 0,

@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.ResultStatus
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
@@ -28,10 +29,22 @@ import com.competra.domain.models.orienteering.SplitTime
 import com.competra.utils.orienteering.toRaceTime
 import com.competra.utils.orienteering.toSplitTime
 
-internal fun formatResultTime(result: OrienteeringResult?): String {
+/**
+ * Форматирует результат участника для отображения в протоколе: для BY_CHOICE (score-О)
+ * показывает сумму баллов (со штрафом за опоздание в скобках, если он есть) вместо времени.
+ */
+internal fun formatResultTime(
+    result: OrienteeringResult?,
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD
+): String {
     if (result == null) return "—"
     return when (result.status) {
-        ResultStatus.FINISHED -> result.totalTime?.toRaceTime() ?: "—"
+        ResultStatus.FINISHED -> if (direction == OrienteeringDirection.BY_CHOICE) {
+            val score = result.totalScore ?: 0
+            if (result.scorePenalty > 0) "$score очков (-${result.scorePenalty})" else "$score очков"
+        } else {
+            result.totalTime?.toRaceTime() ?: "—"
+        }
         ResultStatus.DSQ -> "DSQ"
         ResultStatus.DNF -> "DNF"
         ResultStatus.DNS -> "DNS"

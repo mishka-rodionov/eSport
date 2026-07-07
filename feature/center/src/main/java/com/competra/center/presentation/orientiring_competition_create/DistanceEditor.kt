@@ -36,7 +36,9 @@ import com.competra.designsystem.theme.Dimens
 import com.competra.center.data.creator.OrienteeringCreatorAction
 import com.competra.center.data.creator.OrienteeringCreatorState
 import com.competra.domain.models.orienteering.ControlPoint
+import com.competra.domain.models.orienteering.ControlPointRole
 import com.competra.domain.models.orienteering.Distance
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.PunchingSystem
 import com.competra.resources.R
 
@@ -68,8 +70,9 @@ fun DistanceEditor(
         )
     }
     var controlPointsList by remember {
-        mutableStateOf<List<Int>>(initialDistance?.controlPoints?.map { it.number }.orEmpty())
+        mutableStateOf<List<ControlPoint>>(initialDistance?.controlPoints.orEmpty())
     }
+    val isByChoice = state.competitionDirection == OrienteeringDirection.BY_CHOICE
     var currentInput by remember { mutableStateOf("") }
     var finishCpInput by remember {
         mutableStateOf(initialDistance?.finishControlPoint?.toString() ?: "")
@@ -102,9 +105,13 @@ fun DistanceEditor(
     val addCurrentInput: () -> Unit = {
         val number = currentInput.trim().toIntOrNull()
         if (number != null) {
-            controlPointsList = controlPointsList + number
+            controlPointsList = controlPointsList + ControlPoint(number = number)
             currentInput = ""
         }
+    }
+
+    val updateControlPoint: (Int, ControlPoint) -> Unit = { index, updated ->
+        controlPointsList = controlPointsList.toMutableList().also { it[index] = updated }
     }
 
     val focusManager = LocalFocusManager.current
@@ -223,35 +230,93 @@ fun DistanceEditor(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = Dimens.SIZE_QUARTER.dp, bottom = Dimens.SIZE_QUARTER.dp)
                 )
-                FieldDescription("Номера КП в порядке прохождения по дистанции")
+                FieldDescription(
+                    if (isByChoice) {
+                        "Набор КП дистанции. Порядок взятия участник выбирает сам"
+                    } else {
+                        "Номера КП в порядке прохождения по дистанции"
+                    }
+                )
 
                 if (controlPointsList.isNotEmpty()) {
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp),
-                        verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp)
-                    ) {
-                        controlPointsList.forEachIndexed { index, cpNumber ->
-                            InputChip(
-                                selected = false,
-                                onClick = { /* no-op */ },
-                                label = { Text(text = cpNumber.toString()) },
-                                trailingIcon = {
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.close_24px),
-                                        contentDescription = "Удалить КП $cpNumber",
-                                        modifier = Modifier
-                                            .size(Dimens.SIZE_BASE.dp)
-                                            .clickable {
-                                                controlPointsList = controlPointsList.toMutableList()
-                                                    .also { it.removeAt(index) }
-                                            }
+                    if (isByChoice) {
+                        Column(verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp)) {
+                            controlPointsList.forEachIndexed { index, cp ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp)
+                                ) {
+                                    Text(
+                                        text = cp.number.toString(),
+                                        modifier = Modifier.width(40.dp)
                                     )
+                                    DSTextInput(
+                                        modifier = Modifier.width(90.dp),
+                                        label = { Text("Баллы") },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        text = cp.score.toString(),
+                                        onValueChanged = { newValue ->
+                                            val score = newValue.filter { it.isDigit() }.toIntOrNull() ?: 0
+                                            updateControlPoint(index, cp.copy(score = score))
+                                        }
+                                    )
+                                    FilterChip(
+                                        selected = cp.role == ControlPointRole.REQUIRED,
+                                        onClick = {
+                                            val newRole = if (cp.role == ControlPointRole.REQUIRED) {
+                                                ControlPointRole.ORDINARY
+                                            } else {
+                                                ControlPointRole.REQUIRED
+                                            }
+                                            updateControlPoint(index, cp.copy(role = newRole))
+                                        },
+                                        label = { Text("Обязательный") }
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            controlPointsList = controlPointsList.toMutableList()
+                                                .also { it.removeAt(index) }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.close_24px),
+                                            contentDescription = "Удалить КП ${cp.number}"
+                                        )
+                                    }
                                 }
-                            )
+                            }
                         }
+                        Spacer(modifier = Modifier.height(Dimens.SIZE_QUARTER.dp))
+                    } else {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp),
+                            verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp)
+                        ) {
+                            controlPointsList.forEachIndexed { index, cp ->
+                                InputChip(
+                                    selected = false,
+                                    onClick = { /* no-op */ },
+                                    label = { Text(text = cp.number.toString()) },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.close_24px),
+                                            contentDescription = "Удалить КП ${cp.number}",
+                                            modifier = Modifier
+                                                .size(Dimens.SIZE_BASE.dp)
+                                                .clickable {
+                                                    controlPointsList = controlPointsList.toMutableList()
+                                                        .also { it.removeAt(index) }
+                                                }
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(Dimens.SIZE_QUARTER.dp))
                     }
-                    Spacer(modifier = Modifier.height(Dimens.SIZE_QUARTER.dp))
                 }
 
                 Row(
@@ -370,7 +435,7 @@ fun DistanceEditor(
                         focusManager.clearFocus()
                         keyboardController?.hide()
 
-                        val points = controlPointsList.map { ControlPoint(number = it) }
+                        val points = controlPointsList
 
                         userAction.invoke(
                             OrienteeringCreatorAction.CreateDistance(

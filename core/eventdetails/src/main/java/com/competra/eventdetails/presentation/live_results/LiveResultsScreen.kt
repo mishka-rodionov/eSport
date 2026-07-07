@@ -32,6 +32,7 @@ import com.competra.domain.models.Gender
 import com.competra.domain.models.ParticipantGroup
 import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
@@ -111,6 +112,7 @@ fun LiveResultsScreen(
                     ) { page ->
                         LiveResultsList(
                             participants = groups[page].participants,
+                            direction = state.direction,
                             onParticipantClick = { viewModel.onAction(LiveResultsAction.ShowSplits(it)) }
                         )
                     }
@@ -170,6 +172,7 @@ private fun LiveResultsHeader(lastUpdated: Long?) {
 @Composable
 private fun LiveResultsList(
     participants: List<ParticipantWithResult>,
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
     onParticipantClick: (ParticipantWithResult) -> Unit
 ) {
     LazyColumn(
@@ -193,6 +196,7 @@ private fun LiveResultsList(
         itemsIndexed(participants) { _, item ->
             LiveResultRow(
                 item = item,
+                direction = direction,
                 onClick = { onParticipantClick(item) }
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -203,6 +207,7 @@ private fun LiveResultsList(
 @Composable
 private fun LiveResultRow(
     item: ParticipantWithResult,
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
     onClick: () -> Unit
 ) {
     Row(
@@ -223,7 +228,7 @@ private fun LiveResultRow(
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
-            text = formatResultTime(item.result),
+            text = formatResultTime(item.result, direction),
             modifier = Modifier.weight(0.25f),
             style = MaterialTheme.typography.bodyMedium,
             color = if (item.result?.status == ResultStatus.FINISHED)

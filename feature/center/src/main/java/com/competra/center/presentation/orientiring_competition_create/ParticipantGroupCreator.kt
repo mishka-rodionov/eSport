@@ -27,6 +27,7 @@ import com.competra.center.data.creator.OrienteeringCreatorAction
 import com.competra.center.data.creator.OrienteeringCreatorState
 import com.competra.domain.models.ParticipantGroup
 import com.competra.domain.models.orienteering.Distance
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.resources.R
 
 /**
@@ -52,7 +53,11 @@ fun ParticipantGroupEditor(
     var maxAge by remember { mutableStateOf(initialGroup?.maxAge?.toString() ?: "") }
     var maxParticipants by remember { mutableStateOf(initialGroup?.maxParticipants?.toString() ?: "") }
     var selectedGender by remember { mutableStateOf(initialGroup?.gender) }
-    
+    val isByChoice = state.competitionDirection == OrienteeringDirection.BY_CHOICE
+    var timeLimitMinutes by remember { mutableStateOf(initialGroup?.timeLimitMinutes?.toString() ?: "") }
+    var scorePenaltyPerMinute by remember { mutableStateOf(initialGroup?.scorePenaltyPerMinute?.toString() ?: "") }
+    var maxLatenessMinutes by remember { mutableStateOf(initialGroup?.maxLatenessMinutes?.toString() ?: "") }
+
     // Выбранная дистанция для группы
     var selectedDistanceId by remember { mutableLongStateOf(initialGroup?.distanceId ?: state.distances.firstOrNull()?.id ?: 0L) }
 
@@ -172,6 +177,51 @@ fun ParticipantGroupEditor(
                     onValueChanged = { maxParticipants = it }
                 )
 
+                if (isByChoice) {
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+                    Text(
+                        text = "Формат \"по выбору\"",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    FieldDescription("Лимит времени и штраф за опоздание для этой группы")
+
+                    DSTextInput(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Лимит времени (мин)") },
+                        supportingText = { Text("Через сколько минут после старта нужно финишировать") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                        text = timeLimitMinutes,
+                        onValueChanged = { timeLimitMinutes = it.filter { c -> c.isDigit() } }
+                    )
+
+                    Spacer(modifier = Modifier.height(Dimens.SIZE_HALF.dp))
+
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DSTextInput(
+                            modifier = Modifier.weight(1f),
+                            label = { Text("Штраф (очки/мин)") },
+                            supportingText = { Text("За каждую минуту опоздания") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                            text = scorePenaltyPerMinute,
+                            onValueChanged = { scorePenaltyPerMinute = it.filter { c -> c.isDigit() } }
+                        )
+
+                        DSTextInput(
+                            modifier = Modifier.weight(1f),
+                            label = { Text("Порог обнуления (мин)") },
+                            supportingText = { Text("Опоздание сверх — результат 0") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                            text = maxLatenessMinutes,
+                            onValueChanged = { maxLatenessMinutes = it.filter { c -> c.isDigit() } }
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
 
                 // Кнопка сохранения
@@ -191,6 +241,9 @@ fun ParticipantGroupEditor(
                                     maxAge = maxAge.toIntOrNull(),
                                     distanceId = selectedDistanceId, // Сохраняем ID выбранной дистанции
                                     maxParticipants = maxParticipants.toIntOrNull(),
+                                    timeLimitMinutes = if (isByChoice) timeLimitMinutes.toIntOrNull() else null,
+                                    scorePenaltyPerMinute = if (isByChoice) scorePenaltyPerMinute.toIntOrNull() else null,
+                                    maxLatenessMinutes = if (isByChoice) maxLatenessMinutes.toIntOrNull() else null,
                                     isSynced = false,
                                     lastModified = System.currentTimeMillis()
                                 ),

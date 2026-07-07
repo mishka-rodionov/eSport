@@ -116,14 +116,28 @@ fun buildSplitsTable(group: GroupWithParticipantsAndResults): SplitsTable {
     return SplitsTable(columns = columns, rows = rows)
 }
 
-/** Сортировка участников для отображения результатов: по статусу, затем по итоговому времени. */
-fun List<ParticipantWithResult>.sortedForResults(): List<ParticipantWithResult> =
-    sortedWith(
-        compareBy(
-            { p -> statusSortOrder(p.result?.status) },
-            { p -> p.result?.totalTime ?: Long.MAX_VALUE },
+/**
+ * Сортировка участников для отображения результатов: по статусу, затем —
+ * для BY_CHOICE (score-О) по сумме баллов убыв. с тай-брейком по времени финиша,
+ * для остальных направлений — по итоговому времени возрастанию (как раньше).
+ */
+fun List<ParticipantWithResult>.sortedForResults(
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD
+): List<ParticipantWithResult> =
+    if (direction == OrienteeringDirection.BY_CHOICE) {
+        sortedWith(
+            compareBy<ParticipantWithResult> { statusSortOrder(it.result?.status) }
+                .thenByDescending { it.result?.totalScore ?: 0 }
+                .thenBy { it.result?.finishTime ?: Long.MAX_VALUE }
         )
-    )
+    } else {
+        sortedWith(
+            compareBy(
+                { p -> statusSortOrder(p.result?.status) },
+                { p -> p.result?.totalTime ?: Long.MAX_VALUE },
+            )
+        )
+    }
 
 private fun statusSortOrder(status: ResultStatus?): Int = when (status) {
     ResultStatus.FINISHED -> 0

@@ -14,7 +14,9 @@ import com.competra.domain.models.ResultStatus
  * @property totalTime Общее время (в секундах).
  * @property rank Место.
  * @property status Статус результата (FINISHED, DSQ, DNS, DNF).
- * @property penaltyTime Штрафное время.
+ * @property penaltyTime Штрафное время в СЕКУНДАХ, добавляется к totalTime (формат FORWARD/MARKING).
+ * @property totalScore Сумма баллов взятых КП (формат BY_CHOICE); null для FORWARD/MARKING.
+ * @property scorePenalty Штраф в ОЧКАХ за опоздание сверх лимита (формат BY_CHOICE), уже вычтен из totalScore.
  * @property splits Сплиты (отметки на КП).
  * @property isEditable Флаг возможности редактирования результата.
  * @property isEdited Флаг того, что результат был изменен вручную.
@@ -30,6 +32,8 @@ data class OrienteeringResult(
     val rank: Int? = null,
     val status: ResultStatus, // FINISHED, DSQ, DNS, DNF
     val penaltyTime: Long = 0, // Штрафное время
+    val totalScore: Int? = null, // Баллы (BY_CHOICE), не путать с penaltyTime/totalTime (сек)
+    val scorePenalty: Int = 0, // Штраф в очках (BY_CHOICE)
     val splits: List<SplitTime>? = null, // Можно хранить как JSON или отдельной таблицей
     val isEditable: Boolean = true,
     val isEdited: Boolean = false,
