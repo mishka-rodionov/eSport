@@ -17,7 +17,7 @@ val baseUrlDebug: String = remoteProps.getProperty("BASE_URL_DEBUG", prodBaseUrl
 
 android {
     namespace = "com.competra.remote"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         minSdk = 26
