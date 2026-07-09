@@ -111,6 +111,7 @@ dependencies {
     implementation(project(":feature:onboarding"))
     implementation(project(":feature:diary"))
     implementation(project(":feature:clubs"))
+    implementation(project(":feature:rating"))
     implementation(project(":core:resources"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:nfchelper"))

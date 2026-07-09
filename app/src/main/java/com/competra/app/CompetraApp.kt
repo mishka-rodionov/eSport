@@ -24,12 +24,14 @@ import com.competra.local.di.localModule
 import com.competra.nfchelper.di.nfcModule
 import com.competra.onboarding.di.onboardingModule
 import com.competra.profile.di.profileModule
+import com.competra.rating.di.ratingModule
 import com.competra.remote.di.authModule
 import com.competra.remote.di.clubsDataModule
 import com.competra.remote.di.deviceModule
 import com.competra.remote.di.diaryDataModule
 import com.competra.remote.di.eventsDataModule
 import com.competra.remote.di.orienteeringModule
+import com.competra.remote.di.ratingDataModule
 import com.competra.remote.di.retrofitModule
 import com.competra.remote.di.uploadModule
 import com.competra.resources.di.resourceModule
@@ -75,13 +77,13 @@ class CompetraApp : Application(), Configuration.Provider {
             // data modules
             modules(
                 authModule, orienteeringModule, eventsDataModule, uploadModule, deviceModule, diaryDataModule,
-                clubsDataModule
+                clubsDataModule, ratingDataModule
             )
 
             // feature modules
             modules(
                 mainModule, centerModule, eventsModule, eventDetailsModule, profileModule, onboardingModule,
-                diaryModule, clubsModule
+                diaryModule, clubsModule, ratingModule
             )
 
             // firebase

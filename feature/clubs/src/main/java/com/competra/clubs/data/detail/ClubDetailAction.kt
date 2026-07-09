@@ -24,6 +24,7 @@ sealed class ClubDetailAction : BaseAction {
     data object ConfirmDelete : ClubDetailAction()
 
     data object OpenJoinRequests : ClubDetailAction()
+    data object OpenRatings : ClubDetailAction()
 
     data class TeamClick(val teamId: String) : ClubDetailAction()
     data object OpenCreateTeamDialog : ClubDetailAction()

@@ -75,6 +75,12 @@ fun ClubDetailScreen(clubId: String, viewModel: ClubDetailViewModel = koinViewMo
                     }
                 },
                 actions = {
+                    IconButton(onClick = { viewModel.onAction(ClubDetailAction.OpenRatings) }) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_star_24px),
+                            contentDescription = stringResource(R.string.club_detail_ratings_action)
+                        )
+                    }
                     if (state.isAdmin) {
                         IconButton(onClick = { viewModel.onAction(ClubDetailAction.OpenJoinRequests) }) {
                             Icon(

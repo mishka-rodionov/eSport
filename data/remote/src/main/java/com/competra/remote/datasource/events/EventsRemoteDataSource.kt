@@ -16,7 +16,8 @@ interface EventsRemoteDataSource {
         @Query("date_to") dateTo: Long? = null,
         @Query("includeTest") includeTest: Boolean = false,
         @Query("page") page: Int = 0,
-        @Query("limit") limit: Int = 20
+        @Query("limit") limit: Int = 20,
+        @Query("query") query: String? = null
     ): Result<CommonModel<PagedResponse<CompetitionResponse>>>
 
 }

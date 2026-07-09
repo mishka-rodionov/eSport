@@ -8,6 +8,7 @@ import com.competra.clubs.data.detail.ClubDetailState
 import com.competra.clubs.data.detail.ClubDetailTab
 import com.competra.data.navigation.ClubsNavigation
 import com.competra.data.navigation.Navigation
+import com.competra.data.navigation.RatingNavigation
 import com.competra.domain.exception.NetworkException
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.models.club.ClubMember
@@ -71,6 +72,11 @@ class ClubDetailViewModel(
             is ClubDetailAction.OpenJoinRequests -> {
                 viewModelScope.launch {
                     navigation.navigate(ClubsNavigation.ClubJoinRequestsRoute(stateValue.clubId))
+                }
+            }
+            is ClubDetailAction.OpenRatings -> {
+                viewModelScope.launch {
+                    navigation.navigate(RatingNavigation.RatingListRoute(stateValue.clubId))
                 }
             }
             is ClubDetailAction.TeamClick -> {

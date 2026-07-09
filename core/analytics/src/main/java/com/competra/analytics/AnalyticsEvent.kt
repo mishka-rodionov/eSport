@@ -279,4 +279,26 @@ sealed class AnalyticsEvent(
         AnalyticsEvent("club_team_deleted", mapOf("team_id" to teamId))
 
     // endregion
+
+    // region Rating
+
+    /** Создан новый рейтинг соревнований для клуба. */
+    class RatingCreated(ratingId: String, clubId: String) : AnalyticsEvent(
+        "rating_created",
+        mapOf("rating_id" to ratingId, "club_id" to clubId),
+    )
+
+    /** Соревнование добавлено в состав рейтинга. */
+    class RatingCompetitionAdded(ratingId: String, competitionId: String) : AnalyticsEvent(
+        "rating_competition_added",
+        mapOf("rating_id" to ratingId, "competition_id" to competitionId),
+    )
+
+    /** Маппинг групп соревнования на канонические группы рейтинга подтверждён/сохранён. */
+    class RatingGroupMappingConfirmed(ratingId: String, competitionId: String) : AnalyticsEvent(
+        "rating_group_mapping_confirmed",
+        mapOf("rating_id" to ratingId, "competition_id" to competitionId),
+    )
+
+    // endregion
 }

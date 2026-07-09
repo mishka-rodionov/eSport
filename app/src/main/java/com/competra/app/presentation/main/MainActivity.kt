@@ -57,6 +57,7 @@ import com.competra.analytics.AnalyticsTracker
 import com.competra.analytics.TrackNavScreens
 import com.competra.center.navigation.centerGraph
 import com.competra.clubs.navigation.clubsGraph
+import com.competra.rating.navigation.ratingGraph
 import com.competra.data.navigation.ClubsNavigation
 import com.competra.data.navigation.BackRoute
 import com.competra.data.navigation.BaseNavigation
@@ -301,7 +302,10 @@ internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeCla
                                 BottomNavItem.CompetitionList -> eventsGraph()
                                 BottomNavItem.CompetitionConstructor -> centerGraph(windowSizeClass, navController)
                                 BottomNavItem.Diary -> diaryGraph()
-                                BottomNavItem.Clubs -> clubsGraph()
+                                BottomNavItem.Clubs -> {
+                                    clubsGraph()
+                                    ratingGraph()
+                                }
                             }
                         }
                     }

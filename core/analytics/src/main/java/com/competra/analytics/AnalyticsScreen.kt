@@ -58,7 +58,14 @@ enum class AnalyticsScreen(val screenName: String) {
     ClubCreate("club_create"),
     ClubJoinRequests("club_join_requests"),
     ClubMyJoinRequests("club_my_join_requests"),
-    ClubTeamDetail("club_team_detail");
+    ClubTeamDetail("club_team_detail"),
+
+    // Rating
+    RatingList("rating_list"),
+    RatingCreate("rating_create"),
+    RatingDetail("rating_detail"),
+    RatingAddCompetition("rating_add_competition"),
+    RatingGroupMapping("rating_group_mapping");
 
     companion object {
         /**
@@ -118,6 +125,12 @@ enum class AnalyticsScreen(val screenName: String) {
                 route.contains("ClubJoinRequestsRoute") -> ClubJoinRequests
                 route.contains("MyJoinRequestsRoute") -> ClubMyJoinRequests
                 route.contains("TeamDetailRoute") -> ClubTeamDetail
+
+                route.contains("RatingListRoute") -> RatingList
+                route.contains("CreateRatingRoute") -> RatingCreate
+                route.contains("RatingDetailRoute") -> RatingDetail
+                route.contains("AddCompetitionRoute") -> RatingAddCompetition
+                route.contains("GroupMappingRoute") -> RatingGroupMapping
 
                 else -> null
             }

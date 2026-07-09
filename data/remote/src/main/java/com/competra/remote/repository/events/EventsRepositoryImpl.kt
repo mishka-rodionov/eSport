@@ -22,7 +22,8 @@ class EventsRepositoryImpl(
             dateTo = filter.dateTo,
             includeTest = filter.includeTest,
             page = page,
-            limit = limit
+            limit = limit,
+            query = filter.searchQuery
         ).map { response ->
             val paged = response.result
             PagedResult(

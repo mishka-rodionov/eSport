@@ -181,4 +181,47 @@
     <string name="team_role_member">Участник</string>
     <string name="team_detail_make_captain_action">Сделать капитаном</string>
     <string name="team_detail_remove_member_action">Удалить из команды</string>
+
+    <string name="club_detail_ratings_action">Рейтинги</string>
+
+    <!-- Rating -->
+    <string name="rating_list_title">Рейтинги клуба</string>
+    <string name="rating_list_create_action">Создать рейтинг</string>
+    <string name="rating_list_empty">Рейтингов пока нет</string>
+
+    <string name="rating_form_title">Новый рейтинг</string>
+    <string name="rating_form_name_label">Название рейтинга</string>
+    <string name="rating_form_name_required_error">Введите название рейтинга</string>
+    <string name="rating_form_groups_title">Группы рейтинга</string>
+    <string name="rating_form_add_group_action">Добавить группу</string>
+    <string name="rating_form_group_title_label">Название группы</string>
+    <string name="rating_form_group_gender_label">Пол</string>
+    <string name="rating_form_group_min_age_label">Мин. возраст</string>
+    <string name="rating_form_group_max_age_label">Макс. возраст</string>
+    <string name="rating_form_remove_group_action">Удалить группу</string>
+    <string name="rating_form_save_action">Сохранить</string>
+    <string name="rating_form_groups_required_error">Добавьте хотя бы одну группу</string>
+
+    <string name="gender_male">Мужчины</string>
+    <string name="gender_female">Женщины</string>
+    <string name="gender_mixed">Смешанная</string>
+    <string name="gender_any">Любой</string>
+
+    <string name="rating_detail_add_competition_action">Добавить соревнование</string>
+    <string name="rating_detail_competitions_title">Соревнования рейтинга</string>
+    <string name="rating_detail_standings_empty">Пока нет результатов</string>
+    <string name="rating_detail_remove_competition_action">Удалить из рейтинга</string>
+    <string name="rating_detail_edit_mapping_action">Соответствие групп</string>
+    <string name="rating_detail_points_column">Очки</string>
+    <string name="rating_detail_place_column">Место</string>
+    <string name="rating_detail_no_groups">У рейтинга нет ни одной группы</string>
+
+    <string name="rating_add_competition_title">Добавить соревнование</string>
+    <string name="rating_add_competition_search_hint">Поиск соревнования</string>
+    <string name="rating_add_competition_empty">Соревнования не найдены</string>
+
+    <string name="rating_group_mapping_title">Соответствие групп</string>
+    <string name="rating_group_mapping_hint">Сопоставьте группы соревнования с группами рейтинга</string>
+    <string name="rating_group_mapping_no_match">Без соответствия</string>
+    <string name="rating_group_mapping_save_action">Сохранить</string>
 </resources>
