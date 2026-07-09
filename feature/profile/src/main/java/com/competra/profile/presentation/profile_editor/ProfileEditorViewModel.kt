@@ -16,6 +16,7 @@ import com.competra.domain.repository.user.UserProfileRepository
 import com.competra.domain.repository.user.UserRepository
 import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
+import com.competra.utils.ImageCompressor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -129,13 +130,17 @@ class ProfileEditorViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             updateState { copy(isSaving = true) }
             loadingRepository.emit(true)
-            val bytes = context.contentResolver.openInputStream(uri)?.readBytes() ?: run {
+            val bytes = ImageCompressor.compress(
+                context = context,
+                uri = uri,
+                maxWidthPx = ImageCompressor.Preset.AVATAR.maxWidthPx,
+                quality = ImageCompressor.Preset.AVATAR.quality,
+            ) ?: run {
                 updateState { copy(isSaving = false) }
                 loadingRepository.emit(false)
                 return@launch
             }
-            val fileName = uri.lastPathSegment ?: "avatar.jpg"
-            uploadRepository.uploadFile(bytes, fileName, "avatar")
+            uploadRepository.uploadFile(bytes, "avatar.jpg", "avatar")
                 .onSuccess { url ->
                     userProfileRepository.updateAvatarUrl(url, cropRect)
                         .onSuccess { updatedUser ->

@@ -25,6 +25,7 @@ import com.competra.resources.ResourceProvider
 import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
 import com.competra.utils.DateTimeFormat
+import com.competra.utils.ImageCompressor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalTime
@@ -635,22 +636,34 @@ class OrienteeringCreatorViewModel(
         uploadFile(
             uri = uri,
             type = "competition_image",
+            compressPreset = ImageCompressor.Preset.COMPETITION_COVER,
             onSuccess = { url -> updateState { copy(imageUrl = url, imageCropRect = cropRect) } }
         )
     }
 
+    /**
+     * Читает файл по [uri] и загружает его на сервер.
+     * [compressPreset] задаётся только для изображений (например, обложки соревнования) —
+     * файл карты соревнования выбирается через пикер с любым MIME-типом и может быть не изображением,
+     * поэтому для него сжатие не применяется.
+     */
     private fun uploadFile(
         uri: android.net.Uri,
         type: String,
+        compressPreset: ImageCompressor.Preset? = null,
         onSuccess: (String) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             loadingRepository.emit(true)
-            val bytes = context.contentResolver.openInputStream(uri)?.readBytes() ?: run {
+            val bytes = if (compressPreset != null) {
+                ImageCompressor.compress(context, uri, compressPreset.maxWidthPx, compressPreset.quality)
+            } else {
+                context.contentResolver.openInputStream(uri)?.readBytes()
+            } ?: run {
                 loadingRepository.emit(false)
                 return@launch
             }
-            val fileName = uri.lastPathSegment ?: "file"
+            val fileName = if (compressPreset != null) "image.jpg" else (uri.lastPathSegment ?: "file")
             uploadRepository.uploadFile(bytes, fileName, type)
                 .onSuccess { url -> onSuccess(url) }
                 .onFailure { handleFailure(it) }
