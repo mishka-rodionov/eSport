@@ -52,6 +52,7 @@ class EventDetailsViewModel(
             is EventDetailsAction.ShowRegistrationDialog -> showRegistrationDialog()
             is EventDetailsAction.HideRegistrationDialog -> hideRegistrationDialog()
             is EventDetailsAction.SelectGroup -> selectGroup(action.group)
+            is EventDetailsAction.CommandNameChanged -> updateState { copy(commandName = action.commandName) }
             is EventDetailsAction.ConfirmRegistration -> confirmRegistration()
             is EventDetailsAction.CancelRegistration -> cancelRegistration()
         }
@@ -106,7 +107,7 @@ class EventDetailsViewModel(
     }
 
     private fun hideRegistrationDialog() {
-        updateState { copy(isRegistrationSheetVisible = false, selectedGroup = null) }
+        updateState { copy(isRegistrationSheetVisible = false, selectedGroup = null, commandName = "") }
     }
 
     private fun selectGroup(group: EventParticipantGroup) {
@@ -127,7 +128,8 @@ class EventDetailsViewModel(
                 eventId = eventId,
                 groupId = selectedGroup.groupId,
                 firstName = user.firstName,
-                lastName = user.lastName
+                lastName = user.lastName,
+                commandName = stateValue.commandName.trim().ifBlank { null }
             )
                 .onSuccess {
                     updateState {
@@ -135,6 +137,7 @@ class EventDetailsViewModel(
                             isRegistering = false,
                             isRegistrationSheetVisible = false,
                             selectedGroup = null,
+                            commandName = "",
                             isUserRegistered = true
                         )
                     }
@@ -215,6 +218,7 @@ sealed interface EventDetailsAction : BaseAction {
     data object ShowRegistrationDialog : EventDetailsAction
     data object HideRegistrationDialog : EventDetailsAction
     data class SelectGroup(val group: EventParticipantGroup) : EventDetailsAction
+    data class CommandNameChanged(val commandName: String) : EventDetailsAction
     data object ConfirmRegistration : EventDetailsAction
     data object CancelRegistration : EventDetailsAction
 }

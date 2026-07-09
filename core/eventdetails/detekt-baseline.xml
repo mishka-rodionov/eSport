@@ -23,14 +23,14 @@
     <ID>FunctionNaming:EventParticipantGroupScreen.kt$@Preview(showBackground = true) @Composable private fun EventParticipantGroupScreenPreview()</ID>
     <ID>FunctionNaming:EventRaceGraphScreen.kt$@Composable fun EventRaceGraphScreen( eventId: String, groupId: Long, viewModel: EventRaceGraphViewModel = koinViewModel(), )</ID>
     <ID>FunctionNaming:EventResultsScreen.kt$@Composable fun EventResultsScreen( eventId: String, viewModel: EventResultsViewModel = koinViewModel() )</ID>
-    <ID>FunctionNaming:EventResultsScreen.kt$@Composable private fun ResultItem(item: ParticipantWithResult, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:EventResultsScreen.kt$@Composable private fun ResultItem( item: ParticipantWithResult, direction: OrienteeringDirection = OrienteeringDirection.FORWARD, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:EventResultsScreen.kt$@Composable private fun ResultsHeader()</ID>
-    <ID>FunctionNaming:EventResultsScreen.kt$@Composable private fun ResultsList( participants: List&lt;ParticipantWithResult&gt;, onParticipantClick: (ParticipantWithResult) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EventResultsScreen.kt$@Composable private fun ResultsList( participants: List&lt;ParticipantWithResult&gt;, direction: OrienteeringDirection = OrienteeringDirection.FORWARD, onParticipantClick: (ParticipantWithResult) -&gt; Unit )</ID>
     <ID>FunctionNaming:EventResultsScreen.kt$@Preview(showBackground = true) @Composable private fun EventResultsPreview()</ID>
     <ID>FunctionNaming:LiveResultsScreen.kt$@Composable fun LiveResultsScreen( eventId: String, viewModel: LiveResultsViewModel = koinViewModel() )</ID>
-    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun LiveResultRow( item: ParticipantWithResult, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun LiveResultRow( item: ParticipantWithResult, direction: OrienteeringDirection = OrienteeringDirection.FORWARD, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun LiveResultsHeader(lastUpdated: Long?)</ID>
-    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun LiveResultsList( participants: List&lt;ParticipantWithResult&gt;, onParticipantClick: (ParticipantWithResult) -&gt; Unit )</ID>
+    <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun LiveResultsList( participants: List&lt;ParticipantWithResult&gt;, direction: OrienteeringDirection = OrienteeringDirection.FORWARD, onParticipantClick: (ParticipantWithResult) -&gt; Unit )</ID>
     <ID>FunctionNaming:LiveResultsScreen.kt$@Composable private fun SplitsTable(participant: OrienteeringParticipant, splits: List&lt;SplitTime&gt;)</ID>
     <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Заголовок — без времени") @Composable private fun LiveResultsHeaderNoTimePreview()</ID>
     <ID>FunctionNaming:LiveResultsScreen.kt$@Preview(showBackground = true, name = "Заголовок — с временем обновления") @Composable private fun LiveResultsHeaderPreview()</ID>
@@ -74,10 +74,6 @@
     <ID>MagicNumber:LiveResultsScreen.kt$3_723_000</ID>
     <ID>MagicNumber:LiveResultsScreen.kt$4015L</ID>
     <ID>MagicNumber:LiveResultsScreen.kt$720_000</ID>
-    <ID>MagicNumber:LiveResultsViewModel.kt$LiveResultsViewModel$3</ID>
-    <ID>MagicNumber:LiveResultsViewModel.kt$LiveResultsViewModel$4</ID>
-    <ID>MagicNumber:LiveResultsViewModel.kt$LiveResultsViewModel$5</ID>
-    <ID>MagicNumber:LiveResultsViewModel.kt$LiveResultsViewModel$9</ID>
     <ID>MaxLineLength:EventGroupSplitsTableViewModel.kt$EventGroupSplitsTableViewModel$val groupsDeferred = async { remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList() }</ID>
     <ID>MaxLineLength:EventGroupSplitsTableViewModel.kt$EventGroupSplitsTableViewModel$val participantsDeferred = async { remoteRepository.getParticipantsForCompetition(eventId).getOrNull() ?: emptyList() }</ID>
     <ID>MaxLineLength:EventParticipantGroupScreen.kt$startNumber = "101"</ID>

@@ -12,6 +12,7 @@ import com.competra.ui.BaseState
  * @param selectedGroup Выбранная группа для регистрации.
  * @param isRegistering Флаг процесса регистрации (загрузка).
  * @param isUserRegistered Флаг того, зарегистрирован ли пользователь на это событие.
+ * @param commandName Название клуба/команды участника (свободный текст, опционально).
  */
 data class EventDetailsState(
     val eventDetails: CyclicEventDetails? = null,
@@ -19,5 +20,6 @@ data class EventDetailsState(
     val selectedGroup: EventParticipantGroup? = null,
     val isRegistering: Boolean = false,
     val isUserRegistered: Boolean = false,
+    val commandName: String = "",
     val error: String? = null
 ) : BaseState

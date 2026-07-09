@@ -299,3 +299,14 @@ val MIGRATION_46_47 = object : Migration(46, 47) {
         db.execSQL("ALTER TABLE orienteering_results ADD COLUMN scorePenalty INTEGER NOT NULL DEFAULT 0")
     }
 }
+
+/**
+ * Миграция с версии 47 на 48.
+ * Добавляет опциональный клуб-организатор соревнования (встроено через
+ * @Embedded Competition, без префикса) в таблицу orienteering_competitions.
+ */
+val MIGRATION_47_48 = object : Migration(47, 48) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE orienteering_competitions ADD COLUMN organizingClubId TEXT")
+    }
+}

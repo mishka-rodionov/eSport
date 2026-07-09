@@ -36,7 +36,8 @@ import com.competra.local.entities.user.UserEntity
 // v46: live GPS-трекинг — колонка trackEncoded в workouts.
 // v47: формат "по выбору" (score-О) — лимит времени/штраф/порог у ParticipantGroup,
 // totalScore/scorePenalty у OrienteeringResult.
-private const val DB_VERSION = 47
+// v48: опциональный клуб-организатор соревнования (organizingClubId).
+private const val DB_VERSION = 48
 
 /**
  * Основной класс базы данных приложения (Room).

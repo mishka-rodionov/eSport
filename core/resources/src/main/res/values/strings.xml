@@ -118,4 +118,67 @@
     <string name="onboarding_next">Далее</string>
     <string name="onboarding_skip">Пропустить</string>
     <string name="onboarding_start">Начать</string>
+
+    <!-- Clubs -->
+    <string name="clubs_list_title">Клубы</string>
+    <string name="clubs_create_action">Создать клуб</string>
+    <string name="clubs_search_hint">Поиск клубов</string>
+    <string name="clubs_empty_state">Клубы не найдены</string>
+    <string name="clubs_members_count">%d участников</string>
+    <string name="clubs_load_more">Загрузить ещё</string>
+
+    <string name="club_form_create_title">Новый клуб</string>
+    <string name="club_form_edit_title">Редактирование клуба</string>
+    <string name="club_form_name_label">Название клуба</string>
+    <string name="club_form_description_label">Описание</string>
+    <string name="club_form_allow_join_requests_label">Принимать заявки на вступление</string>
+    <string name="club_form_save_action">Сохранить</string>
+    <string name="club_form_name_required_error">Введите название клуба</string>
+
+    <string name="club_detail_members_tab">Участники</string>
+    <string name="club_detail_teams_tab">Команды</string>
+    <string name="club_detail_edit_action">Редактировать</string>
+    <string name="club_detail_delete_action">Удалить клуб</string>
+    <string name="club_detail_delete_confirm_title">Удалить клуб?</string>
+    <string name="club_detail_delete_confirm_message">Соревнования, созданные от лица клуба, останутся без владельца. Действие необратимо.</string>
+    <string name="club_detail_join_action">Подать заявку</string>
+    <string name="club_detail_leave_action">Покинуть клуб</string>
+    <string name="club_detail_leave_sole_founder_error">Вы единственный Founder клуба — чтобы покинуть его, удалите клуб целиком</string>
+    <string name="club_detail_join_requests_action">Заявки на вступление</string>
+    <string name="club_detail_create_team_action">Создать команду</string>
+    <string name="club_detail_join_request_pending">Ваша заявка на рассмотрении</string>
+    <string name="club_detail_join_request_rejected">Ваша заявка отклонена</string>
+    <string name="club_role_founder">Founder</string>
+    <string name="club_role_admin">Admin</string>
+    <string name="club_role_member">Участник</string>
+    <string name="club_detail_transfer_founder_action">Сделать Founder</string>
+    <string name="club_detail_make_admin_action">Назначить Admin</string>
+    <string name="club_detail_remove_admin_action">Снять Admin</string>
+    <string name="club_detail_remove_member_action">Удалить из клуба</string>
+
+    <string name="club_join_requests_title">Заявки на вступление</string>
+    <string name="club_join_requests_empty">Нет входящих заявок</string>
+    <string name="club_join_request_approve">Одобрить</string>
+    <string name="club_join_request_reject">Отклонить</string>
+
+    <string name="my_join_requests_title">Мои заявки</string>
+    <string name="my_join_requests_empty">Вы не подавали заявок на вступление</string>
+    <string name="join_request_status_pending">На рассмотрении</string>
+    <string name="join_request_status_approved">Одобрена</string>
+    <string name="join_request_status_rejected">Отклонена</string>
+
+    <string name="team_form_create_title">Новая команда</string>
+    <string name="team_form_edit_title">Редактирование команды</string>
+    <string name="team_form_name_label">Название команды</string>
+    <string name="team_form_sport_label">Вид спорта</string>
+    <string name="team_form_save_action">Сохранить</string>
+    <string name="team_form_name_required_error">Введите название команды</string>
+
+    <string name="team_detail_members_title">Участники команды</string>
+    <string name="team_detail_add_member_action">Добавить участника</string>
+    <string name="team_detail_delete_action">Удалить команду</string>
+    <string name="team_role_captain">Капитан</string>
+    <string name="team_role_member">Участник</string>
+    <string name="team_detail_make_captain_action">Сделать капитаном</string>
+    <string name="team_detail_remove_member_action">Удалить из команды</string>
 </resources>

@@ -14,6 +14,7 @@
     <ID>CyclomaticComplexMethod:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$override fun onAction(action: BaseAction)</ID>
     <ID>CyclomaticComplexMethod:OrienteeringEventControlScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun OrienteeringEventControlScreenContent( state: OrienteeringEventControlState, isExpanded: Boolean, onAction: (OrientEventControlAction) -&gt; Unit )</ID>
     <ID>CyclomaticComplexMethod:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>CyclomaticComplexMethod:ParticipantGroupCreator.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParticipantGroupEditor( userAction: (OrienteeringCreatorAction) -&gt; Unit, state: OrienteeringCreatorState, )</ID>
     <ID>CyclomaticComplexMethod:ParticipantListScreen.kt$@Composable fun CreateParticipantDialogContent( userAction: (BaseAction) -&gt; Unit, group: Int, groupName: String, editingParticipant: OrienteeringParticipant? )</ID>
     <ID>CyclomaticComplexMethod:ParticipantListScreen.kt$@Composable fun ParticipantCard( participant: OrienteeringParticipant, displayIndex: Int, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: () -&gt; Unit, onDeleteClick: () -&gt; Unit )</ID>
     <ID>CyclomaticComplexMethod:ParticipantListScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun ParticipantListContent( userAction: (BaseAction) -&gt; Unit, state: ParticipantListState, onSave: () -&gt; Unit = {} )</ID>
@@ -73,7 +74,8 @@
     <ID>FunctionNaming:KindOfSportScreen.kt$@Preview(showBackground = true) @Composable private fun KindOfSportScreenPreview()</ID>
     <ID>FunctionNaming:MapPickerScreen.kt$@Composable fun MapPickerScreen( initLat: Double = 0.0, initLon: Double = 0.0, onConfirm: (lat: Double, lon: Double) -&gt; Unit )</ID>
     <ID>FunctionNaming:OrganizatorCompetitionFieldScreen.kt$@Composable fun OrganizatorCompetitionFieldScreen( competitionId: String, viewModel: OrienteeringCreatorViewModel = koinViewModel() )</ID>
-    <ID>FunctionNaming:OrganizatorCompetitionFieldScreen.kt$@Composable private fun OrganizatorCompetitionFieldContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:OrganizatorCompetitionFieldScreen.kt$@Composable private fun OrganizatorCompetitionFieldContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onUpdateOrganizingClubId: (String?) -&gt; Unit = {}, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:OrganizatorCompetitionFieldScreen.kt$@Composable private fun OrganizingClubPicker( clubs: List&lt;Club&gt;, selectedClubId: String?, onSelect: (String?) -&gt; Unit )</ID>
     <ID>FunctionNaming:OrganizatorCompetitionFieldScreen.kt$@Preview(showBackground = true) @Composable private fun OrganizatorCompetitionFieldPreview()</ID>
     <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable internal fun InfoColumn( label: String, value: String, modifier: Modifier = Modifier, horizontalAlignment: Alignment.Horizontal = Alignment.Start )</ID>
     <ID>FunctionNaming:OrientReadCardScreen.kt$@Composable internal fun ParticipantInfoCard(participant: OrienteeringParticipant)</ID>
@@ -168,7 +170,7 @@
     <ID>LongMethod:DrawParticipantsScreen.kt$@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class) @Composable fun DrawParticipantsScreen(viewModel: DrawViewModel = koinViewModel())</ID>
     <ID>LongMethod:GetOrienteeringChipScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun GetOrienteeringChipScreen( competitionId: String, viewModel: GetOrienteeringChipViewModel = koinViewModel() )</ID>
     <ID>LongMethod:MapPickerScreen.kt$@Composable fun MapPickerScreen( initLat: Double = 0.0, initLon: Double = 0.0, onConfirm: (lat: Double, lon: Double) -&gt; Unit )</ID>
-    <ID>LongMethod:OrganizatorCompetitionFieldScreen.kt$@Composable private fun OrganizatorCompetitionFieldContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:OrganizatorCompetitionFieldScreen.kt$@Composable private fun OrganizatorCompetitionFieldContent( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onUpdateOrganizingClubId: (String?) -&gt; Unit = {}, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
     <ID>LongMethod:OrientReadCardScreen.kt$@Composable internal fun RaceSummaryCard( participant: OrienteeringParticipant, result: OrienteeringResult, groupRank: Int? = null, groupTotalFinished: Int = 0 )</ID>
     <ID>LongMethod:OrientReadCardScreen.kt$@Composable internal fun SplitsCard( participant: OrienteeringParticipant, splits: List&lt;SplitTime&gt;, expectedCpOrder: List&lt;Int&gt; = emptyList(), onEditSplit: ((index: Int) -&gt; Unit)? = null, onCreditCp: ((cpNumber: Int, prevTimestamp: Long) -&gt; Unit)? = null, )</ID>
     <ID>LongMethod:OrientReadCardScreen.kt$@Composable private fun ReadCardContent( participant: OrienteeringParticipant, result: OrienteeringResult?, rawSplits: List&lt;SplitTime&gt;? = null, groupRank: Int? = null, groupTotalFinished: Int = 0, expectedCpOrder: List&lt;Int&gt; = emptyList(), isPendingSave: Boolean = false, isReadOnly: Boolean = false, onEditSplit: (index: Int) -&gt; Unit = {}, onCreditCp: (cpNumber: Int, prevTimestamp: Long) -&gt; Unit = { _, _ -&gt; }, onSaveResult: () -&gt; Unit = {}, )</ID>
@@ -197,11 +199,11 @@
     <ID>LongParameterList:CommonCompetitionFieldScreen.kt$( state: OrienteeringCreatorState, onAction: (OrienteeringCreatorAction) -&gt; Unit, onTitleChanged: (String) -&gt; Unit, onAddressChanged: (String) -&gt; Unit, onDescriptionChanged: (String) -&gt; Unit, onOpenMap: () -&gt; Unit, onBack: () -&gt; Unit, onNext: () -&gt; Unit )</ID>
     <ID>LongParameterList:DrawParticipantsScreen.kt$( icon: ImageVector, title: String, description: String, accentColor: Color, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:DrawViewModel.kt$( participants: List&lt;OrienteeringParticipant&gt;, groupDistanceMap: Map&lt;Long, Long&gt;, punchingSystem: PunchingSystem?, competitionStartTime: Long, intervalMs: Long, corridors: Int, gap: Int )</ID>
-    <ID>LongParameterList:OrganizatorCompetitionFieldScreen.kt$( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:OrganizatorCompetitionFieldScreen.kt$( state: OrienteeringCreatorState, onBack: () -&gt; Unit, onNext: () -&gt; Unit, onUpdateMapUrl: (String) -&gt; Unit, onUpdateContactPhone: (String) -&gt; Unit, onUpdateContactEmail: (String) -&gt; Unit, onUpdateWebsite: (String) -&gt; Unit, onUpdateOrganizingClubId: (String?) -&gt; Unit = {}, onAction: (OrienteeringCreatorAction) -&gt; Unit = {} )</ID>
     <ID>LongParameterList:OrientReadCardScreen.kt$( participant: OrienteeringParticipant, result: OrienteeringResult?, rawSplits: List&lt;SplitTime&gt;? = null, groupRank: Int? = null, groupTotalFinished: Int = 0, expectedCpOrder: List&lt;Int&gt; = emptyList(), isPendingSave: Boolean = false, isReadOnly: Boolean = false, onEditSplit: (index: Int) -&gt; Unit = {}, onCreditCp: (cpNumber: Int, prevTimestamp: Long) -&gt; Unit = { _, _ -&gt; }, onSaveResult: () -&gt; Unit = {}, )</ID>
     <ID>LongParameterList:OrientReadCardViewModel.kt$OrientReadCardViewModel$( participant: OrienteeringParticipant, finishTime: Long, totalTime: Long, result: CheckResult, rawSplits: List&lt;SplitTime&gt;, expectedCpNumbers: List&lt;Int&gt; = emptyList() )</ID>
     <ID>LongParameterList:OrienteeringCompetitionResultsScreen.kt$( competitionTitle: String, diff: ImportResultsDiff, sheetState: SheetState, isImporting: Boolean, onDismiss: () -&gt; Unit, onConfirm: (List&lt;ImportResultRow&gt;) -&gt; Unit, )</ID>
-    <ID>LongParameterList:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$( val navigation: Navigation, private val resourceProvider: ResourceProvider, private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor, private val userRepository: UserRepository, private val networkErrorRepository: NetworkErrorRepository, private val uploadRepository: UploadRepository, private val context: Context, private val loadingRepository: LoadingRepository, private val analytics: AnalyticsTracker, )</ID>
+    <ID>LongParameterList:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$( val navigation: Navigation, private val resourceProvider: ResourceProvider, private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor, private val userRepository: UserRepository, private val networkErrorRepository: NetworkErrorRepository, private val uploadRepository: UploadRepository, private val context: Context, private val loadingRepository: LoadingRepository, private val analytics: AnalyticsTracker, private val clubRepository: ClubRepository, )</ID>
     <ID>LongParameterList:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$( title: String, competition: com.competra.domain.models.orienteering.OrienteeringCompetition, groups: List&lt;com.competra.domain.models.ParticipantGroup&gt; = emptyList(), allChipsDistributed: Boolean = true, allParticipantsFinished: Boolean = false, isDrawConducted: Boolean = false )</ID>
     <ID>LongParameterList:ParticipantListScreen.kt$( participant: OrienteeringParticipant, displayIndex: Int, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: () -&gt; Unit, onDeleteClick: () -&gt; Unit )</ID>
     <ID>LongParameterList:ParticipantListScreen.kt$( participants: List&lt;OrienteeringParticipant&gt;, showGroupName: Boolean = false, currentTimeMs: Long = 0L, isCompetitionRunning: Boolean = false, onEditClick: (OrienteeringParticipant) -&gt; Unit, onDeleteClick: (OrienteeringParticipant) -&gt; Unit )</ID>
@@ -242,6 +244,9 @@
     <ID>MagicNumber:OrientReadCardScreen.kt$34</ID>
     <ID>MagicNumber:OrientReadCardScreen.kt$50</ID>
     <ID>MagicNumber:OrientReadCardScreen.kt$99</ID>
+    <ID>MagicNumber:OrientReadCardViewModel.kt$1000L</ID>
+    <ID>MagicNumber:OrientReadCardViewModel.kt$60.0</ID>
+    <ID>MagicNumber:OrientReadCardViewModel.kt$60L</ID>
     <ID>MagicNumber:OrientReadCardViewModel.kt$OrientReadCardViewModel$1000L</ID>
     <ID>MagicNumber:OrienteeringCompetitionResultsScreen.kt$0.85f</ID>
     <ID>MagicNumber:OrienteeringCompetitionResultsScreen.kt$0xFFB8860B</ID>
@@ -384,7 +389,9 @@
     <ID>MaxLineLength:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel$val updatedTimestamp = DateTimeFormat.updateTimeInTimestamp(date, stateValue.startTimeStr, competitionZone()) ?: date</ID>
     <ID>MaxLineLength:OrienteeringEventControlViewModel.kt$OrienteeringEventControlViewModel$updateState { copy(isCompetitionRunning = false, isTimerRunning = false, isFinished = true, stopwatchMillis = 0L) }</ID>
     <ID>MaxLineLength:ParticipantGroupCreator.kt$containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant</ID>
+    <ID>MaxLineLength:ParticipantGroupCreator.kt$keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done)</ID>
     <ID>MaxLineLength:ParticipantGroupCreator.kt$keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)</ID>
+    <ID>MaxLineLength:ParticipantGroupCreator.kt$scorePenaltyPerMinute = if (isByChoice) scorePenaltyPerMinute.toIntOrNull() else null</ID>
     <ID>MaxLineLength:ParticipantGroupCreator.kt$var selectedDistanceId by remember { mutableLongStateOf(initialGroup?.distanceId ?: state.distances.firstOrNull()?.id ?: 0L) }</ID>
     <ID>MaxLineLength:ParticipantListAction.kt$ParticipantListAction.ShowEditParticipantDialog$data</ID>
     <ID>MaxLineLength:ParticipantListScreen.kt$fontWeight = if (pagerState.currentPage == pageIndex) FontWeight.Bold else FontWeight.Normal</ID>
@@ -452,9 +459,11 @@
     <ID>PackageNaming:WriteChipViewModel.kt$package com.competra.center.presentation.write_chip</ID>
     <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$fun checkControlPointOrderPro( expected: List&lt;ControlPoint&gt;, actual: List&lt;SplitTime&gt; ): CheckResult</ID>
     <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$private suspend fun computeCheckResult( groupId: Long, startTime: Long, expected: List&lt;ControlPoint&gt;, actual: List&lt;SplitTime&gt; ): CheckResult</ID>
     <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$private suspend fun recalculateAndSaveResult()</ID>
     <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$private suspend fun recalculatePending()</ID>
     <ID>ReturnCount:OrientReadCardViewModel.kt$OrientReadCardViewModel$suspend fun getExpectedControlPoints(groupId: Long): List&lt;ControlPoint&gt;</ID>
+    <ID>ReturnCount:OrientReadCardViewModel.kt$fun computeByChoiceResult( expected: List&lt;ControlPoint&gt;, actual: List&lt;SplitTime&gt;, startTime: Long, group: ParticipantGroup ): CheckResult</ID>
     <ID>ReturnCount:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$suspend fun areAllParticipantsFinished(competitionId: String): Boolean</ID>
     <ID>ReturnCount:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$suspend fun getCompetitionsByUserId(userId: String): Result&lt;List&lt;OrienteeringCompetition&gt;&gt;</ID>
     <ID>ReturnCount:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor$suspend fun tryAutoFinish(competitionId: String): Boolean</ID>
@@ -466,6 +475,7 @@
     <ID>TooGenericExceptionCaught:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel$e: Exception</ID>
     <ID>TooManyFunctions:CommonCompetitionFieldScreen.kt$com.competra.center.presentation.orientiring_competition_create.CommonCompetitionFieldScreen.kt</ID>
     <ID>TooManyFunctions:OrientReadCardScreen.kt$com.competra.center.presentation.read_card.OrientReadCardScreen.kt</ID>
+    <ID>TooManyFunctions:OrientReadCardViewModel.kt$OrientReadCardViewModel : BaseViewModel</ID>
     <ID>TooManyFunctions:OrienteeringCompetitionInteractor.kt$OrienteeringCompetitionInteractor</ID>
     <ID>TooManyFunctions:OrienteeringCompetitionResultsViewModel.kt$OrienteeringCompetitionResultsViewModel : BaseViewModel</ID>
     <ID>TooManyFunctions:OrienteeringCreatorViewModel.kt$OrienteeringCreatorViewModel : BaseViewModel</ID>

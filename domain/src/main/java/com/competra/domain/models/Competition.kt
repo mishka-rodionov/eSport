@@ -40,6 +40,8 @@ import com.competra.domain.models.orienteering.ResultsStatus
  * @property syncError Текст последней ошибки синхронизации, если она произошла.
  * @property serverUpdatedAt Серверный updatedAt последней успешной синхронизации (для conflict detection).
  * @property imageCropRect Область кропа обложки, выбранная организатором (оригинал на сервере не изменяется).
+ * @property organizingClubId Опциональный клуб-организатор соревнования (id клуба). Задать/сменить может
+ *   только FOUNDER/ADMIN этого клуба; удаление клуба не удаляет соревнование — поле просто становится null.
  */
 data class Competition(
     /** UUID соревнования. Для плоского публичного списка (без обёртки OrienteeringCompetition)
@@ -79,5 +81,6 @@ data class Competition(
     val isDeleted: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
     val syncError: String? = null,
-    val serverUpdatedAt: Long? = null
+    val serverUpdatedAt: Long? = null,
+    val organizingClubId: String? = null
 )

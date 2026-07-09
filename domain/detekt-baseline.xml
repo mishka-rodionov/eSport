@@ -11,6 +11,7 @@
     <ID>MagicNumber:TrackCodec.kt$TrackCodec$1000L</ID>
     <ID>MagicNumber:TrackCodec.kt$TrackCodec$3</ID>
     <ID>MatchingDeclarationName:OrganizeRole.kt$OrganizerRole</ID>
+    <ID>MaxLineLength:CyclicEventDetailsRepository.kt$CyclicEventDetailsRepository$*</ID>
     <ID>MaxLineLength:GroupWithParticipantsAndResults.kt$GroupWithParticipantsAndResults$*</ID>
     <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition, markUnsynced: Boolean = true): Result&lt;OrienteeringCompetition&gt;</ID>
     <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun saveCompetitions(orienteeringCompetition: List&lt;OrienteeringCompetition&gt;, markUnsynced: Boolean = true): Result&lt;List&lt;OrienteeringCompetition&gt;&gt;</ID>

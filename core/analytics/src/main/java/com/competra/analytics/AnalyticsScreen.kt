@@ -50,7 +50,15 @@ enum class AnalyticsScreen(val screenName: String) {
     DiaryWorkoutEditor("diary_workout_editor"),
     DiaryWorkoutDetail("diary_workout_detail"),
     DiaryLiveTracking("diary_live_tracking"),
-    DiaryWorkoutTrack("diary_workout_track");
+    DiaryWorkoutTrack("diary_workout_track"),
+
+    // Clubs
+    ClubsList("clubs_list"),
+    ClubDetail("club_detail"),
+    ClubCreate("club_create"),
+    ClubJoinRequests("club_join_requests"),
+    ClubMyJoinRequests("club_my_join_requests"),
+    ClubTeamDetail("club_team_detail");
 
     companion object {
         /**
@@ -103,6 +111,13 @@ enum class AnalyticsScreen(val screenName: String) {
                 route.contains("LiveTrackingRoute") -> DiaryLiveTracking
                 route.contains("WorkoutTrackRoute") -> DiaryWorkoutTrack
                 route.contains("DiaryRoute") -> DiaryList
+
+                route.contains("ClubsListRoute") -> ClubsList
+                route.contains("ClubDetailRoute") -> ClubDetail
+                route.contains("CreateClubRoute") -> ClubCreate
+                route.contains("ClubJoinRequestsRoute") -> ClubJoinRequests
+                route.contains("MyJoinRequestsRoute") -> ClubMyJoinRequests
+                route.contains("TeamDetailRoute") -> ClubTeamDetail
 
                 else -> null
             }

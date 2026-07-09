@@ -20,6 +20,7 @@ import com.competra.domain.models.user.User
 import com.competra.domain.repository.LoadingRepository
 import com.competra.domain.repository.NetworkErrorRepository
 import com.competra.domain.repository.UploadRepository
+import com.competra.domain.repository.clubs.ClubRepository
 import com.competra.domain.repository.user.UserRepository
 import com.competra.resources.ResourceProvider
 import com.competra.ui.BaseAction
@@ -47,6 +48,7 @@ class OrienteeringCreatorViewModel(
     private val context: Context,
     private val loadingRepository: LoadingRepository,
     private val analytics: AnalyticsTracker,
+    private val clubRepository: ClubRepository,
 ) : BaseViewModel<OrienteeringCreatorState>(OrienteeringCreatorState()) {
 
     var user: User? = null
@@ -55,7 +57,14 @@ class OrienteeringCreatorViewModel(
         viewModelScope.launch {
             user = userRepository.retrieveUser().getOrNull()
         }
+        viewModelScope.launch {
+            clubRepository.listMine().onSuccess { clubs ->
+                updateState { copy(myClubs = clubs) }
+            }
+        }
     }
+
+    fun updateOrganizingClubId(clubId: String?) = updateState { copy(organizingClubId = clubId) }
 
 
     override fun onAction(action: BaseAction) {
@@ -373,6 +382,7 @@ class OrienteeringCreatorViewModel(
                     countdownTimer = comp.countdownTimer,
                     startIntervalSeconds = comp.startIntervalSeconds,
                     isTest = comp.competition.isTest,
+                    organizingClubId = comp.competition.organizingClubId,
                 )
             }
             

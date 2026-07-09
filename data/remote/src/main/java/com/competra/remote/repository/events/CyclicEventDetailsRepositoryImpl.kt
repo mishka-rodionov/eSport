@@ -62,14 +62,16 @@ class CyclicEventDetailsRepositoryImpl(
         eventId: String,
         groupId: String,
         firstName: String,
-        lastName: String
+        lastName: String,
+        commandName: String?
     ): Result<Unit> {
         return dataSource.registerToEvent(
             RegisterEventRequest(
                 competitionId = eventId,
                 groupId = groupId,
                 firstName = firstName,
-                lastName = lastName
+                lastName = lastName,
+                commandName = commandName
             )
         ).mapCatching { }
     }

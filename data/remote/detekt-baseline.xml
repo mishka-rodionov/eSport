@@ -45,6 +45,7 @@
     <ID>TooGenericExceptionCaught:MockInterceptor.kt$MockInterceptor$e: Exception</ID>
     <ID>TooGenericExceptionCaught:Orienteering.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ResultCall.kt$ResultCall$exception: Throwable</ID>
+    <ID>TooManyFunctions:ClubRemoteDataSource.kt$ClubRemoteDataSource</ID>
     <ID>TooManyFunctions:OrienteeringCompetitionRemoteDataSource.kt$OrienteeringCompetitionRemoteDataSource</ID>
     <ID>TooManyFunctions:OrienteeringCompetitionRemoteRepositoryImpl.kt$OrienteeringCompetitionRemoteRepositoryImpl : OrienteeringCompetitionRemoteRepository</ID>
     <ID>TooManyFunctions:ResultCall.kt$ResultCall&lt;T : BaseModel&gt; : Call</ID>

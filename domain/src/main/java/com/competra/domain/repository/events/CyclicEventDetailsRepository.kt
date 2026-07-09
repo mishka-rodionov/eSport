@@ -28,8 +28,15 @@ interface CyclicEventDetailsRepository {
      * @param groupId Идентификатор группы.
      * @param firstName Имя пользователя.
      * @param lastName Фамилия пользователя.
+     * @param commandName Название клуба/команды участника (опционально, свободный текст или выбор из своих клубов/команд).
      */
-    suspend fun registerToEvent(eventId: String, groupId: String, firstName: String, lastName: String): Result<Unit>
+    suspend fun registerToEvent(
+        eventId: String,
+        groupId: String,
+        firstName: String,
+        lastName: String,
+        commandName: String? = null
+    ): Result<Unit>
 
     /**
      * Отменить регистрацию текущего пользователя на событие.

@@ -18,5 +18,7 @@ data class RegisterEventRequest(
     @SerializedName("firstName")
     val firstName: String,
     @SerializedName("lastName")
-    val lastName: String
+    val lastName: String,
+    @SerializedName("commandName")
+    val commandName: String? = null
 )

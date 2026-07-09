@@ -38,7 +38,8 @@ fun Competition.toRequest(): CompetitionRequest {
         coverCropWidth = imageCropRect?.width,
         coverCropHeight = imageCropRect?.height,
         isTest = isTest,
-        serverUpdatedAt = serverUpdatedAt
+        serverUpdatedAt = serverUpdatedAt,
+        organizingClubId = organizingClubId
     )
 }
 

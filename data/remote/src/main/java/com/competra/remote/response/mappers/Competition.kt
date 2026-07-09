@@ -52,7 +52,8 @@ fun CompetitionResponse.toDomain(): Competition {
         isSynced = true,
         lastModified = System.currentTimeMillis(),
         createdAt = System.currentTimeMillis(),
-        serverUpdatedAt = updatedAt.takeIf { it > 0L }
+        serverUpdatedAt = updatedAt.takeIf { it > 0L },
+        organizingClubId = organizingClubId
     )
 }
 

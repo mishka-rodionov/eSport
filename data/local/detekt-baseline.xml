@@ -20,6 +20,8 @@
     <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$44</ID>
     <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$45</ID>
     <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$46</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$47</ID>
+    <ID>MagicNumber:Migrations.kt$&lt;no name provided&gt;$48</ID>
     <ID>MagicNumber:TokenSerializer.kt$TokenSerializer$4</ID>
     <ID>MaxLineLength:DatabaseHelper.kt$DatabaseHelper$.</ID>
     <ID>MaxLineLength:Migrations.kt$&lt;no name provided&gt;$db.execSQL("CREATE INDEX IF NOT EXISTS index_orienteering_results_competitionId ON orienteering_results(competitionId)")</ID>

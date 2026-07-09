@@ -64,5 +64,7 @@ data class CompetitionRequest(
     @SerializedName("isTest")
     val isTest: Boolean = false,
     @SerializedName("serverUpdatedAt")
-    val serverUpdatedAt: Long? = null
+    val serverUpdatedAt: Long? = null,
+    @SerializedName("organizingClubId")
+    val organizingClubId: String? = null
 )

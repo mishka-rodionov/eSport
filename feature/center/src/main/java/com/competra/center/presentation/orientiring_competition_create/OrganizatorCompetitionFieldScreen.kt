@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.theme.Dimens
+import com.competra.domain.models.club.Club
 import com.competra.center.data.creator.OrienteeringCreatorAction
 import com.competra.center.data.creator.OrienteeringCreatorState
 import org.koin.androidx.compose.koinViewModel
@@ -94,6 +95,7 @@ fun OrganizatorCompetitionFieldScreen(
         onUpdateContactPhone = viewModel::updateContactPhone,
         onUpdateContactEmail = viewModel::updateContactEmail,
         onUpdateWebsite = viewModel::updateWebsite,
+        onUpdateOrganizingClubId = viewModel::updateOrganizingClubId,
         onAction = viewModel::onAction
     )
 }
@@ -111,6 +113,7 @@ private fun OrganizatorCompetitionFieldContent(
     onUpdateContactPhone: (String) -> Unit,
     onUpdateContactEmail: (String) -> Unit,
     onUpdateWebsite: (String) -> Unit,
+    onUpdateOrganizingClubId: (String?) -> Unit = {},
     onAction: (OrienteeringCreatorAction) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
@@ -205,6 +208,61 @@ private fun OrganizatorCompetitionFieldContent(
                     text = state.website,
                     label = { Text("Официальный сайт") },
                     onValueChanged = onUpdateWebsite
+                )
+            }
+
+            if (state.myClubs.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+                Text(
+                    text = "Клуб-организатор",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                OrganizingClubPicker(
+                    clubs = state.myClubs,
+                    selectedClubId = state.organizingClubId,
+                    onSelect = onUpdateOrganizingClubId
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Выбор опционального клуба-организатора из клубов пользователя, где он FOUNDER/ADMIN.
+ * Пункт "Без клуба" очищает выбор — соревнование создаётся от лица пользователя, как обычно.
+ */
+@Composable
+private fun OrganizingClubPicker(
+    clubs: List<Club>,
+    selectedClubId: String?,
+    onSelect: (String?) -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val selectedName = clubs.firstOrNull { it.id == selectedClubId }?.name ?: "Без клуба"
+
+    Box {
+        OutlinedButton(onClick = { isExpanded = true }, modifier = Modifier.fillMaxWidth()) {
+            Text(selectedName)
+        }
+        DropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+            DropdownMenuItem(
+                text = { Text("Без клуба") },
+                onClick = {
+                    onSelect(null)
+                    isExpanded = false
+                }
+            )
+            clubs.forEach { club ->
+                DropdownMenuItem(
+                    text = { Text(club.name) },
+                    onClick = {
+                        onSelect(club.id)
+                        isExpanded = false
+                    }
                 )
             }
         }

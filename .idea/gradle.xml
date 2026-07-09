@@ -38,6 +38,7 @@
             <option value="$PROJECT_DIR$/domain" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/center" />
+            <option value="$PROJECT_DIR$/feature/clubs" />
             <option value="$PROJECT_DIR$/feature/diary" />
             <option value="$PROJECT_DIR$/feature/events" />
             <option value="$PROJECT_DIR$/feature/onboarding" />

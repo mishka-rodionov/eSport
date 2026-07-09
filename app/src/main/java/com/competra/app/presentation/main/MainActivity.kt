@@ -56,6 +56,8 @@ import androidx.window.core.layout.WindowSizeClass
 import com.competra.analytics.AnalyticsTracker
 import com.competra.analytics.TrackNavScreens
 import com.competra.center.navigation.centerGraph
+import com.competra.clubs.navigation.clubsGraph
+import com.competra.data.navigation.ClubsNavigation
 import com.competra.data.navigation.BackRoute
 import com.competra.data.navigation.BaseNavigation
 import com.competra.data.navigation.CenterNavigation
@@ -299,6 +301,7 @@ internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeCla
                                 BottomNavItem.CompetitionList -> eventsGraph()
                                 BottomNavItem.CompetitionConstructor -> centerGraph(windowSizeClass, navController)
                                 BottomNavItem.Diary -> diaryGraph()
+                                BottomNavItem.Clubs -> clubsGraph()
                             }
                         }
                     }
@@ -363,6 +366,7 @@ private fun checkNavigation(tab: BottomNavItem): BaseNavigation = when (tab) {
     BottomNavItem.CompetitionList -> EventsNavigation.EventsRoute
     BottomNavItem.CompetitionConstructor -> CenterNavigation.CenterRoute
     BottomNavItem.Diary -> DiaryNavigation.DiaryRoute
+    BottomNavItem.Clubs -> ClubsNavigation.ClubsBaseRoute
 }
 
 /**

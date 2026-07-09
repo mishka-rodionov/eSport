@@ -5,6 +5,7 @@ import com.competra.domain.models.Competition
 import com.competra.domain.models.Coordinates
 import com.competra.domain.models.CropRect
 import com.competra.domain.models.KindOfSport
+import com.competra.domain.models.club.Club
 import com.competra.domain.models.orienteering.*
 import com.competra.domain.models.ParticipantGroup
 import com.competra.domain.models.orienteering.CompetitionStatus
@@ -107,7 +108,12 @@ data class OrienteeringCreatorState(
     val error: String? = null,
 
     /** Тестовое соревнование (только debug-сборка): скрыто из публичной ленты, видно лишь владельцу. */
-    val isTest: Boolean = false
+    val isTest: Boolean = false,
+
+    /** Опциональный клуб-организатор. Задать может FOUNDER/ADMIN клуба из [myClubs]. */
+    val organizingClubId: String? = null,
+    /** Клубы текущего пользователя с ролью FOUNDER/ADMIN — кандидаты для выбора клуба-организатора. */
+    val myClubs: List<Club> = emptyList()
 ) : BaseState {
     
     fun toOrienteeringCompetition(userId: String?): OrienteeringCompetition {
@@ -137,7 +143,8 @@ data class OrienteeringCreatorState(
                 website = website,
                 resultsStatus = ResultsStatus.NOT_PUBLISHED,
                 timeZoneId = timeZoneId,
-                isTest = isTest
+                isTest = isTest,
+                organizingClubId = organizingClubId
             ),
             direction = competitionDirection,
             punchingSystem = punchingSystem,

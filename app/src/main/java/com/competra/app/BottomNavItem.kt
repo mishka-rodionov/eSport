@@ -45,7 +45,14 @@ sealed class BottomNavItem(
         iconRes = R.drawable.ic_directions_run_24px
     )
 
+    @Serializable
+    data object Clubs : BottomNavItem(
+        route = "Clubs",
+        title = "Клубы",
+        iconRes = R.drawable.ic_groups_24px
+    )
+
     companion object {
-        val all = listOf(CompetitionList, CompetitionConstructor, Diary, Profile)
+        val all = listOf(CompetitionList, CompetitionConstructor, Diary, Clubs, Profile)
     }
 }

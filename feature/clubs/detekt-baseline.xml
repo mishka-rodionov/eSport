@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ClubDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubDetailScreen(clubId: String, viewModel: ClubDetailViewModel = koinViewModel())</ID>
+    <ID>CyclomaticComplexMethod:ClubDetailViewModel.kt$ClubDetailViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>CyclomaticComplexMethod:TeamDetailViewModel.kt$TeamDetailViewModel$override fun onAction(action: BaseAction)</ID>
+    <ID>FunctionNaming:ClubDetailScreen.kt$@Composable private fun CreateTeamDialog( name: String, sportType: KindOfSport, isSaving: Boolean, onNameChanged: (String) -&gt; Unit, onSportChanged: (KindOfSport) -&gt; Unit, onSave: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ClubDetailScreen.kt$@Composable private fun EditClubDialog( name: String, description: String, allowJoinRequests: Boolean, isSaving: Boolean, onNameChanged: (String) -&gt; Unit, onDescriptionChanged: (String) -&gt; Unit, onAllowJoinRequestsChanged: (Boolean) -&gt; Unit, onSave: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ClubDetailScreen.kt$@Composable private fun MembersTab( members: List&lt;ClubMember&gt;, isAdmin: Boolean, myUserId: String?, onMemberClick: (ClubMember) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ClubDetailScreen.kt$@Composable private fun RoleChangeDialog( member: ClubMember, isFounder: Boolean, onChangeRole: (ClubRole) -&gt; Unit, onRemove: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ClubDetailScreen.kt$@Composable private fun TeamsTab(teams: List&lt;Team&gt;, isAdmin: Boolean, onTeamClick: (String) -&gt; Unit, onCreateTeamClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:ClubDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubDetailScreen(clubId: String, viewModel: ClubDetailViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:ClubJoinRequestsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubJoinRequestsScreen(clubId: String, viewModel: ClubJoinRequestsViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:ClubsListScreen.kt$@Composable private fun ClubItem(club: Club, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:ClubsListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubsListScreen(viewModel: ClubsListViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:CreateClubScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreateClubScreen(viewModel: ClubFormViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:MyJoinRequestsScreen.kt$@Composable private fun RequestItem(request: ClubJoinRequest, clubName: String, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:MyJoinRequestsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MyJoinRequestsScreen(viewModel: MyJoinRequestsViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:TeamDetailScreen.kt$@Composable private fun AddMemberDialog(candidates: List&lt;ClubMember&gt;, onSelect: (ClubMember) -&gt; Unit, onDismiss: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:TeamDetailScreen.kt$@Composable private fun EditTeamDialog( name: String, sportType: KindOfSport, isSaving: Boolean, onNameChanged: (String) -&gt; Unit, onSportChanged: (KindOfSport) -&gt; Unit, onSave: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TeamDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TeamDetailScreen(teamId: String, viewModel: TeamDetailViewModel = koinViewModel())</ID>
+    <ID>LongMethod:ClubDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubDetailScreen(clubId: String, viewModel: ClubDetailViewModel = koinViewModel())</ID>
+    <ID>LongMethod:ClubJoinRequestsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubJoinRequestsScreen(clubId: String, viewModel: ClubJoinRequestsViewModel = koinViewModel())</ID>
+    <ID>LongMethod:ClubsListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubsListScreen(viewModel: ClubsListViewModel = koinViewModel())</ID>
+    <ID>LongMethod:TeamDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TeamDetailScreen(teamId: String, viewModel: TeamDetailViewModel = koinViewModel())</ID>
+    <ID>LongParameterList:ClubDetailScreen.kt$( name: String, description: String, allowJoinRequests: Boolean, isSaving: Boolean, onNameChanged: (String) -&gt; Unit, onDescriptionChanged: (String) -&gt; Unit, onAllowJoinRequestsChanged: (Boolean) -&gt; Unit, onSave: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongParameterList:ClubDetailScreen.kt$( name: String, sportType: KindOfSport, isSaving: Boolean, onNameChanged: (String) -&gt; Unit, onSportChanged: (KindOfSport) -&gt; Unit, onSave: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongParameterList:ClubDetailViewModel.kt$ClubDetailViewModel$( private val clubRepository: ClubRepository, private val teamRepository: TeamRepository, private val joinRequestRepository: ClubJoinRequestRepository, private val userRepository: UserRepository, private val navigation: Navigation, private val networkErrorRepository: NetworkErrorRepository, private val analytics: AnalyticsTracker, )</ID>
+    <ID>LongParameterList:TeamDetailScreen.kt$( name: String, sportType: KindOfSport, isSaving: Boolean, onNameChanged: (String) -&gt; Unit, onSportChanged: (KindOfSport) -&gt; Unit, onSave: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>MaxLineLength:ClubDetailScreen.kt$private</ID>
+    <ID>MaxLineLength:ClubDetailViewModel.kt$ClubDetailViewModel$AnalyticsEvent.ClubMemberRemoved(stateValue.clubId, isSelf = member.userId == stateValue.myUserId)</ID>
+    <ID>MaxLineLength:ClubDetailViewModel.kt$ClubDetailViewModel$val failure = clubResult.exceptionOrNull() ?: membersResult.exceptionOrNull() ?: teamsResult.exceptionOrNull()</ID>
+    <ID>PackageNaming:ClubJoinRequestsAction.kt$package com.competra.clubs.data.join_requests</ID>
+    <ID>PackageNaming:ClubJoinRequestsScreen.kt$package com.competra.clubs.presentation.join_requests</ID>
+    <ID>PackageNaming:ClubJoinRequestsState.kt$package com.competra.clubs.data.join_requests</ID>
+    <ID>PackageNaming:ClubJoinRequestsViewModel.kt$package com.competra.clubs.presentation.join_requests</ID>
+    <ID>PackageNaming:MyJoinRequestsAction.kt$package com.competra.clubs.data.my_requests</ID>
+    <ID>PackageNaming:MyJoinRequestsScreen.kt$package com.competra.clubs.presentation.my_requests</ID>
+    <ID>PackageNaming:MyJoinRequestsState.kt$package com.competra.clubs.data.my_requests</ID>
+    <ID>PackageNaming:MyJoinRequestsViewModel.kt$package com.competra.clubs.presentation.my_requests</ID>
+    <ID>PackageNaming:TeamDetailAction.kt$package com.competra.clubs.data.team_detail</ID>
+    <ID>PackageNaming:TeamDetailScreen.kt$package com.competra.clubs.presentation.team_detail</ID>
+    <ID>PackageNaming:TeamDetailState.kt$package com.competra.clubs.data.team_detail</ID>
+    <ID>PackageNaming:TeamDetailViewModel.kt$package com.competra.clubs.presentation.team_detail</ID>
+    <ID>TooManyFunctions:ClubDetailViewModel.kt$ClubDetailViewModel : BaseViewModel</ID>
+  </CurrentIssues>
+</SmellBaseline>

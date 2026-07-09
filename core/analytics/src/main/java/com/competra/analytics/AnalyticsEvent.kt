@@ -233,4 +233,50 @@ sealed class AnalyticsEvent(
         AnalyticsEvent("diary_workout_deleted", mapOf("sport_type" to sportType.name.lowercase()))
 
     // endregion
+
+    // region Clubs
+
+    /** Создан новый клуб. */
+    class ClubCreated(clubId: String) :
+        AnalyticsEvent("club_created", mapOf("club_id" to clubId))
+
+    /** Изменены настройки клуба (название/описание/приём заявок). */
+    class ClubUpdated(clubId: String) :
+        AnalyticsEvent("club_updated", mapOf("club_id" to clubId))
+
+    /** Клуб удалён (только FOUNDER). */
+    class ClubDeleted(clubId: String) :
+        AnalyticsEvent("club_deleted", mapOf("club_id" to clubId))
+
+    /** Подана заявка на вступление в клуб. */
+    class ClubJoinRequested(clubId: String) :
+        AnalyticsEvent("club_join_requested", mapOf("club_id" to clubId))
+
+    /** Заявка на вступление рассмотрена FOUNDER/ADMIN. */
+    class ClubJoinRequestReviewed(clubId: String, approved: Boolean) : AnalyticsEvent(
+        "club_join_request_reviewed",
+        mapOf("club_id" to clubId, "approved" to approved),
+    )
+
+    /** Участник покинул клуб или был удалён (FOUNDER/ADMIN). */
+    class ClubMemberRemoved(clubId: String, isSelf: Boolean) : AnalyticsEvent(
+        "club_member_removed",
+        mapOf("club_id" to clubId, "is_self" to isSelf),
+    )
+
+    /** Изменена роль участника клуба (включая передачу роли Founder). */
+    class ClubMemberRoleChanged(clubId: String, newRole: String) : AnalyticsEvent(
+        "club_member_role_changed",
+        mapOf("club_id" to clubId, "new_role" to newRole.lowercase()),
+    )
+
+    /** Создана команда внутри клуба. */
+    class ClubTeamCreated(clubId: String) :
+        AnalyticsEvent("club_team_created", mapOf("club_id" to clubId))
+
+    /** Команда удалена. */
+    class ClubTeamDeleted(teamId: String) :
+        AnalyticsEvent("club_team_deleted", mapOf("team_id" to teamId))
+
+    // endregion
 }

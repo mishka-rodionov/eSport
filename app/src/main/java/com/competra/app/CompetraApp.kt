@@ -8,6 +8,7 @@ import androidx.work.Configuration
 import com.competra.analytics.di.analyticsCoreModule
 import com.competra.analytics.initAppMetrica
 import com.competra.center.di.centerModule
+import com.competra.clubs.di.clubsModule
 import com.competra.diary.di.diaryModule
 import com.competra.core.sync.NetworkAvailabilityObserver
 import com.competra.core.sync.SyncBootstrap
@@ -24,6 +25,7 @@ import com.competra.nfchelper.di.nfcModule
 import com.competra.onboarding.di.onboardingModule
 import com.competra.profile.di.profileModule
 import com.competra.remote.di.authModule
+import com.competra.remote.di.clubsDataModule
 import com.competra.remote.di.deviceModule
 import com.competra.remote.di.diaryDataModule
 import com.competra.remote.di.eventsDataModule
@@ -71,10 +73,16 @@ class CompetraApp : Application(), Configuration.Provider {
             )
 
             // data modules
-            modules(authModule, orienteeringModule, eventsDataModule, uploadModule, deviceModule, diaryDataModule)
+            modules(
+                authModule, orienteeringModule, eventsDataModule, uploadModule, deviceModule, diaryDataModule,
+                clubsDataModule
+            )
 
             // feature modules
-            modules(mainModule, centerModule, eventsModule, eventDetailsModule, profileModule, onboardingModule, diaryModule)
+            modules(
+                mainModule, centerModule, eventsModule, eventDetailsModule, profileModule, onboardingModule,
+                diaryModule, clubsModule
+            )
 
             // firebase
             modules(firebaseModule)
