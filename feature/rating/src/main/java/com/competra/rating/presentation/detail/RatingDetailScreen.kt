@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +59,16 @@ fun RatingDetailScreen(ratingId: String, viewModel: RatingDetailViewModel = koin
                             imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_back_24px),
                             contentDescription = "Назад"
                         )
+                    }
+                },
+                actions = {
+                    if (state.isAdmin) {
+                        IconButton(onClick = { viewModel.onAction(RatingDetailAction.OpenDeleteConfirm) }) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.delete),
+                                contentDescription = stringResource(R.string.rating_detail_delete_action)
+                            )
+                        }
                     }
                 }
             )
@@ -137,6 +149,24 @@ fun RatingDetailScreen(ratingId: String, viewModel: RatingDetailViewModel = koin
                 }
             }
         }
+    }
+
+    if (state.isDeleteConfirmOpen) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onAction(RatingDetailAction.CloseDeleteConfirm) },
+            title = { Text(stringResource(R.string.rating_detail_delete_confirm_title)) },
+            text = { Text(stringResource(R.string.rating_detail_delete_confirm_message)) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onAction(RatingDetailAction.ConfirmDelete) }) {
+                    Text(stringResource(R.string.rating_detail_delete_action))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onAction(RatingDetailAction.CloseDeleteConfirm) }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            }
+        )
     }
 }
 

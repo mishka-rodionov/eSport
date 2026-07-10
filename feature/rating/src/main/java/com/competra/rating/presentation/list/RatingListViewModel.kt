@@ -30,6 +30,12 @@ class RatingListViewModel(
         reload()
     }
 
+    /** Перезагружает список при возврате на экран (например, после удаления рейтинга в деталях). */
+    fun refresh() {
+        if (stateValue.clubId.isBlank()) return
+        reload()
+    }
+
     override fun onAction(action: BaseAction) {
         when (action) {
             is RatingListAction.BackClick -> viewModelScope.launch { navigation.back() }

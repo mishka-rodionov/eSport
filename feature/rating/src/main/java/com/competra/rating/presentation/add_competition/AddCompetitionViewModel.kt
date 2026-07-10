@@ -30,7 +30,14 @@ class AddCompetitionViewModel(
     fun initialize(ratingId: String) {
         if (stateValue.ratingId == ratingId) return
         updateState { copy(ratingId = ratingId) }
-        search()
+        viewModelScope.launch {
+            val alreadyAdded = ratingRepository.listCompetitions(ratingId)
+                .getOrDefault(emptyList())
+                .map { it.competitionId }
+                .toSet()
+            updateState { copy(alreadyAddedCompetitionIds = alreadyAdded) }
+            search()
+        }
     }
 
     override fun onAction(action: BaseAction) {
@@ -47,7 +54,8 @@ class AddCompetitionViewModel(
             updateState { copy(isLoading = true) }
             eventsRepository.getEvents(EventsFilter(searchQuery = stateValue.query.trim().ifBlank { null }), page = 0, limit = PAGE_SIZE)
                 .onSuccess { paged ->
-                    updateState { copy(competitions = paged.items, isLoading = false) }
+                    val filtered = paged.items.filterNot { it.id in stateValue.alreadyAddedCompetitionIds }
+                    updateState { copy(competitions = filtered, isLoading = false) }
                 }
                 .onFailure { throwable ->
                     updateState { copy(isLoading = false) }
@@ -62,7 +70,12 @@ class AddCompetitionViewModel(
             ratingRepository.addCompetition(stateValue.ratingId, competitionId)
                 .onSuccess {
                     analytics.trackEvent(AnalyticsEvent.RatingCompetitionAdded(stateValue.ratingId, competitionId))
-                    updateState { copy(isAdding = false) }
+                    updateState {
+                        copy(
+                            isAdding = false,
+                            alreadyAddedCompetitionIds = alreadyAddedCompetitionIds + competitionId
+                        )
+                    }
                     navigation.navigate(RatingNavigation.GroupMappingRoute(stateValue.ratingId, competitionId))
                 }
                 .onFailure { throwable ->

@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +32,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.rating.RatingSeries
 import com.competra.rating.data.list.RatingListAction
@@ -43,6 +47,20 @@ fun RatingListScreen(clubId: String, viewModel: RatingListViewModel = koinViewMo
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(clubId) { viewModel.initialize(clubId) }
+
+    // LocalLifecycleOwner здесь — lifecycle конкретного NavBackStackEntry этого роута,
+    // а не Activity, поэтому ON_RESUME срабатывает и при возврате из деталей рейтинга
+    // (Compose Navigation не перевызывает composable-лямбду при pop back stack).
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Scaffold(
         topBar = {

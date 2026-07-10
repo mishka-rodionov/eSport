@@ -1,6 +1,8 @@
 package com.competra.rating.presentation.detail
 
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.RatingNavigation
 import com.competra.domain.exception.NetworkException
@@ -22,6 +24,7 @@ class RatingDetailViewModel(
     private val userRepository: UserRepository,
     private val navigation: Navigation,
     private val networkErrorRepository: NetworkErrorRepository,
+    private val analytics: AnalyticsTracker,
 ) : BaseViewModel<RatingDetailState>(RatingDetailState()) {
 
     fun initialize(ratingId: String) {
@@ -50,6 +53,9 @@ class RatingDetailViewModel(
                     )
                 }
             }
+            is RatingDetailAction.OpenDeleteConfirm -> updateState { copy(isDeleteConfirmOpen = true) }
+            is RatingDetailAction.CloseDeleteConfirm -> updateState { copy(isDeleteConfirmOpen = false) }
+            is RatingDetailAction.ConfirmDelete -> confirmDelete()
         }
     }
 
@@ -110,6 +116,23 @@ class RatingDetailViewModel(
             ratingRepository.removeCompetition(stateValue.ratingId, competitionId)
                 .onSuccess { reload() }
                 .onFailure { emitNetworkError(it) }
+        }
+    }
+
+    private fun confirmDelete() {
+        val ratingId = stateValue.ratingId
+        viewModelScope.launch {
+            updateState { copy(isDeleting = true) }
+            ratingRepository.delete(ratingId)
+                .onSuccess {
+                    analytics.trackEvent(AnalyticsEvent.RatingDeleted(ratingId))
+                    updateState { copy(isDeleting = false, isDeleteConfirmOpen = false) }
+                    navigation.back()
+                }
+                .onFailure { throwable ->
+                    updateState { copy(isDeleting = false) }
+                    emitNetworkError(throwable)
+                }
         }
     }
 

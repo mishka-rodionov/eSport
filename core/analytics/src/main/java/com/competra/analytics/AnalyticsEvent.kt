@@ -300,5 +300,9 @@ sealed class AnalyticsEvent(
         mapOf("rating_id" to ratingId, "competition_id" to competitionId),
     )
 
+    /** Рейтинг удалён (FOUNDER/ADMIN клуба-владельца). */
+    class RatingDeleted(ratingId: String) :
+        AnalyticsEvent("rating_deleted", mapOf("rating_id" to ratingId))
+
     // endregion
 }

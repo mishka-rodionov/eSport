@@ -7,6 +7,7 @@ data class AddCompetitionState(
     val ratingId: String = "",
     val query: String = "",
     val competitions: List<Competition> = emptyList(),
+    val alreadyAddedCompetitionIds: Set<String> = emptySet(),
     val isLoading: Boolean = false,
     val isAdding: Boolean = false
 ) : BaseState

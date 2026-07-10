@@ -75,7 +75,15 @@ class GroupMappingViewModel(
                         AnalyticsEvent.RatingGroupMappingConfirmed(stateValue.ratingId, stateValue.competitionId)
                     )
                     updateState { copy(isSaving = false) }
-                    navigation.navigate(RatingNavigation.RatingDetailRoute(stateValue.ratingId))
+                    // Схлопываем AddCompetition+GroupMapping (и старый RatingDetail) в один свежий
+                    // RatingDetail, иначе экраны накапливаются в стеке при добавлении нескольких
+                    // соревнований подряд — см. паттерн OrienteeringCreatorViewModel.finishCreation().
+                    val destination = RatingNavigation.RatingDetailRoute(stateValue.ratingId)
+                    destination.navOptionsBuilder = {
+                        popUpTo(RatingNavigation.RatingDetailRoute(stateValue.ratingId)) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                    navigation.navigate(destination)
                 }
                 .onFailure { throwable ->
                     updateState { copy(isSaving = false) }

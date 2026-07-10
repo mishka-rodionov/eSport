@@ -8,4 +8,7 @@ sealed class RatingDetailAction : BaseAction {
     data object AddCompetitionClick : RatingDetailAction()
     data class RemoveCompetitionClick(val competitionId: String) : RatingDetailAction()
     data class EditMappingClick(val competitionId: String) : RatingDetailAction()
+    data object OpenDeleteConfirm : RatingDetailAction()
+    data object CloseDeleteConfirm : RatingDetailAction()
+    data object ConfirmDelete : RatingDetailAction()
 }
