@@ -14,7 +14,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -63,6 +62,12 @@ fun RatingDetailScreen(ratingId: String, viewModel: RatingDetailViewModel = koin
                 },
                 actions = {
                     if (state.isAdmin) {
+                        IconButton(onClick = { viewModel.onAction(RatingDetailAction.AddCompetitionClick) }) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
+                                contentDescription = stringResource(R.string.rating_detail_add_competition_action)
+                            )
+                        }
                         IconButton(onClick = { viewModel.onAction(RatingDetailAction.OpenDeleteConfirm) }) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.delete),
@@ -72,16 +77,6 @@ fun RatingDetailScreen(ratingId: String, viewModel: RatingDetailViewModel = koin
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            if (state.isAdmin) {
-                FloatingActionButton(onClick = { viewModel.onAction(RatingDetailAction.AddCompetitionClick) }) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_add_24px),
-                        contentDescription = stringResource(R.string.rating_detail_add_competition_action)
-                    )
-                }
-            }
         }
     ) { padding ->
         val rating = state.rating
@@ -93,52 +88,62 @@ fun RatingDetailScreen(ratingId: String, viewModel: RatingDetailViewModel = koin
         }
         if (rating == null) return@Scaffold
 
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            if (rating.groups.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.rating_detail_no_groups))
-                }
-                return@Scaffold
+        if (rating.groups.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                Text(stringResource(R.string.rating_detail_no_groups))
             }
+            return@Scaffold
+        }
 
-            ScrollableTabRow(selectedTabIndex = rating.groups.indexOfFirst { it.id == state.selectedGroupId }.coerceAtLeast(0)) {
-                rating.groups.forEach { group ->
-                    Tab(
-                        selected = group.id == state.selectedGroupId,
-                        onClick = { viewModel.onAction(RatingDetailAction.SelectGroup(group.id)) },
-                        text = { Text(group.title) }
-                    )
+        // Единый скроллящийся список: иначе при длинной таблице результатов раздел
+        // "Соревнования рейтинга" уходит за пределы экрана и становится недостижим.
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(bottom = Dimens.SIZE_BASE.dp),
+            verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp)
+        ) {
+            item {
+                ScrollableTabRow(selectedTabIndex = rating.groups.indexOfFirst { it.id == state.selectedGroupId }.coerceAtLeast(0)) {
+                    rating.groups.forEach { group ->
+                        Tab(
+                            selected = group.id == state.selectedGroupId,
+                            onClick = { viewModel.onAction(RatingDetailAction.SelectGroup(group.id)) },
+                            text = { Text(group.title) }
+                        )
+                    }
                 }
             }
 
             if (state.isStandingsLoading) {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.padding(Dimens.SIZE_BASE.dp))
+                item {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(modifier = Modifier.padding(Dimens.SIZE_BASE.dp))
+                    }
                 }
             } else if (state.standings.isEmpty()) {
-                Box(modifier = Modifier.fillMaxWidth().padding(Dimens.SIZE_BASE.dp), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.rating_detail_standings_empty))
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(Dimens.SIZE_BASE.dp), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.rating_detail_standings_empty))
+                    }
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = Dimens.SIZE_BASE.dp, vertical = Dimens.SIZE_HALF.dp),
-                    verticalArrangement = Arrangement.spacedBy(Dimens.SIZE_QUARTER.dp)
-                ) {
-                    items(state.standings, key = { it.participantKey }) { standing ->
+                items(state.standings, key = { "standing_${it.participantKey}" }) { standing ->
+                    Box(modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp)) {
                         StandingRow(standing)
                     }
                 }
             }
 
             if (state.competitions.isNotEmpty()) {
-                Text(
-                    text = stringResource(R.string.rating_detail_competitions_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(Dimens.SIZE_BASE.dp)
-                )
-                Column(modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp)) {
-                    state.competitions.forEach { competition ->
+                item {
+                    Text(
+                        text = stringResource(R.string.rating_detail_competitions_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(Dimens.SIZE_BASE.dp)
+                    )
+                }
+                items(state.competitions, key = { "competition_${it.id}" }) { competition ->
+                    Box(modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp)) {
                         CompetitionRow(
                             competition = competition,
                             isAdmin = state.isAdmin,
