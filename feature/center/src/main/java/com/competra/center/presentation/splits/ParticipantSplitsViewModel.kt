@@ -19,6 +19,17 @@ class ParticipantSplitsViewModel(
 
     fun load(participantId: String, competitionId: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            val match = interactor.getResultsByGroupsAuto(competitionId)
+                .flatMap { it.participants }
+                .firstOrNull { it.participant.id == participantId }
+
+            if (match != null) {
+                updateState { copy(participant = match.participant, result = match.result) }
+                return@launch
+            }
+
+            // Fallback на прямые локальные геттеры — на случай если getResultsByGroupsAuto
+            // не смог сматчить участника (например, группы ещё не подтянуты).
             val participant = interactor.getParticipants(competitionId)
                 .getOrNull()
                 ?.firstOrNull { it.id == participantId }

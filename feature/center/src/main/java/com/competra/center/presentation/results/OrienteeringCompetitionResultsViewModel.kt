@@ -12,7 +12,9 @@ import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.getArguments
 import com.competra.domain.models.ResultStatus
+import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.domain.models.orienteering.SplitsTableCell
@@ -58,21 +60,32 @@ class OrienteeringCompetitionResultsViewModel(
 
     /**
      * Загружает результаты соревнований и обновляет состояние.
+     *
+     * Для завершённых соревнований результаты подтягиваются с сервера (см.
+     * [OrienteeringCompetitionInteractor.getResultsByGroupsAuto]): они могли быть внесены не с
+     * этого устройства (другой судейский телефон, веб), а фоновая синхронизация только выгружает
+     * локальные изменения и не скачивает чужие результаты обратно. Для соревнований в процессе —
+     * без сетевых запросов, только локальная БД.
      */
     private fun loadResults() {
-        competitionId?.let {
+        competitionId?.let { id ->
             viewModelScope.launch(Dispatchers.IO) {
-                val competition = orienteeringCompetitionInteractor.getCompetition(it)
-                val results = orienteeringCompetitionInteractor.getResultsByGroups(it).getOrNull() ?: emptyList()
+                val competition = orienteeringCompetitionInteractor.getCompetition(id)
+                val results = orienteeringCompetitionInteractor.getResultsByGroupsAuto(id)
+
+                val direction = competition?.direction ?: OrienteeringDirection.FORWARD
                 val sortedResults = results.map { group ->
-                    group.copy(participants = group.participants.sortedForResults())
+                    group.copy(participants = group.participants.sortedForResults(direction))
                 }
                 val isApproved = sortedResults.isNotEmpty() &&
                     sortedResults.all { group -> group.participants.all { it.result?.isEditable == false } }
+                val isCompetitionFinished = competition?.competition?.status in
+                    listOf(CompetitionStatus.FINISHED, CompetitionStatus.ARCHIVED)
                 updateState {
                     copy(
                         groupsWithParticipantsAndResults = sortedResults,
                         isApproved = isApproved,
+                        isCompetitionFinished = isCompetitionFinished,
                         competitionTitle = competition?.competition?.title ?: "",
                     )
                 }

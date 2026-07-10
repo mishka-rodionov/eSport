@@ -6,6 +6,7 @@ import com.competra.analytics.AnalyticsTracker
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
 import com.competra.center.data.race_graph.RACE_GRAPH_DEFAULT_VISIBLE_COUNT
 import com.competra.center.data.race_graph.RaceGraphState
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.buildRaceGraphData
 import com.competra.domain.models.orienteering.buildSplitsTable
 import com.competra.domain.models.orienteering.sortedForResults
@@ -24,15 +25,17 @@ class RaceGraphViewModel(
     fun load(groupId: Long, competitionId: String) {
         analytics.trackEvent(AnalyticsEvent.RaceGraphOpened(groupId, competitionId))
         viewModelScope.launch(Dispatchers.IO) {
-            val group = interactor.getResultsByGroups(competitionId).getOrNull()
-                ?.firstOrNull { it.group.groupId == groupId }
+            val competition = interactor.getCompetition(competitionId)
+            val group = interactor.getResultsByGroupsAuto(competitionId)
+                .firstOrNull { it.group.groupId == groupId }
 
             if (group == null) {
                 updateState { copy(isLoading = false) }
                 return@launch
             }
 
-            val sortedGroup = group.copy(participants = group.participants.sortedForResults())
+            val direction = competition?.direction ?: OrienteeringDirection.FORWARD
+            val sortedGroup = group.copy(participants = group.participants.sortedForResults(direction))
             val table = buildSplitsTable(sortedGroup)
             val raceGraphData = buildRaceGraphData(table)
 

@@ -9,6 +9,7 @@ import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.competra.domain.models.orienteering.OrienteeringCompetitionDetails
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
+import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.domain.models.orienteering.CompetitionStatus
 import com.competra.domain.models.orienteering.Distance
 import com.competra.domain.models.orienteering.OrienteeringDirection
@@ -486,6 +487,56 @@ class OrienteeringCompetitionInteractor(
 
     suspend fun getResultsByGroups(competitionId: String): Result<List<GroupWithParticipantsAndResults>> {
         return localRepository.getResultByGroups(competitionId)
+    }
+
+    /**
+     * Результаты с сервера, а не из локальной БД. Нужны для завершённых соревнований: результаты
+     * могли быть внесены не с этого устройства (другой судейский телефон, веб), фоновая
+     * синхронизация только выгружает локальные изменения и не скачивает чужие результаты обратно.
+     *
+     * У серверных [ParticipantGroup] не бывает осмысленного локального groupId (см. комментарий
+     * в ParticipantGroupResponse.toDomain() — "устанавливается при zip-сопоставлении"), поэтому
+     * здесь groupId явно проставляется равным remoteId — иначе у всех групп groupId=0 и экраны
+     * группового просмотра (таблица сплитов, график гонки) не могут найти нужную группу.
+     */
+    suspend fun getResultsByGroupsRemote(competitionId: String): Result<List<GroupWithParticipantsAndResults>> {
+        return runCatching {
+            val groups = remoteRepository.getCompetitionParticipantsGroups(competitionId).getOrThrow()
+            val participants = remoteRepository.getParticipantsForCompetition(competitionId).getOrThrow()
+            val results = remoteRepository.getResultsByCompetition(competitionId).getOrThrow()
+
+            val resultsByParticipant = results.associateBy { it.participantId }
+            val participantsByGroup = participants.groupBy { it.groupId }
+
+            groups.map { group ->
+                val groupParticipants = participantsByGroup[group.remoteId] ?: emptyList()
+                GroupWithParticipantsAndResults(
+                    group = group.copy(groupId = group.remoteId ?: 0L),
+                    participants = groupParticipants.map { participant ->
+                        ParticipantWithResult(participant = participant, result = resultsByParticipant[participant.id])
+                    }
+                )
+            }
+        }
+    }
+
+    /**
+     * Результаты для отображения: для завершённых соревнований — с сервера (см.
+     * [getResultsByGroupsRemote], с fallback на локальные при ошибке сети), для остальных —
+     * из локальной БД без сетевых запросов. Общая точка входа для всех экранов, показывающих
+     * результаты/сплиты/график гонки (экран результатов, таблица сплитов группы, график гонки,
+     * сплиты участника).
+     */
+    suspend fun getResultsByGroupsAuto(competitionId: String): List<GroupWithParticipantsAndResults> {
+        val isFinished = getCompetition(competitionId)?.competition?.status in
+            listOf(CompetitionStatus.FINISHED, CompetitionStatus.ARCHIVED)
+        return if (isFinished) {
+            getResultsByGroupsRemote(competitionId).getOrNull()
+                ?: getResultsByGroups(competitionId).getOrNull()
+                ?: emptyList()
+        } else {
+            getResultsByGroups(competitionId).getOrNull() ?: emptyList()
+        }
     }
 
     /**

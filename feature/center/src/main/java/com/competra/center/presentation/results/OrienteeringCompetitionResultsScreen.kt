@@ -313,7 +313,7 @@ fun OrienteeringCompetitionResultsScreen(
                 }
             }
 
-            if (!state.isApproved) {
+            if (!state.isApproved && !state.isCompetitionFinished) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

@@ -6,6 +6,8 @@ import com.competra.ui.BaseState
 data class OrienteeringCompetitionResultsState(
     val groupsWithParticipantsAndResults: List<GroupWithParticipantsAndResults> = emptyList(),
     val isApproved: Boolean = false,
+    /** Соревнование уже завершено — кнопка "Утвердить результаты" больше не показывается. */
+    val isCompetitionFinished: Boolean = false,
     val competitionTitle: String = "",
     val isPublishingHtml: Boolean = false,
     val publishedHtmlUrl: String? = null,
