@@ -9,11 +9,17 @@ import com.competra.rating.presentation.detail.RatingDetailScreen
 import com.competra.rating.presentation.form.RatingFormScreen
 import com.competra.rating.presentation.group_mapping.GroupMappingScreen
 import com.competra.rating.presentation.list.RatingListScreen
+import com.competra.rating.presentation.search.RatingsSearchScreen
 
 /**
- * Граф навигации для раздела рейтингов соревнований. Точка входа — из экрана деталей клуба.
+ * Граф навигации для раздела рейтингов соревнований. Точка входа — из экрана деталей клуба
+ * (клубный список) либо из экрана списка клубов (глобальный поиск).
  */
 fun NavGraphBuilder.ratingGraph() {
+    composable<RatingNavigation.RatingsSearchRoute> {
+        RatingsSearchScreen()
+    }
+
     composable<RatingNavigation.RatingListRoute> { backStackEntry ->
         val route: RatingNavigation.RatingListRoute = backStackEntry.toRoute()
         RatingListScreen(clubId = route.clubId)

@@ -183,8 +183,12 @@
     <string name="team_detail_remove_member_action">Удалить из команды</string>
 
     <string name="club_detail_ratings_action">Рейтинги</string>
+    <string name="clubs_list_ratings_action">Все рейтинги</string>
 
     <!-- Rating -->
+    <string name="ratings_search_title">Все рейтинги</string>
+    <string name="ratings_search_hint">Поиск рейтингов</string>
+    <string name="ratings_search_empty">Рейтинги не найдены</string>
     <string name="rating_list_title">Рейтинги клуба</string>
     <string name="rating_list_create_action">Создать рейтинг</string>
     <string name="rating_list_empty">Рейтингов пока нет</string>

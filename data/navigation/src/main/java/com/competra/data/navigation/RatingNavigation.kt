@@ -15,6 +15,10 @@ sealed class RatingNavigation : BaseNavigation {
     @Contextual
     override var navOptionsBuilder: (NavOptionsBuilder.() -> Unit)? = null
 
+    /** Глобальный поиск по всем рейтингам, без привязки к клубу. */
+    @Serializable
+    data object RatingsSearchRoute : RatingNavigation()
+
     /** Список рейтингов клуба [clubId]. */
     @Serializable
     data class RatingListRoute(val clubId: String) : RatingNavigation()

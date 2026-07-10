@@ -5,6 +5,7 @@ import com.competra.clubs.data.list.ClubsListAction
 import com.competra.clubs.data.list.ClubsListState
 import com.competra.data.navigation.ClubsNavigation
 import com.competra.data.navigation.Navigation
+import com.competra.data.navigation.RatingNavigation
 import com.competra.domain.exception.NetworkException
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.repository.NetworkErrorRepository
@@ -47,6 +48,11 @@ class ClubsListViewModel(
             is ClubsListAction.MyJoinRequestsClick -> {
                 viewModelScope.launch {
                     navigation.navigate(ClubsNavigation.MyJoinRequestsRoute)
+                }
+            }
+            is ClubsListAction.RatingsSearchClick -> {
+                viewModelScope.launch {
+                    navigation.navigate(RatingNavigation.RatingsSearchRoute)
                 }
             }
         }

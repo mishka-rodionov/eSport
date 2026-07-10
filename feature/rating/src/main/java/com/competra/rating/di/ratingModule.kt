@@ -5,6 +5,7 @@ import com.competra.rating.presentation.detail.RatingDetailViewModel
 import com.competra.rating.presentation.form.RatingFormViewModel
 import com.competra.rating.presentation.group_mapping.GroupMappingViewModel
 import com.competra.rating.presentation.list.RatingListViewModel
+import com.competra.rating.presentation.search.RatingsSearchViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -14,4 +15,5 @@ val ratingModule = module {
     viewModelOf(::RatingDetailViewModel)
     viewModelOf(::AddCompetitionViewModel)
     viewModelOf(::GroupMappingViewModel)
+    viewModelOf(::RatingsSearchViewModel)
 }

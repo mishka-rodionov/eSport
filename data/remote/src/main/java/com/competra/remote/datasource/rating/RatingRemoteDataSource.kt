@@ -1,6 +1,7 @@
 package com.competra.remote.datasource.rating
 
 import com.competra.remote.base.CommonModel
+import com.competra.remote.base.PagedResponse
 import com.competra.remote.request.rating.AddCompetitionToRatingRequest
 import com.competra.remote.request.rating.CreateRatingRequest
 import com.competra.remote.request.rating.SetGroupMappingRequest
@@ -9,6 +10,7 @@ import com.competra.remote.response.rating.AddCompetitionToRatingResponse
 import com.competra.remote.response.rating.RatingCompetitionResponse
 import com.competra.remote.response.rating.RatingGroupMappingSuggestionResponse
 import com.competra.remote.response.rating.RatingResponse
+import com.competra.remote.response.rating.RatingSearchResponse
 import com.competra.remote.response.rating.RatingStandingsResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -19,6 +21,13 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RatingRemoteDataSource {
+
+    @GET("ratings")
+    suspend fun search(
+        @Query("query") query: String?,
+        @Query("page") page: Int,
+        @Query("limit") limit: Int
+    ): Result<CommonModel<PagedResponse<RatingSearchResponse>>>
 
     @GET("clubs/{clubId}/ratings")
     suspend fun listForClub(@Path("clubId") clubId: String): Result<CommonModel<List<RatingResponse>>>

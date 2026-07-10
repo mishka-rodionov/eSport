@@ -1,11 +1,13 @@
 package com.competra.remote.repository.rating
 
+import com.competra.domain.models.PagedResult
 import com.competra.domain.models.rating.AddCompetitionToRatingResult
 import com.competra.domain.models.rating.RatingCompetition
 import com.competra.domain.models.rating.RatingGroup
 import com.competra.domain.models.rating.RatingGroupMappingSuggestion
 import com.competra.domain.models.rating.RatingSeries
 import com.competra.domain.models.rating.RatingStanding
+import com.competra.domain.models.rating.RatingSummary
 import com.competra.domain.repository.rating.RatingRepository
 import com.competra.remote.datasource.rating.RatingRemoteDataSource
 import com.competra.remote.request.rating.AddCompetitionToRatingRequest
@@ -19,6 +21,16 @@ import com.competra.remote.response.mappers.toDomain
 class RatingRepositoryImpl(
     private val ratingRemoteDataSource: RatingRemoteDataSource
 ) : RatingRepository {
+
+    override suspend fun search(query: String?, page: Int, limit: Int): Result<PagedResult<RatingSummary>> {
+        return ratingRemoteDataSource.search(query, page, limit).mapCatching { response ->
+            val paged = response.result
+            PagedResult(
+                items = paged?.items.orEmpty().map { it.toDomain() },
+                hasMore = paged?.hasMore ?: false
+            )
+        }
+    }
 
     override suspend fun listForClub(clubId: String): Result<List<RatingSeries>> {
         return ratingRemoteDataSource.listForClub(clubId).mapCatching { it.result!!.map { rating -> rating.toDomain() } }

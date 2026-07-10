@@ -10,6 +10,8 @@ data class RatingDetailState(
     val rating: RatingSeries? = null,
     val selectedGroupId: Long? = null,
     val standings: List<RatingStanding> = emptyList(),
+    /** Кэш standings по группе на время жизни экрана — переключение вкладок не бьёт по сети повторно. */
+    val standingsByGroup: Map<Long, List<RatingStanding>> = emptyMap(),
     val competitions: List<RatingCompetition> = emptyList(),
     val isAdmin: Boolean = false,
     val isLoading: Boolean = false,

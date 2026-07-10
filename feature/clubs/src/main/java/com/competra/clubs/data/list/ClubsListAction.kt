@@ -9,4 +9,5 @@ sealed class ClubsListAction : BaseAction {
     data class ClubClick(val clubId: String) : ClubsListAction()
     data object CreateClubClick : ClubsListAction()
     data object MyJoinRequestsClick : ClubsListAction()
+    data object RatingsSearchClick : ClubsListAction()
 }

@@ -61,7 +61,8 @@ class RatingDetailViewModel(
 
     private fun reload() {
         viewModelScope.launch {
-            updateState { copy(isLoading = true) }
+            // Состав рейтинга мог измениться (удалено соревнование) — старый кэш standings невалиден.
+            updateState { copy(isLoading = true, standingsByGroup = emptyMap()) }
             val ratingId = stateValue.ratingId
             val userId = userRepository.retrieveUser().getOrNull()?.id
 
@@ -93,16 +94,29 @@ class RatingDetailViewModel(
                     isLoading = false
                 )
             }
-            if (selectedGroupId != null) loadStandings(selectedGroupId)
+            // forceReload=true: reload() уже очистил кэш выше, обходить его смысла нет.
+            if (selectedGroupId != null) loadStandings(selectedGroupId, forceReload = true)
         }
     }
 
-    private fun loadStandings(groupId: Long) {
+    /** Переключение вкладок группы использует кэш [RatingDetailState.standingsByGroup] на время жизни экрана. */
+    private fun loadStandings(groupId: Long, forceReload: Boolean = false) {
+        val cached = stateValue.standingsByGroup[groupId]
+        if (!forceReload && cached != null) {
+            updateState { copy(standings = cached) }
+            return
+        }
         viewModelScope.launch {
             updateState { copy(isStandingsLoading = true) }
             ratingRepository.getStandings(stateValue.ratingId, groupId)
                 .onSuccess { standings ->
-                    updateState { copy(standings = standings, isStandingsLoading = false) }
+                    updateState {
+                        copy(
+                            standings = standings,
+                            standingsByGroup = standingsByGroup + (groupId to standings),
+                            isStandingsLoading = false
+                        )
+                    }
                 }
                 .onFailure { throwable ->
                     updateState { copy(isStandingsLoading = false) }

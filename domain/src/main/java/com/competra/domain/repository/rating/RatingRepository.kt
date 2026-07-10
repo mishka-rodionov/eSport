@@ -1,14 +1,19 @@
 package com.competra.domain.repository.rating
 
+import com.competra.domain.models.PagedResult
 import com.competra.domain.models.rating.AddCompetitionToRatingResult
 import com.competra.domain.models.rating.RatingCompetition
 import com.competra.domain.models.rating.RatingGroup
 import com.competra.domain.models.rating.RatingGroupMappingSuggestion
 import com.competra.domain.models.rating.RatingSeries
 import com.competra.domain.models.rating.RatingStanding
+import com.competra.domain.models.rating.RatingSummary
 
 /** Рейтинги соревнований работают только online — без offline-first/`:core:sync`, ошибки сети — обычный [Result.failure]. */
 interface RatingRepository {
+
+    /** Глобальный поиск по всем рейтингам (без привязки к клубу) — для экрана "Все рейтинги". */
+    suspend fun search(query: String?, page: Int, limit: Int): Result<PagedResult<RatingSummary>>
 
     suspend fun listForClub(clubId: String): Result<List<RatingSeries>>
 

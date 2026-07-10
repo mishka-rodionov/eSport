@@ -30,6 +30,10 @@ interface OrienteeringCompetitionRemoteDataSource {
     @POST("event/orienteering/save/participantGroup")
     suspend fun publishParticipantGroups(@Body request: List<ParticipantGroupPublishRequest>): Result<CommonModel<List<ParticipantGroupResponse>>>
 
+    /** Публичное получение соревнования по id — без ограничения по владельцу/участию. */
+    @GET("event/orienteering/competitions/{id}")
+    suspend fun getCompetitionById(@Path("id") id: String): Result<CommonModel<OrienteeringCompetitionResponse>>
+
     @GET("event/orienteering/competitions")
     suspend fun getCompetitionsByUserid(): Result<CommonModel<List<OrienteeringCompetitionResponse>>>
 

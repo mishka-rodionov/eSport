@@ -61,6 +61,7 @@ enum class AnalyticsScreen(val screenName: String) {
     ClubTeamDetail("club_team_detail"),
 
     // Rating
+    RatingsSearch("ratings_search"),
     RatingList("rating_list"),
     RatingCreate("rating_create"),
     RatingDetail("rating_detail"),
@@ -126,6 +127,7 @@ enum class AnalyticsScreen(val screenName: String) {
                 route.contains("MyJoinRequestsRoute") -> ClubMyJoinRequests
                 route.contains("TeamDetailRoute") -> ClubTeamDetail
 
+                route.contains("RatingsSearchRoute") -> RatingsSearch
                 route.contains("RatingListRoute") -> RatingList
                 route.contains("CreateRatingRoute") -> RatingCreate
                 route.contains("RatingDetailRoute") -> RatingDetail
