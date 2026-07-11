@@ -45,3 +45,14 @@ fun Long.toSplitTime(): String {
 
     return "%02d:%02d".format(minutes, seconds)
 }
+
+/**
+ * Форматирует темп участника на перегоне (минуты на километр) в формате M:SS.
+ */
+fun Double.toPace(): String {
+    val totalSeconds = (this * 60).toLong()
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+
+    return "%d:%02d".format(minutes, seconds)
+}

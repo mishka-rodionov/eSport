@@ -191,6 +191,61 @@ class SplitsTableBuilderTest {
     }
 
     @Test
+    fun `pace is computed from control point coordinates when distance is provided`() {
+        // Второй КП ровно в 1000м строго на север от первого (долгота не меняется) —
+        // на меридиане гаверсинус вырождается в R * dLatRad, поэтому расстояние точное,
+        // без допуска на сферическую аппроксимацию.
+        val dLatRad = 1000.0 / 6_371_000.0
+        val distance = Distance(
+            competitionId = "c1",
+            lengthMeters = 1000,
+            climbMeters = 0,
+            controlsCount = 2,
+            controlPoints = listOf(
+                ControlPoint(number = 31, latitude = 0.0, longitude = 0.0),
+                ControlPoint(number = 32, latitude = Math.toDegrees(dLatRad), longitude = 0.0),
+            ),
+        )
+        val a = ParticipantWithResult(
+            participant = participant("A"),
+            result = result(
+                "A", ResultStatus.FINISHED, totalTime = 300,
+                // leg 31->32: 300 секунд на 1000м = 5 мин/км
+                splits = listOf(SplitTime(31, 100_000), SplitTime(32, 400_000)),
+            ),
+        )
+
+        val table = buildSplitsTable(group(listOf(a)), distance)
+        val row = table.rows[0]
+
+        assertNull(row.cells[0].paceMinPerKm) // нет координаты до первого КП
+        assertEquals(5.0, row.cells[1].paceMinPerKm!!, 0.001)
+    }
+
+    @Test
+    fun `pace stays null when distance has no coordinates`() {
+        val distance = Distance(
+            competitionId = "c1",
+            lengthMeters = 1000,
+            climbMeters = 0,
+            controlsCount = 2,
+            controlPoints = listOf(ControlPoint(number = 31), ControlPoint(number = 32)),
+        )
+        val a = ParticipantWithResult(
+            participant = participant("A"),
+            result = result(
+                "A", ResultStatus.FINISHED, totalTime = 200,
+                splits = listOf(SplitTime(31, 100_000), SplitTime(32, 200_000)),
+            ),
+        )
+
+        val table = buildSplitsTable(group(listOf(a)), distance)
+
+        assertNull(table.rows[0].cells[0].paceMinPerKm)
+        assertNull(table.rows[0].cells[1].paceMinPerKm)
+    }
+
+    @Test
     fun `sortedForResults orders by status then by total time`() {
         val finishedSlow = ParticipantWithResult(participant("slow"), result("slow", ResultStatus.FINISHED, totalTime = 500))
         val finishedFast = ParticipantWithResult(participant("fast"), result("fast", ResultStatus.FINISHED, totalTime = 300))

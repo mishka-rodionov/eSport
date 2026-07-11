@@ -37,3 +37,13 @@ data class Distance(
     val controlPoints: List<ControlPoint>,
     val finishControlPoint: Int? = null
 )
+
+/**
+ * Полная ожидаемая последовательность отметок дистанции: [Distance.controlPoints] по порядку
+ * плюс синтетический финишный пункт, если задан [Distance.finishControlPoint]. Позиционно
+ * совпадает с валидными сплитами участника (см. `checkControlPointOrderPro` в feature:center) —
+ * это же позиционное соответствие используется при расчёте длины перегона между КП.
+ */
+fun Distance.expectedSequence(): List<ControlPoint> =
+    finishControlPoint?.let { controlPoints + ControlPoint(number = it, role = ControlPointRole.FINISH) }
+        ?: controlPoints

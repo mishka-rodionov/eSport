@@ -66,7 +66,9 @@ fun ControlPoint.toRequest(): ControlPointRequest {
     return ControlPointRequest(
         number = number,
         role = role,
-        score = score
+        score = score,
+        latitude = latitude,
+        longitude = longitude
     )
 }
 

@@ -9,5 +9,9 @@ data class ControlPointResponse(
     @SerializedName("role")
     val role: ControlPointRole = ControlPointRole.ORDINARY,
     @SerializedName("score")
-    val score: Int = 0
+    val score: Int = 0,
+    @SerializedName("latitude")
+    val latitude: Double? = null,
+    @SerializedName("longitude")
+    val longitude: Double? = null
 )

@@ -1,5 +1,6 @@
 package com.competra.center.data.read_card
 
+import com.competra.domain.models.orienteering.ControlPoint
 import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
@@ -18,6 +19,11 @@ data class OrientReadCardState(
     val groupTotalFinished: Int = 0,
     /** Порядковый список номеров КП дистанции участника (из настроек дистанции). */
     val expectedCpNumbers: List<Int> = emptyList(),
+    /**
+     * Те же КП, что и [expectedCpNumbers], но полными объектами — с координатами, если дистанция
+     * импортирована из геопривязанной карты (IOF XML). Нужны для расчёта темпа на перегоне.
+     */
+    val expectedControlPoints: List<ControlPoint> = emptyList(),
     /** true — DSQ-результат показан организатору, ожидает явного сохранения. */
     val isPendingSave: Boolean = false,
 ) : BaseState

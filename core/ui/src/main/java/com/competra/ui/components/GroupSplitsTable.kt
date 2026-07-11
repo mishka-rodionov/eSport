@@ -24,6 +24,7 @@ import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.orienteering.SplitsTable
 import com.competra.domain.models.orienteering.SplitsTableCell
 import com.competra.domain.models.orienteering.SplitsTableRow
+import com.competra.utils.orienteering.toPace
 import com.competra.utils.orienteering.toRaceTime
 
 private val NAME_COLUMN_WIDTH = 140.dp
@@ -139,5 +140,12 @@ private fun SplitCell(cell: SplitsTableCell, modifier: Modifier = Modifier) {
             fontWeight = if (cell.isBestLeg) FontWeight.Bold else FontWeight.Normal,
             color = if (cell.isBestLeg) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
         )
+        cell.paceMinPerKm?.let { pace ->
+            Text(
+                text = "${pace.toPace()} /км",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }

@@ -34,7 +34,8 @@ class GroupSplitsTableViewModel(
 
             val direction = competition?.direction ?: OrienteeringDirection.FORWARD
             val sortedGroup = group.copy(participants = group.participants.sortedForResults(direction))
-            val table = buildSplitsTable(sortedGroup)
+            val distance = interactor.getDistanceById(group.group.distanceId).getOrNull()
+            val table = buildSplitsTable(sortedGroup, distance)
             updateState {
                 copy(groupTitle = sortedGroup.group.title, table = table, isLoading = false)
             }

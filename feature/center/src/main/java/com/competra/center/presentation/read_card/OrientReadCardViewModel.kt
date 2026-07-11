@@ -210,7 +210,8 @@ class OrientReadCardViewModel(
             totalTime = totalTime,
             result = result,
             rawSplits = splits,
-            expectedCpNumbers = expectedCpNumbers
+            expectedCpNumbers = expectedCpNumbers,
+            expectedControlPoints = expected
         )
     }
 
@@ -220,7 +221,8 @@ class OrientReadCardViewModel(
         totalTime: Long,
         result: CheckResult,
         rawSplits: List<SplitTime>,
-        expectedCpNumbers: List<Int> = emptyList()
+        expectedCpNumbers: List<Int> = emptyList(),
+        expectedControlPoints: List<ControlPoint> = emptyList()
     ) {
         val newResult = OrienteeringResult(
             competitionId = participant.competitionId,
@@ -246,6 +248,7 @@ class OrientReadCardViewModel(
                     participantResult = newResult,
                     rawSplits = rawSplits,
                     expectedCpNumbers = expectedCpNumbers,
+                    expectedControlPoints = expectedControlPoints,
                     isPendingSave = false,
                 )
             }
@@ -260,6 +263,7 @@ class OrientReadCardViewModel(
                     participantResult = newResult,
                     rawSplits = rawSplits,
                     expectedCpNumbers = expectedCpNumbers,
+                    expectedControlPoints = expectedControlPoints,
                     isPendingSave = true,
                 )
             }
@@ -271,7 +275,8 @@ class OrientReadCardViewModel(
                 participant = participant,
                 participantResult = newResult,
                 rawSplits = rawSplits,
-                expectedCpNumbers = expectedCpNumbers
+                expectedCpNumbers = expectedCpNumbers,
+                expectedControlPoints = expectedControlPoints
             )
         }
 

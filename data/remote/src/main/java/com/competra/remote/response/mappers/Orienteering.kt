@@ -91,7 +91,9 @@ fun ControlPointResponse.toDomain() : ControlPoint {
     return ControlPoint(
         number = number,
         role = role,
-        score = score
+        score = score,
+        latitude = latitude,
+        longitude = longitude
     )
 }
 

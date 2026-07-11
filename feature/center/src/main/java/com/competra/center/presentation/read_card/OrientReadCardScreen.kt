@@ -24,11 +24,15 @@ import com.competra.center.data.read_card.OrientReadCardAction
 import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.ResultStatus
+import com.competra.domain.models.orienteering.ControlPoint
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.SplitTime
+import com.competra.domain.models.orienteering.controlPointDistanceMeters
+import com.competra.domain.models.orienteering.paceMinPerKm
 import com.competra.resources.R
 import com.competra.utils.DateTimeFormat
+import com.competra.utils.orienteering.toPace
 import com.competra.utils.orienteering.toRaceTime
 import com.competra.utils.orienteering.toSplitTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -60,6 +64,7 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
                 groupRank = state.groupRank,
                 groupTotalFinished = state.groupTotalFinished,
                 expectedCpOrder = state.expectedCpNumbers,
+                expectedControlPoints = state.expectedControlPoints,
                 isPendingSave = state.isPendingSave,
                 isReadOnly = state.isCompetitionFinished,
                 onEditSplit = { index -> viewModel.onAction(OrientReadCardAction.EditSplitClicked(index)) },
@@ -142,6 +147,7 @@ private fun ReadCardContent(
     groupRank: Int? = null,
     groupTotalFinished: Int = 0,
     expectedCpOrder: List<Int> = emptyList(),
+    expectedControlPoints: List<ControlPoint> = emptyList(),
     isPendingSave: Boolean = false,
     isReadOnly: Boolean = false,
     onEditSplit: (index: Int) -> Unit = {},
@@ -206,6 +212,7 @@ private fun ReadCardContent(
                         participant = participant,
                         splits = displaySplits,
                         expectedCpOrder = expectedCpOrder,
+                        expectedControlPoints = expectedControlPoints,
                         onEditSplit = if (isReadOnly) null else onEditSplit,
                         onCreditCp = if (isPendingSave) onCreditCp else null,
                     )
@@ -529,6 +536,7 @@ internal fun SplitsCard(
     participant: OrienteeringParticipant,
     splits: List<SplitTime>,
     expectedCpOrder: List<Int> = emptyList(),
+    expectedControlPoints: List<ControlPoint> = emptyList(),
     onEditSplit: ((index: Int) -> Unit)? = null,
     onCreditCp: ((cpNumber: Int, prevTimestamp: Long) -> Unit)? = null,
 ) {
@@ -574,6 +582,18 @@ internal fun SplitsCard(
                         val totalTimeStr = if (!item.isExtra) {
                             (item.split.timestamp - participant.startTime).toSplitTime()
                         } else "—"
+                        // Темп на перегоне: нужны координаты и предыдущего, и текущего КП по порядку
+                        // дистанции (distanceOrdinal — 1-based позиция, как в SplitsTableBuilder).
+                        // Для первой позиции (ordinal 1) предыдущей точки нет — темп не считается.
+                        val pace = item.distanceOrdinal
+                            ?.takeIf { it >= 2 }
+                            ?.let { ordinal ->
+                                val legMeters = controlPointDistanceMeters(
+                                    expectedControlPoints.getOrNull(ordinal - 2),
+                                    expectedControlPoints.getOrNull(ordinal - 1),
+                                )
+                                paceMinPerKm((item.split.timestamp - prevTimestamp) / 1000, legMeters)
+                            }
 
                         Row(
                             modifier = Modifier
@@ -610,13 +630,24 @@ internal fun SplitsCard(
                                 modifier = Modifier.weight(0.8f),
                                 color = textColor
                             )
-                            Text(
-                                text = splitTimeStr,
-                                style = MaterialTheme.typography.bodyMedium,
+                            Column(
                                 modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center,
-                                color = if (item.isExtra) Color(0xFF9E8000) else MaterialTheme.colorScheme.secondary
-                            )
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = splitTimeStr,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = if (item.isExtra) Color(0xFF9E8000) else MaterialTheme.colorScheme.secondary
+                                )
+                                pace?.let {
+                                    Text(
+                                        text = "${it.toPace()} /км",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
                             Text(
                                 text = totalTimeStr,
                                 style = MaterialTheme.typography.bodyMedium,

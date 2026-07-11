@@ -35,6 +35,7 @@ class EventGroupSplitsTableViewModel(
             val groupsDeferred = async { remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList() }
             val participantsDeferred = async { remoteRepository.getParticipantsForCompetition(eventId).getOrNull() ?: emptyList() }
             val resultsDeferred = async { remoteRepository.getResultsByCompetition(eventId).getOrNull() ?: emptyList() }
+            val distancesDeferred = async { remoteRepository.getDistancesForCompetition(eventId).getOrNull() ?: emptyList() }
 
             val group = groupsDeferred.await().firstOrNull { it.remoteId == groupId }
             if (group == null) {
@@ -44,6 +45,10 @@ class EventGroupSplitsTableViewModel(
 
             val participants = participantsDeferred.await()
             val results = resultsDeferred.await()
+            val distances = distancesDeferred.await()
+            // distanceId группы — это серверный id дистанции, а он хранится в domain-модели
+            // Distance.remoteId (см. DistanceResponse.toDomain), а не в Distance.id.
+            val distance = distances.firstOrNull { it.remoteId == group.distanceId }
 
             val resultsByParticipant = results.associateBy { it.participantId }
             val groupParticipants = participants.filter { it.groupId == group.remoteId }
@@ -55,7 +60,8 @@ class EventGroupSplitsTableViewModel(
             }.sortedForResults()
 
             val table = buildSplitsTable(
-                GroupWithParticipantsAndResults(group = group, participants = participantsWithResults)
+                GroupWithParticipantsAndResults(group = group, participants = participantsWithResults),
+                distance
             )
             updateState { copy(groupTitle = group.title, table = table, isLoading = false) }
         }

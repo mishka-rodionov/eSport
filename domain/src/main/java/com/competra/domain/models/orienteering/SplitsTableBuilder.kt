@@ -1,6 +1,10 @@
 package com.competra.domain.models.orienteering
 
 import com.competra.domain.models.ResultStatus
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /** Колонка таблицы сплитов — один контрольный пункт по позиции в дистанции. */
 data class SplitsTableColumn(
@@ -15,7 +19,46 @@ data class SplitsTableCell(
     val deltaRank: Int?,
     val cumulativeRank: Int?,
     val isBestLeg: Boolean,
+    val paceMinPerKm: Double? = null,
 )
+
+private const val EARTH_RADIUS_METERS = 6_371_000.0
+
+/**
+ * Расстояние между двумя контрольными пунктами по их WGS84-координатам, в метрах.
+ * Null, если у одного из КП нет координат (дистанция не импортирована из геопривязанной карты
+ * или создана вручную). Переиспользуется как таблицей сплитов, так и экраном сканирования чипа
+ * (feature:center) — единая формула для обоих мест отображения темпа.
+ */
+fun controlPointDistanceMeters(from: ControlPoint?, to: ControlPoint?): Double? {
+    val lat1 = from?.latitude ?: return null
+    val lon1 = from.longitude ?: return null
+    val lat2 = to?.latitude ?: return null
+    val lon2 = to?.longitude ?: return null
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLon = Math.toRadians(lon2 - lon1)
+    val a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2) * sin(dLon / 2)
+    return EARTH_RADIUS_METERS * 2 * atan2(sqrt(a), sqrt(1 - a))
+}
+
+/** Темп участника на перегоне в минутах на километр, либо null, если длина перегона неизвестна/нулевая. */
+fun paceMinPerKm(deltaSeconds: Long, legLengthMeters: Double?): Double? {
+    if (legLengthMeters == null || legLengthMeters <= 0) return null
+    return (deltaSeconds / 60.0) / (legLengthMeters / 1000.0)
+}
+
+/**
+ * Длина перегона (в метрах) для каждой позиции в [cpOrder] дистанции [distance]: null для первой
+ * позиции (нет координаты старта до первого КП) и там, где у одного из соседних КП нет координат.
+ */
+private fun legLengthsMeters(distance: Distance?, cpOrder: List<Int>): List<Double?> {
+    val expected = distance?.expectedSequence() ?: return List(cpOrder.size) { null }
+    return cpOrder.indices.map { i ->
+        if (i == 0) return@map null
+        controlPointDistanceMeters(expected.getOrNull(i - 1), expected.getOrNull(i))
+    }
+}
 
 /** Строка таблицы сплитов — один участник группы. */
 data class SplitsTableRow(
@@ -42,8 +85,12 @@ private fun anchorStartTime(pw: ParticipantWithResult): Long =
  * Строит таблицу сплитов группы: сопоставление позиционное (splits[i] <-> cpOrder[i]),
  * что корректно обрабатывает дублирующиеся номера КП в дистанции.
  * Порядок строк — как в [group.participants], сортировку применяет вызывающий код ([sortedForResults]).
+ *
+ * @param distance дистанция группы — если передана и у КП есть координаты (импорт из
+ * геопривязанной карты через IOF XML), в ячейках заполняется темп участника на перегоне
+ * ([SplitsTableCell.paceMinPerKm]); без неё темп остаётся null.
  */
-fun buildSplitsTable(group: GroupWithParticipantsAndResults): SplitsTable {
+fun buildSplitsTable(group: GroupWithParticipantsAndResults, distance: Distance? = null): SplitsTable {
     val cpOrder = group.participants
         .mapNotNull { it.result?.splits }
         .maxByOrNull { it.size }
@@ -51,6 +98,7 @@ fun buildSplitsTable(group: GroupWithParticipantsAndResults): SplitsTable {
         ?: emptyList()
 
     val columns = cpOrder.mapIndexed { i, cp -> SplitsTableColumn(positionIndex = i + 1, controlPoint = cp) }
+    val legLengths = legLengthsMeters(distance, cpOrder)
 
     val cumulRanks: List<Map<String, Int>> = cpOrder.indices.map { i ->
         group.participants
@@ -99,11 +147,13 @@ fun buildSplitsTable(group: GroupWithParticipantsAndResults): SplitsTable {
                 val deltaSec = (splitTs - prevTs) / 1000L
                 val cumulRank = cumulRanks[i][pw.participant.id]
                 val deltaRank = deltaRanks[i][pw.participant.id]
+                val pace = paceMinPerKm(deltaSec, legLengths.getOrNull(i))
 
                 SplitsTableCell(
                     deltaSeconds = deltaSec,
                     cumulativeSeconds = cumulSec,
                     deltaRank = deltaRank,
+                    paceMinPerKm = pace,
                     cumulativeRank = cumulRank,
                     isBestLeg = deltaRank == 1,
                 )
