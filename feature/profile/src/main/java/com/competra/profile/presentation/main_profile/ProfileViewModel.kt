@@ -46,6 +46,16 @@ class ProfileViewModel(
             ProfileAction.ToUserRegistrations -> openUserRegistrations()
             ProfileAction.Logout -> logout()
             ProfileAction.ShowOnboarding -> showOnboardingAgain()
+            ProfileAction.ToPushPreferences -> toPushPreferences()
+        }
+    }
+
+    /**
+     * Переход на экран настроек push-уведомлений.
+     */
+    private fun toPushPreferences() {
+        viewModelScope.launch {
+            navigation.navigate(ProfileNavigation.PushPreferencesRoute)
         }
     }
 

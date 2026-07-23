@@ -64,6 +64,7 @@ import com.competra.data.navigation.BaseNavigation
 import com.competra.data.navigation.CenterNavigation
 import com.competra.data.navigation.DiaryNavigation
 import com.competra.data.navigation.EventsNavigation
+import com.competra.data.navigation.PendingPushNavigationRepository
 import com.competra.data.navigation.ProfileNavigation
 import com.competra.diary.navigation.diaryGraph
 import com.competra.events.navigation.eventsGraph
@@ -111,6 +112,7 @@ class MainActivity : ComponentActivity() {
         }
         observeServiceCommands()
         observeWorkoutTrackingCommands()
+        handlePushIntent(intent)
     }
 
     /**
@@ -182,6 +184,19 @@ class MainActivity : ComponentActivity() {
             intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
         }
         tag?.let(viewModel::onNewTagDetected)
+        handlePushIntent(intent)
+    }
+
+    /** Извлекает extras, положенные [com.competra.app.fcm.CompetraMessagingService] при тапе на push. */
+    private fun handlePushIntent(intent: Intent) {
+        val competitionId = intent.getStringExtra(EXTRA_PUSH_COMPETITION_ID) ?: return
+        val kind = intent.getStringExtra(EXTRA_PUSH_KIND)
+        viewModel.onPushNavigation(competitionId, kind)
+    }
+
+    companion object {
+        const val EXTRA_PUSH_KIND = "push_kind"
+        const val EXTRA_PUSH_COMPETITION_ID = "push_competition_id"
     }
 }
 
@@ -262,6 +277,7 @@ internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeCla
                     saveableStateHolder.SaveableStateProvider(tab.route) {
                         val navController = rememberNavController()
                         val analyticsTracker = koinInject<AnalyticsTracker>()
+                        val pendingPushNavigationRepository = koinInject<PendingPushNavigationRepository>()
                         TrackNavScreens(navController, analyticsTracker)
 
                         val isSelectedTab = selectedTab == tab.route
@@ -289,6 +305,25 @@ internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeCla
                                         },
                                         destination = checkNavigation(tab)
                                     )
+                                }
+
+                                // Отложенный переход по тапу на push-уведомление (см. MainViewModel.onPushNavigation).
+                                // Идёт напрямую через navController, а не через Navigation/SharedFlow: этот блок
+                                // выполняется, только когда таб уже активен и NavHost точно смонтирован.
+                                if (tab == BottomNavItem.CompetitionList) {
+                                    launch {
+                                        pendingPushNavigationRepository.pending.collectLatest { route ->
+                                            if (route == null) return@collectLatest
+                                            pendingPushNavigationRepository.clear()
+                                            val navBuilder = route.navOptionsBuilder
+                                            if (navBuilder != null) {
+                                                navController.navigate(route, navBuilder)
+                                            } else {
+                                                navController.navigate(route = route)
+                                            }
+                                            route.navOptionsBuilder = null
+                                        }
+                                    }
                                 }
                             }
                         }

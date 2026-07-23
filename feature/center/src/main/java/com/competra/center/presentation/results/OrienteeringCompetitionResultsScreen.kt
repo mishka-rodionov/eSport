@@ -29,6 +29,7 @@ import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.components.clickRipple
 import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.orienteering.ParticipantWithResult
+import com.competra.domain.models.orienteering.ResultsStatus
 import com.competra.resources.R
 import com.competra.utils.DateTimeFormat
 import com.competra.utils.orienteering.toRaceTime
@@ -141,6 +142,27 @@ fun OrienteeringCompetitionResultsScreen(
                 TextButton(onClick = {
                     viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.DismissImportPreview)
                 }) { Text("Ок") }
+            }
+        )
+    }
+
+    // Подтверждение публикации результатов участникам (необратимо, шлёт push всем зарегистрированным)
+    if (state.isShowPublishResultsConfirm) {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.HidePublishResultsConfirm)
+            },
+            title = { Text("Опубликовать результаты?") },
+            text = { Text("Все зарегистрированные участники получат push-уведомление о публикации результатов. Действие необратимо.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.PublishResults)
+                }) { Text("Опубликовать") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.HidePublishResultsConfirm)
+                }) { Text("Отмена") }
             }
         )
     }
@@ -327,6 +349,29 @@ fun OrienteeringCompetitionResultsScreen(
                         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
                     ) {
                         Text(text = "Утвердить результаты", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            if (state.resultsStatus == ResultsStatus.NOT_PUBLISHED && state.groupsWithParticipantsAndResults.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.SIZE_BASE.dp, vertical = Dimens.SIZE_HALF.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { viewModel.onAction(OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.ShowPublishResultsConfirm) },
+                        enabled = !state.isPublishingResults,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(Dimens.SIZE_BASE.dp)
+                    ) {
+                        if (state.isPublishingResults) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        } else {
+                            Text(text = "Опубликовать результаты участникам", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }

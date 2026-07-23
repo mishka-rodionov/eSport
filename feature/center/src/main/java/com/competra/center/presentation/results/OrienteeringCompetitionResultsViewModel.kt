@@ -3,6 +3,8 @@ package com.competra.center.presentation.results
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import androidx.lifecycle.viewModelScope
+import com.competra.analytics.AnalyticsEvent
+import com.competra.analytics.AnalyticsTracker
 import com.competra.center.data.interactors.OrienteeringCompetitionInteractor
 import com.competra.center.data.results.ImportResultRow
 import com.competra.center.data.results.OrienteeringCompetitionResultsState
@@ -17,6 +19,7 @@ import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
+import com.competra.domain.models.orienteering.ResultsStatus
 import com.competra.domain.models.orienteering.SplitsTableCell
 import com.competra.domain.models.orienteering.buildSplitsTable
 import com.competra.domain.models.orienteering.sortedForResults
@@ -42,7 +45,8 @@ import java.io.ByteArrayOutputStream
 class OrienteeringCompetitionResultsViewModel(
     private val orienteeringCompetitionInteractor: OrienteeringCompetitionInteractor,
     private val navigation: Navigation,
-    private val uploadRepository: UploadRepository
+    private val uploadRepository: UploadRepository,
+    private val analytics: AnalyticsTracker,
 ): BaseViewModel<OrienteeringCompetitionResultsState>(OrienteeringCompetitionResultsState()) {
 
     val competitionId: String? = navigation.getArguments<String>(EventsConstants.EVENT_ID.name)
@@ -87,6 +91,7 @@ class OrienteeringCompetitionResultsViewModel(
                         isApproved = isApproved,
                         isCompetitionFinished = isCompetitionFinished,
                         competitionTitle = competition?.competition?.title ?: "",
+                        resultsStatus = competition?.competition?.resultsStatus ?: ResultsStatus.NOT_PUBLISHED,
                     )
                 }
             }
@@ -104,6 +109,9 @@ class OrienteeringCompetitionResultsViewModel(
             is OrienteeringResultsAction.ExportPdf -> exportPdf()
             is OrienteeringResultsAction.PublishHtml -> publishHtml()
             is OrienteeringResultsAction.DismissPublishedUrl -> updateState { copy(publishedHtmlUrl = null) }
+            is OrienteeringResultsAction.ShowPublishResultsConfirm -> updateState { copy(isShowPublishResultsConfirm = true) }
+            is OrienteeringResultsAction.HidePublishResultsConfirm -> updateState { copy(isShowPublishResultsConfirm = false) }
+            is OrienteeringResultsAction.PublishResults -> publishResults()
             is OrienteeringResultsAction.ImportHtml -> importHtml(action.htmlText)
             is OrienteeringResultsAction.ConfirmImport -> confirmImport(action.selectedRows)
             is OrienteeringResultsAction.DismissImportPreview -> updateState { copy(importDiff = null, importError = null) }
@@ -405,6 +413,34 @@ class OrienteeringCompetitionResultsViewModel(
         }
     }
 
+    /**
+     * Переводит [ResultsStatus] соревнования из NOT_PUBLISHED в OFFICIAL — необратимое,
+     * видимое участникам действие. Backend на этом переходе рассылает push-уведомление
+     * "результаты опубликованы" всем зарегистрированным участникам (см. OrienteeringCompetitionService
+     * в eSport). Идёт тем же путём, что и [publishHtml] — updateCompetition помечает запись
+     * isSynced=false, SyncCenterWorker выгружает изменение на сервер.
+     */
+    private fun publishResults() {
+        val compId = competitionId ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            updateState { copy(isPublishingResults = true, isShowPublishResultsConfirm = false) }
+            val comp = orienteeringCompetitionInteractor.getCompetition(compId)
+            if (comp == null) {
+                updateState { copy(isPublishingResults = false) }
+                return@launch
+            }
+            val updated = comp.copy(
+                competition = comp.competition.copy(
+                    resultsStatus = ResultsStatus.OFFICIAL,
+                    isSynced = false,
+                )
+            )
+            orienteeringCompetitionInteractor.updateCompetition(updated)
+            analytics.trackEvent(AnalyticsEvent.ResultsPublishClicked(compId))
+            updateState { copy(isPublishingResults = false, resultsStatus = ResultsStatus.OFFICIAL) }
+        }
+    }
+
     private fun buildHtmlContent(title: String, groups: List<GroupWithParticipantsAndResults>): String {
         val sb = StringBuilder()
         sb.append(
@@ -544,6 +580,13 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
         data object PublishHtml : OrienteeringResultsAction()
 
         data object DismissPublishedUrl : OrienteeringResultsAction()
+
+        /** Показать/скрыть диалог подтверждения публикации результатов участникам. */
+        data object ShowPublishResultsConfirm : OrienteeringResultsAction()
+        data object HidePublishResultsConfirm : OrienteeringResultsAction()
+
+        /** Подтверждена публикация результатов — переводит resultsStatus в OFFICIAL, шлёт push участникам. */
+        data object PublishResults : OrienteeringResultsAction()
 
         /** Пользователь выбрал HTML-файл для импорта; [htmlText] — его содержимое. */
         data class ImportHtml(val htmlText: String) : OrienteeringResultsAction()

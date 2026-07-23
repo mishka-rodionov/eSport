@@ -28,4 +28,6 @@ sealed class ProfileNavigation: BaseNavigation {
     data object RegistrationRoute : ProfileNavigation()
     @Serializable
     data object UserRegistrationsRoute : ProfileNavigation()
+    @Serializable
+    data object PushPreferencesRoute : ProfileNavigation()
 }

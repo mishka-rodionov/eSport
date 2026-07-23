@@ -284,6 +284,16 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
                 color = LightColors.greyB8.copy(alpha = 0.3f)
             )
             ProfileMenuItem(
+                text = "Push-уведомления",
+                icon = ImageVector.vectorResource(R.drawable.ic_build_24px),
+                onClick = { onAction(ProfileAction.ToPushPreferences) }
+            )
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp),
+                thickness = 0.5.dp,
+                color = LightColors.greyB8.copy(alpha = 0.3f)
+            )
+            ProfileMenuItem(
                 text = "Показать онбординг снова",
                 icon = ImageVector.vectorResource(R.drawable.play_arrow_24px),
                 onClick = { onAction(ProfileAction.ShowOnboarding) }

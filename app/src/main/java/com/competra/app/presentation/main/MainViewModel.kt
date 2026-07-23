@@ -6,10 +6,14 @@ import android.nfc.Tag
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.viewModelScope
 import com.competra.data.navigation.BaseNavigation
+import com.competra.data.navigation.EventsNavigation
 import com.competra.data.navigation.Navigation
+import com.competra.data.navigation.PendingPushNavigationRepository
+import com.competra.data.navigation.TabRoutes
 import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.models.onboarding.OnboardingSource
 import com.competra.domain.models.orienteering.ResultConflictEvent
+import com.competra.domain.models.push.PushKind
 import com.competra.domain.repository.LoadingRepository
 import com.competra.domain.repository.NetworkErrorRepository
 import com.competra.domain.repository.OnboardingRequestRepository
@@ -55,7 +59,8 @@ class MainViewModel(
     private val resultConflictRepository: ResultConflictRepository,
     private val networkErrorRepository: NetworkErrorRepository,
     private val loadingRepository: LoadingRepository,
-    private val onboardingRequestRepository: OnboardingRequestRepository
+    private val onboardingRequestRepository: OnboardingRequestRepository,
+    private val pendingPushNavigationRepository: PendingPushNavigationRepository
 ) : BaseViewModel<BaseState>(object : BaseState {}) {
 
     /**
@@ -206,6 +211,26 @@ class MainViewModel(
     fun onNewTagDetected(tag: Tag) {
         viewModelScope.launch {
             sportiduinoHelper.onNewTagDetected(tag)
+        }
+    }
+
+    /**
+     * Обрабатывает тап по push-уведомлению (extras из [MainActivity.onCreate]/[MainActivity.onNewIntent]).
+     * Кладёт целевой роут в [PendingPushNavigationRepository] и переключает таб на Events — сам
+     * переход выполняет NavHost этого таба, как только становится активным (см. MainScreen).
+     */
+    fun onPushNavigation(competitionId: String?, kind: String?) {
+        if (competitionId.isNullOrBlank()) return
+        val route = when (kind) {
+            PushKind.COMPETITION_START_REMINDER, PushKind.DAY_BEFORE_REMINDER ->
+                EventsNavigation.EventDetailsRoute(eventId = competitionId)
+            PushKind.RESULTS_PUBLISHED ->
+                EventsNavigation.EventResultsRoute(eventId = competitionId)
+            else -> return
+        }
+        pendingPushNavigationRepository.set(route)
+        viewModelScope.launch {
+            navigation.switchTab(TabRoutes.EVENTS)
         }
     }
 }

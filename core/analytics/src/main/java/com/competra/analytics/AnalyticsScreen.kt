@@ -44,6 +44,7 @@ enum class AnalyticsScreen(val screenName: String) {
     AuthCode("auth_code"),
     Registration("registration"),
     UserRegistrations("user_registrations"),
+    ProfilePushPreferences("profile_push_preferences"),
 
     // Diary
     DiaryList("diary_list"),
@@ -113,6 +114,7 @@ enum class AnalyticsScreen(val screenName: String) {
                 route.contains("AuthRoute") -> Auth
                 route.contains("RegistrationRoute") -> Registration
                 route.contains("UserRegistrationsRoute") -> UserRegistrations
+                route.contains("PushPreferencesRoute") -> ProfilePushPreferences
 
                 route.contains("WorkoutEditorRoute") -> DiaryWorkoutEditor
                 route.contains("WorkoutDetailRoute") -> DiaryWorkoutDetail

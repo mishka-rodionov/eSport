@@ -43,6 +43,7 @@
             <option value="$PROJECT_DIR$/feature/events" />
             <option value="$PROJECT_DIR$/feature/onboarding" />
             <option value="$PROJECT_DIR$/feature/profile" />
+            <option value="$PROJECT_DIR$/feature/rating" />
             <option value="$PROJECT_DIR$/utils" />
           </set>
         </option>

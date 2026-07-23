@@ -7,9 +7,14 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.competra.app.R
 import com.competra.app.presentation.main.MainActivity
+import com.competra.domain.models.push.PushKind
 import com.competra.domain.repository.fcm.FcmTokenRegistry
+import com.competra.domain.repository.push.PushPreferencesRepository
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -23,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class CompetraMessagingService : FirebaseMessagingService() {
 
     private val tokenRegistry: FcmTokenRegistry by inject()
+    private val pushPreferencesRepository: PushPreferencesRepository by inject()
 
     override fun onNewToken(token: String) {
         tokenRegistry.submit(token)
@@ -33,12 +39,21 @@ class CompetraMessagingService : FirebaseMessagingService() {
         val body = message.notification?.body ?: message.data["body"].orEmpty()
         if (title.isEmpty() && body.isEmpty()) return
 
-        showNotification(title, body)
+        val kind = message.data["kind"]
+        val competitionId = message.data["competition_id"]
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val category = PushKind.toPushCategory(kind)
+            if (category != null && !pushPreferencesRepository.isEnabled(category)) return@launch
+            showNotification(title, body, kind, competitionId)
+        }
     }
 
-    private fun showNotification(title: String, body: String) {
+    private fun showNotification(title: String, body: String, kind: String?, competitionId: String?) {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(MainActivity.EXTRA_PUSH_KIND, kind)
+            putExtra(MainActivity.EXTRA_PUSH_COMPETITION_ID, competitionId)
         }
         val pendingIntent = PendingIntent.getActivity(
             this,

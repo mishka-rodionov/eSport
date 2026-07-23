@@ -174,6 +174,10 @@ sealed class AnalyticsEvent(
         mapOf("group_id" to groupId, "competition_id" to competitionId),
     )
 
+    /** Организатор подтвердил публикацию результатов участникам (resultsStatus → OFFICIAL). */
+    class ResultsPublishClicked(competitionId: String) :
+        AnalyticsEvent("results_publish_clicked", mapOf("competition_id" to competitionId))
+
     // endregion
 
     // region Profile
@@ -183,6 +187,14 @@ sealed class AnalyticsEvent(
 
     /** Сохранены изменения в профиле. */
     data object ProfileEditSaved : AnalyticsEvent("profile_edit_saved")
+
+    enum class PushCategory { RESULTS_PUBLISHED, COMPETITION_START, DAY_BEFORE_REMINDER }
+
+    /** Пользователь переключил тумблер категории push-уведомлений в профиле. */
+    class ProfilePushCategoryToggled(category: PushCategory, enabled: Boolean) : AnalyticsEvent(
+        "profile_push_category_toggled",
+        mapOf("category" to category.name.lowercase(), "enabled" to enabled),
+    )
 
     // endregion
 

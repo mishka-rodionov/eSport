@@ -23,4 +23,7 @@ sealed class ProfileAction {
     /** Повторный показ онбординга. */
     data object ShowOnboarding: ProfileAction()
 
+    /** Переход к настройкам push-уведомлений. */
+    data object ToPushPreferences: ProfileAction()
+
 }

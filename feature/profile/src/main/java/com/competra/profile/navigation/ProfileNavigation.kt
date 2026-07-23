@@ -10,6 +10,7 @@ import com.competra.profile.presentation.auth.AuthScreen
 import com.competra.profile.presentation.auth_code.AuthCodeScreen
 import com.competra.profile.presentation.main_profile.ProfileScreen
 import com.competra.profile.presentation.profile_editor.ProfileEditorScreen
+import com.competra.profile.presentation.push_preferences.PushPreferencesScreen
 import com.competra.profile.presentation.registration.RegistrationScreen
 import com.competra.profile.presentation.user_registrations.UserRegistrationsScreen
 
@@ -24,5 +25,6 @@ fun NavGraphBuilder.profileNavigation() {
     }
     composable<ProfileNavigation.RegistrationRoute> { RegistrationScreen() }
     composable<ProfileNavigation.UserRegistrationsRoute> { UserRegistrationsScreen() }
+    composable<ProfileNavigation.PushPreferencesRoute> { PushPreferencesScreen() }
     eventDetailsGraph()
 }
