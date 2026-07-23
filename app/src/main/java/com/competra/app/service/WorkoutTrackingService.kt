@@ -62,8 +62,13 @@ class WorkoutTrackingService : Service() {
     private var distanceMeters = 0.0
     private var elevationGainMeters = 0.0
     private var lastLocation: Location? = null
+    private var lastLocationAtMs: Long = 0L
     private var lastCheckpointAtMs: Long = 0L
     private var tickerJob: Job? = null
+
+    private data class SpeedSample(val distanceMeters: Double, val durationMs: Long)
+    private val recentSpeedSamples = ArrayDeque<SpeedSample>()
+    private var currentSpeedMps = 0.0
 
     private val locationManager by lazy { getSystemService(Context.LOCATION_SERVICE) as LocationManager }
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
@@ -102,6 +107,9 @@ class WorkoutTrackingService : Service() {
         distanceMeters = 0.0
         elevationGainMeters = 0.0
         lastLocation = null
+        lastLocationAtMs = 0L
+        recentSpeedSamples.clear()
+        currentSpeedMps = 0.0
         lastCheckpointAtMs = startedAtMs
 
         startForeground(NOTIFICATION_ID, buildNotification())
@@ -155,24 +163,48 @@ class WorkoutTrackingService : Service() {
         if (status != WorkoutTrackingStatus.RUNNING) return
         if (location.accuracy > MAX_ACCURACY_M) return
 
+        val now = System.currentTimeMillis()
         lastLocation?.let { previous ->
-            distanceMeters += previous.distanceTo(location)
+            val segmentDistanceMeters = previous.distanceTo(location).toDouble()
+            distanceMeters += segmentDistanceMeters
             if (previous.hasAltitude() && location.hasAltitude()) {
                 val delta = location.altitude - previous.altitude
                 if (delta > ALTITUDE_NOISE_THRESHOLD_M) elevationGainMeters += delta
             }
+            updateSpeed(segmentDistanceMeters, now - lastLocationAtMs)
         }
         lastLocation = location
-        points.add(TrackPoint(location.latitude, location.longitude, System.currentTimeMillis()))
+        lastLocationAtMs = now
+        points.add(TrackPoint(location.latitude, location.longitude, now))
 
         pushSnapshot()
         updateNotification()
 
-        val now = System.currentTimeMillis()
         if (now - lastCheckpointAtMs >= CHECKPOINT_INTERVAL_MS) {
             lastCheckpointAtMs = now
             checkpoint()
         }
+    }
+
+    /**
+     * Сглаживает мгновенную скорость средним по последним [SPEED_SAMPLE_WINDOW] отрезкам трека —
+     * скорость из одиночного GPS-фикса слишком дёргается. Отрезки длиннее [MAX_SPEED_SEGMENT_MS]
+     * (пауза, потеря сигнала) в расчёт не берутся и сбрасывают накопленное среднее, чтобы после
+     * паузы/провала сигнала не подмешивался этот большой разрыв по времени.
+     */
+    private fun updateSpeed(segmentDistanceMeters: Double, segmentDurationMs: Long) {
+        if (segmentDurationMs <= 0 || segmentDurationMs > MAX_SPEED_SEGMENT_MS) {
+            recentSpeedSamples.clear()
+            currentSpeedMps = 0.0
+            return
+        }
+
+        recentSpeedSamples.addLast(SpeedSample(segmentDistanceMeters, segmentDurationMs))
+        while (recentSpeedSamples.size > SPEED_SAMPLE_WINDOW) recentSpeedSamples.removeFirst()
+
+        val totalDistanceMeters = recentSpeedSamples.sumOf { it.distanceMeters }
+        val totalDurationMs = recentSpeedSamples.sumOf { it.durationMs }
+        currentSpeedMps = totalDistanceMeters / (totalDurationMs / 1000.0)
     }
 
     private fun elapsedSeconds(): Int {
@@ -188,7 +220,8 @@ class WorkoutTrackingService : Service() {
                 elapsedSeconds = elapsedSeconds(),
                 distanceMeters = distanceMeters.toInt(),
                 elevationGainMeters = elevationGainMeters.toInt(),
-                points = points.toList()
+                points = points.toList(),
+                speedMetersPerSecond = currentSpeedMps
             )
         )
     }
@@ -218,6 +251,8 @@ class WorkoutTrackingService : Service() {
         pausedAccumulatedMs += System.currentTimeMillis() - lastResumeMs
         status = WorkoutTrackingStatus.PAUSED
         locationManager.removeUpdates(locationListener)
+        recentSpeedSamples.clear()
+        currentSpeedMps = 0.0
         pushSnapshot()
         updateNotification()
     }
@@ -302,6 +337,8 @@ class WorkoutTrackingService : Service() {
         private const val MAX_ACCURACY_M = 30f
         private const val ALTITUDE_NOISE_THRESHOLD_M = 2.0
         private const val CHECKPOINT_INTERVAL_MS = 30_000L
+        private const val SPEED_SAMPLE_WINDOW = 3
+        private const val MAX_SPEED_SEGMENT_MS = 15_000L
 
         private const val ACTION_PAUSE = "com.competra.app.action.PAUSE_TRACKING"
         private const val ACTION_RESUME = "com.competra.app.action.RESUME_TRACKING"

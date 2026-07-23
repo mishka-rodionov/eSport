@@ -13,6 +13,7 @@ data class LiveTrackingState(
     val elapsedSeconds: Int = 0,
     val distanceMeters: Int = 0,
     val elevationGainMeters: Int = 0,
+    val speedMetersPerSecond: Double = 0.0,
     val points: List<TrackPoint> = emptyList(),
     val isStopDialogVisible: Boolean = false
 ) : BaseState

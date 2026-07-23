@@ -15,7 +15,8 @@ data class WorkoutTrackingSnapshot(
     val elapsedSeconds: Int,
     val distanceMeters: Int,
     val elevationGainMeters: Int,
-    val points: List<TrackPoint>
+    val points: List<TrackPoint>,
+    val speedMetersPerSecond: Double = 0.0
 )
 
 /**

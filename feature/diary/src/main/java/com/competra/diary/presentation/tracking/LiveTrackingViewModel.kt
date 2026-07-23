@@ -29,6 +29,7 @@ class LiveTrackingViewModel(
                             elapsedSeconds = snapshot.elapsedSeconds,
                             distanceMeters = snapshot.distanceMeters,
                             elevationGainMeters = snapshot.elevationGainMeters,
+                            speedMetersPerSecond = snapshot.speedMetersPerSecond,
                             points = snapshot.points
                         )
                     }

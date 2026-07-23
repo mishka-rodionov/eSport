@@ -137,6 +137,7 @@ private fun LiveTrackingContent(state: LiveTrackingState, onAction: (LiveTrackin
             ) {
                 StatColumn(label = "Время", value = formatElapsed(state.elapsedSeconds))
                 StatColumn(label = "Дистанция", value = "%.2f км".format(state.distanceMeters / 1000.0))
+                StatColumn(label = "Скорость", value = "%.1f км/ч".format(state.speedMetersPerSecond * 3.6))
                 StatColumn(label = "Набор", value = "${state.elevationGainMeters} м")
             }
         }
