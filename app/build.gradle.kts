@@ -20,6 +20,22 @@ val appMetricaProps = Properties().apply {
 val appMetricaKeyDebug: String = appMetricaProps.getProperty("APPMETRICA_API_KEY_DEBUG", "")
 val appMetricaKeyRelease: String = appMetricaProps.getProperty("APPMETRICA_API_KEY_RELEASE", "")
 
+// Подпись release-сборки читается из keystore.properties (не коммитится, см. keystore.properties.example)
+// либо из переменных окружения KEYSTORE_* (для CI). Если ничего не задано — release будет
+// подписан отладочным ключом Android Studio, что не годится для загрузки в сторы.
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) load(f.inputStream())
+}
+fun keystoreProp(propName: String, envName: String): String =
+    keystoreProps.getProperty(propName) ?: System.getenv(envName) ?: ""
+
+val releaseStoreFile: String = keystoreProp("storeFile", "KEYSTORE_FILE")
+val releaseStorePassword: String = keystoreProp("storePassword", "KEYSTORE_STORE_PASSWORD")
+val releaseKeyAlias: String = keystoreProp("keyAlias", "KEYSTORE_KEY_ALIAS")
+val releaseKeyPassword: String = keystoreProp("keyPassword", "KEYSTORE_KEY_PASSWORD")
+val hasReleaseSigningConfig: Boolean = releaseStoreFile.isNotBlank()
+
 android {
     namespace = "com.competra.app"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -46,6 +62,17 @@ android {
         create("huawei") { dimension = "store" }
     }
 
+    signingConfigs {
+        if (hasReleaseSigningConfig) {
+            create("release") {
+                storeFile = file(releaseStoreFile)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -62,6 +89,9 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "APPMETRICA_API_KEY", "\"$appMetricaKeyRelease\"")
+            if (hasReleaseSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {

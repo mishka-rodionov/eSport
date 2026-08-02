@@ -156,6 +156,7 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
     val scrollState = rememberScrollState()
     var showLogoutSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val deleteAccountSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Column(
         modifier = Modifier
@@ -276,7 +277,7 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
             ProfileMenuItem(
                 text = "О приложении",
                 icon = ImageVector.vectorResource(R.drawable.ic_info_24px),
-                onClick = { /* TODO */ }
+                onClick = { onAction(ProfileAction.ToAboutApp) }
             )
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = Dimens.SIZE_BASE.dp),
@@ -312,6 +313,20 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
         ) {
             Text(text = "Выйти", modifier = Modifier.padding(vertical = 4.dp))
+        }
+
+        Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+        OutlinedButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onAction(ProfileAction.OpenDeleteAccountConfirm) },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.error
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+        ) {
+            Text(text = "Удалить аккаунт", modifier = Modifier.padding(vertical = 4.dp))
         }
     }
 
@@ -352,6 +367,49 @@ fun AuthorizedUser(state: ProfileState, onAction: (ProfileAction) -> Unit) {
                 OutlinedButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { showLogoutSheet = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(text = "Отмена", modifier = Modifier.padding(vertical = 4.dp))
+                }
+            }
+        )
+    }
+
+    if (state.showDeleteAccountConfirm) {
+        DSBottomDialog(
+            sheetState = deleteAccountSheetState,
+            onDismiss = { onAction(ProfileAction.CloseDeleteAccountConfirm) },
+            sheetContent = {
+                Text(
+                    text = "Удаление аккаунта",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+                Text(
+                    text = "Аккаунт и связанные с ним персональные данные будут удалены безвозвратно. " +
+                        "Это действие нельзя отменить.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_DOUBLE.dp))
+
+                DSButton(
+                    text = "Удалить безвозвратно",
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onAction(ProfileAction.DeleteAccount) }
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.SIZE_BASE.dp))
+
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onAction(ProfileAction.CloseDeleteAccountConfirm) },
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(text = "Отмена", modifier = Modifier.padding(vertical = 4.dp))

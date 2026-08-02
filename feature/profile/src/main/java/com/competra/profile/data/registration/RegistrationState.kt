@@ -7,5 +7,6 @@ data class RegistrationState(
     var email: String = "mishka727@yandex.ru",
     var firstName: String = "Михаил",
     var lastName: String = "Родионов",
-    var bdate: Long = DateTimeFormat.transformApiDateToLong("06.04.1989")
+    var bdate: Long = DateTimeFormat.transformApiDateToLong("06.04.1989"),
+    var privacyAccepted: Boolean = false
 ): BaseState

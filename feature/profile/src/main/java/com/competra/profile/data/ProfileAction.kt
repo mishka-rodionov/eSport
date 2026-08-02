@@ -26,4 +26,16 @@ sealed class ProfileAction {
     /** Переход к настройкам push-уведомлений. */
     data object ToPushPreferences: ProfileAction()
 
+    /** Переход на экран «О приложении». */
+    data object ToAboutApp: ProfileAction()
+
+    /** Пользователь нажал «Удалить аккаунт» — открыть диалог подтверждения. */
+    data object OpenDeleteAccountConfirm: ProfileAction()
+
+    /** Диалог подтверждения удаления аккаунта закрыт без подтверждения. */
+    data object CloseDeleteAccountConfirm: ProfileAction()
+
+    /** Подтверждено безвозвратное удаление аккаунта. */
+    data object DeleteAccount: ProfileAction()
+
 }

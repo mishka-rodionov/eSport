@@ -42,8 +42,19 @@ class AuthInteractor(
         }
     }
 
-    suspend fun register(firstName: String, lastName: String, bdate: Long, email: String): Result<Any> {
-        return authRepository.register(firstName, lastName, bdate, email)
+    suspend fun register(firstName: String, lastName: String, bdate: Long, email: String, privacyAccepted: Boolean): Result<Any> {
+        return authRepository.register(firstName, lastName, bdate, email, privacyAccepted)
+    }
+
+    /**
+     * Удаляет аккаунт пользователя на сервере и очищает локальные данные (токены, профиль).
+     */
+    suspend fun deleteAccount(): Result<Unit> {
+        return authRepository.deleteAccount().mapCatching {
+            runCatching { fcmTokenRegistry.unregisterCurrent() }
+            tokenRepository.clear()
+            userRepository.clearUser()
+        }
     }
 
 }

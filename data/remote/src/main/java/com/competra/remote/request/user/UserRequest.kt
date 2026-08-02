@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName
  * @property lastName Фамилия пользователя.
  * @property birthDate Дата рождения пользователя (в миллисекундах).
  * @property email Электронная почта пользователя.
+ * @property privacyAccepted Согласие на обработку персональных данных.
  */
 data class UserRequest(
     @SerializedName("first_name")
@@ -18,5 +19,7 @@ data class UserRequest(
     @SerializedName("birth_date")
     val birthDate: Long,
     @SerializedName("email")
-    val email: String
+    val email: String,
+    @SerializedName("privacy_accepted")
+    val privacyAccepted: Boolean
 )

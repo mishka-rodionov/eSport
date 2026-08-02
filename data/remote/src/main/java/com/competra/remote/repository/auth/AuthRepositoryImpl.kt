@@ -37,15 +37,21 @@ class AuthRepositoryImpl(
         firstName: String,
         lastName: String,
         bdate: Long,
-        email: String
+        email: String,
+        privacyAccepted: Boolean
     ): Result<Any> {
         return authRemoteDataSource.register(
             UserRequest(
                 firstName = firstName,
                 lastName = lastName,
                 birthDate = bdate,
-                email = email
+                email = email,
+                privacyAccepted = privacyAccepted
             )
         )
+    }
+
+    override suspend fun deleteAccount(): Result<Any> {
+        return authRemoteDataSource.deleteAccount()
     }
 }

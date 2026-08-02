@@ -9,6 +9,7 @@ import com.competra.remote.request.user.UserRequest
 import com.competra.remote.response.auth.AuthResponse
 import com.competra.remote.response.user.UserResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -32,5 +33,8 @@ interface AuthRemoteDataSource {
 
     @PATCH("user/profile")
     suspend fun updateProfile(@Body request: UserProfileUpdateRequest): Result<CommonModel<UserResponse>>
+
+    @DELETE("user/me")
+    suspend fun deleteAccount(): Result<CommonModel<Any>>
 
 }

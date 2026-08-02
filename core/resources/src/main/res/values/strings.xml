@@ -58,6 +58,8 @@
     <string name="label_last_name">Фамилия</string>
     <string name="label_email">Email</string>
     <string name="label_send">Отправить</string>
+    <string name="label_privacy_consent_prefix">Я согласен(-на) с обработкой персональных данных и</string>
+    <string name="label_privacy_policy">политикой конфиденциальности</string>
 
     <!-- Content Descriptions -->
     <string name="content_description_edit_group">Редактировать группу</string>

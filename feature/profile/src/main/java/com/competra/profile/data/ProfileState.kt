@@ -4,5 +4,6 @@ import com.competra.domain.models.user.User
 import com.competra.ui.BaseState
 
 data class ProfileState(
-    val user: User? = null
+    val user: User? = null,
+    val showDeleteAccountConfirm: Boolean = false,
 ) : BaseState

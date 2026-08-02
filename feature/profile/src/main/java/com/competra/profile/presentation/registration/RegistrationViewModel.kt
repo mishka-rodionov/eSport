@@ -30,10 +30,12 @@ class RegistrationViewModel(
             is RegistrationAction.UpdateFirstName -> updateState { copy(firstName = action.firstName) }
             is RegistrationAction.UpdateLastName -> updateState { copy(lastName = action.lastName) }
             is RegistrationAction.UpdateBdate -> updateState { copy(bdate = DateTimeFormat.transformApiDateToLong(action.bdate)) }
+            is RegistrationAction.UpdatePrivacyAccepted -> updateState { copy(privacyAccepted = action.accepted) }
         }
     }
 
     fun registerUser() {
+        if (!state.value.privacyAccepted) return
         analytics.trackEvent(AnalyticsEvent.RegistrationSubmitted)
         viewModelScope.launch {
             with(state.value) {
@@ -41,7 +43,8 @@ class RegistrationViewModel(
                     firstName = firstName,
                     lastName = lastName,
                     bdate = bdate,
-                    email = email
+                    email = email,
+                    privacyAccepted = privacyAccepted
                 ).onSuccess {
                     analytics.trackEvent(AnalyticsEvent.RegistrationSuccess)
                     navigation.navigate(destination = ProfileNavigation.AuthCodeRoute(email))

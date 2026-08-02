@@ -1,15 +1,18 @@
 package com.competra.profile.presentation.registration
 
 import android.app.DatePickerDialog
-import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +28,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.competra.designsystem.components.DSButton
 import com.competra.designsystem.components.DSTextInput
+import com.competra.profile.data.LegalLinks
 import com.competra.profile.data.registration.RegistrationAction
 import com.competra.resources.R
 import com.competra.utils.DateTimeFormat
@@ -54,6 +59,7 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val uriHandler = LocalUriHandler.current
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -101,11 +107,34 @@ fun RegistrationScreen(viewModel: RegistrationViewModel = koinViewModel()) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = state.privacyAccepted,
+                onCheckedChange = { userAction.invoke(RegistrationAction.UpdatePrivacyAccepted(it)) }
+            )
+            Text(
+                text = buildString {
+                    append(stringResource(R.string.label_privacy_consent_prefix))
+                    append(" ")
+                },
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = stringResource(R.string.label_privacy_policy),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable {
+                    uriHandler.openUri(LegalLinks.PRIVACY_POLICY_URL)
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         DSButton(
             text = stringResource(R.string.label_send),
+            isEnabled = state.privacyAccepted,
             onClick = {
-                // TODO: Обработка введенного email
-                Log.d("LOG_TAG", "EmailInputContent: Введенный email: ${state.email}")
                 keyboardController?.hide()
                 userAction.invoke(RegistrationAction.RegisterUser)
             },

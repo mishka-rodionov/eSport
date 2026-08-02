@@ -5,7 +5,10 @@ import com.competra.analytics.AnalyticsEvent
 import com.competra.analytics.AnalyticsTracker
 import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.ProfileNavigation
+import com.competra.domain.exception.NetworkException
+import com.competra.domain.models.NetworkErrorEvent
 import com.competra.domain.models.onboarding.OnboardingSource
+import com.competra.domain.repository.NetworkErrorRepository
 import com.competra.domain.repository.OnboardingRequestRepository
 import com.competra.domain.repository.user.UserRepository
 import com.competra.profile.data.ProfileAction
@@ -29,6 +32,7 @@ class ProfileViewModel(
     private val authInteractor: AuthInteractor,
     private val analytics: AnalyticsTracker,
     private val onboardingRequestRepository: OnboardingRequestRepository,
+    private val networkErrorRepository: NetworkErrorRepository,
 ) : BaseViewModel<ProfileState>(ProfileState()) {
 
     override fun onAction(action: BaseAction) {
@@ -47,6 +51,42 @@ class ProfileViewModel(
             ProfileAction.Logout -> logout()
             ProfileAction.ShowOnboarding -> showOnboardingAgain()
             ProfileAction.ToPushPreferences -> toPushPreferences()
+            ProfileAction.ToAboutApp -> toAboutApp()
+            ProfileAction.OpenDeleteAccountConfirm -> updateState { copy(showDeleteAccountConfirm = true) }
+            ProfileAction.CloseDeleteAccountConfirm -> updateState { copy(showDeleteAccountConfirm = false) }
+            ProfileAction.DeleteAccount -> deleteAccount()
+        }
+    }
+
+    /**
+     * Безвозвратно удаляет аккаунт пользователя. Сервер может отклонить запрос
+     * (например, если пользователь — организатор действующих соревнований) —
+     * в этом случае ошибка показывается пользователю, локальные данные не трогаются.
+     */
+    private fun deleteAccount() {
+        analytics.trackEvent(AnalyticsEvent.AccountDeletionRequested)
+        viewModelScope.launch {
+            authInteractor.deleteAccount()
+                .onSuccess {
+                    analytics.trackEvent(AnalyticsEvent.AccountDeletionSucceeded)
+                    analytics.setUserId(null)
+                    updateState { copy(user = null, showDeleteAccountConfirm = false) }
+                }
+                .onFailure { throwable ->
+                    val code = (throwable as? NetworkException)?.code
+                    analytics.trackEvent(AnalyticsEvent.AccountDeletionFailed(reason = code?.toString() ?: "unknown"))
+                    networkErrorRepository.emit(NetworkErrorEvent(code = code, message = throwable.message))
+                    updateState { copy(showDeleteAccountConfirm = false) }
+                }
+        }
+    }
+
+    /**
+     * Переход на экран «О приложении».
+     */
+    private fun toAboutApp() {
+        viewModelScope.launch {
+            navigation.navigate(ProfileNavigation.AboutAppRoute)
         }
     }
 

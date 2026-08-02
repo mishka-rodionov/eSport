@@ -34,11 +34,15 @@
 # Сохраняем сигнатуры/аннотации для Retrofit, Gson, kotlinx.serialization
 -keepattributes Signature, InnerClasses, EnclosingMethod, *Annotation*, EnclosingMethod
 
-# Доменные модели (используются как DTO в сети и БД)
--keep class com.competra.domain.model.** { *; }
--keep class com.competra.**.model.** { *; }
+# Доменные модели, Room-сущности и сетевые DTO — реальные названия пакетов
+# (models/entities/response/request), а не сгенерированные шаблоном model/entity/dto.
+# Gson-(де)сериализация и Room ссылаются на поля этих классов по имени — без -keep
+# R8 может переименовать или удалить их в релизной сборке.
+-keep class com.competra.domain.models.** { *; }
+-keep class com.competra.local.entities.** { *; }
+-keep class com.competra.remote.request.** { *; }
+-keep class com.competra.remote.response.** { *; }
 -keep class com.competra.**.dto.** { *; }
--keep class com.competra.**.entity.** { *; }
 
 # kotlinx.serialization
 -keepclassmembers class **$Companion {

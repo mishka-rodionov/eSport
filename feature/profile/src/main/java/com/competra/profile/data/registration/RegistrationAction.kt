@@ -10,5 +10,6 @@ sealed class RegistrationAction: BaseAction {
     data class UpdateFirstName(val firstName: String): RegistrationAction()
     data class UpdateLastName(val lastName: String): RegistrationAction()
     data class UpdateBdate(val bdate: String): RegistrationAction()
+    data class UpdatePrivacyAccepted(val accepted: Boolean): RegistrationAction()
 
 }

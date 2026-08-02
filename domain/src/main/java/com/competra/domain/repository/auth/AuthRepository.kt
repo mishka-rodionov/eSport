@@ -20,9 +20,15 @@ interface AuthRepository {
 
     /**
      * Регистрация нового пользователя.
-     * 
+     *
      * @param bdate Дата рождения в формате Long (timestamp).
+     * @param privacyAccepted Согласие на обработку персональных данных.
      */
-    suspend fun register(firstName: String, lastName: String, bdate: Long, email: String): Result<Any>
+    suspend fun register(firstName: String, lastName: String, bdate: Long, email: String, privacyAccepted: Boolean): Result<Any>
+
+    /**
+     * Безвозвратное удаление аккаунта текущего пользователя на сервере.
+     */
+    suspend fun deleteAccount(): Result<Any>
 
 }

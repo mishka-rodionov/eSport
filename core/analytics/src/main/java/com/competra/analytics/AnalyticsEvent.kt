@@ -196,6 +196,16 @@ sealed class AnalyticsEvent(
         mapOf("category" to category.name.lowercase(), "enabled" to enabled),
     )
 
+    /** Пользователь подтвердил удаление аккаунта. */
+    data object AccountDeletionRequested : AnalyticsEvent("account_deletion_requested")
+
+    /** Аккаунт успешно удалён на сервере. */
+    data object AccountDeletionSucceeded : AnalyticsEvent("account_deletion_succeeded")
+
+    /** Сервер отклонил удаление аккаунта (например, пользователь — организатор соревнований). */
+    class AccountDeletionFailed(reason: String) :
+        AnalyticsEvent("account_deletion_failed", mapOf("reason" to reason))
+
     // endregion
 
     // region Onboarding
