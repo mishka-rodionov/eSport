@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:AddCompetitionScreen.kt$@Composable private fun CompetitionItem(competition: Competition, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:AddCompetitionScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AddCompetitionScreen(ratingId: String, viewModel: AddCompetitionViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:GroupMappingScreen.kt$@Composable private fun MappingRow( suggestion: RatingGroupMappingSuggestion, ratingGroups: List&lt;RatingGroup&gt;, selectedRatingGroupId: Long?, onSelected: (Long?) -&gt; Unit )</ID>
+    <ID>FunctionNaming:GroupMappingScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun GroupMappingScreen( ratingId: String, competitionId: String, viewModel: GroupMappingViewModel = koinViewModel() )</ID>
+    <ID>FunctionNaming:RatingDetailScreen.kt$@Composable private fun CompetitionRow( competition: RatingCompetition, isAdmin: Boolean, onRemove: () -&gt; Unit, onEditMapping: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RatingDetailScreen.kt$@Composable private fun StandingRow(standing: RatingStanding)</ID>
+    <ID>FunctionNaming:RatingDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RatingDetailScreen(ratingId: String, viewModel: RatingDetailViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:RatingFormScreen.kt$@Composable private fun GenderDropdown(selected: Gender?, onSelected: (Gender?) -&gt; Unit)</ID>
+    <ID>FunctionNaming:RatingFormScreen.kt$@Composable private fun RatingGroupEditor( group: RatingGroupDraft, onTitleChanged: (String) -&gt; Unit, onGenderChanged: (Gender?) -&gt; Unit, onMinAgeChanged: (String) -&gt; Unit, onMaxAgeChanged: (String) -&gt; Unit, onRemove: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RatingFormScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RatingFormScreen(clubId: String, viewModel: RatingFormViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:RatingListScreen.kt$@Composable private fun RatingItem(rating: RatingSeries, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:RatingListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RatingListScreen(clubId: String, viewModel: RatingListViewModel = koinViewModel())</ID>
+    <ID>FunctionNaming:RatingsSearchScreen.kt$@Composable private fun RatingSummaryItem(rating: RatingSummary, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:RatingsSearchScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RatingsSearchScreen(viewModel: RatingsSearchViewModel = koinViewModel())</ID>
+    <ID>LongMethod:RatingDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RatingDetailScreen(ratingId: String, viewModel: RatingDetailViewModel = koinViewModel())</ID>
+    <ID>LongMethod:RatingListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RatingListScreen(clubId: String, viewModel: RatingListViewModel = koinViewModel())</ID>
+    <ID>LongMethod:RatingsSearchScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RatingsSearchScreen(viewModel: RatingsSearchViewModel = koinViewModel())</ID>
+    <ID>LongParameterList:RatingFormScreen.kt$( group: RatingGroupDraft, onTitleChanged: (String) -&gt; Unit, onGenderChanged: (Gender?) -&gt; Unit, onMinAgeChanged: (String) -&gt; Unit, onMaxAgeChanged: (String) -&gt; Unit, onRemove: () -&gt; Unit )</ID>
+    <ID>MaxLineLength:AddCompetitionViewModel.kt$AddCompetitionViewModel$eventsRepository.getEvents(EventsFilter(searchQuery = stateValue.query.trim().ifBlank { null }), page = 0, limit = PAGE_SIZE)</ID>
+    <ID>MaxLineLength:GroupMappingScreen.kt$onSelected = { viewModel.onAction(GroupMappingAction.MappingChanged(suggestion.participantGroupId, it)) }</ID>
+    <ID>MaxLineLength:GroupMappingViewModel.kt$GroupMappingViewModel$if (stateValue.ratingId == ratingId &amp;&amp; stateValue.competitionId == competitionId &amp;&amp; stateValue.suggestions.isNotEmpty()) return</ID>
+    <ID>MaxLineLength:GroupMappingViewModel.kt$GroupMappingViewModel$val suggestionsResult = ratingRepository.getGroupMappingSuggestions(stateValue.ratingId, stateValue.competitionId)</ID>
+    <ID>MaxLineLength:RatingDetailScreen.kt$Box</ID>
+    <ID>MaxLineLength:RatingDetailScreen.kt$ScrollableTabRow</ID>
+    <ID>MaxLineLength:RatingDetailScreen.kt$onEditMapping = { viewModel.onAction(RatingDetailAction.EditMappingClick(competition.competitionId)) }</ID>
+    <ID>MaxLineLength:RatingDetailScreen.kt$onRemove = { viewModel.onAction(RatingDetailAction.RemoveCompetitionClick(competition.competitionId)) }</ID>
+    <ID>MaxLineLength:RatingFormScreen.kt$Column</ID>
+    <ID>PackageNaming:AddCompetitionAction.kt$package com.competra.rating.data.add_competition</ID>
+    <ID>PackageNaming:AddCompetitionScreen.kt$package com.competra.rating.presentation.add_competition</ID>
+    <ID>PackageNaming:AddCompetitionState.kt$package com.competra.rating.data.add_competition</ID>
+    <ID>PackageNaming:AddCompetitionViewModel.kt$package com.competra.rating.presentation.add_competition</ID>
+    <ID>PackageNaming:GroupMappingAction.kt$package com.competra.rating.data.group_mapping</ID>
+    <ID>PackageNaming:GroupMappingScreen.kt$package com.competra.rating.presentation.group_mapping</ID>
+    <ID>PackageNaming:GroupMappingState.kt$package com.competra.rating.data.group_mapping</ID>
+    <ID>PackageNaming:GroupMappingViewModel.kt$package com.competra.rating.presentation.group_mapping</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -21,6 +21,7 @@
     <ID>FunctionNaming:TeamDetailScreen.kt$@Composable private fun EditTeamDialog( name: String, sportType: KindOfSport, isSaving: Boolean, onNameChanged: (String) -&gt; Unit, onSportChanged: (KindOfSport) -&gt; Unit, onSave: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>FunctionNaming:TeamDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TeamDetailScreen(teamId: String, viewModel: TeamDetailViewModel = koinViewModel())</ID>
     <ID>LongMethod:ClubDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubDetailScreen(clubId: String, viewModel: ClubDetailViewModel = koinViewModel())</ID>
+    <ID>LongMethod:ClubDetailViewModel.kt$ClubDetailViewModel$override fun onAction(action: BaseAction)</ID>
     <ID>LongMethod:ClubJoinRequestsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubJoinRequestsScreen(clubId: String, viewModel: ClubJoinRequestsViewModel = koinViewModel())</ID>
     <ID>LongMethod:ClubsListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ClubsListScreen(viewModel: ClubsListViewModel = koinViewModel())</ID>
     <ID>LongMethod:TeamDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TeamDetailScreen(teamId: String, viewModel: TeamDetailViewModel = koinViewModel())</ID>

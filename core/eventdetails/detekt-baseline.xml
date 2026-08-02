@@ -74,6 +74,7 @@
     <ID>MagicNumber:LiveResultsScreen.kt$3_723_000</ID>
     <ID>MagicNumber:LiveResultsScreen.kt$4015L</ID>
     <ID>MagicNumber:LiveResultsScreen.kt$720_000</ID>
+    <ID>MaxLineLength:EventGroupSplitsTableViewModel.kt$EventGroupSplitsTableViewModel$val distancesDeferred = async { remoteRepository.getDistancesForCompetition(eventId).getOrNull() ?: emptyList() }</ID>
     <ID>MaxLineLength:EventGroupSplitsTableViewModel.kt$EventGroupSplitsTableViewModel$val groupsDeferred = async { remoteRepository.getCompetitionParticipantsGroups(eventId).getOrNull() ?: emptyList() }</ID>
     <ID>MaxLineLength:EventGroupSplitsTableViewModel.kt$EventGroupSplitsTableViewModel$val participantsDeferred = async { remoteRepository.getParticipantsForCompetition(eventId).getOrNull() ?: emptyList() }</ID>
     <ID>MaxLineLength:EventParticipantGroupScreen.kt$startNumber = "101"</ID>

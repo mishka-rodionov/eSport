@@ -2,16 +2,20 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongMethod:SplitsTableBuilder.kt$fun buildSplitsTable(group: GroupWithParticipantsAndResults): SplitsTable</ID>
+    <ID>LongMethod:SplitsTableBuilder.kt$fun buildSplitsTable(group: GroupWithParticipantsAndResults, distance: Distance? = null): SplitsTable</ID>
+    <ID>MagicNumber:SplitsTableBuilder.kt$1000.0</ID>
     <ID>MagicNumber:SplitsTableBuilder.kt$1000L</ID>
     <ID>MagicNumber:SplitsTableBuilder.kt$3</ID>
     <ID>MagicNumber:SplitsTableBuilder.kt$4</ID>
     <ID>MagicNumber:SplitsTableBuilder.kt$5</ID>
+    <ID>MagicNumber:SplitsTableBuilder.kt$60.0</ID>
     <ID>MagicNumber:SplitsTableBuilder.kt$9</ID>
     <ID>MagicNumber:TrackCodec.kt$TrackCodec$1000L</ID>
     <ID>MagicNumber:TrackCodec.kt$TrackCodec$3</ID>
     <ID>MatchingDeclarationName:OrganizeRole.kt$OrganizerRole</ID>
+    <ID>MaxLineLength:AuthRepository.kt$AuthRepository$suspend</ID>
     <ID>MaxLineLength:CyclicEventDetailsRepository.kt$CyclicEventDetailsRepository$*</ID>
+    <ID>MaxLineLength:EventsFilter.kt$EventsFilter$*</ID>
     <ID>MaxLineLength:GroupWithParticipantsAndResults.kt$GroupWithParticipantsAndResults$*</ID>
     <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun saveCompetition(orienteeringCompetition: OrienteeringCompetition, markUnsynced: Boolean = true): Result&lt;OrienteeringCompetition&gt;</ID>
     <ID>MaxLineLength:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository$suspend fun saveCompetitions(orienteeringCompetition: List&lt;OrienteeringCompetition&gt;, markUnsynced: Boolean = true): Result&lt;List&lt;OrienteeringCompetition&gt;&gt;</ID>
@@ -23,6 +27,10 @@
     <ID>MaxLineLength:OrienteeringCompetitionRemoteRepository.kt$OrienteeringCompetitionRemoteRepository$suspend fun createParticipantsGroupsForCompetition(competitionId: String, participantGroups: List&lt;ParticipantGroup&gt;): Result&lt;List&lt;ParticipantGroup&gt;&gt;</ID>
     <ID>MaxLineLength:OrienteeringCompetitionRemoteRepository.kt$OrienteeringCompetitionRemoteRepository$suspend fun publishGroupsForCompetition(competitionId: String, participantGroups: List&lt;ParticipantGroup&gt;): Result&lt;List&lt;ParticipantGroup&gt;&gt;</ID>
     <ID>MaxLineLength:OrienteeringCompetitionRemoteRepository.kt$OrienteeringCompetitionRemoteRepository$suspend fun updateCompetitionParticipantsGroups(competitionId: String, participantGroups: List&lt;ParticipantGroup&gt;): Result&lt;List&lt;ParticipantGroup&gt;&gt;</ID>
+    <ID>MaxLineLength:RatingGroupMappingSuggestion.kt$RatingGroupMappingSuggestion$/** Авто-подсказка соответствия группы соревнования канонической группе рейтинга — требует подтверждения организатором. */</ID>
+    <ID>MaxLineLength:RatingRepository.kt$RatingRepository$/** Возвращает добавленное соревнование вместе с авто-подсказкой маппинга его групп на канонические группы рейтинга. */</ID>
+    <ID>MaxLineLength:RatingRepository.kt$RatingRepository$/** Рейтинги соревнований работают только online — без offline-first/`:core:sync`, ошибки сети — обычный [Result.failure]. */</ID>
+    <ID>MaxLineLength:RatingRepository.kt$RatingRepository$suspend</ID>
     <ID>MaxLineLength:SplitsTableBuilderTest.kt$SplitsTableBuilderTest$val finishedFast = ParticipantWithResult(participant("fast"), result("fast", ResultStatus.FINISHED, totalTime = 300))</ID>
     <ID>MaxLineLength:SplitsTableBuilderTest.kt$SplitsTableBuilderTest$val finishedSlow = ParticipantWithResult(participant("slow"), result("slow", ResultStatus.FINISHED, totalTime = 500))</ID>
     <ID>MaxLineLength:Token.kt$Token$*</ID>
@@ -47,8 +55,10 @@
     <ID>NewLineAtEndOfFile:UserRepository.kt$com.competra.domain.repository.user.UserRepository.kt</ID>
     <ID>PackageNaming:CyclicEventDetails.kt$package com.competra.domain.models.cyclic_event</ID>
     <ID>PackageNaming:EventParticipantGroup.kt$package com.competra.domain.models.cyclic_event</ID>
+    <ID>ReturnCount:SplitsTableBuilder.kt$fun controlPointDistanceMeters(from: ControlPoint?, to: ControlPoint?): Double?</ID>
     <ID>TooManyFunctions:OrienteeringCompetitionLocalRepository.kt$OrienteeringCompetitionLocalRepository</ID>
     <ID>TooManyFunctions:OrienteeringCompetitionRemoteRepository.kt$OrienteeringCompetitionRemoteRepository</ID>
+    <ID>TooManyFunctions:RatingRepository.kt$RatingRepository</ID>
     <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
   </CurrentIssues>
 </SmellBaseline>

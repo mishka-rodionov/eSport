@@ -21,7 +21,7 @@
     <ID>FunctionNaming:Theme.kt$@Composable fun CompetraTheme( darkTheme: Boolean = isSystemInDarkTheme(), // Фирменная палитра «Лес» по умолчанию. Динамические цвета Material You отключены, // иначе на Android 12+ цвета берутся из обоев и наша палитра игнорируется. dynamicColor: Boolean = false, content: @Composable () -&gt; Unit )</ID>
     <ID>LongMethod:MainActivity.kt$@Composable internal fun MainScreen(viewModel: MainViewModel, windowSizeClass: WindowSizeClass)</ID>
     <ID>LongMethod:ResultConflictBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ResultConflictBottomSheet( event: ResultConflictEvent, onApply: () -&gt; Unit, onCancel: () -&gt; Unit )</ID>
-    <ID>LongParameterList:MainViewModel.kt$MainViewModel$( private val navigation: Navigation, private val sportiduinoHelper: SportiduinoHelper, private val serviceController: CompetitionServiceController, private val workoutTrackingController: WorkoutTrackingController, private val scanEventRepository: CompetitionScanEventRepository, private val startAlertRepository: CompetitionStartAlertRepository, private val resultConflictRepository: ResultConflictRepository, private val networkErrorRepository: NetworkErrorRepository, private val loadingRepository: LoadingRepository, private val onboardingRequestRepository: OnboardingRequestRepository )</ID>
+    <ID>LongParameterList:MainViewModel.kt$MainViewModel$( private val navigation: Navigation, private val sportiduinoHelper: SportiduinoHelper, private val serviceController: CompetitionServiceController, private val workoutTrackingController: WorkoutTrackingController, private val scanEventRepository: CompetitionScanEventRepository, private val startAlertRepository: CompetitionStartAlertRepository, private val resultConflictRepository: ResultConflictRepository, private val networkErrorRepository: NetworkErrorRepository, private val loadingRepository: LoadingRepository, private val onboardingRequestRepository: OnboardingRequestRepository, private val pendingPushNavigationRepository: PendingPushNavigationRepository )</ID>
     <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$10</ID>
     <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$1000</ID>
     <ID>MagicNumber:CompetitionForegroundService.kt$CompetitionForegroundService$200</ID>
@@ -51,7 +51,6 @@
     <ID>MagicNumber:WorkoutTrackingService.kt$WorkoutTrackingService$1000L</ID>
     <ID>MagicNumber:WorkoutTrackingService.kt$WorkoutTrackingService$60</ID>
     <ID>MatchingDeclarationName:FcmTokenRegistry.kt$FcmTokenRegistryImpl : FcmTokenRegistry</ID>
-    <ID>MaxLineLength:CompetraApp.kt$CompetraApp$modules(mainModule, centerModule, eventsModule, eventDetailsModule, profileModule, onboardingModule, diaryModule)</ID>
     <ID>MaxLineLength:FcmTokenWorker.kt$FcmTokenWorker$Log.e(TAG, "Server rejected FCM token registration: ${t.message?.ifBlank { "&lt;empty body&gt;" } ?: t.javaClass.simpleName}", t)</ID>
     <ID>MaxLineLength:WorkoutTrackingService.kt$WorkoutTrackingService$val sport = intent?.getStringExtra(EXTRA_SPORT_TYPE)?.let { runCatching { SportType.valueOf(it) }.getOrNull() }</ID>
     <ID>NestedBlockDepth:CompetitionForegroundService.kt$CompetitionForegroundService$private suspend fun CoroutineScope.monitorParticipants( participants: List&lt;OrienteeringParticipant&gt; )</ID>
@@ -61,6 +60,7 @@
     <ID>ReturnCount:FcmTokenWorker.kt$FcmTokenWorker$override suspend fun doWork(): Result</ID>
     <ID>TooGenericExceptionCaught:FcmTokenWorker.kt$FcmTokenWorker$e: Exception</ID>
     <ID>TooManyFunctions:CompetitionForegroundService.kt$CompetitionForegroundService : Service</ID>
+    <ID>TooManyFunctions:MainViewModel.kt$MainViewModel : BaseViewModel</ID>
     <ID>TooManyFunctions:WorkoutTrackingService.kt$WorkoutTrackingService : Service</ID>
     <ID>UnusedPrivateMember:ResultConflictBottomSheet.kt$@Preview(showBackground = true) @Composable private fun ResultConflictBottomSheetPreview()</ID>
     <ID>UnusedPrivateProperty:MainActivity.kt$MainActivity$private val nfcPendingIntent: PendingIntent by lazy { PendingIntent.getActivity( this, 0, Intent( this, this.javaClass ).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_MUTABLE ) }</ID>

@@ -7,7 +7,7 @@
     <ID>CyclomaticComplexMethod:MockInterceptor.kt$MockInterceptor$private fun getOrienteeringCompetitionsResponse(request: Request): Response</ID>
     <ID>LongMethod:MockInterceptor.kt$MockInterceptor$private fun getOrienteeringCompetitionsResponse(request: Request): Response</ID>
     <ID>LongMethod:MockInterceptor.kt$MockInterceptor$private fun mockEvents(request: Request): Response</ID>
-    <ID>LongParameterList:EventsRemoteDataSource.kt$EventsRemoteDataSource$( @Query("kind_of_sports") kindOfSports: List&lt;String&gt; = emptyList(), @Query("statuses") statuses: List&lt;String&gt; = emptyList(), @Query("date_from") dateFrom: Long? = null, @Query("date_to") dateTo: Long? = null, @Query("includeTest") includeTest: Boolean = false, @Query("page") page: Int = 0, @Query("limit") limit: Int = 20 )</ID>
+    <ID>LongParameterList:EventsRemoteDataSource.kt$EventsRemoteDataSource$( @Query("kind_of_sports") kindOfSports: List&lt;String&gt; = emptyList(), @Query("statuses") statuses: List&lt;String&gt; = emptyList(), @Query("date_from") dateFrom: Long? = null, @Query("date_to") dateTo: Long? = null, @Query("includeTest") includeTest: Boolean = false, @Query("page") page: Int = 0, @Query("limit") limit: Int = 20, @Query("query") query: String? = null )</ID>
     <ID>MagicNumber:MockInterceptor.kt$MockInterceptor$200</ID>
     <ID>MatchingDeclarationName:AuthInterceptors.kt$AuthInterceptor : Interceptor</ID>
     <ID>MaxLineLength:CyclicEventDetailsRemoteDataSource.kt$CyclicEventDetailsRemoteDataSource$suspend</ID>
@@ -15,6 +15,10 @@
     <ID>MaxLineLength:Diary.kt$bikeDetails = bikeDetails?.let { BikeDetails(workoutId = 0, cadenceRpm = it.cadenceRpm, powerWatts = it.powerWatts) }</ID>
     <ID>MaxLineLength:OrienteeringCompetitionRemoteDataSource.kt$OrienteeringCompetitionRemoteDataSource$suspend</ID>
     <ID>MaxLineLength:OrienteeringCompetitionRemoteRepositoryImpl.kt$OrienteeringCompetitionRemoteRepositoryImpl$override suspend</ID>
+    <ID>MaxLineLength:RatingRemoteDataSource.kt$RatingRemoteDataSource$suspend</ID>
+    <ID>MaxLineLength:RatingRepositoryImpl.kt$RatingRepositoryImpl$override suspend</ID>
+    <ID>MaxLineLength:RatingRepositoryImpl.kt$RatingRepositoryImpl$return ratingRemoteDataSource.listCompetitions(ratingId).mapCatching { it.result!!.map { competition -&gt; competition.toDomain() } }</ID>
+    <ID>MaxLineLength:RatingRepositoryImpl.kt$RatingRepositoryImpl$return ratingRemoteDataSource.listForClub(clubId).mapCatching { it.result!!.map { rating -&gt; rating.toDomain() } }</ID>
     <ID>NewLineAtEndOfFile:Auth.kt$com.competra.remote.response.mappers.Auth.kt</ID>
     <ID>NewLineAtEndOfFile:AuthRemoteDataSource.kt$com.competra.remote.datasource.auth.AuthRemoteDataSource.kt</ID>
     <ID>NewLineAtEndOfFile:AuthRepositoryImpl.kt$com.competra.remote.repository.auth.AuthRepositoryImpl.kt</ID>
@@ -41,13 +45,17 @@
     <ID>SwallowedException:Competition.kt$e: Exception</ID>
     <ID>SwallowedException:MockInterceptor.kt$MockInterceptor$e: Exception</ID>
     <ID>SwallowedException:Orienteering.kt$e: Exception</ID>
+    <ID>SwallowedException:Rating.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:Competition.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MockInterceptor.kt$MockInterceptor$e: Exception</ID>
     <ID>TooGenericExceptionCaught:Orienteering.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:Rating.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ResultCall.kt$ResultCall$exception: Throwable</ID>
     <ID>TooManyFunctions:ClubRemoteDataSource.kt$ClubRemoteDataSource</ID>
     <ID>TooManyFunctions:OrienteeringCompetitionRemoteDataSource.kt$OrienteeringCompetitionRemoteDataSource</ID>
     <ID>TooManyFunctions:OrienteeringCompetitionRemoteRepositoryImpl.kt$OrienteeringCompetitionRemoteRepositoryImpl : OrienteeringCompetitionRemoteRepository</ID>
+    <ID>TooManyFunctions:RatingRemoteDataSource.kt$RatingRemoteDataSource</ID>
+    <ID>TooManyFunctions:RatingRepositoryImpl.kt$RatingRepositoryImpl : RatingRepository</ID>
     <ID>TooManyFunctions:ResultCall.kt$ResultCall&lt;T : BaseModel&gt; : Call</ID>
     <ID>UnusedParameter:ResultCall.kt$ResultCall$call: Call&lt;T&gt;</ID>
     <ID>UnusedPrivateProperty:AuthRepositoryImpl.kt$AuthRepositoryImpl$private val tokenRepository: TokenRepository</ID>
