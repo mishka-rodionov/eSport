@@ -38,6 +38,7 @@ import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.domain.models.orienteering.SplitTime
 import com.competra.eventdetails.presentation.SplitsBottomSheet
+import com.competra.eventdetails.presentation.formatResultScore
 import com.competra.eventdetails.presentation.formatResultTime
 import com.competra.utils.orienteering.toSplitTime
 import kotlinx.coroutines.launch
@@ -204,16 +205,22 @@ private fun LiveResultsList(
     }
 }
 
+/**
+ * Для формата "по выбору" (BY_CHOICE) клик по строке отключён — просмотр сплитов не имеет
+ * смысла (порядок посещения КП не регламентирован), вместо времени показываются баллы и время
+ * вместе (приоритет в определении победителя у баллов).
+ */
 @Composable
 private fun LiveResultRow(
     item: ParticipantWithResult,
     direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
     onClick: () -> Unit
 ) {
+    val isByChoice = direction == OrienteeringDirection.BY_CHOICE
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickRipple(onClick = onClick)
+            .let { if (isByChoice) it else it.clickRipple(onClick = onClick) }
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -227,15 +234,30 @@ private fun LiveResultRow(
             modifier = Modifier.weight(0.5f),
             style = MaterialTheme.typography.bodyMedium
         )
-        Text(
-            text = formatResultTime(item.result, direction),
-            modifier = Modifier.weight(0.25f),
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (item.result?.status == ResultStatus.FINISHED)
-                MaterialTheme.colorScheme.onSurface
-            else
-                MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (isByChoice && item.result?.status == ResultStatus.FINISHED) {
+            Column(modifier = Modifier.weight(0.25f)) {
+                Text(
+                    text = formatResultScore(item.result),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = formatResultTime(item.result),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            Text(
+                text = formatResultTime(item.result),
+                modifier = Modifier.weight(0.25f),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (item.result?.status == ResultStatus.FINISHED)
+                    MaterialTheme.colorScheme.onSurface
+                else
+                    MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         Text(
             text = item.result?.rank?.toString() ?: "—",
             modifier = Modifier.weight(0.15f),

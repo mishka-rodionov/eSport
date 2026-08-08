@@ -1,11 +1,13 @@
 package com.competra.center.data.results
 
 import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.ResultsStatus
 import com.competra.ui.BaseState
 
 data class OrienteeringCompetitionResultsState(
     val groupsWithParticipantsAndResults: List<GroupWithParticipantsAndResults> = emptyList(),
+    val direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
     val isApproved: Boolean = false,
     /** Соревнование уже завершено — кнопка "Утвердить результаты" больше не показывается. */
     val isCompetitionFinished: Boolean = false,

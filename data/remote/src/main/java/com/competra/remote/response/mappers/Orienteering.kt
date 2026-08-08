@@ -29,6 +29,7 @@ fun OrienteeringCompetitionResponse.toDomain(): OrienteeringCompetition {
         startTimeMode = startTimeMode,
         countdownTimer = countdownTimer,
         startTime = startTime,
+        startIntervalSeconds = startIntervalSeconds,
         serverUpdatedAt = updatedAt.takeIf { it > 0L }
     )
 }

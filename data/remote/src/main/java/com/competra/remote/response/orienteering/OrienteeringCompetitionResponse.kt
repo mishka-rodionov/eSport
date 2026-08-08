@@ -15,6 +15,7 @@ import com.competra.remote.response.competition.CompetitionResponse
  * @property startTimeMode Режим начала соревнования
  * @property countdownTimer Время отсчета перед стартом (в минутах)
  * @property startTime Фактическое время начала соревнования (timestamp)
+ * @property startIntervalSeconds Интервал между стартами участников (в секундах)
  */
 data class OrienteeringCompetitionResponse(
     @SerializedName("competitionId")
@@ -37,6 +38,9 @@ data class OrienteeringCompetitionResponse(
 
     @SerializedName("startTime")
     val startTime: Long? = null,
+
+    @SerializedName("startIntervalSeconds")
+    val startIntervalSeconds: Int? = null,
 
     @SerializedName("updatedAt")
     val updatedAt: Long = 0L

@@ -28,6 +28,8 @@ import com.competra.center.data.results.ImportResultsDiff
 import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.components.clickRipple
 import com.competra.designsystem.theme.Dimens
+import com.competra.domain.models.ResultStatus
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.domain.models.orienteering.ResultsStatus
 import com.competra.resources.R
@@ -286,43 +288,53 @@ fun OrienteeringCompetitionResultsScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                            TextButton(
-                                onClick = {
-                                    viewModel.onAction(
-                                        OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenGroupSplitsTable(
-                                            groupWithResults.group.groupId
+                            // Сплиты и график отставания от лидера теряют смысл для формата "по
+                            // выбору": порядок посещения КП не регламентирован, победитель
+                            // определяется по сумме баллов, а не по времени на перегонах.
+                            if (state.direction != OrienteeringDirection.BY_CHOICE) {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.onAction(
+                                            OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenGroupSplitsTable(
+                                                groupWithResults.group.groupId
+                                            )
                                         )
-                                    )
+                                    }
+                                ) {
+                                    Text(text = "Сплиты")
                                 }
-                            ) {
-                                Text(text = "Сплиты")
-                            }
-                            TextButton(
-                                onClick = {
-                                    viewModel.onAction(
-                                        OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenRaceGraph(
-                                            groupWithResults.group.groupId
+                                TextButton(
+                                    onClick = {
+                                        viewModel.onAction(
+                                            OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenRaceGraph(
+                                                groupWithResults.group.groupId
+                                            )
                                         )
-                                    )
+                                    }
+                                ) {
+                                    Text(text = "График")
                                 }
-                            ) {
-                                Text(text = "График")
                             }
                         }
                     }
                     items(groupWithResults.participants) { participantWithResult ->
                         ResultParticipantCard(
                             result = participantWithResult,
+                            direction = state.direction,
                             onEditClick = {
                                 selectedParticipant = participantWithResult
                                 showBottomSheet = true
                             },
-                            onCardClick = {
-                                viewModel.onAction(
-                                    OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenSplits(
-                                        participantWithResult.participant.id
+                            onCardClick = if (state.direction == OrienteeringDirection.BY_CHOICE) {
+                                null
+                            } else {
+                                {
+                                    viewModel.onAction(
+                                        OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenSplits(
+                                            participantWithResult.participant.id
+                                        )
                                     )
-                                )
+                                }
                             }
                         )
                     }
@@ -399,17 +411,24 @@ fun OrienteeringCompetitionResultsScreen(
 
 /**
  * Карточка участника с его результатом.
+ *
+ * Для формата "по выбору" (BY_CHOICE) [onCardClick] передаётся `null` — переход к сплитам
+ * участника скрыт, т.к. порядок посещения КП не регламентирован и просмотр сплитов не имеет
+ * смысла; вместо времени показывается сумма баллов (и время финиша — приоритет в определении
+ * победителя у баллов, но время тоже показываем).
  */
 @Composable
 fun ResultParticipantCard(
     result: ParticipantWithResult,
     onEditClick: () -> Unit,
-    onCardClick: () -> Unit = {}
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
+    onCardClick: (() -> Unit)? = null
 ) {
+    val isByChoice = direction == OrienteeringDirection.BY_CHOICE
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickRipple(onClick = onCardClick),
+            .let { if (onCardClick != null) it.clickRipple(onClick = onCardClick) else it },
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -457,13 +476,31 @@ fun ResultParticipantCard(
                 }
             }
 
-            // Время
-            Text(
-                text = result.result?.totalTime?.toRaceTime() ?: "",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            // Баллы+время (BY_CHOICE, приоритет у баллов) или только время (остальные форматы)
+            if (isByChoice && result.result?.status == ResultStatus.FINISHED) {
+                Column(horizontalAlignment = Alignment.End) {
+                    val score = result.result?.totalScore ?: 0
+                    val penalty = result.result?.scorePenalty ?: 0
+                    Text(
+                        text = if (penalty > 0) "$score очков (-$penalty)" else "$score очков",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = result.result?.totalTime?.toRaceTime() ?: "",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                Text(
+                    text = result.result?.totalTime?.toRaceTime() ?: "",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
 
             if (result.result?.isEditable == true) {
                 Spacer(modifier = Modifier.width(Dimens.SIZE_HALF.dp))

@@ -27,6 +27,7 @@ import com.competra.ui.BaseAction
 import com.competra.ui.viewmodel.BaseViewModel
 import com.competra.utils.constants.EventsConstants
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
@@ -53,6 +54,7 @@ class OrientReadCardViewModel(
                 analytics.trackEvent(AnalyticsEvent.SplitEditSaved)
                 val updated = stateValue.rawSplits?.toMutableList() ?: return
                 updated[action.index] = updated[action.index].copy(timestamp = action.newTimestamp)
+                updated.sortBy { it.timestamp }
                 updateState { copy(rawSplits = updated) }
                 viewModelScope.launch(Dispatchers.IO) { recalculateAndSaveResult() }
             }
@@ -127,8 +129,17 @@ class OrientReadCardViewModel(
                 if (competition?.competition?.status == CompetitionStatus.FINISHED) {
                     updateState { copy(isCompetitionFinished = true) }
                 }
-                competition?.direction?.let { direction ->
+                val direction = competition?.direction
+                if (direction != null) {
                     updateState { copy(competitionDirection = direction) }
+                    // updateState — fire-and-forget (постит апдейт на Main.immediate и не ждёт его
+                    // применения). Если чип уже лежит на ридере в момент открытия экрана (обычный
+                    // рабочий процесс судьи), скан может дойти до subscribeToReadCard раньше, чем
+                    // competitionDirection фактически обновится в state, и computeCheckResult
+                    // ошибочно уйдёт в ветку checkControlPointOrderPro (без дедупликации повторных
+                    // отметок и без учёта баллов КП) вместо computeByChoiceResult. Дожидаемся
+                    // реального применения, чтобы гарантировать порядок.
+                    state.first { it.competitionDirection == direction }
                 }
             }
             sportiduinoHelper.subscribeToReadCard { chipData ->

@@ -88,6 +88,7 @@ class OrienteeringCompetitionResultsViewModel(
                 updateState {
                     copy(
                         groupsWithParticipantsAndResults = sortedResults,
+                        direction = direction,
                         isApproved = isApproved,
                         isCompetitionFinished = isCompetitionFinished,
                         competitionTitle = competition?.competition?.title ?: "",

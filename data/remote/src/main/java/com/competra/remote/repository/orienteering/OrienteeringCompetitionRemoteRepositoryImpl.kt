@@ -49,7 +49,10 @@ data class OrienteeringCompetitionRemoteRepositoryImpl(
                     minAge = group.minAge,
                     maxAge = group.maxAge,
                     distanceId = group.distanceId,
-                    maxParticipants = group.maxParticipants
+                    maxParticipants = group.maxParticipants,
+                    timeLimitMinutes = group.timeLimitMinutes,
+                    scorePenaltyPerMinute = group.scorePenaltyPerMinute,
+                    maxLatenessMinutes = group.maxLatenessMinutes
                 )
             }
         ).mapCatching { response ->

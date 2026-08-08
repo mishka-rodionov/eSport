@@ -424,8 +424,11 @@ class OrienteeringCompetitionInteractor(
             finished.sortedBy { (it.totalTime ?: Long.MAX_VALUE) + it.penaltyTime }
         }
 
+        // Для BY_CHOICE ключ должен включать finishTime — иначе два участника с одинаковыми
+        // очками, но разным временем (тай-брейк уже учтён сортировкой выше), получат одно и то
+        // же место вместо разных.
         fun rankKey(result: OrienteeringResult): Any = if (direction == OrienteeringDirection.BY_CHOICE) {
-            result.totalScore ?: 0
+            (result.totalScore ?: 0) to (result.finishTime ?: Long.MAX_VALUE)
         } else {
             (result.totalTime ?: Long.MAX_VALUE) + result.penaltyTime
         }

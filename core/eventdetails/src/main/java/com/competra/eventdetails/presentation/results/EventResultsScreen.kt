@@ -35,6 +35,7 @@ import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
 import com.competra.eventdetails.presentation.SplitsBottomSheet
+import com.competra.eventdetails.presentation.formatResultScore
 import com.competra.eventdetails.presentation.formatResultTime
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -102,7 +103,10 @@ fun EventResultsScreen(
                         // не заполняется (см. ParticipantGroupResponse.toDomain()) и одинаков
                         // у всех групп, поэтому именно remoteId уникально идентифицирует группу.
                         val groupRemoteId = groups[page].group.remoteId
-                        if (groupRemoteId != null) {
+                        // Сплиты и график отставания от лидера теряют смысл для формата "по
+                        // выбору": порядок посещения КП не регламентирован, победитель
+                        // определяется по сумме баллов, а не по времени на перегонах.
+                        if (groupRemoteId != null && state.direction != OrienteeringDirection.BY_CHOICE) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -200,6 +204,10 @@ private fun ResultsHeader() {
 /**
  * Строка результата участника.
  *
+ * Для формата "по выбору" (BY_CHOICE) клик по строке отключён — просмотр сплитов не имеет
+ * смысла (порядок посещения КП не регламентирован), вместо времени показываются баллы и время
+ * вместе (приоритет в определении победителя у баллов).
+ *
  * @param item Данные участника и его результата.
  */
 @Composable
@@ -208,10 +216,11 @@ private fun ResultItem(
     direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
     onClick: () -> Unit
 ) {
+    val isByChoice = direction == OrienteeringDirection.BY_CHOICE
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickRipple(onClick = onClick)
+            .let { if (isByChoice) it else it.clickRipple(onClick = onClick) }
             .padding(vertical = 12.dp)
     ) {
         Text(
@@ -222,10 +231,21 @@ private fun ResultItem(
             text = "${item.participant.lastName} ${item.participant.firstName}",
             modifier = Modifier.weight(0.5f)
         )
-        Text(
-            text = formatResultTime(item.result, direction),
-            modifier = Modifier.weight(0.3f)
-        )
+        if (isByChoice && item.result?.status == ResultStatus.FINISHED) {
+            Column(modifier = Modifier.weight(0.3f)) {
+                Text(text = formatResultScore(item.result), fontWeight = FontWeight.Bold)
+                Text(
+                    text = formatResultTime(item.result),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            Text(
+                text = formatResultTime(item.result),
+                modifier = Modifier.weight(0.3f)
+            )
+        }
         Text(
             text = item.result?.rank?.toString() ?: "-",
             modifier = Modifier.weight(0.1f)

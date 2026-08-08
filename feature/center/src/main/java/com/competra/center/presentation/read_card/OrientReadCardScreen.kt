@@ -25,6 +25,8 @@ import com.competra.designsystem.components.DSTextInput
 import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.ControlPoint
+import com.competra.domain.models.orienteering.ControlPointRole
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.SplitTime
@@ -65,6 +67,7 @@ fun OrientReadCardScreen(viewModel: OrientReadCardViewModel = koinViewModel()) {
                 groupTotalFinished = state.groupTotalFinished,
                 expectedCpOrder = state.expectedCpNumbers,
                 expectedControlPoints = state.expectedControlPoints,
+                competitionDirection = state.competitionDirection,
                 isPendingSave = state.isPendingSave,
                 isReadOnly = state.isCompetitionFinished,
                 onEditSplit = { index -> viewModel.onAction(OrientReadCardAction.EditSplitClicked(index)) },
@@ -148,12 +151,14 @@ private fun ReadCardContent(
     groupTotalFinished: Int = 0,
     expectedCpOrder: List<Int> = emptyList(),
     expectedControlPoints: List<ControlPoint> = emptyList(),
+    competitionDirection: OrienteeringDirection = OrienteeringDirection.FORWARD,
     isPendingSave: Boolean = false,
     isReadOnly: Boolean = false,
     onEditSplit: (index: Int) -> Unit = {},
     onCreditCp: (cpNumber: Int, prevTimestamp: Long) -> Unit = { _, _ -> },
     onSaveResult: () -> Unit = {},
 ) {
+    val isByChoice = competitionDirection == OrienteeringDirection.BY_CHOICE
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(Dimens.SIZE_BASE.dp),
@@ -184,14 +189,15 @@ private fun ReadCardContent(
         // Карточка итогового времени
         if (result != null) {
             item {
-                RaceSummaryCard(participant, result, groupRank, groupTotalFinished)
+                RaceSummaryCard(participant, result, groupRank, groupTotalFinished, competitionDirection)
             }
 
             // Секция сплитов
             val displaySplits = rawSplits ?: result.splits
             if (!displaySplits.isNullOrEmpty()) {
-                // Последовательность КП дистанции для сверки порядка отметок
-                if (expectedCpOrder.isNotEmpty()) {
+                // Последовательность КП дистанции для сверки порядка отметок.
+                // Для BY_CHOICE порядок посещения КП не регламентирован — карточка неактуальна.
+                if (expectedCpOrder.isNotEmpty() && !isByChoice) {
                     item {
                         DistanceCpSequenceCard(expectedCpOrder)
                     }
@@ -213,6 +219,7 @@ private fun ReadCardContent(
                         splits = displaySplits,
                         expectedCpOrder = expectedCpOrder,
                         expectedControlPoints = expectedControlPoints,
+                        competitionDirection = competitionDirection,
                         onEditSplit = if (isReadOnly) null else onEditSplit,
                         onCreditCp = if (isPendingSave) onCreditCp else null,
                     )
@@ -337,8 +344,10 @@ internal fun RaceSummaryCard(
     participant: OrienteeringParticipant,
     result: OrienteeringResult,
     groupRank: Int? = null,
-    groupTotalFinished: Int = 0
+    groupTotalFinished: Int = 0,
+    competitionDirection: OrienteeringDirection = OrienteeringDirection.FORWARD,
 ) {
+    val isByChoice = competitionDirection == OrienteeringDirection.BY_CHOICE
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.SIZE_BASE.dp),
@@ -359,12 +368,16 @@ internal fun RaceSummaryCard(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "ОБЩЕЕ ВРЕМЯ",
+                        text = if (isByChoice) "БАЛЛЫ" else "ОБЩЕЕ ВРЕМЯ",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = result.totalTime?.toRaceTime() ?: "00:00:00",
+                        text = if (isByChoice) {
+                            (result.totalScore ?: 0).toString()
+                        } else {
+                            result.totalTime?.toRaceTime() ?: "00:00:00"
+                        },
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -376,6 +389,18 @@ internal fun RaceSummaryCard(
                     value = DateTimeFormat.transformLongToTime(result.finishTime),
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.End
+                )
+            }
+
+            if (isByChoice && result.scorePenalty > 0) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Штраф за опоздание: −${result.scorePenalty} очков. Итоговый результат: ${result.totalScore ?: 0} очков",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
@@ -435,10 +460,17 @@ private sealed class SplitDisplayItem {
  * Для каждой отметки вычисляется её позиция по дистанции ([SplitDisplayItem.Actual.distanceOrdinal]),
  * чтобы судья мог увидеть нарушение порядка: если значения «Дист.» не растут 1, 2, 3…, КП взяты не по
  * порядку. Пропущенные КП дистанции (не отмеченные на чипе) добавляются отдельными строками в конец.
+ *
+ * Для формата «по выбору» ([isByChoice]) порядок посещения КП не регламентирован, поэтому:
+ * - строка «ПРОПУЩЕН» показывается только для обязательных КП ([requiredCpNumbers]) — остальные КП
+ *   дистанции опциональны, участник вправе их не брать, это не ошибка;
+ * - подсветка «взят не в том порядке» не вычисляется вовсе.
  */
 private fun buildSplitDisplayItems(
     rawSplits: List<SplitTime>,
-    expectedCpOrder: List<Int>
+    expectedCpOrder: List<Int>,
+    requiredCpNumbers: Set<Int> = emptySet(),
+    isByChoice: Boolean = false,
 ): List<SplitDisplayItem> {
     if (expectedCpOrder.isEmpty()) {
         return rawSplits.mapIndexed { i, s -> SplitDisplayItem.Actual(s, i, isExtra = false) }
@@ -459,17 +491,22 @@ private fun buildSplitDisplayItems(
         if (visitedIdx != null) {
             distanceOrdinalByIndex[visitedIdx] = ordinal
             shownIndices.add(visitedIdx)
-        } else {
+        } else if (!isByChoice || expectedCp in requiredCpNumbers) {
             missed.add(SplitDisplayItem.Missed(expectedCp, ordinal))
         }
     }
 
     // Отметки, взятые не в том порядке: сопоставленные отметки, не входящие в наибольшую возрастающую
     // подпоследовательность их позиций по дистанции (хронологический порядок).
-    val outOfOrderIndices = computeOutOfOrderIndices(
-        matchedOrdinalsChronological = rawSplits.indices
-            .mapNotNull { i -> distanceOrdinalByIndex[i]?.let { i to it } }
-    )
+    // Для BY_CHOICE порядок не регламентирован — не считаем вовсе.
+    val outOfOrderIndices = if (isByChoice) {
+        emptySet()
+    } else {
+        computeOutOfOrderIndices(
+            matchedOrdinalsChronological = rawSplits.indices
+                .mapNotNull { i -> distanceOrdinalByIndex[i]?.let { i to it } }
+        )
+    }
 
     // Все отметки в фактическом (хронологическом) порядке + пропущенные КП в конце.
     // «Лишняя» — отметка, которой не нашлось места в дистанции: чужой КП либо повтор сверх нужного.
@@ -537,11 +574,19 @@ internal fun SplitsCard(
     splits: List<SplitTime>,
     expectedCpOrder: List<Int> = emptyList(),
     expectedControlPoints: List<ControlPoint> = emptyList(),
+    competitionDirection: OrienteeringDirection = OrienteeringDirection.FORWARD,
     onEditSplit: ((index: Int) -> Unit)? = null,
     onCreditCp: ((cpNumber: Int, prevTimestamp: Long) -> Unit)? = null,
 ) {
-    val displayItems = remember(splits, expectedCpOrder) {
-        buildSplitDisplayItems(splits, expectedCpOrder)
+    val isByChoice = competitionDirection == OrienteeringDirection.BY_CHOICE
+    val requiredCpNumbers = remember(expectedControlPoints) {
+        expectedControlPoints.filter { it.role == ControlPointRole.REQUIRED }.map { it.number }.toSet()
+    }
+    val scoreByNumber = remember(expectedControlPoints) {
+        expectedControlPoints.associate { it.number to it.score }
+    }
+    val displayItems = remember(splits, expectedCpOrder, requiredCpNumbers, isByChoice) {
+        buildSplitDisplayItems(splits, expectedCpOrder, requiredCpNumbers, isByChoice)
     }
 
     Card(
@@ -558,7 +603,11 @@ internal fun SplitsCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "Факт", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(0.6f))
-                Text(text = "Дист", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(0.6f))
+                Text(
+                    text = if (isByChoice) "Очки" else "Дист",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.weight(0.6f)
+                )
                 Text(text = "КП", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(0.8f))
                 Text(text = "Сплит", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                 Text(text = "Время", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
@@ -585,8 +634,10 @@ internal fun SplitsCard(
                         // Темп на перегоне: нужны координаты и предыдущего, и текущего КП по порядку
                         // дистанции (distanceOrdinal — 1-based позиция, как в SplitsTableBuilder).
                         // Для первой позиции (ordinal 1) предыдущей точки нет — темп не считается.
+                        // Для BY_CHOICE порядок посещения произвольный, «перегон» между соседними по
+                        // списку дистанции КП не соответствует реальному пути участника — не считаем.
                         val pace = item.distanceOrdinal
-                            ?.takeIf { it >= 2 }
+                            ?.takeIf { it >= 2 && !isByChoice }
                             ?.let { ordinal ->
                                 val legMeters = controlPointDistanceMeters(
                                     expectedControlPoints.getOrNull(ordinal - 2),
@@ -617,7 +668,11 @@ internal fun SplitsCard(
                                 color = textColor
                             )
                             Text(
-                                text = item.distanceOrdinal?.toString() ?: "",
+                                text = if (isByChoice) {
+                                    (scoreByNumber[item.split.controlPoint] ?: 0).toString()
+                                } else {
+                                    item.distanceOrdinal?.toString() ?: ""
+                                },
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = if (item.isOutOfOrder) FontWeight.Bold else FontWeight.Normal,
                                 modifier = Modifier.weight(0.6f),
@@ -686,7 +741,11 @@ internal fun SplitsCard(
                                 color = MaterialTheme.colorScheme.error
                             )
                             Text(
-                                text = item.distanceOrdinal.toString(),
+                                text = if (isByChoice) {
+                                    (scoreByNumber[item.cpNumber] ?: 0).toString()
+                                } else {
+                                    item.distanceOrdinal.toString()
+                                },
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.weight(0.6f),
                                 color = MaterialTheme.colorScheme.error

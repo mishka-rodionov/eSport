@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.competra.designsystem.theme.Dimens
 import com.competra.domain.models.ResultStatus
-import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringParticipant
 import com.competra.domain.models.orienteering.OrienteeringResult
 import com.competra.domain.models.orienteering.ParticipantWithResult
@@ -30,26 +29,29 @@ import com.competra.utils.orienteering.toRaceTime
 import com.competra.utils.orienteering.toSplitTime
 
 /**
- * Форматирует результат участника для отображения в протоколе: для BY_CHOICE (score-О)
- * показывает сумму баллов (со штрафом за опоздание в скобках, если он есть) вместо времени.
+ * Форматирует время прохождения участника (или код статуса DSQ/DNF/DNS). Для BY_CHOICE (score-О)
+ * тоже возвращает время — приоритет в определении победителя там у баллов ([formatResultScore]),
+ * но время финиша всё равно показывается рядом.
  */
-internal fun formatResultTime(
-    result: OrienteeringResult?,
-    direction: OrienteeringDirection = OrienteeringDirection.FORWARD
-): String {
+internal fun formatResultTime(result: OrienteeringResult?): String {
     if (result == null) return "—"
     return when (result.status) {
-        ResultStatus.FINISHED -> if (direction == OrienteeringDirection.BY_CHOICE) {
-            val score = result.totalScore ?: 0
-            if (result.scorePenalty > 0) "$score очков (-${result.scorePenalty})" else "$score очков"
-        } else {
-            result.totalTime?.toRaceTime() ?: "—"
-        }
+        ResultStatus.FINISHED -> result.totalTime?.toRaceTime() ?: "—"
         ResultStatus.DSQ -> "DSQ"
         ResultStatus.DNF -> "DNF"
         ResultStatus.DNS -> "DNS"
         else -> result.status.name
     }
+}
+
+/**
+ * Форматирует сумму баллов участника для формата "по выбору" (BY_CHOICE), со штрафом за
+ * опоздание в скобках, если он есть.
+ */
+internal fun formatResultScore(result: OrienteeringResult?): String {
+    if (result == null) return "—"
+    val score = result.totalScore ?: 0
+    return if (result.scorePenalty > 0) "$score очков (-${result.scorePenalty})" else "$score очков"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

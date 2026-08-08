@@ -54,9 +54,15 @@ fun ParticipantGroupEditor(
     var maxParticipants by remember { mutableStateOf(initialGroup?.maxParticipants?.toString() ?: "") }
     var selectedGender by remember { mutableStateOf(initialGroup?.gender) }
     val isByChoice = state.competitionDirection == OrienteeringDirection.BY_CHOICE
-    var timeLimitMinutes by remember { mutableStateOf(initialGroup?.timeLimitMinutes?.toString() ?: "") }
-    var scorePenaltyPerMinute by remember { mutableStateOf(initialGroup?.scorePenaltyPerMinute?.toString() ?: "") }
-    var maxLatenessMinutes by remember { mutableStateOf(initialGroup?.maxLatenessMinutes?.toString() ?: "") }
+    var timeLimitMinutes by remember {
+        mutableStateOf(initialGroup?.timeLimitMinutes?.toString() ?: if (isByChoice) "60" else "")
+    }
+    var scorePenaltyPerMinute by remember {
+        mutableStateOf(initialGroup?.scorePenaltyPerMinute?.toString() ?: if (isByChoice) "1" else "")
+    }
+    var maxLatenessMinutes by remember {
+        mutableStateOf(initialGroup?.maxLatenessMinutes?.toString() ?: if (isByChoice) "30" else "")
+    }
 
     // Выбранная дистанция для группы
     var selectedDistanceId by remember { mutableLongStateOf(initialGroup?.distanceId ?: state.distances.firstOrNull()?.id ?: 0L) }

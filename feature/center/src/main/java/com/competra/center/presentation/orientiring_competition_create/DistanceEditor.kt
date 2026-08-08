@@ -105,7 +105,7 @@ fun DistanceEditor(
     val addCurrentInput: () -> Unit = {
         val number = currentInput.trim().toIntOrNull()
         if (number != null) {
-            controlPointsList = controlPointsList + ControlPoint(number = number)
+            controlPointsList = controlPointsList + ControlPoint(number = number, score = if (isByChoice) 2 else 0)
             currentInput = ""
         }
     }
