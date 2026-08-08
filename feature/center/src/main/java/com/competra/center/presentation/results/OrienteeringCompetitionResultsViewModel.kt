@@ -393,7 +393,7 @@ class OrienteeringCompetitionResultsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             updateState { copy(isPublishingHtml = true) }
             val title = stateValue.competitionTitle
-            val html = buildHtmlContent(title, groups)
+            val html = buildHtmlContent(title, groups, stateValue.direction)
             val bytes = html.toByteArray(Charsets.UTF_8)
             uploadRepository.uploadFile(bytes, "results.html", "competition_results")
                 .onSuccess { url ->
@@ -442,7 +442,12 @@ class OrienteeringCompetitionResultsViewModel(
         }
     }
 
-    private fun buildHtmlContent(title: String, groups: List<GroupWithParticipantsAndResults>): String {
+    private fun buildHtmlContent(
+        title: String,
+        groups: List<GroupWithParticipantsAndResults>,
+        direction: OrienteeringDirection = OrienteeringDirection.FORWARD
+    ): String {
+        val isByChoice = direction == OrienteeringDirection.BY_CHOICE
         val sb = StringBuilder()
         sb.append(
             """<!DOCTYPE html>
@@ -474,7 +479,9 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
 
         groups.forEachIndexed { groupIndex, group ->
             val table = buildSplitsTable(group)
-            val cpOrder = table.columns.map { it.controlPoint }
+            // Для BY_CHOICE порядок посещения КП не регламентирован, сплиты по пунктам не имеют
+            // смысла — публикуем только общее время и баллы.
+            val cpOrder = if (isByChoice) emptyList() else table.columns.map { it.controlPoint }
 
             val leaderTotalTime = group.participants
                 .filter { it.result?.status == ResultStatus.FINISHED }
@@ -504,7 +511,11 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
 
                 val totalTime = pw.result?.totalTime?.toRaceTime() ?: ""
                 val statusText = when (pw.result?.status) {
-                    ResultStatus.FINISHED -> totalTime
+                    ResultStatus.FINISHED -> if (isByChoice) {
+                        "${pw.result?.totalScore ?: 0} очков<br>$totalTime"
+                    } else {
+                        totalTime
+                    }
                     ResultStatus.DSQ      -> "снят"
                     ResultStatus.DNS      -> "н/с"
                     ResultStatus.DNF      -> "не финишировал"
@@ -519,23 +530,25 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
                 } else ""
                 sb.append("<td><nobr>$gap</td>")
 
-                row.cells.forEachIndexed { i, cell ->
-                    val cellCumulativeSeconds = cell.cumulativeSeconds
-                    if (cellCumulativeSeconds == null) {
-                        sb.append("<td><nobr></td>")
-                        return@forEachIndexed
-                    }
-                    val cumulStr = cellCumulativeSeconds.toRaceTime()
-                    val cumulRank = cell.cumulativeRank ?: 0
-                    val cumulCell = if (cumulRank == 1) "<b><nobr>$cumulStr($cumulRank)</b>" else "<nobr>$cumulStr($cumulRank)"
+                if (!isByChoice) {
+                    row.cells.forEachIndexed { i, cell ->
+                        val cellCumulativeSeconds = cell.cumulativeSeconds
+                        if (cellCumulativeSeconds == null) {
+                            sb.append("<td><nobr></td>")
+                            return@forEachIndexed
+                        }
+                        val cumulStr = cellCumulativeSeconds.toRaceTime()
+                        val cumulRank = cell.cumulativeRank ?: 0
+                        val cumulCell = if (cumulRank == 1) "<b><nobr>$cumulStr($cumulRank)</b>" else "<nobr>$cumulStr($cumulRank)"
 
-                    if (i == 0) {
-                        sb.append("<td>$cumulCell<br></td>")
-                    } else {
-                        val deltaStr = cell.deltaSeconds?.toRaceTime() ?: ""
-                        val deltaRank = cell.deltaRank ?: 0
-                        val deltaCell = if (deltaRank == 1) "<b><nobr>$deltaStr($deltaRank)</b>" else "<nobr>$deltaStr($deltaRank)"
-                        sb.append("<td>$cumulCell<br>$deltaCell</td>")
+                        if (i == 0) {
+                            sb.append("<td>$cumulCell<br></td>")
+                        } else {
+                            val deltaStr = cell.deltaSeconds?.toRaceTime() ?: ""
+                            val deltaRank = cell.deltaRank ?: 0
+                            val deltaCell = if (deltaRank == 1) "<b><nobr>$deltaStr($deltaRank)</b>" else "<nobr>$deltaStr($deltaRank)"
+                            sb.append("<td>$cumulCell<br>$deltaCell</td>")
+                        }
                     }
                 }
 
