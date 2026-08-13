@@ -15,6 +15,7 @@ import com.competra.data.navigation.Navigation
 import com.competra.data.navigation.getArguments
 import com.competra.domain.models.ResultStatus
 import com.competra.domain.models.orienteering.CompetitionStatus
+import com.competra.domain.models.orienteering.Distance
 import com.competra.domain.models.orienteering.GroupWithParticipantsAndResults
 import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.OrienteeringResult
@@ -393,7 +394,13 @@ class OrienteeringCompetitionResultsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             updateState { copy(isPublishingHtml = true) }
             val title = stateValue.competitionTitle
-            val html = buildHtmlContent(title, groups, stateValue.direction)
+            // Для BY_CHOICE нужны реальные очки за взятые КП дистанции — их не восстановить
+            // надёжно из totalScore/scorePenalty (при обнулении баллов за сильное опоздание
+            // totalScore=0, а scorePenalty может быть больше фактически заработанных баллов).
+            val distancesByGroupId = groups.associate { g ->
+                g.group.groupId to orienteeringCompetitionInteractor.getDistanceById(g.group.distanceId).getOrNull()
+            }
+            val html = buildHtmlContent(title, groups, stateValue.direction, distancesByGroupId)
             val bytes = html.toByteArray(Charsets.UTF_8)
             uploadRepository.uploadFile(bytes, "results.html", "competition_results")
                 .onSuccess { url ->
@@ -445,7 +452,8 @@ class OrienteeringCompetitionResultsViewModel(
     private fun buildHtmlContent(
         title: String,
         groups: List<GroupWithParticipantsAndResults>,
-        direction: OrienteeringDirection = OrienteeringDirection.FORWARD
+        direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
+        distancesByGroupId: Map<Long, Distance?> = emptyMap()
     ): String {
         val isByChoice = direction == OrienteeringDirection.BY_CHOICE
         val sb = StringBuilder()
@@ -479,14 +487,36 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
 
         groups.forEachIndexed { groupIndex, group ->
             val table = buildSplitsTable(group)
-            // Для BY_CHOICE порядок посещения КП не регламентирован, сплиты по пунктам не имеют
-            // смысла — публикуем только общее время и баллы.
+            // Для BY_CHOICE у каждого участника свой набор и порядок КП — общий cpOrder по
+            // дистанции не имеет смысла. Колонки строятся по позиции (1..максимум сплитов
+            // в группе), а какой именно КП стоит за каждой позицией у конкретного участника —
+            // печатается прямо в его ячейке.
             val cpOrder = if (isByChoice) emptyList() else table.columns.map { it.controlPoint }
+            val maxSplitsCount = if (isByChoice) {
+                group.participants.mapNotNull { it.result?.splits?.size }.maxOrNull() ?: 0
+            } else 0
+            // Реальные баллы за каждый КП дистанции — нужны, чтобы посчитать точные "сырые"
+            // баллы участника (см. scoreText ниже), т.к. totalScore хранится уже за вычетом
+            // штрафа, а при обнулении баллов (сильное опоздание) totalScore+scorePenalty не
+            // равно фактически заработанным баллам.
+            val scoreByNumber = distancesByGroupId[group.group.groupId]
+                ?.controlPoints
+                ?.associate { it.number to it.score }
+                ?: emptyMap()
 
             val leaderTotalTime = group.participants
                 .filter { it.result?.status == ResultStatus.FINISHED }
                 .minByOrNull { it.result?.totalTime ?: Long.MAX_VALUE }
                 ?.result?.totalTime
+
+            // Для BY_CHOICE отставание имеет смысл только между участниками с одинаковыми
+            // очками — время не является общим критерием ранжирования (первичны баллы), сравнивать
+            // "отставание" по времени между разными по очкам участниками нельзя.
+            val byChoiceTieGroups = if (isByChoice) {
+                group.participants
+                    .filter { it.result?.status == ResultStatus.FINISHED }
+                    .groupBy { it.result?.totalScore ?: 0 }
+            } else emptyMap()
 
             sb.appendLine("<a name=\"${group.group.title}\"></a>")
             if (groupIndex == 0) {
@@ -498,6 +528,7 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
             sb.append("<th>№ п/п </th><th>Ст.№ </th><th>Фамилия, Имя </th><th>Команда </th>")
             sb.append("<th>Результат </th><th>Место </th><th>Отставание </th>")
             cpOrder.forEachIndexed { i, cp -> sb.append("<th>#${i + 1} ($cp) </th>") }
+            repeat(maxSplitsCount) { i -> sb.append("<th>#${i + 1} </th>") }
             sb.appendLine("</tr>")
 
             group.participants.zip(table.rows).forEachIndexed { rowIdx, (pw, row) ->
@@ -512,7 +543,18 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
                 val totalTime = pw.result?.totalTime?.toRaceTime() ?: ""
                 val statusText = when (pw.result?.status) {
                     ResultStatus.FINISHED -> if (isByChoice) {
-                        "${pw.result?.totalScore ?: 0} очков<br>$totalTime"
+                        val netScore = pw.result?.totalScore ?: 0
+                        val penalty = pw.result?.scorePenalty ?: 0
+                        // Реальные "сырые" баллы — сумма очков по фактически взятым КП
+                        // (совпадают с тем, как считает computeByChoiceResult при отметке).
+                        // Фолбэк на netScore+penalty только если дистанция группы не найдена.
+                        val rawScore = if (scoreByNumber.isNotEmpty()) {
+                            pw.result?.splits?.sumOf { scoreByNumber[it.controlPoint] ?: 0 } ?: (netScore + penalty)
+                        } else {
+                            netScore + penalty
+                        }
+                        val scoreText = if (penalty > 0) "$rawScore - $penalty (штраф) = $netScore" else "$netScore очков"
+                        "$scoreText<br>$totalTime"
                     } else {
                         totalTime
                     }
@@ -524,7 +566,16 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
                 sb.append("<td><nobr>$statusText</td>")
                 sb.append("<td><nobr>${pw.result?.rank?.toString() ?: ""}</td>")
 
-                val gap = if (pw.result?.status == ResultStatus.FINISHED && leaderTotalTime != null) {
+                val gap = if (isByChoice) {
+                    // Отставание считаем только внутри группы участников с одинаковыми очками —
+                    // относительно самого быстрого из них по времени прохождения.
+                    val tieGroup = byChoiceTieGroups[pw.result?.totalScore ?: 0].orEmpty()
+                    val tieLeaderTime = tieGroup.minOfOrNull { it.result?.totalTime ?: Long.MAX_VALUE }
+                    if (pw.result?.status == ResultStatus.FINISHED && tieGroup.size > 1 && tieLeaderTime != null) {
+                        val diff = (pw.result?.totalTime ?: 0L) - tieLeaderTime
+                        if (diff <= 0L) "" else "+${formatGap(diff)}"
+                    } else ""
+                } else if (pw.result?.status == ResultStatus.FINISHED && leaderTotalTime != null) {
                     val diff = (pw.result?.totalTime ?: 0L) - leaderTotalTime
                     if (diff <= 0L) "" else "+${formatGap(diff)}"
                 } else ""
@@ -548,6 +599,20 @@ span.group  {font-family: 'Arial Narrow';font-size: 12pt;font-weight: bold;}
                             val deltaRank = cell.deltaRank ?: 0
                             val deltaCell = if (deltaRank == 1) "<b><nobr>$deltaStr($deltaRank)</b>" else "<nobr>$deltaStr($deltaRank)"
                             sb.append("<td>$cumulCell<br>$deltaCell</td>")
+                        }
+                    }
+                } else {
+                    val splits = pw.result?.splits.orEmpty()
+                    val startTs = pw.result?.startTime ?: pw.participant.startTime
+                    repeat(maxSplitsCount) { i ->
+                        val split = splits.getOrNull(i)
+                        if (split == null) {
+                            sb.append("<td><nobr></td>")
+                        } else {
+                            val prevTs = if (i == 0) startTs else splits[i - 1].timestamp
+                            val cumulStr = ((split.timestamp - startTs) / 1000L).toRaceTime()
+                            val deltaStr = ((split.timestamp - prevTs) / 1000L).toRaceTime()
+                            sb.append("<td><nobr>#${i + 1}(${split.controlPoint})</nobr><br>$cumulStr<br>$deltaStr</td>")
                         }
                     }
                 }

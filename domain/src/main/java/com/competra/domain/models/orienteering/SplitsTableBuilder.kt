@@ -168,8 +168,12 @@ fun buildSplitsTable(group: GroupWithParticipantsAndResults, distance: Distance?
 
 /**
  * Сортировка участников для отображения результатов: по статусу, затем —
- * для BY_CHOICE (score-О) по сумме баллов убыв. с тай-брейком по времени финиша,
+ * для BY_CHOICE (score-О) по сумме баллов убыв. с тай-брейком по времени прохождения дистанции,
  * для остальных направлений — по итоговому времени возрастанию (как раньше).
+ *
+ * Тай-брейк использует именно [OrienteeringResult.totalTime] (время прохождения, finish-start),
+ * а не [OrienteeringResult.finishTime] (абсолютное время по часам) — при интервальном/разном
+ * старте участников более раннее абсолютное время финиша не означает более быстрый забег.
  */
 fun List<ParticipantWithResult>.sortedForResults(
     direction: OrienteeringDirection = OrienteeringDirection.FORWARD
@@ -178,7 +182,7 @@ fun List<ParticipantWithResult>.sortedForResults(
         sortedWith(
             compareBy<ParticipantWithResult> { statusSortOrder(it.result?.status) }
                 .thenByDescending { it.result?.totalScore ?: 0 }
-                .thenBy { it.result?.finishTime ?: Long.MAX_VALUE }
+                .thenBy { it.result?.totalTime ?: Long.MAX_VALUE }
         )
     } else {
         sortedWith(

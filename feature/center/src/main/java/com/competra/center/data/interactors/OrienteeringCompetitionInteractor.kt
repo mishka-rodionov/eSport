@@ -404,8 +404,12 @@ class OrienteeringCompetitionInteractor(
 
     /**
      * Пересчитывает места с учётом формата соревнования: для BY_CHOICE (score-О) — по сумме
-     * баллов убыв. с тай-брейком по времени финиша, для остальных направлений — как раньше,
-     * по общему времени с учётом штрафа (возрастание).
+     * баллов убыв. с тай-брейком по времени прохождения дистанции, для остальных направлений —
+     * как раньше, по общему времени с учётом штрафа (возрастание).
+     *
+     * Тай-брейк BY_CHOICE использует [OrienteeringResult.totalTime] (finish - start участника),
+     * а не [OrienteeringResult.finishTime] (абсолютное время по часам) — при разных/интервальных
+     * стартах абсолютное время финиша не отражает, кто пробежал быстрее.
      */
     fun recalculateRanksV2(
         results: List<OrienteeringResult>,
@@ -418,17 +422,17 @@ class OrienteeringCompetitionInteractor(
         val sortedFinished = if (direction == OrienteeringDirection.BY_CHOICE) {
             finished.sortedWith(
                 compareByDescending<OrienteeringResult> { it.totalScore ?: 0 }
-                    .thenBy { it.finishTime ?: Long.MAX_VALUE }
+                    .thenBy { it.totalTime ?: Long.MAX_VALUE }
             )
         } else {
             finished.sortedBy { (it.totalTime ?: Long.MAX_VALUE) + it.penaltyTime }
         }
 
-        // Для BY_CHOICE ключ должен включать finishTime — иначе два участника с одинаковыми
+        // Для BY_CHOICE ключ должен включать totalTime — иначе два участника с одинаковыми
         // очками, но разным временем (тай-брейк уже учтён сортировкой выше), получат одно и то
         // же место вместо разных.
         fun rankKey(result: OrienteeringResult): Any = if (direction == OrienteeringDirection.BY_CHOICE) {
-            (result.totalScore ?: 0) to (result.finishTime ?: Long.MAX_VALUE)
+            (result.totalScore ?: 0) to (result.totalTime ?: Long.MAX_VALUE)
         } else {
             (result.totalTime ?: Long.MAX_VALUE) + result.penaltyTime
         }
