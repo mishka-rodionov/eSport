@@ -25,8 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.competra.designsystem.theme.Dimens
-import com.competra.domain.models.orienteering.RaceGraphData
-import com.competra.domain.models.orienteering.RaceGraphSeries
+import com.competra.domain.models.orienteering.ScoreGraphData
+import com.competra.domain.models.orienteering.ScoreGraphSeries
 import com.competra.utils.orienteering.toRaceTime
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
@@ -40,24 +40,16 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLa
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.Fill
 
-/** Палитра цветов линий графика — циклическая, привязана к позиции участника в [RaceGraphData.series].
- * internal, а не private — переиспользуется [ScoreGraphChart] для единой цветовой схемы графиков. */
-internal val raceGraphPalette = listOf(
-    Color(0xFF2196F3), Color(0xFFE91E63), Color(0xFF4CAF50), Color(0xFFFF9800),
-    Color(0xFF9C27B0), Color(0xFF00BCD4), Color(0xFFFFC107), Color(0xFF795548),
-    Color(0xFF607D8B), Color(0xFF3F51B5), Color(0xFF8BC34A), Color(0xFFFF5722),
-)
-
 /**
- * График отставания от лидера по каждому КП (аналог WinSplits): X — КП по порядку дистанции,
- * Y — отставание в секундах (лидер всегда на нуле, чем ниже линия — тем больше отставание).
- *
- * Список участников снизу совмещает роль легенды и переключателя видимости: чекбокс
- * добавляет/убирает линию с графика, тап по строке подсвечивает линию этого участника.
+ * График набора очков во времени (BY_CHOICE, score-О): X — время от старта участника, Y —
+ * накопленные очки за фактически взятые КП. Аналог [RaceGraphChart] по устройству (та же
+ * палитра [raceGraphPalette], тот же принцип легенды-переключателя видимости/подсветки), но
+ * ось X непрерывная по времени, а не по позиции общего для всех КП — для BY_CHOICE общего
+ * порядка КП не существует.
  */
 @Composable
-fun RaceGraphChart(
-    data: RaceGraphData,
+fun ScoreGraphChart(
+    data: ScoreGraphData,
     visibleParticipantIds: Set<String>,
     highlightedParticipantId: String?,
     onToggleVisibility: (participantId: String) -> Unit,
@@ -74,8 +66,6 @@ fun RaceGraphChart(
         data.series.filter { it.participant.id in visibleParticipantIds }
     }
 
-    val controlLabels = remember(data) { data.columns.map { it.controlPoint.toString() } }
-
     val modelProducer = remember { CartesianChartModelProducer() }
 
     LaunchedEffect(visibleSeries) {
@@ -83,11 +73,10 @@ fun RaceGraphChart(
         modelProducer.runTransaction {
             lineModel {
                 visibleSeries.forEach { s ->
-                    val points = s.points.filter { it.deltaSeconds != null }
-                    if (points.isNotEmpty()) {
+                    if (s.points.isNotEmpty()) {
                         series(
-                            x = points.map { it.positionIndex },
-                            y = points.map { -(it.deltaSeconds ?: 0L).toDouble() },
+                            x = s.points.map { it.elapsedSeconds },
+                            y = s.points.map { it.cumulativeScore.toDouble() },
                             key = s.participant.id,
                         )
                     }
@@ -125,14 +114,10 @@ fun RaceGraphChart(
                         lineProvider = LineCartesianLayer.LineProvider.series(lines),
                     ),
                     startAxis = VerticalAxis.rememberStart(
-                        valueFormatter = CartesianValueFormatter { _, value, _ ->
-                            (-value).toLong().toRaceTime()
-                        },
+                        valueFormatter = CartesianValueFormatter { _, value, _ -> value.toInt().toString() },
                     ),
                     bottomAxis = HorizontalAxis.rememberBottom(
-                        valueFormatter = CartesianValueFormatter { _, value, _ ->
-                            controlLabels.getOrNull(value.toInt() - 1) ?: value.toInt().toString()
-                        },
+                        valueFormatter = CartesianValueFormatter { _, value, _ -> value.toLong().toRaceTime() },
                     ),
                 ),
                 modelProducer = modelProducer,
@@ -142,7 +127,7 @@ fun RaceGraphChart(
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(data.series, key = { it.participant.id }) { series ->
-                RaceGraphLegendRow(
+                ScoreGraphLegendRow(
                     series = series,
                     color = colorByParticipantId[series.participant.id] ?: Color.Gray,
                     isVisible = series.participant.id in visibleParticipantIds,
@@ -156,8 +141,8 @@ fun RaceGraphChart(
 }
 
 @Composable
-private fun RaceGraphLegendRow(
-    series: RaceGraphSeries,
+private fun ScoreGraphLegendRow(
+    series: ScoreGraphSeries,
     color: Color,
     isVisible: Boolean,
     isHighlighted: Boolean,

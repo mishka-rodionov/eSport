@@ -75,4 +75,12 @@ sealed class EventsNavigation: BaseNavigation {
      */
     @Serializable
     data class EventRaceGraphRoute(val eventId: String, val groupId: Long) : EventsNavigation()
+
+    /**
+     * Роут графика набора очков во времени (score graph, BY_CHOICE) по группе события.
+     * @param eventId Идентификатор события.
+     * @param groupId Идентификатор группы участников.
+     */
+    @Serializable
+    data class EventScoreGraphRoute(val eventId: String, val groupId: Long) : EventsNavigation()
 }

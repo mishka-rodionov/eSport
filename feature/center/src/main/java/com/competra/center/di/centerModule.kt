@@ -6,6 +6,7 @@ import com.competra.center.presentation.event_control.orienteering.OrienteeringE
 import com.competra.center.presentation.get_chip.GetOrienteeringChipViewModel
 import com.competra.center.presentation.group_splits.GroupSplitsTableViewModel
 import com.competra.center.presentation.race_graph.RaceGraphViewModel
+import com.competra.center.presentation.score_graph.ScoreGraphViewModel
 import com.competra.center.presentation.main.CenterViewModel
 import com.competra.center.presentation.orientiring_competition_create.OrienteeringCreatorViewModel
 import com.competra.center.presentation.participant_list.ParticipantListViewModel
@@ -30,6 +31,7 @@ val centerModule = module {
     viewModelOf(::ParticipantSplitsViewModel)
     viewModelOf(::GroupSplitsTableViewModel)
     viewModelOf(::RaceGraphViewModel)
+    viewModelOf(::ScoreGraphViewModel)
     viewModelOf(::StartGridViewModel)
     viewModelOf(::WriteChipViewModel)
     factoryOf(::OrienteeringCompetitionInteractor)

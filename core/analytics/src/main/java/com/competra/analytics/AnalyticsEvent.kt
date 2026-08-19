@@ -174,6 +174,12 @@ sealed class AnalyticsEvent(
         mapOf("group_id" to groupId, "competition_id" to competitionId),
     )
 
+    /** Открыт график набора очков во времени (score graph, BY_CHOICE) по группе. */
+    class ScoreGraphOpened(groupId: Long, competitionId: String) : AnalyticsEvent(
+        "score_graph_opened",
+        mapOf("group_id" to groupId, "competition_id" to competitionId),
+    )
+
     /** Организатор подтвердил публикацию результатов участникам (resultsStatus → OFFICIAL). */
     class ResultsPublishClicked(competitionId: String) :
         AnalyticsEvent("results_publish_clicked", mapOf("competition_id" to competitionId))

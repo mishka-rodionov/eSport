@@ -5,6 +5,7 @@ import com.competra.eventdetails.presentation.group_splits.EventGroupSplitsTable
 import com.competra.eventdetails.presentation.live_results.LiveResultsViewModel
 import com.competra.eventdetails.presentation.participant_group.EventParticipantGroupViewModel
 import com.competra.eventdetails.presentation.race_graph.EventRaceGraphViewModel
+import com.competra.eventdetails.presentation.score_graph.EventScoreGraphViewModel
 import com.competra.eventdetails.presentation.results.EventResultsViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -15,5 +16,6 @@ val eventDetailsModule = module {
     viewModelOf(::EventResultsViewModel)
     viewModelOf(::EventGroupSplitsTableViewModel)
     viewModelOf(::EventRaceGraphViewModel)
+    viewModelOf(::EventScoreGraphViewModel)
     viewModelOf(::LiveResultsViewModel)
 }

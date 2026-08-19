@@ -299,21 +299,25 @@ fun OrienteeringCompetitionResultsScreen(
                             ) {
                                 Text(text = "Сплиты")
                             }
-                            // График отставания от лидера по кумулятивному времени теряет смысл
-                            // для формата "по выбору": у каждого свой набор и порядок КП, победитель
-                            // определяется по сумме баллов, а не по времени на перегонах.
-                            if (state.direction != OrienteeringDirection.BY_CHOICE) {
-                                TextButton(
-                                    onClick = {
-                                        viewModel.onAction(
-                                            OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenRaceGraph(
-                                                groupWithResults.group.groupId
-                                            )
+                            // Для формата "по выбору" общего порядка КП нет — вместо графика
+                            // отставания от лидера по времени показываем график набора очков
+                            // во времени (у каждого свой набор и порядок КП, победитель
+                            // определяется по сумме баллов, а не по времени на перегонах).
+                            TextButton(
+                                onClick = {
+                                    val action = if (state.direction == OrienteeringDirection.BY_CHOICE) {
+                                        OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenScoreGraph(
+                                            groupWithResults.group.groupId
+                                        )
+                                    } else {
+                                        OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenRaceGraph(
+                                            groupWithResults.group.groupId
                                         )
                                     }
-                                ) {
-                                    Text(text = "График")
+                                    viewModel.onAction(action)
                                 }
+                            ) {
+                                Text(text = "График")
                             }
                         }
                     }
