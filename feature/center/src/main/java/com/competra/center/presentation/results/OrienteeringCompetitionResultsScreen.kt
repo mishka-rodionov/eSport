@@ -288,21 +288,21 @@ fun OrienteeringCompetitionResultsScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                            // Сплиты и график отставания от лидера теряют смысл для формата "по
-                            // выбору": порядок посещения КП не регламентирован, победитель
+                            TextButton(
+                                onClick = {
+                                    viewModel.onAction(
+                                        OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenGroupSplitsTable(
+                                            groupWithResults.group.groupId
+                                        )
+                                    )
+                                }
+                            ) {
+                                Text(text = "Сплиты")
+                            }
+                            // График отставания от лидера по кумулятивному времени теряет смысл
+                            // для формата "по выбору": у каждого свой набор и порядок КП, победитель
                             // определяется по сумме баллов, а не по времени на перегонах.
                             if (state.direction != OrienteeringDirection.BY_CHOICE) {
-                                TextButton(
-                                    onClick = {
-                                        viewModel.onAction(
-                                            OrienteeringCompetitionResultsViewModel.OrienteeringResultsAction.OpenGroupSplitsTable(
-                                                groupWithResults.group.groupId
-                                            )
-                                        )
-                                    }
-                                ) {
-                                    Text(text = "Сплиты")
-                                }
                                 TextButton(
                                     onClick = {
                                         viewModel.onAction(

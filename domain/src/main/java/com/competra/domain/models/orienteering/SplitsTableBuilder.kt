@@ -20,6 +20,9 @@ data class SplitsTableCell(
     val cumulativeRank: Int?,
     val isBestLeg: Boolean,
     val paceMinPerKm: Double? = null,
+    /** Номер КП, реально взятого участником на этой позиции (BY_CHOICE — у каждого свой порядок).
+     * Null для FORWARD/MARKING, где КП колонки общий для всех (см. [SplitsTableColumn.controlPoint]). */
+    val controlPoint: Int? = null,
 )
 
 private const val EARTH_RADIUS_METERS = 6_371_000.0
@@ -65,6 +68,14 @@ data class SplitsTableRow(
     val participant: OrienteeringParticipant,
     val result: OrienteeringResult?,
     val cells: List<SplitsTableCell>,
+    /** Сырые очки за фактически взятые КП (BY_CHOICE) — сумма по дистанции, ДО вычета штрафа.
+     * Null для FORWARD/MARKING. Считается один раз здесь, чтобы UI не знал про Distance/ControlPoint. */
+    val rawScore: Int? = null,
+    /** Дистанция, пройденная участником (BY_CHOICE), в метрах — сумма расстояний между
+     * последовательно взятыми КП по их координатам. Null для FORWARD/MARKING, когда у дистанции
+     * нет координат КП, и когда сумма получилась нулевой (ни одного перегона с известными
+     * координатами). Первый взятый КП в сумму не входит — координата точки старта неизвестна. */
+    val totalDistanceMeters: Double? = null,
 )
 
 data class SplitsTable(
@@ -82,15 +93,105 @@ private fun anchorStartTime(pw: ParticipantWithResult): Long =
     pw.result?.startTime ?: pw.participant.startTime
 
 /**
+ * Сырые очки участника за фактически взятые КП (BY_CHOICE), ДО вычета штрафа — сумма
+ * [ControlPoint.score] по номерам КП из [OrienteeringResult.splits]. [OrienteeringResult.totalScore]
+ * хранится уже за вычетом штрафа, а при обнулении результата (сильное опоздание) totalScore+scorePenalty
+ * не равен фактически заработанным очкам — поэтому считаем от дистанции, как и HTML-экспорт результатов.
+ * Фолбэк на totalScore+scorePenalty, если карта очков КП дистанции недоступна.
+ */
+private fun rawByChoiceScore(result: OrienteeringResult?, scoreByNumber: Map<Int, Int>): Int? {
+    val netScore = result?.totalScore ?: return null
+    return if (scoreByNumber.isNotEmpty()) {
+        result.splits?.sumOf { scoreByNumber[it.controlPoint] ?: 0 } ?: (netScore + result.scorePenalty)
+    } else {
+        netScore + result.scorePenalty
+    }
+}
+
+/**
+ * Дистанция, пройденная участником (BY_CHOICE), в метрах — сумма расстояний между
+ * последовательно взятыми КП по их координатам ([controlPointByNumber]). Первый взятый КП не
+ * учитывается — координата точки старта неизвестна. Перегоны с неизвестными координатами (нет
+ * хотя бы одной из точек) в сумму не входят — итог остаётся приблизительным, а не null, чтобы
+ * частичное отсутствие координат не скрывало всю оценку целиком.
+ */
+private fun byChoiceDistanceMeters(splits: List<SplitTime>, controlPointByNumber: Map<Int, ControlPoint>): Double? {
+    if (controlPointByNumber.isEmpty() || splits.size < 2) return null
+    var sum = 0.0
+    for (i in 1 until splits.size) {
+        val from = controlPointByNumber[splits[i - 1].controlPoint]
+        val to = controlPointByNumber[splits[i].controlPoint]
+        sum += controlPointDistanceMeters(from, to) ?: 0.0
+    }
+    return sum.takeIf { it > 0.0 }
+}
+
+/**
  * Строит таблицу сплитов группы: сопоставление позиционное (splits[i] <-> cpOrder[i]),
  * что корректно обрабатывает дублирующиеся номера КП в дистанции.
  * Порядок строк — как в [group.participants], сортировку применяет вызывающий код ([sortedForResults]).
  *
+ * Для BY_CHOICE у каждого участника свой набор и порядок КП — общий cpOrder не имеет смысла:
+ * колонки строятся по позиции (1..максимум сплитов в группе), а какой именно КП стоит за каждой
+ * позицией у конкретного участника — заполняется в [SplitsTableCell.controlPoint]. Ранги/лучший
+ * перегон/темп не считаются (сравнивать разные реальные перегоны бессмысленно) — тот же подход,
+ * что и в HTML-публикации результатов.
+ *
  * @param distance дистанция группы — если передана и у КП есть координаты (импорт из
- * геопривязанной карты через IOF XML), в ячейках заполняется темп участника на перегоне
- * ([SplitsTableCell.paceMinPerKm]); без неё темп остаётся null.
+ * геопривязанной карты через IOF XML), в ячейках FORWARD/MARKING заполняется темп участника на
+ * перегоне ([SplitsTableCell.paceMinPerKm]); без неё темп остаётся null. Также используется для
+ * пересчёта [SplitsTableRow.rawScore] в BY_CHOICE.
  */
-fun buildSplitsTable(group: GroupWithParticipantsAndResults, distance: Distance? = null): SplitsTable {
+fun buildSplitsTable(
+    group: GroupWithParticipantsAndResults,
+    distance: Distance? = null,
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
+): SplitsTable {
+    if (direction == OrienteeringDirection.BY_CHOICE) {
+        val scoreByNumber = distance?.controlPoints?.associate { it.number to it.score } ?: emptyMap()
+        val controlPointByNumber = distance?.controlPoints?.associateBy { it.number } ?: emptyMap()
+        val maxSplitsCount = group.participants.maxOfOrNull { it.result?.splits?.size ?: 0 } ?: 0
+        val columns = (1..maxSplitsCount).map { SplitsTableColumn(positionIndex = it, controlPoint = 0) }
+
+        val rows = group.participants.map { pw ->
+            val splits = pw.result?.splits ?: emptyList()
+            val startTs = anchorStartTime(pw)
+
+            val cells = (0 until maxSplitsCount).map { i ->
+                if (i >= splits.size) {
+                    SplitsTableCell(
+                        deltaSeconds = null,
+                        cumulativeSeconds = null,
+                        deltaRank = null,
+                        cumulativeRank = null,
+                        isBestLeg = false,
+                    )
+                } else {
+                    val splitTs = splits[i].timestamp
+                    val prevTs = if (i == 0) startTs else splits[i - 1].timestamp
+                    SplitsTableCell(
+                        deltaSeconds = (splitTs - prevTs) / 1000L,
+                        cumulativeSeconds = (splitTs - startTs) / 1000L,
+                        deltaRank = null,
+                        cumulativeRank = null,
+                        isBestLeg = false,
+                        controlPoint = splits[i].controlPoint,
+                    )
+                }
+            }
+
+            SplitsTableRow(
+                participant = pw.participant,
+                result = pw.result,
+                cells = cells,
+                rawScore = rawByChoiceScore(pw.result, scoreByNumber),
+                totalDistanceMeters = byChoiceDistanceMeters(splits, controlPointByNumber),
+            )
+        }
+
+        return SplitsTable(columns = columns, rows = rows)
+    }
+
     val cpOrder = group.participants
         .mapNotNull { it.result?.splits }
         .maxByOrNull { it.size }

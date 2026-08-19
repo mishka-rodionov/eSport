@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.competra.designsystem.theme.Dimens
+import com.competra.domain.models.orienteering.OrienteeringDirection
 import com.competra.domain.models.orienteering.SplitsTable
 import com.competra.domain.models.orienteering.SplitsTableCell
 import com.competra.domain.models.orienteering.SplitsTableRow
@@ -36,7 +37,12 @@ private val SPLIT_COLUMN_WIDTH = 76.dp
  * и в `:core:eventdetails` — источники данных у них разные, рендер общий.
  */
 @Composable
-fun GroupSplitsTableContent(groupTitle: String, table: SplitsTable) {
+fun GroupSplitsTableContent(
+    groupTitle: String,
+    table: SplitsTable,
+    direction: OrienteeringDirection = OrienteeringDirection.FORWARD,
+) {
+    val isByChoice = direction == OrienteeringDirection.BY_CHOICE
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = groupTitle,
@@ -58,9 +64,12 @@ fun GroupSplitsTableContent(groupTitle: String, table: SplitsTable) {
             Row(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
                 table.columns.forEach { column ->
                     HeaderCell(
-                        text = "#${column.positionIndex} (КП${column.controlPoint})",
+                        text = if (isByChoice) "#${column.positionIndex}" else "#${column.positionIndex} (КП${column.controlPoint})",
                         modifier = Modifier.width(SPLIT_COLUMN_WIDTH),
                     )
+                }
+                if (isByChoice) {
+                    HeaderCell(text = "Дистанция", modifier = Modifier.width(SPLIT_COLUMN_WIDTH))
                 }
             }
         }
@@ -80,10 +89,13 @@ fun GroupSplitsTableContent(groupTitle: String, table: SplitsTable) {
                         .background(rowBackground),
                 ) {
                     // Sticky первая колонка: находится вне горизонтально скроллящегося Row.
-                    ParticipantCell(row = row, modifier = Modifier.width(NAME_COLUMN_WIDTH))
+                    ParticipantCell(row = row, isByChoice = isByChoice, modifier = Modifier.width(NAME_COLUMN_WIDTH))
                     Row(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
                         row.cells.forEach { cell ->
-                            SplitCell(cell = cell, modifier = Modifier.width(SPLIT_COLUMN_WIDTH))
+                            SplitCell(cell = cell, isByChoice = isByChoice, modifier = Modifier.width(SPLIT_COLUMN_WIDTH))
+                        }
+                        if (isByChoice) {
+                            DistanceCell(row = row, modifier = Modifier.width(SPLIT_COLUMN_WIDTH))
                         }
                     }
                 }
@@ -106,13 +118,20 @@ private fun HeaderCell(text: String, modifier: Modifier = Modifier, textAlign: T
 }
 
 @Composable
-private fun ParticipantCell(row: SplitsTableRow, modifier: Modifier = Modifier) {
+private fun ParticipantCell(row: SplitsTableRow, isByChoice: Boolean, modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(horizontal = Dimens.SIZE_HALF.dp, vertical = Dimens.SIZE_QUARTER.dp)) {
         Text(
             text = "${row.participant.lastName} ${row.participant.firstName}",
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 2,
         )
+        if (isByChoice) {
+            Text(
+                text = scoreLabel(row),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         row.result?.rank?.let { rank ->
             Text(
                 text = "Место $rank",
@@ -123,12 +142,43 @@ private fun ParticipantCell(row: SplitsTableRow, modifier: Modifier = Modifier) 
     }
 }
 
+private fun scoreLabel(row: SplitsTableRow): String {
+    val netScore = row.result?.totalScore ?: 0
+    val penalty = row.result?.scorePenalty ?: 0
+    val rawScore = row.rawScore ?: (netScore + penalty)
+    return if (penalty > 0) "$rawScore - $penalty (штраф) = $netScore" else "$netScore очков"
+}
+
 @Composable
-private fun SplitCell(cell: SplitsTableCell, modifier: Modifier = Modifier) {
+private fun DistanceCell(row: SplitsTableRow, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(horizontal = Dimens.SIZE_QUARTER.dp, vertical = Dimens.SIZE_QUARTER.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Text(
+            text = row.totalDistanceMeters?.let { formatDistanceKm(it) } ?: "—",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
+
+private fun formatDistanceKm(meters: Double): String = "%.1f км".format(meters / 1000.0)
+
+@Composable
+private fun SplitCell(cell: SplitsTableCell, isByChoice: Boolean, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.padding(horizontal = Dimens.SIZE_QUARTER.dp, vertical = Dimens.SIZE_QUARTER.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (isByChoice) {
+            cell.controlPoint?.let {
+                Text(
+                    text = "КП$it",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
         Text(
             text = cell.cumulativeSeconds?.toRaceTime() ?: "—",
             style = MaterialTheme.typography.labelSmall,
@@ -140,12 +190,14 @@ private fun SplitCell(cell: SplitsTableCell, modifier: Modifier = Modifier) {
             fontWeight = if (cell.isBestLeg) FontWeight.Bold else FontWeight.Normal,
             color = if (cell.isBestLeg) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
         )
-        cell.paceMinPerKm?.let { pace ->
-            Text(
-                text = "${pace.toPace()} /км",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        if (!isByChoice) {
+            cell.paceMinPerKm?.let { pace ->
+                Text(
+                    text = "${pace.toPace()} /км",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

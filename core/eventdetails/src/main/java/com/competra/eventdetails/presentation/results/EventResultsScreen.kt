@@ -103,10 +103,7 @@ fun EventResultsScreen(
                         // не заполняется (см. ParticipantGroupResponse.toDomain()) и одинаков
                         // у всех групп, поэтому именно remoteId уникально идентифицирует группу.
                         val groupRemoteId = groups[page].group.remoteId
-                        // Сплиты и график отставания от лидера теряют смысл для формата "по
-                        // выбору": порядок посещения КП не регламентирован, победитель
-                        // определяется по сумме баллов, а не по времени на перегонах.
-                        if (groupRemoteId != null && state.direction != OrienteeringDirection.BY_CHOICE) {
+                        if (groupRemoteId != null) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -125,17 +122,22 @@ fun EventResultsScreen(
                                 ) {
                                     Text(text = "Сплиты")
                                 }
-                                TextButton(
-                                    onClick = {
-                                        viewModel.onAction(
-                                            EventResultsAction.OpenRaceGraph(
-                                                eventId = eventId,
-                                                groupId = groupRemoteId
+                                // График отставания от лидера по кумулятивному времени теряет
+                                // смысл для формата "по выбору": у каждого свой набор и порядок
+                                // КП, победитель определяется по сумме баллов, а не по времени.
+                                if (state.direction != OrienteeringDirection.BY_CHOICE) {
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.onAction(
+                                                EventResultsAction.OpenRaceGraph(
+                                                    eventId = eventId,
+                                                    groupId = groupRemoteId
+                                                )
                                             )
-                                        )
+                                        }
+                                    ) {
+                                        Text(text = "График")
                                     }
-                                ) {
-                                    Text(text = "График")
                                 }
                             }
                         }
