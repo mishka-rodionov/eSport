@@ -367,6 +367,9 @@ data class ScoreGraphSeries(
 
 data class ScoreGraphData(
     val series: List<ScoreGraphSeries>,
+    /** Контрольное время группы в секундах от старта — момент, с которого начинает начисляться
+     * штраф за опоздание. Null, если у группы нет ограничения по времени. */
+    val timeLimitSeconds: Long? = null,
 )
 
 /**
@@ -381,25 +384,63 @@ data class ScoreGraphData(
  */
 fun buildScoreGraphData(group: GroupWithParticipantsAndResults, distance: Distance? = null): ScoreGraphData {
     val scoreByNumber = distance?.controlPoints?.associate { it.number to it.score } ?: emptyMap()
+    val timeLimitSeconds = group.group.timeLimitMinutes?.takeIf { it > 0 }?.let { it * 60L }
 
     val series = group.participants.mapNotNull { pw ->
         val result = pw.result ?: return@mapNotNull null
         if (result.status != ResultStatus.FINISHED) return@mapNotNull null
         val startTs = anchorStartTime(pw)
 
-        val points = mutableListOf(ScoreGraphPoint(0L, 0))
+        val rawPoints = mutableListOf(ScoreGraphPoint(0L, 0))
         var cumulative = 0
         result.splits?.forEach { split ->
             cumulative += scoreByNumber[split.controlPoint] ?: 0
-            points += ScoreGraphPoint((split.timestamp - startTs) / 1000L, cumulative)
+            rawPoints += ScoreGraphPoint((split.timestamp - startTs) / 1000L, cumulative)
         }
         val finishSeconds = result.totalTime
-        if (finishSeconds != null && finishSeconds > points.last().elapsedSeconds) {
-            points += ScoreGraphPoint(finishSeconds, cumulative)
+        if (finishSeconds != null && finishSeconds > rawPoints.last().elapsedSeconds) {
+            rawPoints += ScoreGraphPoint(finishSeconds, cumulative)
         }
+
+        val deduction = (cumulative - (result.totalScore ?: cumulative)).coerceAtLeast(0)
+        val points = applyLatePenalty(rawPoints, timeLimitSeconds, deduction)
 
         ScoreGraphSeries(participant = pw.participant, result = result, points = points)
     }
 
-    return ScoreGraphData(series = series)
+    return ScoreGraphData(series = series, timeLimitSeconds = timeLimitSeconds)
+}
+
+/**
+ * Применяет линейно нарастающий штраф за опоздание к "сырой" кривой очков: до [timeLimitSeconds]
+ * кривая не меняется, после — вычитается штраф, линейно растущий от 0 в момент истечения лимита
+ * до [totalDeduction] в момент финиша (последняя точка кривой). За величину штрафа берётся не
+ * [OrienteeringResult.scorePenalty] напрямую (оно ненадёжно при полном обнулении результата за
+ * сильное опоздание), а разница между суммой очков за реально взятые КП и итоговым зачётным
+ * результатом — так конечная точка графика гарантированно совпадает с официальным местом
+ * участника в любом случае.
+ */
+private fun applyLatePenalty(rawPoints: List<ScoreGraphPoint>, timeLimitSeconds: Long?, totalDeduction: Int): List<ScoreGraphPoint> {
+    val finishSeconds = rawPoints.last().elapsedSeconds
+    if (timeLimitSeconds == null || totalDeduction <= 0 || finishSeconds <= timeLimitSeconds) return rawPoints
+
+    val rampSpan = (finishSeconds - timeLimitSeconds).toDouble()
+    fun deductionAt(t: Long): Int =
+        if (t <= timeLimitSeconds) 0 else (totalDeduction * (t - timeLimitSeconds) / rampSpan).toInt()
+
+    val result = mutableListOf<ScoreGraphPoint>()
+    var boundaryInserted = false
+    for (i in rawPoints.indices) {
+        val p = rawPoints[i]
+        if (p.elapsedSeconds <= timeLimitSeconds) {
+            result += p
+        } else {
+            if (!boundaryInserted) {
+                result += ScoreGraphPoint(timeLimitSeconds, rawPoints[i - 1].cumulativeScore)
+                boundaryInserted = true
+            }
+            result += ScoreGraphPoint(p.elapsedSeconds, (p.cumulativeScore - deductionAt(p.elapsedSeconds)).coerceAtLeast(0))
+        }
+    }
+    return result
 }

@@ -38,14 +38,38 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.DashedShape
 import com.patrykandpatrick.vico.compose.common.Fill
+import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
+import kotlin.math.floor
+import kotlin.math.log10
+import kotlin.math.pow
+
+private val TIME_LIMIT_COLOR = Color(0xFFE65100)
+
+/** "Круглый" шаг для оси очков — 1/2/5 * 10^n, ближайший к range/targetTicks. Тот же алгоритм, что и в web-версии графика. */
+private fun niceScoreStep(maxValue: Int, targetTicks: Int = 5): Double {
+    if (maxValue <= 0) return 1.0
+    val rough = maxValue.toDouble() / targetTicks
+    val magnitude = 10.0.pow(floor(log10(rough)))
+    val normalized = rough / magnitude
+    val niceNormalized = when {
+        normalized <= 1.0 -> 1.0
+        normalized <= 2.0 -> 2.0
+        normalized <= 5.0 -> 5.0
+        else -> 10.0
+    }
+    return (niceNormalized * magnitude).coerceAtLeast(1.0)
+}
 
 /**
  * График набора очков во времени (BY_CHOICE, score-О): X — время от старта участника, Y —
- * накопленные очки за фактически взятые КП. Аналог [RaceGraphChart] по устройству (та же
- * палитра [raceGraphPalette], тот же принцип легенды-переключателя видимости/подсветки), но
- * ось X непрерывная по времени, а не по позиции общего для всех КП — для BY_CHOICE общего
- * порядка КП не существует.
+ * накопленные очки за фактически взятые КП, с учётом линейно нарастающего штрафа за опоздание
+ * (см. [com.competra.domain.models.orienteering.buildScoreGraphData]). Аналог [RaceGraphChart] по
+ * устройству (та же палитра [raceGraphPalette], тот же принцип легенды-переключателя видимости/
+ * подсветки), но ось X непрерывная по времени, а не по позиции общего для всех КП — для BY_CHOICE
+ * общего порядка КП не существует. Вертикальная пунктирная линия отмечает контрольное время
+ * группы, если оно задано.
  */
 @Composable
 fun ScoreGraphChart(
@@ -64,6 +88,10 @@ fun ScoreGraphChart(
 
     val visibleSeries = remember(data, visibleParticipantIds) {
         data.series.filter { it.participant.id in visibleParticipantIds }
+    }
+
+    val maxScore = remember(visibleSeries) {
+        visibleSeries.flatMap { it.points }.maxOfOrNull { it.cumulativeScore } ?: 0
     }
 
     val modelProducer = remember { CartesianChartModelProducer() }
@@ -108,6 +136,17 @@ fun ScoreGraphChart(
                 )
             }
 
+            val timeLimitLineComponent = rememberLineComponent(
+                fill = Fill(TIME_LIMIT_COLOR),
+                thickness = 1.5.dp,
+                shape = DashedShape(dashLength = 4.dp, gapLength = 3.dp),
+            )
+            val decorations = remember(data.timeLimitSeconds, timeLimitLineComponent) {
+                data.timeLimitSeconds?.let { limit ->
+                    listOf(VerticalLine(x = { limit.toDouble() }, line = timeLimitLineComponent))
+                } ?: emptyList()
+            }
+
             CartesianChartHost(
                 chart = rememberCartesianChart(
                     rememberLineCartesianLayer(
@@ -115,10 +154,14 @@ fun ScoreGraphChart(
                     ),
                     startAxis = VerticalAxis.rememberStart(
                         valueFormatter = CartesianValueFormatter { _, value, _ -> value.toInt().toString() },
+                        itemPlacer = remember(maxScore) {
+                            VerticalAxis.ItemPlacer.step({ niceScoreStep(maxScore) })
+                        },
                     ),
                     bottomAxis = HorizontalAxis.rememberBottom(
                         valueFormatter = CartesianValueFormatter { _, value, _ -> value.toLong().toRaceTime() },
                     ),
+                    decorations = decorations,
                 ),
                 modelProducer = modelProducer,
                 modifier = Modifier.fillMaxWidth().height(280.dp),
