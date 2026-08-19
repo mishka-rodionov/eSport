@@ -29,6 +29,8 @@ import com.competra.domain.models.orienteering.RaceGraphData
 import com.competra.domain.models.orienteering.RaceGraphSeries
 import com.competra.utils.orienteering.toRaceTime
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.Zoom
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
@@ -39,6 +41,7 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.Fill
+import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 
 /** Палитра цветов линий графика — циклическая, привязана к позиции участника в [RaceGraphData.series].
  * internal, а не private — переиспользуется [ScoreGraphChart] для единой цветовой схемы графиков. */
@@ -47,6 +50,9 @@ internal val raceGraphPalette = listOf(
     Color(0xFF9C27B0), Color(0xFF00BCD4), Color(0xFFFFC107), Color(0xFF795548),
     Color(0xFF607D8B), Color(0xFF3F51B5), Color(0xFF8BC34A), Color(0xFFFF5722),
 )
+
+/** Диаметр точки-маркера, которой отмечается каждый взятый КП на линии графика. */
+internal val graphPointSize = 6.dp
 
 /**
  * График отставания от лидера по каждому КП (аналог WinSplits): X — КП по порядку дистанции,
@@ -112,9 +118,14 @@ fun RaceGraphChart(
             val lines = visibleSeries.map { s ->
                 val baseColor = colorByParticipantId[s.participant.id] ?: Color.Gray
                 val isDimmed = highlightedParticipantId != null && highlightedParticipantId != s.participant.id
+                val pointColor = if (isDimmed) baseColor.copy(alpha = 0.25f) else baseColor
                 LineCartesianLayer.rememberLine(
-                    fill = LineCartesianLayer.LineFill.single(
-                        Fill(if (isDimmed) baseColor.copy(alpha = 0.25f) else baseColor)
+                    fill = LineCartesianLayer.LineFill.single(Fill(pointColor)),
+                    pointProvider = LineCartesianLayer.PointProvider.single(
+                        LineCartesianLayer.Point(
+                            component = rememberShapeComponent(fill = Fill(pointColor), shape = CircleShape),
+                            size = graphPointSize,
+                        )
                     ),
                 )
             }
@@ -136,6 +147,7 @@ fun RaceGraphChart(
                     ),
                 ),
                 modelProducer = modelProducer,
+                zoomState = rememberVicoZoomState(initialZoom = Zoom.Content),
                 modifier = Modifier.fillMaxWidth().height(280.dp),
             )
         }
