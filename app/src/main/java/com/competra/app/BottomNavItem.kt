@@ -28,7 +28,7 @@ sealed class BottomNavItem(
     data object CompetitionConstructor : BottomNavItem(
         route = "CompetitionConstructor", 
         title = "Управление",
-        iconRes = R.drawable.ic_location_on_24px // Используем как символ карты/места управления
+        iconRes = R.drawable.ic_dashboard_24px
     )
 
     @Serializable
