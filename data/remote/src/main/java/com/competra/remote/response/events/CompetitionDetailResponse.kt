@@ -1,5 +1,6 @@
 package com.competra.remote.response.events
 
+import com.competra.remote.response.competition.CoordinatesResponse
 import com.google.gson.annotations.SerializedName
 
 data class ParticipantGroupDetailResponse(
@@ -24,10 +25,25 @@ data class CompetitionDetailResponse(
     @SerializedName("description") val description: String?,
     @SerializedName("address") val address: String?,
     @SerializedName("mainOrganizerId") val mainOrganizerId: String?,
+    @SerializedName("organizingClubId") val organizingClubId: String? = null,
+    @SerializedName("organizerFirstName") val organizerFirstName: String? = null,
+    @SerializedName("organizerLastName") val organizerLastName: String? = null,
+    @SerializedName("organizerMiddleName") val organizerMiddleName: String? = null,
+    @SerializedName("coordinates") val coordinates: CoordinatesResponse? = null,
     @SerializedName("status") val status: String,
+    @SerializedName("startTime") val startTime: Long? = null,
     @SerializedName("registrationStart") val registrationStart: Long?,
     @SerializedName("registrationEnd") val registrationEnd: Long?,
     @SerializedName("maxParticipants") val maxParticipants: Int?,
+    @SerializedName("feeAmount") val feeAmount: Double? = null,
+    @SerializedName("feeCurrency") val feeCurrency: String? = null,
+    @SerializedName("regulationUrl") val regulationUrl: String? = null,
+    @SerializedName("mapUrl") val mapUrl: String? = null,
+    @SerializedName("resultsUrl") val resultsUrl: String? = null,
+    @SerializedName("contactPhone") val contactPhone: String? = null,
+    @SerializedName("contactEmail") val contactEmail: String? = null,
+    @SerializedName("website") val website: String? = null,
+    @SerializedName("timeZoneId") val timeZoneId: String? = null,
     @SerializedName("resultsStatus") val resultsStatus: String,
     @SerializedName("participantGroups") val participantGroups: List<ParticipantGroupDetailResponse>,
     @SerializedName("isUserRegistered") val isUserRegistered: Boolean = false,

@@ -1,11 +1,13 @@
 package com.competra.remote.repository.events
 
+import com.competra.domain.models.Coordinates
 import com.competra.domain.models.CropRect
 import com.competra.domain.models.cyclic_event.CyclicEventDetails
 import com.competra.domain.models.cyclic_event.EventParticipantGroup
 import com.competra.domain.models.events.EventStatus
 import com.competra.domain.models.events.EventType
 import com.competra.domain.models.orienteering.OrienteeringParticipant
+import com.competra.domain.models.orienteering.ResultsStatus
 import com.competra.domain.repository.events.CyclicEventDetailsRepository
 import com.competra.remote.datasource.events.CyclicEventDetailsRemoteDataSource
 import com.competra.remote.request.events.RegisterEventRequest
@@ -27,13 +29,29 @@ class CyclicEventDetailsRepositoryImpl(
                     CyclicEventDetails(
                         eventId = dto.id,
                         organizationId = dto.mainOrganizerId ?: "",
+                        organizingClubId = dto.organizingClubId,
+                        organizerFirstName = dto.organizerFirstName,
+                        organizerLastName = dto.organizerLastName,
+                        organizerMiddleName = dto.organizerMiddleName,
                         title = dto.title,
                         description = dto.description ?: "",
                         startDate = dto.startDate,
+                        startTime = dto.startTime,
                         endDate = dto.endDate ?: dto.startDate,
+                        registrationStartDate = dto.registrationStart ?: 0L,
                         endRegistrationDate = dto.registrationEnd ?: dto.startDate,
                         maxParticipants = dto.maxParticipants ?: 0,
                         city = dto.address ?: "",
+                        coordinates = dto.coordinates?.let { Coordinates(it.latitude, it.longitude) },
+                        feeAmount = dto.feeAmount,
+                        feeCurrency = dto.feeCurrency,
+                        regulationUrl = dto.regulationUrl,
+                        mapUrl = dto.mapUrl,
+                        resultsUrl = dto.resultsUrl,
+                        contactPhone = dto.contactPhone,
+                        contactEmail = dto.contactEmail,
+                        website = dto.website,
+                        timeZoneId = dto.timeZoneId,
                         participantGroups = dto.participantGroups.map { group ->
                             EventParticipantGroup(
                                 groupId = group.groupId,
@@ -49,7 +67,8 @@ class CyclicEventDetailsRepositoryImpl(
                             )
                         },
                         status = mapStatus(dto.status),
-                        eventType = EventType.CyclicEvent.Orienteering,
+                        eventType = mapEventType(dto.kindOfSport),
+                        resultsStatus = mapResultsStatus(dto.resultsStatus),
                         isUserRegistered = dto.isUserRegistered,
                         imageUrl = dto.imageUrl,
                         imageCropRect = toCropRect(dto.coverCropX, dto.coverCropY, dto.coverCropWidth, dto.coverCropHeight)
@@ -120,5 +139,18 @@ class CyclicEventDetailsRepositoryImpl(
         "FINISHED" -> EventStatus.FINISHED
         "CANCELLED" -> EventStatus.CANCELLED
         else -> EventStatus.CREATED
+    }
+
+    private fun mapEventType(kindOfSport: String): EventType = when (kindOfSport) {
+        "Orienteering" -> EventType.CyclicEvent.Orienteering
+        "CrossCountrySki" -> EventType.CyclicEvent.CrossCountry
+        "TrailRunning" -> EventType.CyclicEvent.TrailRunning
+        else -> EventType.CyclicEvent.Orienteering
+    }
+
+    private fun mapResultsStatus(resultsStatus: String): ResultsStatus = try {
+        ResultsStatus.valueOf(resultsStatus)
+    } catch (e: IllegalArgumentException) {
+        ResultsStatus.NOT_PUBLISHED
     }
 }

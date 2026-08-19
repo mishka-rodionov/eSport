@@ -13,6 +13,7 @@ import com.competra.domain.models.cyclic_event.EventParticipantGroup
 import com.competra.domain.models.user.User
 import com.competra.domain.repository.LoadingRepository
 import com.competra.domain.repository.NetworkErrorRepository
+import com.competra.domain.repository.clubs.ClubRepository
 import com.competra.domain.repository.events.CyclicEventDetailsRepository
 import com.competra.domain.repository.user.UserRepository
 import com.competra.eventdetails.data.details.EventDetailsState
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
  * @param navigation Сервис навигации.
  * @param pendingRegistrationRepository Хранилище отложенного действия регистрации.
  * @param networkErrorRepository Репозиторий для передачи сетевых ошибок в MainActivity.
+ * @param clubRepository Репозиторий клубов — используется для резолва названия клуба-организатора.
  */
 class EventDetailsViewModel(
     private val cyclicEventDetailsRepository: CyclicEventDetailsRepository,
@@ -38,6 +40,7 @@ class EventDetailsViewModel(
     private val networkErrorRepository: NetworkErrorRepository,
     private val loadingRepository: LoadingRepository,
     private val analytics: AnalyticsTracker,
+    private val clubRepository: ClubRepository,
 ) : BaseViewModel<EventDetailsState>(
     EventDetailsState(eventDetails = null)
 ) {
@@ -75,6 +78,7 @@ class EventDetailsViewModel(
                             isUserRegistered = details?.isUserRegistered ?: false
                         )
                     }
+                    loadOrganizerClubName(details?.organizingClubId)
                 }
                 .onFailure {
                     handleFailure(it)
@@ -87,6 +91,20 @@ class EventDetailsViewModel(
                 pendingRegistrationRepository.clear()
                 updateState { copy(isRegistrationSheetVisible = true) }
             }
+        }
+    }
+
+    /**
+     * Резолвит название клуба-организатора по [clubId]. Ошибка не критична для экрана —
+     * блок организатора просто не отображается.
+     */
+    private fun loadOrganizerClubName(clubId: String?) {
+        if (clubId == null) return
+        viewModelScope.launch {
+            clubRepository.getById(clubId)
+                .onSuccess { club ->
+                    updateState { copy(organizerClubName = club.name) }
+                }
         }
     }
 

@@ -57,6 +57,9 @@ class OrienteeringCreatorViewModel(
         viewModelScope.launch {
             user = userRepository.retrieveUser().getOrNull()
         }
+    }
+
+    fun loadMyClubs() {
         viewModelScope.launch {
             clubRepository.listMine().onSuccess { clubs ->
                 updateState { copy(myClubs = clubs) }

@@ -85,6 +85,7 @@ fun OrganizatorCompetitionFieldScreen(
 
     LaunchedEffect(Unit) {
         viewModel.initialize(competitionId)
+        viewModel.loadMyClubs()
     }
 
     OrganizatorCompetitionFieldContent(
