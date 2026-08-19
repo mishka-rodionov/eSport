@@ -1,6 +1,7 @@
 package com.competra.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,15 +10,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,10 +39,12 @@ import com.competra.domain.models.orienteering.RaceGraphSeries
 import com.competra.utils.orienteering.toRaceTime
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.lineModel
 import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
@@ -42,6 +53,7 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLa
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.Fill
 import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
+import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 
 /** Палитра цветов линий графика — циклическая, привязана к позиции участника в [RaceGraphData.series].
  * internal, а не private — переиспользуется [ScoreGraphChart] для единой цветовой схемы графиков. */
@@ -53,6 +65,90 @@ internal val raceGraphPalette = listOf(
 
 /** Диаметр точки-маркера, которой отмечается каждый взятый КП на линии графика. */
 internal val graphPointSize = 6.dp
+
+/** Минимальный, максимальный и шаговый множитель ручного вертикального зума графиков сплитов. */
+internal const val VERTICAL_ZOOM_MIN = 1f
+internal const val VERTICAL_ZOOM_MAX = 4f
+internal const val VERTICAL_ZOOM_STEP = 0.5f
+
+/** Позиция центра видимого окна между границами исходного диапазона: -1 — окно у нижней границы,
+ * 0 — по центру, +1 — у верхней границы. Двигается кнопками ↑/↓, доступно только при зуме > 1x. */
+internal const val VERTICAL_PAN_MIN = -1f
+internal const val VERTICAL_PAN_MAX = 1f
+internal const val VERTICAL_PAN_STEP = 0.34f
+
+/**
+ * [CartesianLayerRangeProvider], сужающий стандартный авто-диапазон Vico по Y вокруг центра,
+ * сдвинутого на [panFraction] от него, в [zoom] раз. При [zoom] = [VERTICAL_ZOOM_MIN] совпадает с
+ * [CartesianLayerRangeProvider.auto] независимо от [panFraction]. Используется как ручная замена
+ * жеста вертикального зума/пана, которых у Vico нет: сужение диапазона визуально "разносит" близкие
+ * друг к другу линии по вертикали, а сдвиг центра позволяет "прокрутить" суженное окно вверх/вниз,
+ * не выходя за пределы исходного диапазона данных.
+ */
+internal fun verticalZoomRangeProvider(zoom: Float, panFraction: Float): CartesianLayerRangeProvider {
+    if (zoom <= VERTICAL_ZOOM_MIN) return CartesianLayerRangeProvider.auto()
+    val auto = CartesianLayerRangeProvider.auto()
+    val clampedPan = panFraction.coerceIn(VERTICAL_PAN_MIN, VERTICAL_PAN_MAX)
+
+    fun window(minY: Double, maxY: Double, extraStore: ExtraStore): ClosedFloatingPointRange<Double> {
+        val autoMin = auto.getMinY(minY, maxY, extraStore)
+        val autoMax = auto.getMaxY(minY, maxY, extraStore)
+        val halfRange = (autoMax - autoMin) / 2
+        val halfWindow = halfRange / zoom
+        val center = (autoMin + autoMax) / 2 + clampedPan * (halfRange - halfWindow)
+        return (center - halfWindow)..(center + halfWindow)
+    }
+
+    return object : CartesianLayerRangeProvider {
+        override fun getMinY(minY: Double, maxY: Double, extraStore: ExtraStore) =
+            window(minY, maxY, extraStore).start
+
+        override fun getMaxY(minY: Double, maxY: Double, extraStore: ExtraStore) =
+            window(minY, maxY, extraStore).endInclusive
+    }
+}
+
+/**
+ * Плавающий контрол вертикального зума/пана, накладывается поверх графика: +/- сужают/расширяют
+ * видимый по Y диапазон, ↑/↓ двигают суженное окно вверх/вниз в пределах исходных данных (активны
+ * только пока [zoom] > 1x, то есть пока вообще есть что панить).
+ */
+@Composable
+internal fun VerticalZoomControl(
+    zoom: Float,
+    panFraction: Float,
+    onZoomIn: () -> Unit,
+    onZoomOut: () -> Unit,
+    onPanUp: () -> Unit,
+    onPanDown: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val canPan = zoom > VERTICAL_ZOOM_MIN
+    Column(
+        modifier = modifier
+            .width(Dimens.SIZE_TRIPLE.dp)
+            .clip(RoundedCornerShape(percent = 50))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(percent = 50),
+            ),
+    ) {
+        VerticalZoomButton(symbol = "+", enabled = zoom < VERTICAL_ZOOM_MAX, onClick = onZoomIn)
+        VerticalZoomButton(symbol = "−", enabled = zoom > VERTICAL_ZOOM_MIN, onClick = onZoomOut)
+        HorizontalDivider(modifier = Modifier.width(Dimens.SIZE_TRIPLE.dp), color = MaterialTheme.colorScheme.outlineVariant)
+        VerticalZoomButton(symbol = "↑", enabled = canPan && panFraction < VERTICAL_PAN_MAX, onClick = onPanUp)
+        VerticalZoomButton(symbol = "↓", enabled = canPan && panFraction > VERTICAL_PAN_MIN, onClick = onPanDown)
+    }
+}
+
+@Composable
+private fun VerticalZoomButton(symbol: String, enabled: Boolean, onClick: () -> Unit) {
+    IconButton(onClick = onClick, enabled = enabled, modifier = Modifier.size(Dimens.SIZE_TRIPLE.dp)) {
+        Text(text = symbol, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+    }
+}
 
 /**
  * График отставания от лидера по каждому КП (аналог WinSplits): X — КП по порядку дистанции,
@@ -130,26 +226,58 @@ fun RaceGraphChart(
                 )
             }
 
-            CartesianChartHost(
-                chart = rememberCartesianChart(
-                    rememberLineCartesianLayer(
-                        lineProvider = LineCartesianLayer.LineProvider.series(lines),
-                    ),
-                    startAxis = VerticalAxis.rememberStart(
-                        valueFormatter = CartesianValueFormatter { _, value, _ ->
-                            (-value).toLong().toRaceTime()
-                        },
-                    ),
-                    bottomAxis = HorizontalAxis.rememberBottom(
-                        valueFormatter = CartesianValueFormatter { _, value, _ ->
-                            controlLabels.getOrNull(value.toInt() - 1) ?: value.toInt().toString()
-                        },
-                    ),
-                ),
-                modelProducer = modelProducer,
-                zoomState = rememberVicoZoomState(initialZoom = Zoom.Content),
-                modifier = Modifier.fillMaxWidth().height(280.dp),
-            )
+            var verticalZoom by remember(data) { mutableFloatStateOf(VERTICAL_ZOOM_MIN) }
+            var verticalPan by remember(data) { mutableFloatStateOf(0f) }
+            // Горизонтальные zoom/scroll вынесены за пределы key(verticalZoom, verticalPan), чтобы
+            // позиция и масштаб по X не сбрасывались при изменении вертикального зума/пана ниже.
+            val horizontalZoomState = rememberVicoZoomState(initialZoom = Zoom.Content)
+            val horizontalScrollState = rememberVicoScrollState()
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                // Vico пересчитывает Y-диапазон только при регистрации графика или при поступлении
+                // новых данных, но не при простой смене rangeProvider на месте (см. CartesianChartModel.kt
+                // collectAsState: LaunchedEffect(chartID, ...) не перезапускается, если chart.id не
+                // меняется, а CartesianChart.copy() всегда сохраняет старый id). Поэтому единственный
+                // надёжный способ применить новый rangeProvider — пересоздать CartesianChartHost целиком.
+                key(verticalZoom, verticalPan) {
+                    val rangeProvider = remember(verticalZoom, verticalPan) {
+                        verticalZoomRangeProvider(verticalZoom, verticalPan)
+                    }
+                    CartesianChartHost(
+                        chart = rememberCartesianChart(
+                            rememberLineCartesianLayer(
+                                lineProvider = LineCartesianLayer.LineProvider.series(lines),
+                                rangeProvider = rangeProvider,
+                            ),
+                            startAxis = VerticalAxis.rememberStart(
+                                valueFormatter = CartesianValueFormatter { _, value, _ ->
+                                    (-value).toLong().toRaceTime()
+                                },
+                            ),
+                            bottomAxis = HorizontalAxis.rememberBottom(
+                                valueFormatter = CartesianValueFormatter { _, value, _ ->
+                                    controlLabels.getOrNull(value.toInt() - 1) ?: value.toInt().toString()
+                                },
+                            ),
+                        ),
+                        modelProducer = modelProducer,
+                        scrollState = horizontalScrollState,
+                        zoomState = horizontalZoomState,
+                        modifier = Modifier.fillMaxWidth().height(280.dp),
+                    )
+                }
+                VerticalZoomControl(
+                    zoom = verticalZoom,
+                    panFraction = verticalPan,
+                    onZoomIn = { verticalZoom = (verticalZoom + VERTICAL_ZOOM_STEP).coerceAtMost(VERTICAL_ZOOM_MAX) },
+                    onZoomOut = { verticalZoom = (verticalZoom - VERTICAL_ZOOM_STEP).coerceAtLeast(VERTICAL_ZOOM_MIN) },
+                    onPanUp = { verticalPan = (verticalPan + VERTICAL_PAN_STEP).coerceAtMost(VERTICAL_PAN_MAX) },
+                    onPanDown = { verticalPan = (verticalPan - VERTICAL_PAN_STEP).coerceAtLeast(VERTICAL_PAN_MIN) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(Dimens.SIZE_HALF.dp),
+                )
+            }
         }
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {

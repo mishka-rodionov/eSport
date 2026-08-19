@@ -17,7 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +34,7 @@ import com.competra.domain.models.orienteering.ScoreGraphSeries
 import com.competra.utils.orienteering.toRaceTime
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
@@ -155,26 +160,58 @@ fun ScoreGraphChart(
                 } ?: emptyList()
             }
 
-            CartesianChartHost(
-                chart = rememberCartesianChart(
-                    rememberLineCartesianLayer(
-                        lineProvider = LineCartesianLayer.LineProvider.series(lines),
-                    ),
-                    startAxis = VerticalAxis.rememberStart(
-                        valueFormatter = CartesianValueFormatter { _, value, _ -> value.toInt().toString() },
-                        itemPlacer = remember(maxScore) {
-                            VerticalAxis.ItemPlacer.step({ niceScoreStep(maxScore) })
-                        },
-                    ),
-                    bottomAxis = HorizontalAxis.rememberBottom(
-                        valueFormatter = CartesianValueFormatter { _, value, _ -> value.toLong().toRaceTime() },
-                    ),
-                    decorations = decorations,
-                ),
-                modelProducer = modelProducer,
-                zoomState = rememberVicoZoomState(initialZoom = Zoom.Content),
-                modifier = Modifier.fillMaxWidth().height(280.dp),
-            )
+            var verticalZoom by remember(data) { mutableFloatStateOf(VERTICAL_ZOOM_MIN) }
+            var verticalPan by remember(data) { mutableFloatStateOf(0f) }
+            // Горизонтальные zoom/scroll вынесены за пределы key(verticalZoom, verticalPan), чтобы
+            // позиция и масштаб по X не сбрасывались при изменении вертикального зума/пана ниже.
+            val horizontalZoomState = rememberVicoZoomState(initialZoom = Zoom.Content)
+            val horizontalScrollState = rememberVicoScrollState()
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                // Vico пересчитывает Y-диапазон только при регистрации графика или при поступлении
+                // новых данных, но не при простой смене rangeProvider на месте (см. CartesianChartModel.kt
+                // collectAsState: LaunchedEffect(chartID, ...) не перезапускается, если chart.id не
+                // меняется, а CartesianChart.copy() всегда сохраняет старый id). Поэтому единственный
+                // надёжный способ применить новый rangeProvider — пересоздать CartesianChartHost целиком.
+                key(verticalZoom, verticalPan) {
+                    val rangeProvider = remember(verticalZoom, verticalPan) {
+                        verticalZoomRangeProvider(verticalZoom, verticalPan)
+                    }
+                    CartesianChartHost(
+                        chart = rememberCartesianChart(
+                            rememberLineCartesianLayer(
+                                lineProvider = LineCartesianLayer.LineProvider.series(lines),
+                                rangeProvider = rangeProvider,
+                            ),
+                            startAxis = VerticalAxis.rememberStart(
+                                valueFormatter = CartesianValueFormatter { _, value, _ -> value.toInt().toString() },
+                                itemPlacer = remember(maxScore) {
+                                    VerticalAxis.ItemPlacer.step({ niceScoreStep(maxScore) })
+                                },
+                            ),
+                            bottomAxis = HorizontalAxis.rememberBottom(
+                                valueFormatter = CartesianValueFormatter { _, value, _ -> value.toLong().toRaceTime() },
+                            ),
+                            decorations = decorations,
+                        ),
+                        modelProducer = modelProducer,
+                        scrollState = horizontalScrollState,
+                        zoomState = horizontalZoomState,
+                        modifier = Modifier.fillMaxWidth().height(280.dp),
+                    )
+                }
+                VerticalZoomControl(
+                    zoom = verticalZoom,
+                    panFraction = verticalPan,
+                    onZoomIn = { verticalZoom = (verticalZoom + VERTICAL_ZOOM_STEP).coerceAtMost(VERTICAL_ZOOM_MAX) },
+                    onZoomOut = { verticalZoom = (verticalZoom - VERTICAL_ZOOM_STEP).coerceAtLeast(VERTICAL_ZOOM_MIN) },
+                    onPanUp = { verticalPan = (verticalPan + VERTICAL_PAN_STEP).coerceAtMost(VERTICAL_PAN_MAX) },
+                    onPanDown = { verticalPan = (verticalPan - VERTICAL_PAN_STEP).coerceAtLeast(VERTICAL_PAN_MIN) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(Dimens.SIZE_HALF.dp),
+                )
+            }
         }
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
