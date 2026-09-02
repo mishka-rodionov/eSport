@@ -8,7 +8,7 @@ plugins {
 // Базовый URL тестовой (debug) сборки можно переопределить локально через
 // local.properties (BASE_URL_DEBUG) — например, на dev-сервер разработчика.
 // По умолчанию debug ходит на тот же прод-бэкенд, что и release.
-val prodBaseUrl = "https://competra.ru/api/"
+val prodBaseUrl = "https://api.competra.ru/api/"
 val remoteProps = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) load(f.inputStream())
