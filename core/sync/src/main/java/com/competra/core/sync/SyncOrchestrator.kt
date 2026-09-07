@@ -364,15 +364,24 @@ class SyncOrchestrator(
         var transient = false
         for (result in ready) {
             val remoteGroupId = getGroupRemoteId(result.groupId) ?: continue
+            // Результату нужен клиентский UUID до первой синхронизации: сервер не генерирует
+            // id сам (в отличие от дистанций/групп), а требует его в каждом запросе. Генерируем
+            // и сохраняем локально ДО отправки, чтобы повтор синхронизации переиспользовал тот же
+            // id, а не создавал на сервере дублирующую запись.
+            val resultId = result.remoteId ?: java.util.UUID.randomUUID().toString()
+            val withRemoteId = if (result.remoteId == null) result.copy(remoteId = resultId) else result
+            if (result.remoteId == null) {
+                localRepository.updateResults(listOf(withRemoteId), markUnsynced = false)
+            }
             // competitionId уже глобальный UUID — переводим только groupId.
-            val mapped = result.copy(groupId = remoteGroupId)
+            val mapped = withRemoteId.copy(groupId = remoteGroupId)
             val response = remoteRepository.saveResult(mapped)
             transient = transient or handleResult(
                 result = response,
                 entityDescription = "result ${result.id}",
                 onSuccess = { server ->
                     localRepository.updateResults(
-                        listOf(result.copy(isSynced = true, syncError = null, serverUpdatedAt = server.serverUpdatedAt)),
+                        listOf(withRemoteId.copy(isSynced = true, syncError = null, serverUpdatedAt = server.serverUpdatedAt)),
                         markUnsynced = false
                     )
                 },
@@ -381,7 +390,7 @@ class SyncOrchestrator(
                 },
                 onPermanentError = { msg ->
                     localRepository.updateResults(
-                        listOf(result.copy(syncError = msg)),
+                        listOf(withRemoteId.copy(syncError = msg)),
                         markUnsynced = false
                     )
                 }

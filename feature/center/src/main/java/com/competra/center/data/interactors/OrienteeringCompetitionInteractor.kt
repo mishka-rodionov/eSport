@@ -185,11 +185,11 @@ class OrienteeringCompetitionInteractor(
      * Применяет конфликтующий результат: перезаписывает локальную запись (сохраняя её ID)
      * и синхронизирует с сервером.
      *
-     * @param existingId Локальный ID существующей записи в БД.
-     * @param newResult  Новые данные результата.
+     * @param existing  Существующая запись в БД (сохраняем её локальный id и remoteId).
+     * @param newResult Новые данные результата.
      */
-    suspend fun applyConflictResult(existingId: Long, newResult: OrienteeringResult) {
-        val updated = newResult.copy(id = existingId)
+    suspend fun applyConflictResult(existing: OrienteeringResult, newResult: OrienteeringResult) {
+        val updated = newResult.copy(id = existing.id, remoteId = newResult.remoteId ?: existing.remoteId)
         localRepository.updateResults(listOf(updated)).onSuccess {
             updateResultsAndRanks(updated)
         }

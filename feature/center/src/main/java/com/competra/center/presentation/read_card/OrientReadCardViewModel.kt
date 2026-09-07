@@ -105,7 +105,7 @@ class OrientReadCardViewModel(
         updateState { copy(participantResult = newResult, editingSplitIndex = null) }
         val existing = orienteeringCompetitionInteractor.getResultByParticipantId(participant.id)
         if (existing != null) {
-            orienteeringCompetitionInteractor.applyConflictResult(existing.id, newResult)
+            orienteeringCompetitionInteractor.applyConflictResult(existing, newResult)
         } else {
             orienteeringCompetitionInteractor.saveParticipantResult(newResult)
         }
@@ -301,7 +301,7 @@ class OrientReadCardViewModel(
                     existingResult = existing,
                     newResult = newResult,
                     onApply = {
-                        orienteeringCompetitionInteractor.applyConflictResult(existing.id, newResult)
+                        orienteeringCompetitionInteractor.applyConflictResult(existing, newResult)
                     }
                 )
             )
@@ -351,7 +351,7 @@ class OrientReadCardViewModel(
                     existingResult = existing,
                     newResult = newResult,
                     onApply = {
-                        orienteeringCompetitionInteractor.applyConflictResult(existing.id, newResult)
+                        orienteeringCompetitionInteractor.applyConflictResult(existing, newResult)
                     }
                 )
             )

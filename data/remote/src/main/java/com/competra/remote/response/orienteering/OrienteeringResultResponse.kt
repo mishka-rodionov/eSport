@@ -1,7 +1,7 @@
 package com.competra.remote.response.orienteering
 
 data class OrienteeringResultResponse(
-    val id: Long,
+    val id: String,
     val competitionId: String,
     val groupId: Long,
     val participantId: String,

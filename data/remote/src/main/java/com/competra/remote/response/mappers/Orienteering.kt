@@ -127,7 +127,7 @@ fun OrienteeringParticipantResponse.toDomain(): OrienteeringParticipant {
  */
 fun OrienteeringResultResponse.toDomain(): OrienteeringResult {
     return OrienteeringResult(
-        id = id,
+        remoteId = id,
         competitionId = competitionId,
         groupId = groupId,
         participantId = participantId,

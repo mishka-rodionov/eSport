@@ -93,7 +93,7 @@ fun OrienteeringParticipant.toRequest(): OrienteeringParticipantRequest {
 
 fun OrienteeringResult.toRequest(): OrienteeringResultRequest {
     return OrienteeringResultRequest(
-        id = id,
+        id = requireNotNull(remoteId) { "OrienteeringResult.remoteId must be assigned before syncing to server" },
         competitionId = competitionId,
         groupId = groupId,
         participantId = participantId,
